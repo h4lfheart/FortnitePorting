@@ -40,7 +40,6 @@
         
         <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Hidden">
             <StackPanel VerticalAlignment="Top" Margin="{ext:Space 1, 0}" Spacing="{ext:Space 0, 0, 0, 1}">
-                
                 <controls:SettingsItem Title="Fortnite Version" 
                                      Description="The version of Fortnite that Fortnite Porting will be loading.">
                     <controls:SettingsItem.Footer>

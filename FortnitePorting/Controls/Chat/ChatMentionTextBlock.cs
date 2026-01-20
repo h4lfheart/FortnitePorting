@@ -24,15 +24,10 @@ public class ChatMentionTextBlock : TextBlock
     public static readonly StyledProperty<string> TextToHighlightProperty =
         AvaloniaProperty.Register<ChatMentionTextBlock, string>(nameof(TextToHighlight), string.Empty);
 
-    public static readonly StyledProperty<IBrush?> CurrentUserHighlightProperty =
+    public static readonly StyledProperty<IBrush?> HighlightProperty =
         AvaloniaProperty.Register<ChatMentionTextBlock, IBrush?>(
             nameof(CurrentUserHighlight),
             new SolidColorBrush(Color.FromArgb(169, 149, 59, 248)));
-
-    public static readonly StyledProperty<IBrush?> OtherUserHighlightProperty =
-        AvaloniaProperty.Register<ChatMentionTextBlock, IBrush?>(
-            nameof(OtherUserHighlight),
-            new SolidColorBrush(Color.FromArgb(100, 180, 140, 250)));
 
     public static readonly StyledProperty<IBrush?> HighlightForegroundProperty =
         AvaloniaProperty.Register<ChatMentionTextBlock, IBrush?>(
@@ -51,14 +46,8 @@ public class ChatMentionTextBlock : TextBlock
 
     public IBrush? CurrentUserHighlight
     {
-        get => GetValue(CurrentUserHighlightProperty);
-        set => SetValue(CurrentUserHighlightProperty, value);
-    }
-
-    public IBrush? OtherUserHighlight
-    {
-        get => GetValue(OtherUserHighlightProperty);
-        set => SetValue(OtherUserHighlightProperty, value);
+        get => GetValue(HighlightProperty);
+        set => SetValue(HighlightProperty, value);
     }
 
     public IBrush? HighlightForeground
@@ -76,8 +65,7 @@ public class ChatMentionTextBlock : TextBlock
     static ChatMentionTextBlock()
     {
         TextToHighlightProperty.Changed.AddClassHandler<ChatMentionTextBlock>((tb, _) => tb.UpdateInlines());
-        CurrentUserHighlightProperty.Changed.AddClassHandler<ChatMentionTextBlock>((tb, _) => tb.UpdateInlines());
-        OtherUserHighlightProperty.Changed.AddClassHandler<ChatMentionTextBlock>((tb, _) => tb.UpdateInlines());
+        HighlightProperty.Changed.AddClassHandler<ChatMentionTextBlock>((tb, _) => tb.UpdateInlines());
         HighlightForegroundProperty.Changed.AddClassHandler<ChatMentionTextBlock>((tb, _) => tb.UpdateInlines());
         HighlightCornerRadiusProperty.Changed.AddClassHandler<ChatMentionTextBlock>((tb, _) => tb.UpdateInlines());
     }
@@ -136,51 +124,31 @@ public class ChatMentionTextBlock : TextBlock
 
     private void AddClickableMention(string userId)
     {
-        string displayName;
-        IBrush? highlightColor;
-        
-        if (userId.Equals("everyone", StringComparison.OrdinalIgnoreCase))
-        {
-            displayName = "everyone";
-            highlightColor = SupaBase.UserInfo?.Role >= ESupabaseRole.Staff ? CurrentUserHighlight : OtherUserHighlight;
-        }
-        else
-        {
-            var cachedUser = AppServices.Chat.UserCache.TryGetValue(userId, out var user) ? user : null;
-            var currentUserId = SupaBase.UserInfo?.UserId ?? string.Empty;
-            
-            displayName = cachedUser?.DisplayName ?? "unknown";
-            highlightColor = userId.Equals(currentUserId, StringComparison.OrdinalIgnoreCase) ? CurrentUserHighlight : OtherUserHighlight;
-        }
-
+        var isEveryone = userId.Equals("everyone", StringComparison.OrdinalIgnoreCase);
         var textBlock = new TextBlock
         {
-            Text = $"@{displayName}",
+            Text = $"@{userId}",
             Foreground = HighlightForeground
         };
 
         var border = new Border
         {
-            Background = highlightColor,
+            Background = CurrentUserHighlight,
             CornerRadius = HighlightCornerRadius,
             Padding = new Thickness(2, 0),
             Child = textBlock,
-            Cursor = new Cursor(StandardCursorType.Hand)
+            Cursor = new Cursor(isEveryone ? StandardCursorType.Arrow : StandardCursorType.Hand)
         };
 
-        if (!userId.Equals("everyone", StringComparison.OrdinalIgnoreCase) && 
-            !AppServices.Chat.UserCache.ContainsKey(userId))
+        if (!isEveryone)
         {
             TaskService.Run(async () =>
             {
-                var loadedUser = await AppServices.Chat.GetUser(userId);
-                if (loadedUser != null)
+                await TaskService.RunDispatcherAsync(async () =>
                 {
-                    await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
-                    {
-                        textBlock.Text = $"@{loadedUser.DisplayName}";
-                    });
-                }
+                    if (await AppServices.Chat.GetUser(userId) is { } user)
+                        textBlock.Text = $"@{user.DisplayName}";
+                });
             });
         }
 

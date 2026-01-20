@@ -10,9 +10,9 @@ public static class Globals
 {
     public static string VersionString => Version.GetDisplayString();
 #if RELEASE
-    public static readonly FPVersion Version = new(4, 0, 0, 11, "beta");
+    public static readonly FPVersion Version = new(4, 0, 0, 12, "beta");
 #else 
-    public static readonly FPVersion Version = new(4, 0, 0, 0, "dev");
+    public static readonly FPVersion Version = new(4, 0 ,0);
 #endif
     public const string ApplicationTag = "FortnitePorting";
     

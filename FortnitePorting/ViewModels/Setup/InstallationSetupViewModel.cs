@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Installation;
+using FortnitePorting.Services;
 using FortnitePorting.Views.Setup;
 using Newtonsoft.Json;
 using Serilog;

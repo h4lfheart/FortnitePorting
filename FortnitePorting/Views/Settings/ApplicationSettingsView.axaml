@@ -13,7 +13,7 @@
     
     <ScrollViewer>
         <StackPanel VerticalAlignment="Top" Margin="{ext:Space 1}" Spacing="{ext:Space 0, 0, 0, 1}">
-            <controls:SettingsItem Title="Application Data Path" Description="The path in which all saved application data will default to.">
+            <controls:SettingsItem Title="Application Data Folder" Description="The folder in which all saved application data will default to.">
                 <controls:SettingsItem.Footer>
                     <StackPanel Orientation="Horizontal">
                         <CheckBox IsChecked="{Binding UseAppDataPath}"/>
@@ -25,7 +25,7 @@
                 </controls:SettingsItem.Footer>
             </controls:SettingsItem>
             
-            <controls:SettingsItem Title="Assets Path" Description="The path in which all assets will export to.">
+            <controls:SettingsItem Title="Assets Folder" Description="The folder in which all assets will export to.">
                 <controls:SettingsItem.Footer>
                     <StackPanel Orientation="Horizontal">
                         <CheckBox IsChecked="{Binding UseAssetsPath}"/>
@@ -36,7 +36,6 @@
                     </StackPanel>
                 </controls:SettingsItem.Footer>
             </controls:SettingsItem>
-            
             
             <controls:SettingsItem Title="Portle Path" Description="The executable path for your Portle version manager.">
                 <controls:SettingsItem.Footer>
