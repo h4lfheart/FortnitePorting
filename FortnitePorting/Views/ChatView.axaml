@@ -29,8 +29,13 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 
-                <controls:ContentCard x:Name="PointerOverTarget" Grid.Row="0" Background="{Binding BackgroundBrush}"
-                             Margin="{ext:Space 0, 1, 0, 0}">
+                <controls:ContentCard x:Name="PointerOverTarget" Grid.Row="0" 
+                             Margin="{ext:Space 0, 1, 0, 0}" Classes.Ping="{Binding IsPing}">
+                    <controls:ContentCard.Styles>
+                        <Style Selector="controls|ContentCard.Ping">
+                            <Setter Property="Background" Value="{DynamicResource FPContentCardBackgroundBright}" />
+                        </Style>
+                    </controls:ContentCard.Styles>
                     <Grid Margin="{ext:Space 1}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>

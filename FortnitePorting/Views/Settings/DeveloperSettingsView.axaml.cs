@@ -3,9 +3,9 @@ using FortnitePorting.ViewModels.Settings;
 
 namespace FortnitePorting.Views.Settings;
 
-public partial class OnlineSettingsView : ViewBase<OnlineSettingsViewModel>
+public partial class DeveloperSettingsView : ViewBase<DeveloperSettingsViewModel>
 {
-    public OnlineSettingsView() : base(AppSettings.Online)
+    public DeveloperSettingsView() : base(AppSettings.Developer)
     {
         InitializeComponent();
     }

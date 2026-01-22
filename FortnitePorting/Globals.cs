@@ -10,7 +10,7 @@ public static class Globals
 {
     public static string VersionString => Version.GetDisplayString();
 #if RELEASE
-    public static readonly FPVersion Version = new(4, 0, 0, 12, "beta");
+    public static readonly FPVersion Version = new(4, 1, 0, 0, "beta");
 #else 
     public static readonly FPVersion Version = new(4, 0 ,0);
 #endif

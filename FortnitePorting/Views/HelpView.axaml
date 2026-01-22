@@ -41,7 +41,7 @@
                         <DataTemplate>
                              <settingsControls:SettingsItem Description="{Binding Description}" 
                                                   Margin="{ext:Space 0, 0, 0, 1}" Padding="{ext:Space 2, 1, 1, 2}">
-                                 <settingsControls:SettingsItem.Header>
+                                 <settingsControls:SettingsItem.TitleContent>
                                      <StackPanel Orientation="Horizontal">
                                          <TextBlock Text="{Binding Title}" Classes="BodyTextBlockStyle"/>
                                          <TextBlock Text="{Binding Tag}"
@@ -51,7 +51,7 @@
                                                     Opacity="0.5" Classes="CaptionTextBlockStyle" VerticalAlignment="Center"
                                                     Margin="{ext:Space 0.5, 0, 0, 0}"/>
                                      </StackPanel>
-                                 </settingsControls:SettingsItem.Header>
+                                 </settingsControls:SettingsItem.TitleContent>
                                  <settingsControls:SettingsItem.Footer>
                                      <StackPanel IsVisible="{Binding $parent[views:HelpView].((viewModels:HelpViewModel)DataContext).AllowedToOpenBuilder}" Orientation="Horizontal">
                                          <Button Content="{material:MaterialIconExt Pencil}" 

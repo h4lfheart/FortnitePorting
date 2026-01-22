@@ -26,9 +26,6 @@ public partial class ApplicationSetupViewModel() : ViewModelBase
     [RelayCommand]
     public async Task Continue()
     {
-        if (AppSettings.Installation.Profiles.Count > 0)
-            Navigation.Setup.Open<OnlineSetupView>();
-        else
-            Navigation.Setup.Open<InstallationSetupView>();
+        Navigation.Setup.Open<InstallationSetupView>();
     }
 }

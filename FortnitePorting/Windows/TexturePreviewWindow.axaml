@@ -7,7 +7,8 @@
         xmlns:viewers="clr-namespace:FortnitePorting.Models.Viewers"
         x:Class="FortnitePorting.Windows.TexturePreviewWindow"
         x:DataType="windowModels:TexturePreviewWindowModel"
-        Width="1280" Height="720" RequestedThemeVariant="Dark" Background="#0e0e0e" TransparencyLevelHint="Mica"
+        Width="1280" Height="720" RequestedThemeVariant="Dark" Background="{DynamicResource WindowBackgroundBrush}" 
+        TransparencyLevelHint="{Binding Settings.Application.TransparencyHints}"
         ExtendClientAreaToDecorationsHint="True" ExtendClientAreaChromeHints="NoChrome" FontFamily="{StaticResource SFTextRegular}"
         WindowStartupLocation="CenterScreen" ClosingBehavior="OwnerAndChildWindows" ExtendClientAreaTitleBarHeightHint="35"
         Icon="/Assets/LogoRebrand.ico"
@@ -28,7 +29,7 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
             
-                <ui:ImageIcon Grid.Column="0" Source="/Assets/LogoRebrand.png" 
+                <ui:ImageIcon Grid.Column="0" Source="{DynamicResource FPLogoBitmap}" 
                               HorizontalAlignment="Right"
                               Width="20" Height="20" 
                               RenderOptions.BitmapInterpolationMode="HighQuality" RenderOptions.EdgeMode="Antialias"/>
@@ -73,8 +74,8 @@
                 </ui:TabView.Styles>
             </ui:TabView>
             
-            <Border Grid.Row="1" Background="#0a0a0a" CornerRadius="0"
-                    BorderThickness="0 2 0 0" BorderBrush="#212121">
+            <Border Grid.Row="1" Background="{DynamicResource ContentBorderBackgroundBrush}" CornerRadius="0"
+                    BorderThickness="0 2 0 0" BorderBrush="{DynamicResource ContentBorderBorderBrush}">
                 <Grid DataContext="{Binding SelectedTexture}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>

@@ -13,7 +13,6 @@ public partial class WelcomeSetupViewModel : ViewModelBase
     [RelayCommand]
     public async Task Continue()
     {
-        AppServices.Services.GetRequiredService<SetupViewModel>().UseBlur = true;
         Navigation.Setup.Open<ApplicationSetupView>();
     }
 }

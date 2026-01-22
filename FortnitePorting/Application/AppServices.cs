@@ -45,10 +45,6 @@ public static class AppServices
     public static FilesViewModel FilesVM => Services.GetRequiredService<FilesViewModel>();
     public static MapViewModel MapVM => Services.GetRequiredService<MapViewModel>();
     public static MusicViewModel MusicVM => Services.GetRequiredService<MusicViewModel>();
-    
-    
-    public static ConsoleViewModel ConsoleVM => Services.GetRequiredService<ConsoleViewModel>();
-    
     public static TimeWasterViewModel TimeWasterVM => Services.GetRequiredService<TimeWasterViewModel>();
     public static SoundPreviewWindowModel SoundPreviewWM => Services.GetRequiredService<SoundPreviewWindowModel>();
     

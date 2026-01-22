@@ -13,10 +13,9 @@ public partial class SettingsService : ObservableObject, IService
     [ObservableProperty] private ExportSettingsViewModel _exportSettings = new();
     [ObservableProperty] private InstallationSettingsViewModel _installation = new();
     [ObservableProperty] private ApplicationSettingsViewModel _application = new();
-    [ObservableProperty] private ThemeSettingsViewModel _theme = new();
-    [ObservableProperty] private OnlineSettingsViewModel _online = new();
+    [ObservableProperty] private AccountSettingsViewModel _account = new();
     [ObservableProperty] private PluginViewModel _plugin = new();
-    [ObservableProperty] private DebugSettingsViewModel _debug = new();
+    [ObservableProperty] private DeveloperSettingsViewModel _developer = new();
 
     public bool ShouldSaveOnExit = true;
     

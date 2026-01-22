@@ -24,6 +24,8 @@ public partial class InstallationSetupViewModel : ViewModelBase
     
     public override async Task Initialize()
     {
+        AppSettings.Installation.Profiles.Clear();
+        
         await CheckForInstallation();
     }
 

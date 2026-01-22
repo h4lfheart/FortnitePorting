@@ -315,3 +315,22 @@ public enum EFileFilterType
     Font,
     Map
 }
+
+public enum EThemeType
+{
+    [Description("Dark")]
+    [Icon(MaterialIconKind.WeatherNight)]
+    Dark,
+    
+    [Description("Royal Purple")]
+    [Icon(MaterialIconKind.Crown)]
+    RoyalPurple,
+    
+    [Description("Ocean Blue")]
+    [Icon(MaterialIconKind.WaterDrop)]
+    OceanBlue,
+    
+    [Description("Mica")]
+    [Icon(MaterialIconKind.CircleOpacity)]
+    Mica,
+}

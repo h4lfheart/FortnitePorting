@@ -183,7 +183,7 @@ public partial class CUE4ParseService : ObservableObject, IService
     {
         var files = CacheFolder.GetFiles();
 
-        var cutoffDate = DateTime.Now - TimeSpan.FromDays(AppSettings.Debug.ChunkCacheLifetime);
+        var cutoffDate = DateTime.Now - TimeSpan.FromDays(AppSettings.Developer.ChunkCacheLifetime);
         foreach (var file in files)
         {
             if (file.LastWriteTime >= cutoffDate) continue;
@@ -286,7 +286,7 @@ public partial class CUE4ParseService : ObservableObject, IService
                 ChunkBaseUri = new Uri("https://download.epicgames.com/ias/fortnite/", UriKind.Absolute),
                 ChunkCacheDirectory = CacheFolder,
                 Authorization = new AuthenticationHeaderValue("Bearer", AppSettings.Application.EpicAuth?.Token),
-                Timeout = TimeSpan.FromSeconds(AppSettings.Debug.RequestTimeoutSeconds)
+                Timeout = TimeSpan.FromSeconds(AppSettings.Developer.RequestTimeoutSeconds)
             };
 
             var chunkToc = new IoChunkToc(onDemandFile);

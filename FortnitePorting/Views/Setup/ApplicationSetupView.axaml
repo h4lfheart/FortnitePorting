@@ -7,6 +7,7 @@
              xmlns:fortnitePorting="clr-namespace:FortnitePorting"
              xmlns:setup="clr-namespace:FortnitePorting.ViewModels.Setup"
              xmlns:controls="clr-namespace:FortnitePorting.Controls.Settings"
+             xmlns:controls1="clr-namespace:FortnitePorting.Controls"
              d:DesignHeight="770" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.Setup.ApplicationSetupView"
              x:DataType="setup:ApplicationSetupViewModel">
@@ -14,8 +15,19 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="{ext:Space 1}"/>
-            <RowDefinition Height="3*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
+        
+        <Border Grid.Row="0" Grid.RowSpan="3" CornerRadius="0">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0%, 100%" EndPoint="0%, 0%">
+                    <GradientStops>
+                        <GradientStop Color="#AA000000" Offset=".4"/>
+                        <GradientStop Color="#00000000" Offset="0.6"/>
+                    </GradientStops>
+                </LinearGradientBrush>
+            </Border.Background>
+        </Border>
         
         <StackPanel Grid.Row="0" VerticalAlignment="Center">
             <TextBlock Text="Application Settings" FontFamily="{StaticResource SFDisplayBold}" FontSize="40" 
@@ -38,8 +50,23 @@
                     HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
         </StackPanel>
         
-        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Hidden">
-            <StackPanel VerticalAlignment="Top" Margin="{ext:Space 1, 0}" Spacing="{ext:Space 0, 0, 0, 1}">
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Hidden" Margin="{ext:Space 4, 0, 4, 4}">
+            <StackPanel VerticalAlignment="Bottom" Margin="{ext:Space 1, 0}" Spacing="{ext:Space 0, 0, 0, 1}">
+                <controls:SettingsItem Title="Theme"
+                                       Description="The theme that should be used for Fortnite Porting.">
+                    <controls:SettingsItem.Footer>
+                        <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EThemeType}}"
+                                  SelectedItem="{Binding Settings.Application.Theme, Converter={StaticResource EnumToRecord}}" >
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate DataType="ext:EnumRecord">
+                                    <controls1:IconText Text="{Binding Description}"
+                                                        Icon="{Binding Icon}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </controls:SettingsItem.Footer>
+                </controls:SettingsItem>
+                
                 <controls:SettingsItem Title="Application Data Folder (Optional)" Description="The folder in which all saved application data will save to. Defaults to %localappdata%/FortnitePorting.">
                     <controls:SettingsItem.Footer>
                         <StackPanel Orientation="Horizontal">

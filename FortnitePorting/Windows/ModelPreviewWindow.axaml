@@ -6,7 +6,8 @@
         xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
         x:Class="FortnitePorting.Windows.ModelPreviewWindow"
         x:DataType="windowModels:ModelPreviewWindowModel"
-        Width="1280" Height="720" RequestedThemeVariant="Dark" Background="#0e0e0e" TransparencyLevelHint="Mica"
+        Width="1280" Height="720" RequestedThemeVariant="Dark" Background="{DynamicResource WindowBackgroundBrush}"  
+        TransparencyLevelHint="{Binding Settings.Application.TransparencyHints}"
         ExtendClientAreaToDecorationsHint="True" ExtendClientAreaChromeHints="NoChrome"
         FontFamily="{StaticResource SFTextRegular}"
         WindowStartupLocation="CenterScreen" ClosingBehavior="OwnerAndChildWindows"
@@ -58,8 +59,8 @@
             </Grid>
         </Grid>
 
-        <Border Grid.Row="1" Background="#0a0a0a"
-                BorderThickness="0 2 0 0" BorderBrush="#212121">
+        <Border Grid.Row="1" Background="{DynamicResource ContentBorderBackgroundBrush}"
+                BorderThickness="0 2 0 0" BorderBrush="{DynamicResource ContentBorderBorderBrush}">
             <Grid Margin="{ext:Space 1}" ClipToBounds="True">
                 <ContentControl Content="{Binding Control}" IsVisible="{Binding !IsLoading}" />
 

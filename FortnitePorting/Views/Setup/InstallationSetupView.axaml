@@ -14,8 +14,19 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="{ext:Space 1}"/>
-            <RowDefinition Height="3*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
+        
+        <Border Grid.Row="0" Grid.RowSpan="3" CornerRadius="0">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0%, 100%" EndPoint="0%, 0%">
+                    <GradientStops>
+                        <GradientStop Color="#AA000000" Offset=".4"/>
+                        <GradientStop Color="#00000000" Offset="0.6"/>
+                    </GradientStops>
+                </LinearGradientBrush>
+            </Border.Background>
+        </Border>
         
         <StackPanel Grid.Row="0" VerticalAlignment="Center">
             <TextBlock Text="Installation Settings" FontFamily="{StaticResource SFDisplayBold}" FontSize="40" 
@@ -38,8 +49,8 @@
                     HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
         </StackPanel>
         
-        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Hidden">
-            <StackPanel VerticalAlignment="Top" Margin="{ext:Space 1, 0}" Spacing="{ext:Space 0, 0, 0, 1}">
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Hidden" Margin="{ext:Space 4, 0, 4, 4}">
+            <StackPanel VerticalAlignment="Bottom" Margin="{ext:Space 1, 0}" Spacing="{ext:Space 0, 0, 0, 1}">
                 <controls:SettingsItem Title="Fortnite Version" 
                                      Description="The version of Fortnite that Fortnite Porting will be loading.">
                     <controls:SettingsItem.Footer>

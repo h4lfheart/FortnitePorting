@@ -67,12 +67,12 @@ public partial class AppWindowModel(
     public async Task Update()
     {
         var remoteHash = Api.GetHash(PORTLE_URL) ?? string.Empty;
-        var localHash = Settings.Application.PortlePath.GetHash();
+        var localHash = Settings.Developer.PortlePath.GetHash();
         
-        if (!File.Exists(Settings.Application.PortlePath) || (!Settings.Application.UsePortlePath && !remoteHash.Equals(localHash, StringComparison.OrdinalIgnoreCase)))
+        if (!File.Exists(Settings.Developer.PortlePath) || (!Settings.Developer.UsePortlePath && !remoteHash.Equals(localHash, StringComparison.OrdinalIgnoreCase)))
         {
-            Log.Information($"Updating portle executable from {PORTLE_URL} at {Settings.Application.PortlePath}");
-            await Api.DownloadFileAsync(PORTLE_URL, Settings.Application.PortlePath);
+            Log.Information($"Updating portle executable from {PORTLE_URL} at {Settings.Developer.PortlePath}");
+            await Api.DownloadFileAsync(PORTLE_URL, Settings.Developer.PortlePath);
         }
 
         var args = new[]
@@ -90,7 +90,7 @@ public partial class AppWindowModel(
         
         Process.Start(new ProcessStartInfo
         {
-            FileName = Settings.Application.PortlePath,
+            FileName = Settings.Developer.PortlePath,
             Arguments = string.Join(' ', args),
             WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory,
             UseShellExecute = true

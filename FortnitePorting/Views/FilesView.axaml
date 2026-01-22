@@ -189,7 +189,7 @@
                                                                     Margin="{ext:Space 0, 0, 1, 1.5}"
                                                                     Padding="{ext:Space 1.25, 0.5}"
                                                                     MinHeight="0"
-                                                                    Background="{StaticResource FPButtonBackgroundBright}"
+                                                                    Background="{DynamicResource FPButtonBackgroundBright}"
                                                                     VerticalAlignment="Bottom"
                                                                     HorizontalAlignment="Right">
                                                                     <TextBlock Text="{Binding TotalChildCount}" />

@@ -1,4 +1,4 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+ <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -11,20 +11,24 @@
              MinHeight="68" ClipToBounds="False">
     <Grid RowDefinitions="* Auto">
         <controls:ContentCard Grid.Row="0">
-            <Grid ColumnDefinitions="* * 8 Auto" VerticalAlignment="Center" Margin="{ext:Space 2}">
-                <StackPanel Grid.Column="0"
+            <Grid ColumnDefinitions="Auto * * 8 Auto" VerticalAlignment="Center" Margin="{ext:Space 2}">
+                <ContentPresenter Grid.Column="0" 
+                                  Content="{Binding Header, RelativeSource={RelativeSource AncestorType=settings:SettingsItem} }"
+                                  IsVisible="{Binding Header, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}, Converter={x:Static ObjectConverters.IsNotNull}}"
+                                  Margin="{ext:Space 0, 0, 1, 0}"/>
+                
+                <StackPanel Grid.Column="1"
                             VerticalAlignment="Center" HorizontalAlignment="Left"
                             Orientation="Vertical">
                     <TextBlock Text="{Binding Title, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}}"
-                               IsVisible="{Binding Header, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}, Converter={x:Static ObjectConverters.IsNull}}"
+                               IsVisible="{Binding TitleContent, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}, Converter={x:Static ObjectConverters.IsNull}}"
                                TextWrapping="Wrap"
                                FontFamily="{StaticResource SFTextRegular}"
                                Classes="BodyTextBlockStyle"/>
                 
                     <ContentPresenter HorizontalAlignment="Right" VerticalAlignment="Center"
-                                      IsVisible="{Binding Header, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}, Converter={x:Static ObjectConverters.IsNotNull}}"
-
-                                      Content="{Binding Header, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}}"/>
+                                      IsVisible="{Binding TitleContent, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}, Converter={x:Static ObjectConverters.IsNotNull}}"
+                                      Content="{Binding TitleContent, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}}"/>
 
                     <TextBlock Text="{Binding Description, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}}"
                                TextWrapping="Wrap"
@@ -32,10 +36,10 @@
                                Classes="CaptionTextBlockStyle TextFillColorSecondaryBrush"/>
                 </StackPanel>
             
-                <ContentPresenter Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center"
+                <ContentPresenter Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center"
                                   Content="{Binding Footer, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}}"/>
                 
-                <ToggleButton Grid.Column="3" IsChecked="{Binding Model.IsExpanded, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}}"
+                <ToggleButton Grid.Column="4" IsChecked="{Binding Model.IsExpanded, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}}"
                         IsVisible="{Binding Content, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}, Converter={x:Static ObjectConverters.IsNotNull}}">
                     <avalonia:MaterialIcon Kind="{Binding Model.ExpandButtonIcon, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}}"/>
                 </ToggleButton>

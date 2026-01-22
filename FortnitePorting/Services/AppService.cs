@@ -88,7 +88,7 @@ public class AppService : IService
     {
         TimeWasterViewModel.LoadResources();
 
-        if (AppSettings.Online.UseDiscordRichPresence)
+        if (AppSettings.Account.UseDiscordRichPresence)
             Discord.Initialize();
 
         TaskService.Run(AppWM.Initialize);

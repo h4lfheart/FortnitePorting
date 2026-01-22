@@ -7,15 +7,20 @@
              xmlns:settings="clr-namespace:FortnitePorting.ViewModels.Settings"
              xmlns:controls="clr-namespace:FortnitePorting.Controls.Settings"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="FortnitePorting.Views.Settings.DebugSettingsView"
-             x:DataType="settings:DebugSettingsViewModel">
+             x:Class="FortnitePorting.Views.Settings.DeveloperSettingsView"
+             x:DataType="settings:DeveloperSettingsViewModel">
     
     <ScrollViewer>
         <StackPanel VerticalAlignment="Top" Margin="{ext:Space 1}" Spacing="{ext:Space 0, 0, 0, 1}">
-            
-            <controls:SettingsItem Title="Show Console" Description="Displays the console tab for debugging purposes.">
+            <controls:SettingsItem Title="Portle Path" Description="The executable path for your Portle version manager.">
                 <controls:SettingsItem.Footer>
-                    <ToggleSwitch IsChecked="{Binding IsConsoleVisible}"/>
+                    <StackPanel Orientation="Horizontal">
+                        <CheckBox IsChecked="{Binding UsePortlePath}"/>
+                        <TextBox Text="{Binding PortleExecutablePath}" Watermark="Ex. D:/Art/FortnitePorting/Portle.exe" IsEnabled="{Binding UsePortlePath}"/>
+                        <Button Margin="4 0 0 0" Command="{Binding BrowsePortlePath}" IsEnabled="{Binding UsePortlePath}">
+                            <ui:SymbolIcon Symbol="Folder"/>
+                        </Button>
+                    </StackPanel>
                 </controls:SettingsItem.Footer>
             </controls:SettingsItem>
             
@@ -32,12 +37,6 @@
                     <ui:NumberBox Value="{Binding RequestTimeoutSeconds}" 
                                   Minimum="0"
                                   SpinButtonPlacementMode="Inline"/>
-                </controls:SettingsItem.Footer>
-            </controls:SettingsItem>
-            
-            <controls:SettingsItem Title="Show Map Grid Information" Description="Displays tools to modify and debug map grids in the map tab.">
-                <controls:SettingsItem.Footer>
-                    <ToggleSwitch IsChecked="{Binding ShowMapDebugInfo}"/>
                 </controls:SettingsItem.Footer>
             </controls:SettingsItem>
         </StackPanel>

@@ -3,9 +3,9 @@ using FortnitePorting.ViewModels.Settings;
 
 namespace FortnitePorting.Views.Settings;
 
-public partial class ThemeSettingsView : ViewBase<ThemeSettingsViewModel>
+public partial class AccountSettingsView : ViewBase<AccountSettingsViewModel>
 {
-    public ThemeSettingsView() : base(AppSettings.Theme)
+    public AccountSettingsView() : base(AppSettings.Account)
     {
         InitializeComponent();
     }

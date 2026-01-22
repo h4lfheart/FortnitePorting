@@ -11,29 +11,14 @@ namespace FortnitePorting.ViewModels;
 
 public partial class SetupViewModel : ViewModelBase
 {
-    
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(BackgroundBlur)), NotifyPropertyChangedFor(nameof(BackgroundOpacity))] private bool _useBlur = false;
-
-    public BlurEffect BackgroundBlur => new()
-    {
-        Radius = UseBlur ? 20 : 3
-    };
-
-    public float BackgroundOpacity => UseBlur ? 0.1f : 0.25f;
-
-    [ObservableProperty] private ObservableCollection<string[]> _galleryPaths = [[], [], []];
+    [ObservableProperty] 
+    private ObservableCollection<string> _imagePaths = [];
 
     public override async Task Initialize()
     {
-        if (SupaBase.Client is null) return;
-        
-        var bucket = SupaBase.Client.Storage.From("gallery-images");
-        var images = await bucket.List();
-        if (images is null) return;
-        
-        var imagePaths = images.Select(image => bucket.GetPublicUrl(image.Name!)).ToList();
+        var imagePaths = await Api.FortnitePorting.GalleryImages();
         imagePaths.Shuffle();
 
-        GalleryPaths = [..imagePaths.Chunk(Math.Max(1, (int) Math.Ceiling(images.Count / 3.0f)))];
+        ImagePaths = [..imagePaths];
     }
 }

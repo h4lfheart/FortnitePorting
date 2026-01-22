@@ -27,12 +27,12 @@
             </controls:ContentCard.Transitions>
             <controls:ContentCard.Styles>
                 <Style Selector="controls|ContentCard.Selected">
-                    <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
-                    <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
+                    <Setter Property="Background" Value="{DynamicResource FPButtonBackground}"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource FPButtonBorderBrush}"/>
                     <Setter Property="Opacity" Value="1"/>
                 </Style>
                 <Style Selector="controls|ContentCard.Selected:pointerover">
-                    <Setter Property="Background" Value="{StaticResource FPButtonBackgroundPointerOver}"/>
+                    <Setter Property="Background" Value="{DynamicResource FPButtonBackgroundPointerOver}"/>
                     <Setter Property="Opacity" Value="1"/>
                 </Style>
                 
@@ -42,7 +42,7 @@
                     <Setter Property="BoxShadow" Value="none"/>
                 </Style>
                 <Style Selector="controls|ContentCard.NotSelected:pointerover">
-                    <Setter Property="Background" Value="{StaticResource FPButtonBackgroundPointerOver}"/>
+                    <Setter Property="Background" Value="{DynamicResource FPButtonBackgroundPointerOver}"/>
                     <Setter Property="Opacity" Value="0.5"/>
                     <Setter Property="BoxShadow" Value="none"/>
                 </Style>

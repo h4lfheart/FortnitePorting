@@ -8,6 +8,7 @@ using FluentAvalonia.UI.Controls;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Chat;
 using FortnitePorting.Models.Clipboard;
+using FortnitePorting.Models.Supabase.Tables;
 using FortnitePorting.Services;
 
 namespace FortnitePorting.ViewModels;
@@ -45,6 +46,8 @@ public partial class ChatViewModel(SupabaseService supabase, ChatService chatSer
 
     public async Task ClipboardPaste()
     {
+        if (SupaBase.UserInfo?.Role < ESupabaseRole.Verified) return;
+        
         if (await AvaloniaClipboard.GetTextAsync() is { } text)
         {
             Text += text;

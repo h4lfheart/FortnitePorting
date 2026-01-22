@@ -22,8 +22,10 @@ using Serilog;
 namespace FortnitePorting.WindowModels;
 
 [Transient]
-public partial class ModelPreviewWindowModel : WindowModelBase
+public partial class ModelPreviewWindowModel(SettingsService settings) : WindowModelBase
 {
+    [ObservableProperty] private SettingsService _settings = settings;
+    
     [ObservableProperty] private RenderingXControl? _control;
     [ObservableProperty] private bool _isLoading;
     
