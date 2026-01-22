@@ -79,9 +79,10 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <ToggleButton Grid.Column="0" ToolTip.Tip="Flat View"
-                                  Content="{material:MaterialIconExt FormatListBulleted}"
-                                  IsChecked="{Binding UseFlatView}" />
+                    <ToggleButton Grid.Column="0" ToolTip.Tip="{Binding FlatViewToggleToolTip}" 
+                            IsChecked="{Binding UseFlatView}">
+                        <material:MaterialIcon Kind="{Binding FlatViewToggleIcon}"/>
+                    </ToggleButton>
 
                     <ComboBox Grid.Column="2" HorizontalAlignment="Stretch" Margin="{ext:Space 0, 0, 1, 0}"
                               IsVisible="{Binding !UseFlatView}"
@@ -222,11 +223,29 @@
                                         </ListBox.ItemsPanel>
                                     </ListBox>
 
+                                    <StackPanel IsVisible="{Binding !FileViewCollection.Count}" Spacing="{ext:Space 1}"
+                                                HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        
+                                        <TextBlock Text="No Files Found"
+                                                   Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"
+                                                   HorizontalAlignment="Center" />
+                                        
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                            
+                                            <TextBlock Text="Try Searching in " Classes="BodyTextBlockStyle TextFillColorSecondaryBrush" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Flat View" Foreground="{DynamicResource FPAccentBrush}"
+                                                       TextDecorations="Underline"
+                                                       Cursor="Hand" PointerPressed="OnFlatViewHyperlinkPressed"
+                                                       Classes="BodyTextBlockStyle TextFillColorSecondaryBrush" VerticalAlignment="Center">
+                                                <TextBlock.Effect>
+                                                    <DropShadowEffect BlurRadius="25" Color="{DynamicResource FPAccentColor}"
+                                                                      OffsetX="0" OffsetY="0" />
+                                                </TextBlock.Effect>
+                                            </TextBlock>
+                                            
+                                        </StackPanel>
+                                    </StackPanel>
 
-                                    <TextBlock Grid.Row="1" IsVisible="{Binding !FileViewCollection.Count}"
-                                               Text="No Files Found"
-                                               Classes="BodyTextBlockStyle TextFillColorTertiaryBrush"
-                                               HorizontalAlignment="Center" VerticalAlignment="Center" />
                                 </Grid>
                             </ScrollViewer>
 

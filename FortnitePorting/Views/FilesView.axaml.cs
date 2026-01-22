@@ -88,4 +88,16 @@ public partial class FilesView : ViewBase<FilesViewModel>
         item.EnsureChildrenSorted();
         ViewModel.RealizeFileData(ref item);
     }
+
+    private void OnFlatViewHyperlinkPressed(object? sender, PointerPressedEventArgs e)
+    {
+        var searchTerm = ViewModel.FileSearchFilter;
+        
+        ViewModel.FileSearchFilter = string.Empty;
+        ViewModel.FileSearchText = string.Empty;
+        
+        ViewModel.UseFlatView = true;
+        ViewModel.FlatSearchFilter = searchTerm;
+        ViewModel.FlatSearchText = searchTerm;
+    }
 }

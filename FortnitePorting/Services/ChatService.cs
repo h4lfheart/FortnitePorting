@@ -170,7 +170,8 @@ public partial class ChatService : ObservableObject, IService
                 if (newUsers > 0)
                     OnPropertyChanged(nameof(UsersByGroup));
                 
-                Discord.Update($"Chatting with {Users.Count} {(Users.Count > 1 ? "Users" : "User")}");
+                if (Navigation.App.IsTabOpen<ChatView>())
+                    Discord.Update($"Chatting with {Users.Count} {(Users.Count > 1 ? "Users" : "User")}");
             });
         });
 

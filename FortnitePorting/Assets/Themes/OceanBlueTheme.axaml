@@ -58,7 +58,9 @@
         <SolidColorBrush x:Key="BroadcastOverlayBackgroundBrush" Color="#80001020" />
         
         <SolidColorBrush x:Key="FPTitleTextBrush" Color="#D9F0FF" /> 
-        <SolidColorBrush x:Key="FPAccentBrush" Color="#3FA5F5" />
+        
+        <Color x:Key="FPAccentColor">#3FA5F5</Color>
+        <SolidColorBrush x:Key="FPAccentBrush" Color="{DynamicResource FPAccentColor}" />
         
         <Bitmap x:Key="FPLogoBitmap">avares://FortnitePorting/Assets/LogoRebrandBlue.png</Bitmap>
     </controls:FPStyles.Resources>

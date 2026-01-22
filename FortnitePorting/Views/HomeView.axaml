@@ -55,6 +55,8 @@
                         FontFamily="{StaticResource SFTextRegular}" Command="{Binding LaunchGitHub}"/>
                 <Button Content="{controls:ImageText 'KoFi', /Assets/Icons/KoFi.png}" Width="125"
                         FontFamily="{StaticResource SFTextRegular}" Command="{Binding LaunchKoFi}"/>
+                <Button Content="{controls:ImageText 'Website', /Assets/LogoRebrand.png}" Width="125"
+                        FontFamily="{StaticResource SFTextRegular}" Command="{Binding LaunchWebsite}"/>
             </StackPanel>
 
         </Grid>

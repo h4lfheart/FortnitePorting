@@ -36,6 +36,7 @@ using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Views;
 using FortnitePorting.Windows;
+using Material.Icons;
 using Newtonsoft.Json;
 using ReactiveUI;
 using Serilog;
@@ -90,7 +91,15 @@ public partial class FilesViewModel : ViewModelBase
         [EFileFilterType.Map] = ["World", "umap"]
     };
 
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(SearchText))] private bool _useFlatView = false;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SearchText), nameof(FlatViewToggleIcon), nameof(FlatViewToggleToolTip))] 
+    private bool _useFlatView = false;
+
+    public MaterialIconKind FlatViewToggleIcon =>
+        UseFlatView ? MaterialIconKind.Folder : MaterialIconKind.FormatListBulleted;
+
+    public string FlatViewToggleToolTip => UseFlatView ? "File View" : "Flat View";
+    
     [ObservableProperty] private bool _useRegex = false;
     [ObservableProperty] private bool _isLoading = true;
     
@@ -172,7 +181,7 @@ public partial class FilesViewModel : ViewModelBase
 
     public override async Task OnViewOpened()
     {
-        Discord.Update($"Browsing {UEParse.Provider.Files.Count} Files");
+        Discord.Update($"Browsing {UEParse.Provider.Files.Count:N0} Files");
     }
 
     public void ClearSearchFilter()
@@ -289,6 +298,8 @@ public partial class FilesViewModel : ViewModelBase
         var foundItem = FlatViewAssetCache.Lookup(directory);
         if (!foundItem.HasValue) return;
 
+        FlatSearchFilter = string.Empty;
+        FlatSearchText = string.Empty;
         SelectedFlatViewItems = [foundItem.Value];
         UseFlatView = true;
     }
