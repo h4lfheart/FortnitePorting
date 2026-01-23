@@ -25,7 +25,11 @@
             <ColumnDefinition Width="6*" />
         </Grid.ColumnDefinitions>
         
-        <sidebar:Sidebar x:Name="Sidebar" Grid.Column="0" ItemSelected="OnItemSelected" Items="{Binding SidebarItems}"/>
+        <sidebar:Sidebar x:Name="Sidebar" Grid.Column="0" ItemSelected="OnItemSelected">
+            <sidebar:Sidebar.Items>
+                <sidebar:SidebarItemsSource ItemsSource="{Binding SidebarItems}"/>
+            </sidebar:Sidebar.Items>
+        </sidebar:Sidebar>
 
         <GridSplitter Grid.Column="0" HorizontalAlignment="Right" Opacity="0"  IsVisible="{Binding !AssetLoader.ActiveLoader.FinishedLoading, FallbackValue=True}"/>
         

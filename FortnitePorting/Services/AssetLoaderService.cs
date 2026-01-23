@@ -209,7 +209,7 @@ public partial class AssetLoaderService : ObservableObject, IService
                     ClassNames = ["AthenaGadgetItemDefinition", "FortWeaponRangedItemDefinition", 
                         "FortWeaponMeleeItemDefinition", "FortCreativeWeaponMeleeItemDefinition", 
                         "FortCreativeWeaponRangedItemDefinition", "FortWeaponMeleeDualWieldItemDefinition"],
-                    HideNames = ["_Harvest", "Weapon_Pickaxe_", "Weapons_Pickaxe_", "Dev_WID"],
+                    HideNames = ["_Harvest", "Weapon_Pickaxe_", "Weapons_Pickaxe_", "Dev_WID", "Juno"],
                     HidePredicate = (loader, asset, name) =>
                     {
                         if (loader.FilteredAssetBag.Contains(name)) return true;

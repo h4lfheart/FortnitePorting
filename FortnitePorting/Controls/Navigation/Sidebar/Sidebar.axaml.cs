@@ -36,7 +36,6 @@ public partial class Sidebar : UserControl
         private set => SetValue(FlattenedItemsProperty, value);
     }
 
-    // Add bindable SelectedItem property
     public static readonly StyledProperty<object?> SelectedItemProperty =
         AvaloniaProperty.Register<Sidebar, object?>(nameof(SelectedItem), defaultBindingMode: BindingMode.TwoWay);
 
@@ -122,22 +121,41 @@ public partial class Sidebar : UserControl
             {
                 SubscribeToItemsSource(itemsSource);
                 
-                if (itemsSource.ItemsSource != null && itemsSource.ItemTemplate != null)
+                if (itemsSource.ItemsSource != null)
                 {
-                    foreach (var dataItem in itemsSource.ItemsSource)
+                    if (itemsSource.ItemTemplate != null)
                     {
-                        var control = itemsSource.ItemTemplate.Build(dataItem);
-                        if (control is not ISidebarItem sidebarItem) continue;
-                        
-                        control.DataContext = dataItem;
-                        
-                        if (control is SidebarItemButton { Tag: not null } button && 
-                            button.Tag.Equals(SelectedItem))
+                        foreach (var dataItem in itemsSource.ItemsSource)
                         {
-                            newSelectedButton = button;
-                        }
+                            var control = itemsSource.ItemTemplate.Build(dataItem);
+                            if (control is not ISidebarItem sidebarItem) continue;
                             
-                        flattened.Add(sidebarItem);
+                            control.DataContext = dataItem;
+                            
+                            if (control is SidebarItemButton { Tag: not null } button && 
+                                button.Tag.Equals(SelectedItem))
+                            {
+                                newSelectedButton = button;
+                            }
+                                
+                            flattened.Add(sidebarItem);
+                        }
+                    }
+                    else
+                    {
+                        foreach (var dataItem in itemsSource.ItemsSource)
+                        {
+                            if (dataItem is ISidebarItem sidebarItem)
+                            {
+                                if (dataItem is SidebarItemButton { Tag: not null } button && 
+                                    button.Tag.Equals(SelectedItem))
+                                {
+                                    newSelectedButton = button;
+                                }
+                                
+                                flattened.Add(sidebarItem);
+                            }
+                        }
                     }
                 }
             }

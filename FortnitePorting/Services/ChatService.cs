@@ -2,10 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
+using DynamicData;
+using DynamicData.Binding;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Chat;
@@ -13,6 +16,7 @@ using FortnitePorting.Models.Supabase.Tables;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Views;
 using Mapster;
+using ReactiveUI;
 using Serilog;
 using Supabase.Realtime;
 using Supabase.Realtime.Interfaces;
@@ -32,7 +36,7 @@ public partial class ChatService : ObservableObject, IService
 
     public event EventHandler<ChatMessage>? MessageReceived; 
     
-    [ObservableProperty] private ObservableDictionary<string, ChatMessage> _messages = [];
+    [ObservableProperty] private ReadOnlyObservableCollection<ChatMessage> _messages = new([]);
     
     [ObservableProperty, NotifyPropertyChangedFor(nameof(UsersByGroup)), NotifyPropertyChangedFor(nameof(UserMentionNames))] 
     private ObservableDictionary<string, ChatUser> _users = [];
@@ -70,12 +74,29 @@ public partial class ChatService : ObservableObject, IService
     private RealtimeChannel _chatChannel;
     public RealtimePresence<ChatUserPresence> ChatPresence;
     private RealtimeBroadcast<BaseBroadcast> _chatBroadcast;
+
+    private SourceCache<ChatMessage, string> _messageCache = new(message => message.Id);
     
     private readonly SemaphoreSlim _userGetLock = new(1, 1);
+    private readonly SemaphoreSlim _messageFetchLock = new(1, 1);
+
+    // Pagination state
+    private const int PageSize = 20;
+    [ObservableProperty] private bool _isLoadingMessages = false;
+    [ObservableProperty] private bool _hasMoreMessages = true;
+    private DateTime? _oldestFetchedTimestamp = null;
 
     public async Task Initialize()
     {
         _chatChannel = SupaBase.Client.Realtime.Channel("chat");
+
+        _messageCache.Connect()
+            .ObserveOn(RxApp.MainThreadScheduler)
+            .Sort(SortExpressionComparer<ChatMessage>.Ascending(item => item.Timestamp))
+            .Bind(out var messageCollection)
+            .Subscribe();
+
+        Messages = messageCollection;
 
         await InitializePresence();
         await InitializeBroadcasts();
@@ -91,15 +112,7 @@ public partial class ChatService : ObservableObject, IService
         
         await ChatPresence.Track(Presence);
         
-        var messages = await SupaBase.Client.From<Message>()
-            .Order("timestamp", Constants.Ordering.Descending)
-            .Limit(50)
-            .Get();
-        
-        foreach (var message in messages.Models.OrderBy(message => message.Timestamp))
-        {
-            AddMessage(message, isInit: true);
-        }
+        await LoadMoreMessages();
 
         MessageReceived += (sender, message) =>
         {
@@ -112,6 +125,70 @@ public partial class ChatService : ObservableObject, IService
     {
         await ChatPresence.Untrack();
         _chatChannel.Unsubscribe();
+    }
+
+    public async Task<bool> LoadMoreMessages()
+    {
+        if (IsLoadingMessages || !HasMoreMessages)
+            return false;
+
+        await _messageFetchLock.WaitAsync();
+        try
+        {
+            IsLoadingMessages = true;
+
+            var query = SupaBase.Client.From<Message>()
+                .Order("timestamp", Constants.Ordering.Descending)
+                .Limit(PageSize + 1);
+
+            if (_oldestFetchedTimestamp.HasValue)
+            {
+                var utcTimestamp = _oldestFetchedTimestamp.Value.ToUniversalTime();
+                query = query.Filter("timestamp", Constants.Operator.LessThanOrEqual, utcTimestamp.ToString("o"));
+            }
+
+            var response = await query.Get();
+            var messages = response.Models.ToList();
+            var originalCount = messages.Count;
+
+            if (_oldestFetchedTimestamp.HasValue && messages.Count > 0)
+            {
+                messages = messages.Skip(1).ToList();
+            }
+
+            if (messages.Count == 0)
+            {
+                HasMoreMessages = false;
+                return false;
+            }
+
+            _oldestFetchedTimestamp = messages.Last().Timestamp.ToUniversalTime();
+            
+            if (originalCount < PageSize + 1)
+            {
+                HasMoreMessages = false;
+            }
+
+            var addedCount = 0;
+            foreach (var message in messages)
+            {
+                if (_messageCache.Lookup(message.Id).HasValue) continue;
+                
+                AddMessage(message, isInit: true);
+                addedCount++;
+            }
+
+            return addedCount > 0;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+        finally
+        {
+            IsLoadingMessages = false;
+            _messageFetchLock.Release();
+        }
     }
 
     private async Task InitializePresence()
@@ -219,8 +296,8 @@ public partial class ChatService : ObservableObject, IService
                 {
                     var updatedMessage = broadcast.Get<Message>("message").Adapt<ChatMessage>();
                     var targetMessage = updatedMessage.ReplyId is not null
-                        ? Messages[updatedMessage.ReplyId].ReplyMessages[updatedMessage.Id]
-                        : Messages[updatedMessage.Id];
+                        ? _messageCache.Lookup(updatedMessage.ReplyId).Value.ReplyMessages[updatedMessage.Id]
+                        : _messageCache.Lookup(updatedMessage.Id).Value;
 
                     targetMessage.Text = updatedMessage.Text;
                     targetMessage.ReactorIds = updatedMessage.ReactorIds;
@@ -235,11 +312,11 @@ public partial class ChatService : ObservableObject, IService
                     
                     if (replyId is not null)
                     {
-                        Messages[replyId].ReplyMessages.Remove(messageId);
+                        _messageCache.Lookup(replyId).Value.ReplyMessages.Remove(messageId);
                     }
                     else
                     {
-                        Messages.Remove(messageId);
+                        _messageCache.Remove(messageId);
                     }
                     break;
                 }
@@ -261,11 +338,11 @@ public partial class ChatService : ObservableObject, IService
         var message = inMessage.Adapt<ChatMessage>();
         if (message.ReplyId is not null)
         {
-            Messages[message.ReplyId].ReplyMessages.AddOrUpdate(message.Id, message);
+            _messageCache.Lookup(message.ReplyId).Value.ReplyMessages.AddOrUpdate(message.Id, message);
         }
         else
         {
-            Messages.AddOrUpdate(message.Id, message);
+            _messageCache.AddOrUpdate(message);
         }
 
         if (message.Text.Contains($"<@{SupaBase.UserInfo?.UserId}>") || message.Text.Contains("<@everyone>"))

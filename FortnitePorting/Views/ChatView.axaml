@@ -18,12 +18,9 @@
              x:Class="FortnitePorting.Views.ChatView"
              x:DataType="viewModels:ChatViewModel">
     <UserControl.Resources>
-        <DataTemplate x:Key="MessageTemplate">
-            <DataTemplate.DataType>
-                <x:Type TypeName="framework:ObservableKeyValuePair" x:TypeArguments="x:String, chat:ChatMessage"/>
-            </DataTemplate.DataType>
+        <DataTemplate x:Key="MessageTemplate" DataType="chat:ChatMessage">
             
-            <Grid DataContext="{Binding Value}">
+            <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
@@ -146,7 +143,7 @@
                                          Classes="BodyTextBlockStyle" VerticalAlignment="Center"/>
                             </Grid>
                         
-                            <Border
+                            <Border Background="{DynamicResource FPContentCardBackgroundBright}"
                                     IsVisible="{Binding FullImageUrl, Converter={x:Static ObjectConverters.IsNotNull}}"
                                     CornerRadius="12" ClipToBounds="True" HorizontalAlignment="Left" Margin="{ext:Space 0, 1, 0, 0}">
                                 <Border.ContextMenu>
@@ -189,13 +186,9 @@
             <controls:DynamicFadeScrollViewer x:Name="Scroll"
                                               HorizontalScrollBarVisibility="Disabled"
                                               VerticalScrollBarVisibility="Auto">
-                <ItemsControl ItemsSource="{Binding Chat.Messages}" Margin="{ext:Space 1, 0}" ItemTemplate="{StaticResource MessageTemplate}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <VirtualizingStackPanel/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                </ItemsControl>
+                <ItemsControl ItemsSource="{Binding Chat.Messages}" 
+                              Margin="{ext:Space 1, 0}" 
+                              ItemTemplate="{StaticResource MessageTemplate}"/>
             </controls:DynamicFadeScrollViewer>
             
             <Border IsVisible="{Binding ShowNewMessageIndicator}"
