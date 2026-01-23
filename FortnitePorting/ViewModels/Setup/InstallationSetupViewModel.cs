@@ -19,7 +19,8 @@ public partial class InstallationSetupViewModel : ViewModelBase
     [ObservableProperty] private InstallationProfile _profile = new()
     {
         ProfileName = "Default",
-        ArchiveDirectory = string.Empty
+        ArchiveDirectory = string.Empty,
+        IsSelected = true
     };
     
     public override async Task Initialize()

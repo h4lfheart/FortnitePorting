@@ -9,161 +9,177 @@
              xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:fortnitePorting="clr-namespace:FortnitePorting"
              xmlns:controls="clr-namespace:FortnitePorting.Controls.Settings"
+             xmlns:sidebar="clr-namespace:FortnitePorting.Controls.Navigation.Sidebar"
+             xmlns:installation="clr-namespace:FortnitePorting.Models.Installation"
+             xmlns:controls1="clr-namespace:FortnitePorting.Controls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FortnitePorting.Views.Settings.InstallationSettingsView"
-             x:DataType="settings:InstallationSettingsViewModel">
+             x:DataType="settings:InstallationSettingsViewModel" 
+             Background="{DynamicResource ContentBorderLayer2BackgroundBrush}" 
+             BorderBrush="{DynamicResource ContentBorderLayer2BorderBrush}" BorderThickness="2 0 0 0">
 
-    <ScrollViewer>
-        <StackPanel VerticalAlignment="Top" Margin="{ext:Space 1}" Spacing="{ext:Space 0, 0, 0, 1}">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="5*"/>
+        </Grid.ColumnDefinitions>
+        <sidebar:Sidebar Grid.Column="0"
+                         SelectedItem="{Binding SelectedEditProfile, Mode=TwoWay}">
+            <sidebar:Sidebar.Items>
+                <sidebar:SidebarItemText Text="PROFILES"/>
+                <sidebar:SidebarItemsSource ItemsSource="{Binding Profiles}">
+                    <sidebar:SidebarItemsSource.ItemTemplate>
+                        <DataTemplate x:DataType="installation:InstallationProfile">
+                            <sidebar:SidebarItemButton Text="{Binding ProfileName}" Tag="{Binding}">
+                                <sidebar:SidebarItemButton.Footer>
+                                    <RadioButton 
+                                        GroupName="ProfileSelection"
+                                        IsChecked="{Binding IsSelected, Mode=TwoWay}"/>
+                                </sidebar:SidebarItemButton.Footer>
+                            </sidebar:SidebarItemButton>
+                        </DataTemplate>
+                    </sidebar:SidebarItemsSource.ItemTemplate>
+                </sidebar:SidebarItemsSource>
+            </sidebar:Sidebar.Items>
+            <sidebar:Sidebar.Footer>
+                <StackPanel Spacing="{ext:Space 1}">
+                    <Button ToolTip.Tip="Add Profile" HorizontalAlignment="Stretch"
+                            Content="{controls1:IconText 'New Profile', Add}"
+                            Command="{Binding AddProfile}" />
 
-            <controls:SettingsItem Title="Profile"
-                                   Description="The installation profile that should be used for archive loading.">
-                <controls:SettingsItem.Footer>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="{ext:Space 1}" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="{ext:Space 1}" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
+                    <Button ToolTip.Tip="Remove Profile" HorizontalAlignment="Stretch"
+                            Content="{controls1:IconText 'Remove Profile', Minus}"
+                            IsEnabled="{Binding CanRemoveProfiles}"
+                            Command="{Binding RemoveProfile}" />
+                </StackPanel>
+            </sidebar:Sidebar.Footer>
+        </sidebar:Sidebar>
+        
+        <ScrollViewer Grid.Column="1">
+            <StackPanel VerticalAlignment="Top" Margin="{ext:Space 1}" Spacing="{ext:Space 0, 0, 0, 1}" DataContext="{Binding SelectedEditProfile}">
+                <controls:SettingsItem Title="Profile Name"
+                                       Description="The name used to identify your installation profile">
+                    <controls:SettingsItem.Footer>
+                        <TextBox Text="{Binding ProfileName}" KeyDown="OnTextBoxKeyDown" />
+                    </controls:SettingsItem.Footer>
+                </controls:SettingsItem>
 
-                        <Button Grid.Column="0" ToolTip.Tip="Add Profile" HorizontalAlignment="Left"
-                                Content="{material:MaterialIconExt Add}"
-                                Command="{Binding AddProfile}" />
+                <controls:SettingsItem Title="Fortnite Version"
+                                       Description="The version of Fortnite that Fortnite Porting will be loading.">
+                    <controls:SettingsItem.Footer>
+                        <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EFortniteVersion}}"
+                                  SelectedItem="{Binding FortniteVersion, Converter={StaticResource EnumToRecord}}" />
+                    </controls:SettingsItem.Footer>
+                </controls:SettingsItem>
+                <controls:SettingsItem Title="Archive Directory"
+                                       Description="The directory that contains all of the required game files."
+                                       IsVisible="{Binding ArchiveDirectoryEnabled}">
+                    <controls:SettingsItem.Footer>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox Text="{Binding ArchiveDirectory}"
+                                     Watermark="Ex. C:/Fortnite/FortniteGame/Content/Paks" />
+                            <Button Margin="4 0 0 0" Command="{Binding BrowseArchivePath}">
+                                <ui:SymbolIcon Symbol="Folder" />
+                            </Button>
+                        </StackPanel>
+                    </controls:SettingsItem.Footer>
+                </controls:SettingsItem>
+                <controls:SettingsItem Title="Game Language"
+                                       Description="The language used for in-game text strings such as names, descriptions, styles, etc.">
+                    <controls:SettingsItem.Footer>
+                        <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type versions:ELanguage}}"
+                                  SelectedItem="{Binding GameLanguage, Converter={StaticResource EnumToRecord}}" />
+                    </controls:SettingsItem.Footer>
+                </controls:SettingsItem>
+                <controls:SettingsItem Title="Unreal Version"
+                                       Description="The Unreal Version that aligns with your Fortnite installation."
+                                       IsVisible="{Binding UnrealVersionEnabled}">
+                    <controls:SettingsItem.Footer>
+                        <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type versions:EGame}}"
+                                  SelectedItem="{Binding UnrealVersion, Converter={StaticResource EnumToRecord}}" />
+                    </controls:SettingsItem.Footer>
+                </controls:SettingsItem>
+                <controls:SettingsItem Title="Encryption Key"
+                                       Description="The encryption key required to decrypt Fortnite's game files.">
+                    <controls:SettingsItem.Footer>
+                        <TextBox Text="{Binding MainKey.KeyString}"
+                                 Watermark="Ex. 0x0000000000000000000000000000000000000000000000000000000000000000"
+                                 IsEnabled="{Binding EncryptionKeyEnabled}" />
+                    </controls:SettingsItem.Footer>
+                    <controls:SettingsItem.Content>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="{ext:Space 1}" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
 
-                        <Button Grid.Column="2" ToolTip.Tip="Remove Profile" HorizontalAlignment="Left"
-                                Content="{material:MaterialIconExt Minus}" IsEnabled="{Binding CanRemoveProfiles}"
-                                Command="{Binding RemoveProfile}" />
+                            <Grid Grid.Row="0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="{ext:Space 1}" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="{ext:Space 1}" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center"
+                                           HorizontalAlignment="Left" TextAlignment="Left"
+                                           TextTrimming="CharacterEllipsis"
+                                           Text="Extra Keys" />
+                                <Button Grid.Column="2" ToolTip.Tip="Add Key" HorizontalAlignment="Left"
+                                        Content="{material:MaterialIconExt Add}"
+                                        Command="{Binding AddEncryptionKey}" />
+                                <Button Grid.Column="4" ToolTip.Tip="Remove Key" HorizontalAlignment="Left"
+                                        Content="{material:MaterialIconExt Minus}"
+                                        Command="{Binding RemoveEncryptionKey}" />
+                            </Grid>
 
-                        <ComboBox Grid.Column="4" ItemsSource="{Binding Profiles}"
-                                  SelectedIndex="{Binding CurrentProfileIndex, Mode=TwoWay}" />
-                    </Grid>
-                </controls:SettingsItem.Footer>
-            </controls:SettingsItem>
-
-            <controls:SettingsItem Title="Profile Name"
-                                   Description="The name used to identify your installation profile">
-                <controls:SettingsItem.Footer>
-                    <TextBox Text="{Binding CurrentProfile.ProfileName}" KeyDown="OnTextBoxKeyDown" />
-                </controls:SettingsItem.Footer>
-            </controls:SettingsItem>
-
-            <controls:SettingsItem Title="Fortnite Version"
-                                   Description="The version of Fortnite that Fortnite Porting will be loading.">
-                <controls:SettingsItem.Footer>
-                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EFortniteVersion}}"
-                              SelectedItem="{Binding CurrentProfile.FortniteVersion, Converter={StaticResource EnumToRecord}}" />
-                </controls:SettingsItem.Footer>
-            </controls:SettingsItem>
-            <controls:SettingsItem Title="Archive Directory"
-                                   Description="The directory that contains all of the required game files. (*.pak, *.sig, *.ucas, *.utoc)"
-                                   IsVisible="{Binding CurrentProfile.ArchiveDirectoryEnabled}">
-                <controls:SettingsItem.Footer>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBox Text="{Binding CurrentProfile.ArchiveDirectory}"
-                                 Watermark="Ex. C:/Program Files/Epic Games/Fortnite/FortniteGame/Content/Paks" />
-                        <Button Margin="4 0 0 0" Command="{Binding CurrentProfile.BrowseArchivePath}">
-                            <ui:SymbolIcon Symbol="Folder" />
-                        </Button>
-                    </StackPanel>
-                </controls:SettingsItem.Footer>
-            </controls:SettingsItem>
-            <controls:SettingsItem Title="Game Language"
-                                   Description="The language used for in-game text strings such as names, descriptions, styles, etc.">
-                <controls:SettingsItem.Footer>
-                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type versions:ELanguage}}"
-                              SelectedItem="{Binding CurrentProfile.GameLanguage, Converter={StaticResource EnumToRecord}}" />
-                </controls:SettingsItem.Footer>
-            </controls:SettingsItem>
-            <controls:SettingsItem Title="Unreal Version"
-                                   Description="The Unreal Version that aligns with your Fortnite installation."
-                                   IsVisible="{Binding CurrentProfile.UnrealVersionEnabled}">
-                <controls:SettingsItem.Footer>
-                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type versions:EGame}}"
-                              SelectedItem="{Binding CurrentProfile.UnrealVersion, Converter={StaticResource EnumToRecord}}" />
-                </controls:SettingsItem.Footer>
-            </controls:SettingsItem>
-            <controls:SettingsItem Title="Encryption Key"
-                                   Description="The encryption key required to decrypt Fortnite's game files.">
-                <controls:SettingsItem.Footer>
-                    <TextBox Text="{Binding CurrentProfile.MainKey.KeyString}"
-                             Watermark="Ex. 0x0000000000000000000000000000000000000000000000000000000000000000"
-                             IsEnabled="{Binding CurrentProfile.EncryptionKeyEnabled}" />
-                </controls:SettingsItem.Footer>
-                <controls:SettingsItem.Content>
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="{ext:Space 1}" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-
-                        <Grid Grid.Row="0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="{ext:Space 1}" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="{ext:Space 1}" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center"
-                                       HorizontalAlignment="Left" TextAlignment="Left"
-                                       TextTrimming="CharacterEllipsis"
-                                       Text="Extra Keys" />
-                            <Button Grid.Column="2" ToolTip.Tip="Add Key" HorizontalAlignment="Left"
-                                    Content="{material:MaterialIconExt Add}"
-                                    Command="{Binding CurrentProfile.AddEncryptionKey}" />
-                            <Button Grid.Column="4" ToolTip.Tip="Remove Key" HorizontalAlignment="Left"
-                                    Content="{material:MaterialIconExt Minus}"
-                                    Command="{Binding CurrentProfile.RemoveEncryptionKey}" />
+                            <ListBox Grid.Row="2" ItemsSource="{Binding ExtraKeys}"
+                                     SelectedIndex="{Binding SelectedExtraKeyIndex, Mode=TwoWay}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBox Text="{Binding KeyString}"
+                                                 Watermark="Ex. 0x0000000000000000000000000000000000000000000000000000000000000000"
+                                                 Margin="{ext:Space 0, 1, 0, 1}" />
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
                         </Grid>
+                    </controls:SettingsItem.Content>
+                </controls:SettingsItem>
+                <controls:SettingsItem Title="Mappings File"
+                                       Description="The mappings file required for asset parsing to work properly. Required for Fortnite v14.40+"
+                                       IsVisible="{Binding MappingsFileEnabled}">
+                    <controls:SettingsItem.Footer>
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox IsChecked="{Binding UseMappingsFile}" />
+                            <TextBox Text="{Binding MappingsFile, Mode=TwoWay}"
+                                     Watermark="Ex. C:/Users/FortnitePorting/Downloads/Mappings.usmap"
+                                     IsEnabled="{Binding UseMappingsFile}"
+                                     MaxWidth="500" />
+                            <Button Margin="4 0 0 0" Command="{Binding BrowseMappingsFile}"
+                                    IsEnabled="{Binding UseMappingsFile}">
+                                <ui:SymbolIcon Symbol="Folder" />
+                            </Button>
+                        </StackPanel>
+                    </controls:SettingsItem.Footer>
+                </controls:SettingsItem>
+                <controls:SettingsItem Title="On-Demand Texture Streaming"
+                                       Description="Downloads high resolution cosmetic textures on-demand. Disable if you already have this package installed."
+                                       IsVisible="{Binding TextureStreamingEnabled}">
+                    <controls:SettingsItem.Footer>
+                        <ToggleSwitch IsChecked="{Binding UseTextureStreaming}" />
+                    </controls:SettingsItem.Footer>
+                </controls:SettingsItem>
 
-                        <ListBox Grid.Row="2" ItemsSource="{Binding CurrentProfile.ExtraKeys}"
-                                 SelectedIndex="{Binding CurrentProfile.SelectedExtraKeyIndex, Mode=TwoWay}">
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBox Text="{Binding KeyString}"
-                                             Watermark="Ex. 0x0000000000000000000000000000000000000000000000000000000000000000"
-                                             Margin="{ext:Space 0, 1, 0, 1}" />
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-                    </Grid>
-                </controls:SettingsItem.Content>
-            </controls:SettingsItem>
-            <controls:SettingsItem Title="Mappings File"
-                                   Description="The mappings file required for asset parsing to work properly. Required for Fortnite v14.40+"
-                                   IsVisible="{Binding CurrentProfile.MappingsFileEnabled}">
-                <controls:SettingsItem.Footer>
-                    <StackPanel Orientation="Horizontal">
-                        <CheckBox IsChecked="{Binding CurrentProfile.UseMappingsFile}" />
-                        <TextBox Text="{Binding CurrentProfile.MappingsFile, Mode=TwoWay}"
-                                 Watermark="Ex. C:/Users/FortnitePorting/Downloads/Mappings.usmap"
-                                 IsEnabled="{Binding CurrentProfile.UseMappingsFile}"
-                                 MaxWidth="500" />
-                        <Button Margin="4 0 0 0" Command="{Binding CurrentProfile.BrowseMappingsFile}"
-                                IsEnabled="{Binding CurrentProfile.UseMappingsFile}">
-                            <ui:SymbolIcon Symbol="Folder" />
-                        </Button>
-                    </StackPanel>
-                </controls:SettingsItem.Footer>
-            </controls:SettingsItem>
-            <controls:SettingsItem Title="On-Demand Texture Streaming"
-                                   Description="Downloads high resolution cosmetic textures on-demand. Disable if you already have this package installed."
-                                   IsVisible="{Binding CurrentProfile.TextureStreamingEnabled}">
-                <controls:SettingsItem.Footer>
-                    <ToggleSwitch IsChecked="{Binding CurrentProfile.UseTextureStreaming}" />
-                </controls:SettingsItem.Footer>
-            </controls:SettingsItem>
-
-            <controls:SettingsItem Title="Load Installed Bundles"
-                                   Description="Whether or not to load installed bundles from Fortnite's AppData directory."
-                                   IsVisible="{Binding CurrentProfile.LoadInstalledBundlesEnabled}">
-                <controls:SettingsItem.Footer>
-                    <ToggleSwitch IsChecked="{Binding CurrentProfile.LoadInstalledBundles}" />
-                </controls:SettingsItem.Footer>
-            </controls:SettingsItem>
-        </StackPanel>
-    </ScrollViewer>
+                <controls:SettingsItem Title="Load Installed Bundles"
+                                       Description="Whether or not to load installed bundles from Fortnite's AppData directory."
+                                       IsVisible="{Binding LoadInstalledBundlesEnabled}">
+                    <controls:SettingsItem.Footer>
+                        <ToggleSwitch IsChecked="{Binding LoadInstalledBundles}" />
+                    </controls:SettingsItem.Footer>
+                </controls:SettingsItem>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
 </UserControl>

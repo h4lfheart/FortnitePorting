@@ -20,7 +20,7 @@
     
         <ScrollViewer Grid.Row="1" Margin="{ext:Space -1}" ClipToBounds="False" VerticalScrollBarVisibility="Hidden">
             <ItemsControl x:Name="SidebarItems" Margin="{ext:Space 1}"
-                          ItemsSource="{Binding Items, RelativeSource={RelativeSource AncestorType=sidebar:Sidebar}}" 
+                          ItemsSource="{Binding FlattenedItems, RelativeSource={RelativeSource AncestorType=sidebar:Sidebar}}" 
                           ClipToBounds="False" PointerPressed="OnItemSelected">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>

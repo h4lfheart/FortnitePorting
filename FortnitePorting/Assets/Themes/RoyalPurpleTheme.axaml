@@ -53,6 +53,9 @@
         <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#0D0B1E" />
         <SolidColorBrush x:Key="ContentBorderBackgroundBrush" Color="#100F25" />
         <SolidColorBrush x:Key="ContentBorderBorderBrush" Color="#2A2445" />
+        
+        <SolidColorBrush x:Key="ContentBorderLayer2BackgroundBrush" Color="#0B0A14" />
+        <SolidColorBrush x:Key="ContentBorderLayer2BorderBrush" Color="#1C1A2E" />
 
         <SolidColorBrush x:Key="DialogOverlayBackgroundBrush" Color="#80000055" />
         <SolidColorBrush x:Key="BroadcastOverlayBackgroundBrush" Color="#80000055" />

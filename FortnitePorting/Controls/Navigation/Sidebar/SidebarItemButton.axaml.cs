@@ -10,6 +10,9 @@ public partial class SidebarItemButton : UserControl, ISidebarItem
     [AvaDirectProperty] private string _text;
     [AvaDirectProperty] private MaterialIconKind? _icon;
     [AvaDirectProperty] private Bitmap? _iconBitmap;
+
+    [AvaDirectProperty] private Control? _footer;
+    
     [AvaStyledProperty] private bool _isSelected = false;
 
     public bool UseIconBitmap => IconBitmap is not null;

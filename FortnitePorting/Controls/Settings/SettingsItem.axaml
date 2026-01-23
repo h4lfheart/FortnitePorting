@@ -11,7 +11,7 @@
              MinHeight="68" ClipToBounds="False">
     <Grid RowDefinitions="* Auto">
         <controls:ContentCard Grid.Row="0">
-            <Grid ColumnDefinitions="Auto * * 8 Auto" VerticalAlignment="Center" Margin="{ext:Space 2}">
+            <Grid ColumnDefinitions="Auto * 2* 8 Auto" VerticalAlignment="Center" Margin="{ext:Space 2}">
                 <ContentPresenter Grid.Column="0" 
                                   Content="{Binding Header, RelativeSource={RelativeSource AncestorType=settings:SettingsItem} }"
                                   IsVisible="{Binding Header, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}, Converter={x:Static ObjectConverters.IsNotNull}}"
