@@ -21,6 +21,18 @@ public class SidebarItemSelectedArgs(object? tag) : RoutedEventArgs
     public object? Tag = tag;
 }
 
+public class SidebarItemDragDropEventArgs : RoutedEventArgs
+{
+    public SidebarItemButton SourceButton { get; }
+    public SidebarItemButton TargetButton { get; }
+
+    public SidebarItemDragDropEventArgs(SidebarItemButton sourceButton, SidebarItemButton targetButton)
+    {
+        SourceButton = sourceButton;
+        TargetButton = targetButton;
+    }
+}
+
 public partial class Sidebar : UserControl
 {
     [AvaDirectProperty] private Control _header;
@@ -49,6 +61,7 @@ public partial class Sidebar : UserControl
     private bool _hasSelectedFirstButton;
     private bool _isUpdatingSelection;
     private readonly Dictionary<SidebarItemsSource, EventHandler> _itemsSourceSubscriptions = new();
+    private readonly Dictionary<SidebarItemButton, (SidebarItemsSource itemsSource, object dataItem)> _buttonToDataMap = new();
     
     public readonly RoutedEvent<SidebarItemSelectedArgs> ItemSelectedEvent =
         RoutedEvent.Register<Sidebar, SidebarItemSelectedArgs>(
@@ -60,14 +73,25 @@ public partial class Sidebar : UserControl
         add => AddHandler(ItemSelectedEvent, value);
         remove => RemoveHandler(ItemSelectedEvent, value);
     }
+
+    public static readonly RoutedEvent<SidebarItemDragDropEventArgs> ItemDragDropEvent =
+        RoutedEvent.Register<Sidebar, SidebarItemDragDropEventArgs>(
+            nameof(ItemDragDrop),
+            RoutingStrategies.Bubble);
+
+    public event EventHandler<SidebarItemDragDropEventArgs> ItemDragDrop
+    {
+        add => AddHandler(ItemDragDropEvent, value);
+        remove => RemoveHandler(ItemDragDropEvent, value);
+    }
     
     public Sidebar()
     {
         InitializeComponent();
 
         Items.CollectionChanged += OnItemsCollectionChanged;
-
         this.GetObservable(SelectedItemProperty).Subscribe(OnSelectedItemChanged);
+        AddHandler(ItemDragDropEvent, OnItemDragDropInternal);
 
         AttachedToVisualTree += async (sender, args) =>
         {
@@ -88,6 +112,47 @@ public partial class Sidebar : UserControl
         };
 
         RebuildFlattenedItems();
+    }
+
+    private void OnItemDragDropInternal(object? sender, SidebarItemDragDropEventArgs e)
+    {
+        var sourceButton = e.SourceButton;
+        var targetButton = e.TargetButton;
+
+        if (!_buttonToDataMap.TryGetValue(sourceButton, out var sourceInfo))
+            return;
+        
+        if (!_buttonToDataMap.TryGetValue(targetButton, out var targetInfo))
+            return;
+
+        if (sourceInfo.itemsSource != targetInfo.itemsSource)
+            return;
+
+        var itemsSource = sourceInfo.itemsSource.ItemsSource;
+        if (itemsSource is null)
+            return;
+
+        if (itemsSource is ObservableCollection<object> observableCollection)
+        {
+            var sourceIndex = observableCollection.IndexOf(sourceInfo.dataItem);
+            var targetIndex = observableCollection.IndexOf(targetInfo.dataItem);
+
+            if (sourceIndex != -1 && targetIndex != -1)
+            {
+                observableCollection.Move(sourceIndex, targetIndex);
+            }
+        }
+        else if (itemsSource is IList list)
+        {
+            var sourceIndex = list.IndexOf(sourceInfo.dataItem);
+            var targetIndex = list.IndexOf(targetInfo.dataItem);
+
+            if (sourceIndex != -1 && targetIndex != -1)
+            {
+                list.RemoveAt(sourceIndex);
+                list.Insert(targetIndex, sourceInfo.dataItem);
+            }
+        }
     }
 
     private void OnSelectedItemChanged(object? newValue)
@@ -114,6 +179,8 @@ public partial class Sidebar : UserControl
     {
         var flattened = new ObservableCollection<ISidebarItem>();
         SidebarItemButton? newSelectedButton = null;
+        
+        _buttonToDataMap.Clear();
 
         foreach (var item in Items)
         {
@@ -132,10 +199,16 @@ public partial class Sidebar : UserControl
                             
                             control.DataContext = dataItem;
                             
-                            if (control is SidebarItemButton { Tag: not null } button && 
-                                button.Tag.Equals(SelectedItem))
+                            if (control is SidebarItemButton button)
                             {
-                                newSelectedButton = button;
+                                button.CanReorder = itemsSource.CanReorder;
+                                
+                                _buttonToDataMap[button] = (itemsSource, dataItem);
+                                
+                                if (button.Tag is not null && button.Tag.Equals(SelectedItem))
+                                {
+                                    newSelectedButton = button;
+                                }
                             }
                                 
                             flattened.Add(sidebarItem);
@@ -147,10 +220,16 @@ public partial class Sidebar : UserControl
                         {
                             if (dataItem is ISidebarItem sidebarItem)
                             {
-                                if (dataItem is SidebarItemButton { Tag: not null } button && 
-                                    button.Tag.Equals(SelectedItem))
+                                if (dataItem is SidebarItemButton button)
                                 {
-                                    newSelectedButton = button;
+                                    button.CanReorder = itemsSource.CanReorder;
+                                    
+                                    _buttonToDataMap[button] = (itemsSource, dataItem);
+                                    
+                                    if (button.Tag is not null && button.Tag.Equals(SelectedItem))
+                                    {
+                                        newSelectedButton = button;
+                                    }
                                 }
                                 
                                 flattened.Add(sidebarItem);

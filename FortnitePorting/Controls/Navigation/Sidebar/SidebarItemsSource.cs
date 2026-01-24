@@ -16,6 +16,9 @@ public class SidebarItemsSource : AvaloniaObject, ISidebarItem
     public static readonly StyledProperty<IDataTemplate?> ItemTemplateProperty =
         AvaloniaProperty.Register<SidebarItemsSource, IDataTemplate?>(nameof(ItemTemplate));
 
+    public static readonly StyledProperty<bool> CanReorderProperty =
+        AvaloniaProperty.Register<SidebarItemsSource, bool>(nameof(CanReorder), defaultValue: false);
+
     [Content]
     public IEnumerable? ItemsSource
     {
@@ -27,6 +30,12 @@ public class SidebarItemsSource : AvaloniaObject, ISidebarItem
     {
         get => GetValue(ItemTemplateProperty);
         set => SetValue(ItemTemplateProperty, value);
+    }
+
+    public bool CanReorder
+    {
+        get => GetValue(CanReorderProperty);
+        set => SetValue(CanReorderProperty, value);
     }
 
     public event EventHandler? ItemsChanged;

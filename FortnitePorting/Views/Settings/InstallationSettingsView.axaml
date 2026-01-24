@@ -27,7 +27,7 @@
                          SelectedItem="{Binding SelectedEditProfile, Mode=TwoWay}">
             <sidebar:Sidebar.Items>
                 <sidebar:SidebarItemText Text="PROFILES"/>
-                <sidebar:SidebarItemsSource ItemsSource="{Binding Profiles}">
+                <sidebar:SidebarItemsSource ItemsSource="{Binding Profiles}" CanReorder="True">
                     <sidebar:SidebarItemsSource.ItemTemplate>
                         <DataTemplate x:DataType="installation:InstallationProfile">
                             <sidebar:SidebarItemButton Text="{Binding ProfileName}" Tag="{Binding}">
