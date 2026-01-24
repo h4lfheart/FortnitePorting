@@ -54,13 +54,16 @@
             <Grid Grid.Column="0"
                   IsVisible="{Binding ShouldShowIcon, RelativeSource={RelativeSource AncestorType=sidebar:SidebarItemButton}}">
                 <material:MaterialIcon
-                                       IsVisible="{Binding !UseIconBitmap, RelativeSource={RelativeSource AncestorType=sidebar:SidebarItemButton}}"
+                                       IsVisible="{Binding IconBitmap, RelativeSource={RelativeSource AncestorType=sidebar:SidebarItemButton}, Converter={x:Static ObjectConverters.IsNull}}"
                                        Kind="{Binding Icon, RelativeSource={RelativeSource AncestorType=sidebar:SidebarItemButton}}"/>
             
             
-                <Image  Width="20" Height="20" RenderOptions.BitmapInterpolationMode="HighQuality"
-                       IsVisible="{Binding UseIconBitmap, RelativeSource={RelativeSource AncestorType=sidebar:SidebarItemButton}}"
-                       Source="{Binding IconBitmap, RelativeSource={RelativeSource AncestorType=sidebar:SidebarItemButton}}"/>
+                <Border Width="20" Height="20" ClipToBounds="True" CornerRadius="4"
+                        IsVisible="{Binding IconBitmap, RelativeSource={RelativeSource AncestorType=sidebar:SidebarItemButton}, Converter={x:Static ObjectConverters.IsNotNull}}">
+                    <Image Width="20" Height="20" RenderOptions.BitmapInterpolationMode="HighQuality"
+                           Source="{Binding IconBitmap, RelativeSource={RelativeSource AncestorType=sidebar:SidebarItemButton}}"/>
+                </Border>
+                
             </Grid>
                                 
             <TextBlock Grid.Column="1"  Text="{Binding Text, RelativeSource={RelativeSource AncestorType=sidebar:SidebarItemButton}}" 

@@ -15,8 +15,6 @@ public partial class SidebarItemButton : UserControl, ISidebarItem
     
     [AvaStyledProperty] private bool _isSelected = false;
 
-    public bool UseIconBitmap => IconBitmap is not null;
-
     public bool ShouldShowIcon => IconBitmap is not null || Icon is not null;
 
     public SidebarItemButton()
