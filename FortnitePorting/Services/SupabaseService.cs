@@ -14,6 +14,7 @@ using Mapster;
 using Serilog;
 using Supabase;
 using Supabase.Gotrue;
+using Supabase.Gotrue.Exceptions;
 using Supabase.Realtime.PostgresChanges;
 using Client = Supabase.Client;
 
@@ -40,12 +41,15 @@ public partial class SupabaseService : ObservableObject, IService
             
             Client.Auth.AddStateChangedListener(async (client, state) =>
             {
-                if (state != Constants.AuthState.SignedIn) return;  
-                if (client.CurrentSession is not { } session) return;
-                
-                AppSettings.Account.SessionInfo = new UserSessionInfo(session.AccessToken!, session.RefreshToken!);
+                if (client.CurrentSession is { } session)
+                {
+                    AppSettings.Account.SessionInfo = new UserSessionInfo(
+                        session.AccessToken!, 
+                        session.RefreshToken!
+                    );
+                }
 
-                if (!IsLoggedIn)
+                if (state == Constants.AuthState.SignedIn && !IsLoggedIn)
                 {
                     await OnLoggedIn();
                 }
@@ -83,13 +87,25 @@ public partial class SupabaseService : ObservableObject, IService
     {
         try
         {
-            await Client.Auth.SetSession(sessionInfo.AccessToken, sessionInfo.RefreshToken);
-            
-            await Client.Auth.RefreshSession();
+            if (await Client.Auth.SetSession(sessionInfo.AccessToken, sessionInfo.RefreshToken) is { } session)
+            {
+                AppSettings.Account.SessionInfo = new UserSessionInfo(
+                    session.AccessToken!, 
+                    session.RefreshToken!
+                );
+            }
+        }
+        catch (GotrueException e) when (e.Message.Contains("refresh_token_already_used"))
+        {
+            AppSettings.Account.SessionInfo = null;
+            IsLoggedIn = false;
+            Info.Dialog("Session Expired", "Your session has expired. Please log in again.");
+            Log.Warning("Refresh token already used, session cleared");
         }
         catch (Exception e)
         {
             AppSettings.Account.SessionInfo = null;
+            IsLoggedIn = false;
             Info.Dialog("Online Services", "The online session is invalid, please log in again.");
             Log.Error(e.ToString());
         }

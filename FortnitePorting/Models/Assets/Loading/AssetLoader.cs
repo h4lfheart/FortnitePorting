@@ -293,7 +293,7 @@ public partial class AssetLoader : ObservableObject
         var isHidden = HideNames.Any(name => asset.Name.Contains(name, StringComparison.OrdinalIgnoreCase)) || HidePredicate(this, asset, displayName);
         if (isHidden && !LoadHiddenAssets) return;
         
-        var icon = IconHandler(asset) ?? await AppServices.UEParse.Provider.SafeLoadPackageObjectAsync<UTexture2D>(PlaceholderIconPath);
+        var icon = IconHandler(asset) ?? await UEParse.Provider.SafeLoadPackageObjectAsync<UTexture2D>(PlaceholderIconPath);
         if (icon is null) return;
         
         var args = new AssetItemCreationArgs
@@ -314,12 +314,12 @@ public partial class AssetLoader : ObservableObject
     
     private async Task LoadAsset(ManuallyDefinedAsset manualAsset)
     {
-        var asset = await AppServices.UEParse.Provider.SafeLoadPackageObjectAsync(manualAsset.AssetPath);
+        var asset = await UEParse.Provider.SafeLoadPackageObjectAsync(manualAsset.AssetPath);
         if (asset is null) return;
 
         var displayName = manualAsset.Name;
             
-        var icon = await AppServices.UEParse.Provider.SafeLoadPackageObjectAsync<UTexture2D>(manualAsset.IconPath) ?? await AppServices.UEParse.Provider.SafeLoadPackageObjectAsync<UTexture2D>(PlaceholderIconPath);
+        var icon = await UEParse.Provider.SafeLoadPackageObjectAsync<UTexture2D>(manualAsset.IconPath) ?? await UEParse.Provider.SafeLoadPackageObjectAsync<UTexture2D>(PlaceholderIconPath);
         if (icon is null) return;
         
         var args = new AssetItemCreationArgs

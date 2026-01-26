@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.UE4.Assets.Exports;
+using CUE4Parse.UE4.Assets.Exports.MetaSound;
 using CUE4Parse.UE4.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
@@ -124,7 +125,7 @@ public partial class MusicPackItem : ObservableObject
     {
         await TaskService.RunAsync(async () =>
         {
-            if (!SoundExtensions.TrySaveSoundToAssets(SoundWave.Load<USoundWave>(), AppServices.AppSettings.Application.AssetPath, out string wavPath)) return;
+            if (!SoundExtensions.TrySaveSoundToAssets(SoundWave.Load<USoundWave>(), AppSettings.Application.AssetPath, out string wavPath)) return;
 
             if (File.Exists(path)) return;
 
@@ -152,8 +153,8 @@ public partial class MusicPackItem : ObservableObject
                         .ProcessAsynchronously();
             
                     var file = new FileInfo(path);
-                    ATL.Settings.ID3v2_writePictureDataLengthIndicator = false;
-                    ATL.Settings.FileBufferSize = file.Length > int.MaxValue
+                    Settings.ID3v2_writePictureDataLengthIndicator = false;
+                    Settings.FileBufferSize = file.Length > int.MaxValue
                         ? int.MaxValue
                         : (int) file.Length;
             

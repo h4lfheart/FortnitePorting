@@ -40,7 +40,4 @@ public class MapResponse
 
     [JsonProperty("is_non_display")]
     public bool IsNonDisplay { get; set; }
-
-    [JsonProperty("source_name")]
-    public string SourceName { get; set; }
 }

@@ -511,11 +511,6 @@ public partial class WorldPartitionMap : ObservableObject
             }
         }
     }
-
-    public override string ToString()
-    {
-        return $"{MapInfo.SourceName}: {MapInfo.Id}";
-    }
 }
 
 

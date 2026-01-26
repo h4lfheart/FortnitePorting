@@ -98,7 +98,7 @@ public partial class MapViewModel : ViewModelBase
                     var defaultMap = await defaultMapPath.LoadAsync();
                     if (PluginRemoveList.Any(item => defaultMap.Name.Contains(item, StringComparison.OrdinalIgnoreCase))) continue;
 
-                    var mapInfo = MapInfo.CreateNonDisplay(defaultMap.Name, defaultMap.GetPathName().SubstringBeforeLast("."), sourceName: "UEFN");
+                    var mapInfo = MapInfo.CreateNonDisplay(defaultMap.Name, defaultMap.GetPathName().SubstringBeforeLast("."));
                 
                     Maps.Add(new WorldPartitionMap(mapInfo));
                 }
