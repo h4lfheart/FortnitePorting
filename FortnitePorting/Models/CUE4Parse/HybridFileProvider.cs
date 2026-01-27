@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using CUE4Parse.FileProvider.Vfs;
+using CUE4Parse.UE4.IO;
 using CUE4Parse.UE4.Readers;
 using CUE4Parse.UE4.Versions;
 using CUE4Parse.Utils;
@@ -54,9 +55,16 @@ public class HybridFileProvider : AbstractVfsFileProvider
         foreach (var file in directory.EnumerateFiles("*.*", EnumerationOptions))
         {
             var extension = file.Extension.SubstringAfter('.').ToLower();
-            if (extension is not ("pak" or "utoc")) continue;
+            if (extension is "pak" or "utoc")
+            {
+                RegisterVfs(file.FullName, [ file.OpenRead() ], it => new FStreamArchive(it, File.OpenRead(it), Versions));
+            }
 
-            RegisterVfs(file.FullName, [ file.OpenRead() ], it => new FStreamArchive(it, File.OpenRead(it), Versions));
+            if (extension is "uondemandtoc")
+            {
+                var ioChunkToc = new IoChunkToc(file.FullName);
+                RegisterVfs(ioChunkToc, OnDemandOptions);
+            }
 
         }
     }
