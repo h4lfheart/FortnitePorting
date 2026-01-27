@@ -105,6 +105,14 @@ public class CUE4ParseViewModel : ViewModelBase
 
         Provider.LoadExtraDirectories = AppSettings.Current.Installation.CurrentProfile.LoadCreativeMaps;
         
+        Provider.OnDemandOptions = new IoStoreOnDemandOptions
+        {
+            ChunkHostUri = new Uri("https://download.epicgames.com/", UriKind.Absolute),
+            ChunkCacheDirectory = CacheFolder,
+            Authorization = new AuthenticationHeaderValue("Bearer", AppSettings.Current.Online.EpicAuth?.Token),
+            Timeout = TimeSpan.FromSeconds(AppSettings.Current.Debug.RequestTimeoutSeconds)
+        };
+        
         await CheckBlackHole();
         await CleanupCache();
 
@@ -272,16 +280,7 @@ public class CUE4ParseViewModel : ViewModelBase
                 await ApiVM.DownloadFileAsync($"https://download.epicgames.com/{tocPath}", onDemandFile.FullName);
             }
 
-            var options = new IoStoreOnDemandOptions
-            {
-                ChunkBaseUri = new Uri("https://download.epicgames.com/ias/fortnite/", UriKind.Absolute),
-                ChunkCacheDirectory = CacheFolder,
-                Authorization = new AuthenticationHeaderValue("Bearer", AppSettings.Current.Online.EpicAuth?.Token),
-                Timeout = TimeSpan.FromSeconds(AppSettings.Current.Debug.RequestTimeoutSeconds)
-            };
-
-            var chunkToc = new IoChunkToc(onDemandFile);
-            await Provider.RegisterVfs(chunkToc, options);
+            await Provider.RegisterVfsAsync(new IoChunkToc(onDemandFile.FullName));
             await Provider.MountAsync();
         }
         catch (Exception e)

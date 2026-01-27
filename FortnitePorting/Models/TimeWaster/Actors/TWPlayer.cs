@@ -6,6 +6,7 @@ using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Services;
+using Org.BouncyCastle.Asn1.X509;
 using Log = Serilog.Log;
 
 namespace FortnitePorting.Models.TimeWaster.Actors;

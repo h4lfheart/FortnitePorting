@@ -10,6 +10,7 @@ using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.ViewModels;
+using SharpGLTF.Schema2;
 using SkiaSharp;
 
 namespace FortnitePorting.WindowModels;

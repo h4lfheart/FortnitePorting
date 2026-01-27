@@ -4,6 +4,7 @@ using Avalonia.Interactivity;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Serilog;
 using FortnitePorting.ViewModels;
+using ScottPlot.DataViews;
 
 namespace FortnitePorting.Views;
 

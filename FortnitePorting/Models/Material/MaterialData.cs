@@ -31,7 +31,9 @@ using FortnitePorting.Shared.Extensions;
 using FortnitePorting.WindowModels;
 using ReactiveUI;
 using Serilog;
+using SharpGLTF.Schema2;
 using ColorSpectrumShape = Avalonia.Controls.ColorSpectrumShape;
+using Image = Avalonia.Controls.Image;
 
 namespace FortnitePorting.Models.Material;
 
