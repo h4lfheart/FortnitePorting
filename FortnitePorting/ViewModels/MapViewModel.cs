@@ -13,9 +13,11 @@ using CUE4Parse.UE4.IO;
 using CUE4Parse.Utils;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Fortnite;
+using FortnitePorting.Models.Information;
 using FortnitePorting.Models.Map;
 
 using FortnitePorting.Services;
+using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Views;
 using Mapster;
 using Serilog;
@@ -25,19 +27,22 @@ namespace FortnitePorting.ViewModels;
 public partial class MapViewModel : ViewModelBase
 {
     [ObservableProperty] private SettingsService _appSettings;
+    [ObservableProperty] private SupabaseService _supaBase;
 
-    public MapViewModel(SettingsService settings)
+    public MapViewModel(SettingsService settings, SupabaseService supabase)
     {
         AppSettings = settings;
+        SupaBase = supabase;
     }
     
     [ObservableProperty] private ObservableCollection<WorldPartitionMap> _maps = [];
     [ObservableProperty] private WorldPartitionMap _selectedMap;
     [ObservableProperty] private EExportLocation _exportLocation = EExportLocation.Blender;
 
-    [ObservableProperty] private bool _isLoading;
+    [ObservableProperty] private bool _isLoading = true;
     [ObservableProperty] private string? _currentlyLoadingMap;
-    
+
+    [ObservableProperty] private bool _useMapInfoCreator;
     
     [ObservableProperty, NotifyPropertyChangedFor(nameof(LoadingPercentageText))] private int _loadedMaps;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(LoadingPercentageText))] private int _totalMaps = int.MaxValue;
@@ -68,7 +73,6 @@ public partial class MapViewModel : ViewModelBase
 
     public override async Task Initialize()
     {
-       
         await TaskService.RunDispatcherAsync(async () =>
         {
              IsLoading = true;
@@ -78,7 +82,22 @@ public partial class MapViewModel : ViewModelBase
             {
                 var mapInfo = map.Adapt<MapInfo>();
                 if (!mapInfo.IsValid()) continue;
+
+                mapInfo.IsPublished = true;
                 
+                Maps.Add(new WorldPartitionMap(mapInfo));
+            }
+
+            foreach (var mapInfo in AppSettings.Application.LocalMapInfos.ToArray())
+            {
+                if (!mapInfo.IsValid())
+                {
+                    Info.Message("Local Map Info", $"Failed to load {mapInfo.Id} due to invalid file paths, removing from local registry.");
+                    AppSettings.Application.LocalMapInfos.RemoveAll(map => map.Id.Equals(mapInfo.Id));
+                    continue;
+                }
+
+                mapInfo.IsPublished = false;
                 Maps.Add(new WorldPartitionMap(mapInfo));
             }
 
@@ -138,9 +157,68 @@ public partial class MapViewModel : ViewModelBase
     }
     
     [RelayCommand]
-    public async Task ReloadMap()
+    public async Task EditorPublish()
     {
-        await SelectedMap.Load();
+        if (!SelectedMap.MapInfo.IsValid())
+        {
+            Info.Message("Publish Map", "Map information is invalid, ensure all paths exist");
+            return;
+        }
+        
+        Info.Dialog("Publish Map", $"Are you sure you would like to publish {SelectedMap.MapInfo.Id}? This will make the map visible for all users.", buttons: [
+            new DialogButton
+            {
+                Text = "Publish",
+                Action = () => TaskService.Run(async () =>
+                {
+                    await Api.FortnitePorting.PostMap(SelectedMap.MapInfo);
+                    SelectedMap.MapInfo.IsPublished = true;
+                    AppSettings.Application.LocalMapInfos.RemoveAll(map => map.Id.Equals(SelectedMap.MapInfo.Id));
+                    
+                    Info.Message("Publish Map", $"Successfully published {SelectedMap.MapInfo.Id}!");
+                })
+            }
+        ]);
+    }
+
+    [RelayCommand]
+    public async Task EditorDelete()
+    {
+        Info.Dialog("Delete Map", $"Are you sure you would like to delete {SelectedMap.MapInfo.Id}? This will remove the map for all users.", buttons: [
+            new DialogButton
+            {
+                Text = "Delete",
+                Action = () =>
+                {
+                    var targetId = SelectedMap.MapInfo.Id;
+                    if (SelectedMap.MapInfo.IsPublished)
+                    {
+                        TaskService.Run(async () =>
+                        {
+                            await Api.FortnitePorting.DeleteMap(targetId);
+                        });
+                    }
+                        
+                    Maps.Remove(SelectedMap);
+                    SelectedMap = Maps.FirstOrDefault();
+                    AppSettings.Application.LocalMapInfos.RemoveAll(map => map.Id.Equals(targetId));
+                    
+                    Info.Message("Delete Map", $"Successfully deleted {targetId}!");
+                }
+            }
+        ]);
+    }
+    
+    [RelayCommand]
+    public async Task EditorReload()
+    {
+        if (!SelectedMap.MapInfo.IsValid())
+        {
+            Info.Message("Refresh Map", "Map information is invalid, ensure all paths exist");
+            return;
+        }
+        
+        await SelectedMap.Refresh();
     }
     
     [RelayCommand]

@@ -9,12 +9,13 @@
              xmlns:map="clr-namespace:FortnitePorting.Models.Map"
              xmlns:views="clr-namespace:FortnitePorting.Views"
              xmlns:sidebar="clr-namespace:FortnitePorting.Controls.Navigation.Sidebar"
+             xmlns:tables="clr-namespace:FortnitePorting.Models.Supabase.Tables"
              d:DesignHeight="770" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.MapView"
              x:DataType="viewModels:MapViewModel">
     
     <Grid>
-        <Grid IsVisible="{Binding !IsLoading}">
+        <Grid IsVisible="{Binding !IsLoading, FallbackValue=False}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="7*"/>
@@ -31,12 +32,19 @@
                             </DataTemplate>
                         </sidebar:SidebarItemsSource.ItemTemplate>
                     </sidebar:SidebarItemsSource>
+                    <sidebar:SidebarItemButton Text="Add Map" Icon="Plus" ItemPressed="OnAddMapPressed" IsSelectable="False"
+                                               IsVisible="{Binding SupaBase.UserInfo.Role, Converter={StaticResource EnumGreaterOrEqual}, ConverterParameter={x:Static tables:ESupabaseRole.Staff}}"/>
                 </sidebar:Sidebar.Items>
+                <sidebar:Sidebar.Footer>
+                    <ToggleButton HorizontalAlignment="Stretch" Content="{controls:IconText 'Map Creator', Paintbrush}"
+                                  IsChecked="{Binding UseMapInfoCreator}"
+                                  IsVisible="{Binding SupaBase.UserInfo.Role, Converter={StaticResource EnumGreaterOrEqual}, ConverterParameter={x:Static tables:ESupabaseRole.Staff}}"/>
+                </sidebar:Sidebar.Footer>
             </sidebar:Sidebar>
             
             <Grid Grid.Column="1" ColumnDefinitions="2* *">
                 <Grid Grid.Column="1" Margin="{ext:Space 1, 2, 1, 1}"
-                      VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                      VerticalAlignment="Stretch" HorizontalAlignment="Stretch" IsVisible="{Binding !UseMapInfoCreator}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="{ext:Space 4}" />
@@ -223,6 +231,111 @@
                     </Grid>
                 </Grid>
                 
+                <Grid Grid.Column="1" Margin="{ext:Space 1, 2, 1, 1}" IsVisible="{Binding UseMapInfoCreator}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="{ext:Space 2}"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <controls:DynamicFadeScrollViewer Grid.Row="0">
+                        <StackPanel Spacing="{ext:Space 2}">
+                            <TextBlock Text="Loading Options" Classes="BodyStrongTextBlockStyle"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            
+                            <StackPanel Spacing="{ext:Space 1}">
+                                <TextBlock Text="Map ID" Classes="BodyStrongTextBlockStyle"/>
+                                <TextBox Text="{Binding SelectedMap.MapInfo.Id, Mode=TwoWay}" 
+                                         Watermark="Ex. Athena"/>
+                            </StackPanel>
+                            
+                            <StackPanel Spacing="{ext:Space 1}">
+                                <TextBlock Text="Ordering Priority" Classes="BodyStrongTextBlockStyle"/>
+                                <NumericUpDown Value="{Binding SelectedMap.MapInfo.Priority, Mode=TwoWay}"
+                                                      Increment="1" FormatString="F0" Minimum="1"/>
+                            </StackPanel>
+                            
+                            <CheckBox Content="Non-Display Map" 
+                                      IsChecked="{Binding SelectedMap.MapInfo.IsNonDisplay, Mode=TwoWay}"/>
+                            
+                            <Separator HorizontalAlignment="Stretch" Margin="0"/>
+                            
+                            <TextBlock Text="Map Options" Classes="BodyStrongTextBlockStyle"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            
+                            <StackPanel Spacing="{ext:Space 1}">
+                                <TextBlock Text="Map Path" Classes="BodyStrongTextBlockStyle" />
+                                <TextBox Text="{Binding SelectedMap.MapInfo.MapPath, Mode=TwoWay}" 
+                                         Watermark="Ex. FortniteGame/Content/Athena/Maps/Athena_Terrain"/>
+                            </StackPanel>
+                            
+                            <StackPanel Spacing="{ext:Space 2}" IsVisible="{Binding !SelectedMap.MapInfo.IsNonDisplay}">
+                                <StackPanel Spacing="{ext:Space 1}">
+                                    <TextBlock Text="Minimap Path" Classes="BodyStrongTextBlockStyle"/>
+                                    <TextBox Text="{Binding SelectedMap.MapInfo.MinimapPath, Mode=TwoWay}" 
+                                             Watermark="Ex. FortniteGame/Content/Athena/UI/Minimap_Athena_Terrain"/>
+                                </StackPanel>
+                                
+                                <CheckBox Content="Use Mask" 
+                                          IsChecked="{Binding SelectedMap.MapInfo.UseMask, Mode=TwoWay}"/>
+                                
+                                <StackPanel Spacing="{ext:Space 1}" IsVisible="{Binding SelectedMap.MapInfo.UseMask}">
+                                    <TextBlock Text="Mask Path" Classes="BodyStrongTextBlockStyle"/>
+                                    <TextBox Text="{Binding SelectedMap.MapInfo.MaskPath, Mode=TwoWay}" 
+                                             Watermark="Ex. FortniteGame/Content/Athena/UI/PostMask_Athena_Terrain"/>
+                                </StackPanel>
+                                
+                                <Separator HorizontalAlignment="Stretch" Margin="0"/>
+                                
+                                <TextBlock Text="Grid Options" Classes="BodyStrongTextBlockStyle"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                
+                                <StackPanel Spacing="{ext:Space 1}">
+                                    <TextBlock Text="Scale" Classes="BodyStrongTextBlockStyle"/>
+                                    <NumericUpDown Value="{Binding SelectedMap.MapInfo.Scale, Mode=TwoWay}"
+                                                   Increment="0.01" FormatString="F4" Minimum="0.0001"/>
+                                </StackPanel>
+                                
+                                <StackPanel Spacing="{ext:Space 1}">
+                                    <TextBlock Text="X Offset" Classes="BodyStrongTextBlockStyle"/>
+                                    <NumericUpDown Value="{Binding SelectedMap.MapInfo.XOffset, Mode=TwoWay}"
+                                                   Increment="1" FormatString="F0"/>
+                                </StackPanel>
+                                
+                                <StackPanel Spacing="{ext:Space 1}">
+                                    <TextBlock Text="Y Offset" Classes="BodyStrongTextBlockStyle"/>
+                                    <NumericUpDown Value="{Binding SelectedMap.MapInfo.YOffset, Mode=TwoWay}"
+                                                   Increment="1" FormatString="F0"/>
+                                </StackPanel>
+                                
+                                <StackPanel Spacing="{ext:Space 1}">
+                                    <TextBlock Text="Min Grid Distance" Classes="BodyStrongTextBlockStyle"/>
+                                    <NumericUpDown Value="{Binding SelectedMap.MapInfo.MinGridDistance, Mode=TwoWay}"
+                                                   Increment="1" FormatString="F0" Minimum="1"/>
+                                </StackPanel>
+                                
+                                <CheckBox Content="Rotate Grid" 
+                                          IsChecked="{Binding SelectedMap.MapInfo.RotateGrid, Mode=TwoWay}"/>
+                            </StackPanel>
+                            
+                        </StackPanel>
+                    </controls:DynamicFadeScrollViewer>
+                    
+                    <StackPanel Grid.Row="2" Spacing="{ext:Space 1}">
+                        <Button HorizontalAlignment="Stretch" IsVisible="{Binding !SelectedMap.MapInfo.IsNonDisplay}"
+                                Command="{Binding EditorReloadCommand}"
+                                Content="{controls:IconText 'Refresh', Refresh}"/>
+                        
+                        <Button HorizontalAlignment="Stretch"
+                                Classes="Green" Command="{Binding EditorPublishCommand}"
+                                Content="{controls:IconText 'Publish', CloudUpload}"/>
+                        
+                        <Button HorizontalAlignment="Stretch"
+                                Classes="Red" Command="{Binding EditorDeleteCommand}"
+                                Content="{controls:IconText 'Delete', Delete}"/>
+                    </StackPanel>
+                </Grid>
+                
                 <Grid Grid.Column="0" Margin="{ext:Space 1}">
                     <Border x:Name="MapBorder" CornerRadius="12" ClipToBounds="True" Background="{DynamicResource FPContentCardBackground}"
                             Height="{Binding $self.Bounds.Width}">
@@ -270,26 +383,18 @@
                         
                         <ToggleButton Content="{controls:IconText 'Include Main Level', Landscape}" IsCheckedChanged="OnMainLevelIncludeChanged"
                                       HorizontalAlignment="Center" VerticalAlignment="Bottom" IsChecked="{Binding SelectedMap.IncludeMainLevel}"
-                                      Margin="{ext:Space 0, 0, 0, 1}"/>
+                                      Margin="{ext:Space 0, 0, 0, 1}" IsVisible="{Binding !UseMapInfoCreator}"/>
                     </controls:ContentCard>
-                </Grid>
-
-                <Grid Grid.Column="0" Width="{Binding $parent[views:MapView].Bounds.Height}">
+                    
                     <TextBlock Text="A preview of this map is not available."
                                HorizontalAlignment="Center" VerticalAlignment="Center"
-                               Classes="BodyTextBlockStyle TextFillColorSecondaryBrush">
-                        <TextBlock.IsVisible>
-                            <MultiBinding Converter="{x:Static BoolConverters.And}">
-                                <Binding Path="!SelectedMap.SelectedMaps.Count" />
-                                <Binding Path="SelectedMap.MapInfo.IsNonDisplay" />
-                            </MultiBinding>
-                        </TextBlock.IsVisible>
-                    </TextBlock>
+                               Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"
+                               IsVisible="{Binding SelectedMap.MapInfo.IsNonDisplay}"/>
                 </Grid>
             </Grid>
         </Grid>
         
-        <Grid VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding IsLoading}">
+        <Grid VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding IsLoading, FallbackValue=True}">
             <Ellipse Width="600" Height="600" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Ellipse.Styles>
                     <Style Selector="Ellipse">
@@ -333,5 +438,4 @@
             </StackPanel>
         </Grid>
     </Grid>
-        
 </UserControl>

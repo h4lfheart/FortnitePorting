@@ -35,7 +35,7 @@ public partial class WorldPartitionGrid : ObservableObject
         var rotatedPosition = mapInfo.RotateGrid ? RotateAboutOrigin(new Vector2(position.X, position.Y), Vector2.Zero) : new Vector2(position.X, position.Y);
         Position = new FVector(rotatedPosition.X, rotatedPosition.Y, 0);
         MapInfo = mapInfo;
-        CellSize = mapInfo.CellSize;
+        CellSize = (int)(mapInfo.MinGridDistance * mapInfo.Scale / 2);
     }
     
     public Vector2 RotateAboutOrigin(Vector2 point, Vector2 origin)

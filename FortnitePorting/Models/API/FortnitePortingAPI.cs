@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using CUE4Parse.Utils;
 using FortnitePorting.Models.API.Base;
 using FortnitePorting.Models.API.Responses;
+using FortnitePorting.Models.Map;
+using Mapster;
 using Newtonsoft.Json;
 using RestSharp;
 
@@ -39,7 +41,19 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
     public async Task<RepositoryResponse?> Repository() => await ExecuteAsync<RepositoryResponse?>("v1/static/repository");
     public async Task<BroadcastResponse[]> Broadcasts() => await ExecuteAsync<BroadcastResponse[]?>("v1/broadcast") ?? [];
     public async Task<List<string>> GalleryImages() => await ExecuteAsync<List<string>>("v1/gallery") ?? [];
+    
     public async Task<MapResponse[]> Maps() => await ExecuteAsync<MapResponse[]>("v1/maps") ?? [];
+
+    public async Task PostMap(MapInfo mapInfo) => await ExecuteAsync("v1/maps", Method.Post, verbose: false,
+        body: mapInfo.Adapt<MapResponse>()
+    );
+    
+    public async Task DeleteMap(string id) => await ExecuteAsync("v1/maps", Method.Delete, verbose: false,
+        parameters: [
+            new QueryParameter("id", id)
+        ]
+    );
+
     
     public async Task PostExports(IEnumerable<string> objectPaths) => await ExecuteAsync("v1/exports", Method.Post, verbose: false, 
         body: new

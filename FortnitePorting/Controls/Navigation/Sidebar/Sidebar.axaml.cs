@@ -267,8 +267,15 @@ public partial class Sidebar : UserControl
     {
         if (e.Source is not Control control) return;
         if (control.FindAncestorOfType<SidebarItemButton>() is not { } button) return;
-        
-        SelectButton(button);
+
+        if (!button.IsSelectable)
+        {
+            button.RaiseSelected();
+        }
+        else
+        {
+            SelectButton(button);
+        }
     }
 
     public void SelectButton(SidebarItemButton? button)

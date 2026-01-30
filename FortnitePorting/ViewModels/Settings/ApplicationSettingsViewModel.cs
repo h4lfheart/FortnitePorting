@@ -14,6 +14,7 @@ using FortnitePorting.Framework;
 using FortnitePorting.Models;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.Assets.Base;
+using FortnitePorting.Models.Map;
 using FortnitePorting.Models.Radio;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Validators;
@@ -44,7 +45,7 @@ public partial class ApplicationSettingsViewModel : SettingsViewModelBase
 
     [ObservableProperty] private FPVersion _lastOnlineVersion = Globals.Version;
 
-
+    [ObservableProperty] private ObservableCollection<MapInfo> _localMapInfos = [];
     [ObservableProperty] private bool _useTabTransitions = true;
     [ObservableProperty] private float _assetScale = 1.0f;
     

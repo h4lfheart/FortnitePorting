@@ -1,6 +1,8 @@
+using System;
 using System.Numerics;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
 using Lucdem.Avalonia.SourceGenerators.Attributes;
 using Material.Icons;
@@ -12,10 +14,22 @@ public partial class SidebarItemButton : UserControl, ISidebarItem
     [AvaDirectProperty] private string _text;
     [AvaDirectProperty] private MaterialIconKind? _icon;
     [AvaDirectProperty] private Bitmap? _iconBitmap;
+    [AvaDirectProperty] private bool _isSelectable = true;
     [AvaDirectProperty] private Control? _footer;
     [AvaStyledProperty] private bool _isSelected = false;
     [AvaStyledProperty] private bool _isDragOver = false;
     [AvaStyledProperty] private bool _canReorder = false;
+    
+    public readonly RoutedEvent<RoutedEventArgs> ItemPressedEvent =
+        RoutedEvent.Register<Sidebar, RoutedEventArgs>(
+            nameof(ItemPressed),
+            RoutingStrategies.Bubble);
+
+    public event EventHandler ItemPressed
+    {
+        add => AddHandler(ItemPressedEvent, value);
+        remove => RemoveHandler(ItemPressedEvent, value);
+    }
 
     public bool ShouldShowIcon => IconBitmap is not null || Icon is not null;
 
@@ -44,6 +58,17 @@ public partial class SidebarItemButton : UserControl, ISidebarItem
         Icon = icon;
         IconBitmap = iconBitmap;
         Tag = tag;
+    }
+
+    public void RaiseSelected()
+    {
+        var args = new RoutedEventArgs
+        {
+            RoutedEvent = ItemPressedEvent,
+            Source = this
+        };
+        
+        RaiseEvent(args);
     }
 
     private void OnPointerPressed(object? sender, PointerPressedEventArgs e)

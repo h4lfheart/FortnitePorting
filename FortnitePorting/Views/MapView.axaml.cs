@@ -7,6 +7,7 @@ using Avalonia.Interactivity;
 using DynamicData;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
+using FortnitePorting.Models.Information;
 using FortnitePorting.Models.Map;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.ViewModels;
@@ -138,5 +139,16 @@ public partial class MapView : ViewBase<MapViewModel>
         }
         
         ViewModel.SelectedMap.IncludeMainLevel = button.IsChecked ?? false;
+    }
+
+    private void OnAddMapPressed(object? sender, EventArgs e)
+    {
+        var mapInfo = new MapInfo("Unnamed", string.Empty);
+        var map = new WorldPartitionMap(mapInfo);
+        ViewModel.Maps.Add(map);
+        ViewModel.SelectedMap = map;
+        ViewModel.UseMapInfoCreator = true;
+        
+        AppSettings.Application.LocalMapInfos.Add(mapInfo);
     }
 }
