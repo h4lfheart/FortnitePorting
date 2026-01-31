@@ -692,16 +692,15 @@ public partial class FilesViewModel : ViewModelBase
         
         foreach (var path in paths)
         {
-            var basePath = Exporter.FixPath(path);
-            var fileExports = await UEParse.Provider.LoadAllObjectsAsync(basePath);
+            if (!UEParse.Provider.TryLoadObjectExports(path, out var exports)) continue;
             
             var exportPath = context.GetExportPath(meta.CustomPath is not null 
-                ? basePath.SubstringAfterLast("/").SubstringBeforeLast(".") 
-                : basePath , "json");
+                ? path.SubstringAfterLast("/").SubstringBeforeLast(".") 
+                : path , "json");
             
             Log.Information("Exporting Properties: {ExportPath}", exportPath);
             
-            var propertiesJson = JsonConvert.SerializeObject(fileExports, Formatting.Indented);
+            var propertiesJson = JsonConvert.SerializeObject(exports, Formatting.Indented);
             await File.WriteAllTextAsync(exportPath, propertiesJson);
         }
     }

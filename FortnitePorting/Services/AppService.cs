@@ -92,6 +92,11 @@ public class AppService : IService
             Discord.Initialize();
 
         TaskService.Run(AppWM.Initialize);
+
+        if (AppSettings.Installation is { FinishedSetup: true, CurrentProfile: null })
+        {
+            AppSettings.Installation.Profiles.FirstOrDefault()?.IsSelected = true;
+        }
         
         if (AppSettings.Plugin.Blender.AutomaticallySync && Dependencies.FinishedEnsuring)
         {

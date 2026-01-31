@@ -33,12 +33,12 @@
                         </sidebar:SidebarItemsSource.ItemTemplate>
                     </sidebar:SidebarItemsSource>
                     <sidebar:SidebarItemButton Text="Add Map" Icon="Plus" ItemPressed="OnAddMapPressed" IsSelectable="False"
-                                               IsVisible="{Binding SupaBase.UserInfo.Role, Converter={StaticResource EnumGreaterOrEqual}, ConverterParameter={x:Static tables:ESupabaseRole.Staff}}"/>
+                                               IsVisible="{Binding SupaBase.Permissions.Role, Converter={StaticResource EnumGreaterOrEqual}, ConverterParameter={x:Static tables:ESupabaseRole.Staff}}"/>
                 </sidebar:Sidebar.Items>
                 <sidebar:Sidebar.Footer>
                     <ToggleButton HorizontalAlignment="Stretch" Content="{controls:IconText 'Map Creator', Paintbrush}"
                                   IsChecked="{Binding UseMapInfoCreator}"
-                                  IsVisible="{Binding SupaBase.UserInfo.Role, Converter={StaticResource EnumGreaterOrEqual}, ConverterParameter={x:Static tables:ESupabaseRole.Staff}}"/>
+                                  IsVisible="{Binding SupaBase.Permissions.Role, Converter={StaticResource EnumGreaterOrEqual}, ConverterParameter={x:Static tables:ESupabaseRole.Staff}}"/>
                 </sidebar:Sidebar.Footer>
             </sidebar:Sidebar>
             
