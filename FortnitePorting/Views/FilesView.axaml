@@ -108,19 +108,44 @@
                 </Grid>
 
                 <Grid Grid.Row="2" RowDefinitions="Auto *">
+                     <Grid Grid.Row="0" Margin="{ext:Space 0, 0, 1, 1}" IsVisible="{Binding !UseFlatView}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="{ext:Space 0.5}" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="{ext:Space 0.5}" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="{ext:Space 1}" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
 
+                        <Button Grid.Column="0" Content="{material:MaterialIconExt ArrowLeft}"
+                                ToolTip.Tip="Back" 
+                                Command="{Binding GoBackCommand}"
+                                IsEnabled="{Binding CanGoBack}"/>
+                        
 
-                    <ui:BreadcrumbBar Grid.Row="0" Margin="{ext:Space 1, 0, 1, 1}"
-                                      ItemsSource="{Binding FileViewStack}"
-                                      IsVisible="{Binding !UseFlatView}" ItemClicked="OnBreadcrumbItemPressed">
-                        <ui:BreadcrumbBar.ItemTemplate>
-                            <DataTemplate DataType="files:TreeItem">
-                                <ui:BreadcrumbBarItem Content="{Binding Name}" />
-                            </DataTemplate>
-                        </ui:BreadcrumbBar.ItemTemplate>
-                    </ui:BreadcrumbBar>
+                        <Button Grid.Column="2" Content="{material:MaterialIconExt ArrowRight}"
+                                ToolTip.Tip="Forward" 
+                                Command="{Binding GoForwardCommand}"
+                                IsEnabled="{Binding CanGoForward}"/>
 
+                        <Button Grid.Column="4" Content="{material:MaterialIconExt ArrowUp}"
+                                ToolTip.Tip="Go to Parent Folder" 
+                                Command="{Binding GoToParentCommand}"
+                                IsEnabled="{Binding CanGoToParent}"/>
 
+                        <ui:BreadcrumbBar Grid.Column="6"
+                                          ItemsSource="{Binding FileViewStack}"
+                                          ItemClicked="OnBreadcrumbItemPressed">
+                            <ui:BreadcrumbBar.ItemTemplate>
+                                <DataTemplate DataType="files:TreeItem">
+                                    <ui:BreadcrumbBarItem Content="{Binding Name}" />
+                                </DataTemplate>
+                            </ui:BreadcrumbBar.ItemTemplate>
+                        </ui:BreadcrumbBar>
+                    </Grid>
+                    
                     <controls:ContentCard Grid.Row="1">
                         <Grid Margin="{ext:Space 1}">
                             <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"

@@ -114,14 +114,27 @@ public partial class FilesViewModel : ViewModelBase
     [ObservableProperty, NotifyPropertyChangedFor(nameof(LoadingPercentageText))] private int _loadedFiles;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(LoadingPercentageText))] private int _totalFiles = int.MaxValue;
     public string LoadingPercentageText => $"{(LoadedFiles == 0 && TotalFiles == 0 ? 0 : LoadedFiles * 100f / TotalFiles):N0}%";
+    
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(CanGoToParent))] private TreeItem _currentFolder;
+
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(CanGoBack))]
+    private int _backStackCount = 0;
+
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(CanGoForward))]
+    private int _forwardStackCount = 0;
+
+    public bool CanGoBack => BackStackCount > 0;
+    public bool CanGoForward => ForwardStackCount > 0;
+    public bool CanGoToParent => CurrentFolder.Parent is not null;
+    
+    private Stack<TreeItem> _backStack = new();
+    private Stack<TreeItem> _forwardStack = new();
 
     private readonly TreeItem _parentTreeItem = new("Files", ENodeType.Folder)
     {
         Expanded = true,
         Selected = true
     };
-    
-    private TreeItem _currentFolder;
 
     private readonly SourceCache<FlatItem, string> FlatViewAssetCache = new(item => item.Path);
     
@@ -142,7 +155,9 @@ public partial class FilesViewModel : ViewModelBase
 
         FlatViewCollection = flatCollection;
         TreeViewCollection = [_parentTreeItem];
-        LoadFileItems(_parentTreeItem);
+        LoadFileItems(_parentTreeItem, addToStackHistory: false);
+
+        CurrentFolder = _parentTreeItem;
             
         IsLoading = false;
     }
@@ -193,9 +208,18 @@ public partial class FilesViewModel : ViewModelBase
             FileSearchFilter = string.Empty;
     }
     
-    public void LoadFileItems(TreeItem item)
+    public void LoadFileItems(TreeItem item, bool addToStackHistory = true)
     {
-        _currentFolder = item;
+        if (addToStackHistory && CurrentFolder != item)
+        {
+            _backStack.Push(CurrentFolder);
+            BackStackCount = _backStack.Count;
+        
+            _forwardStack.Clear();
+            ForwardStackCount = 0;
+        }
+        
+        CurrentFolder = item;
 
         var allChildren = item.GetAllChildren();
         
@@ -336,10 +360,11 @@ public partial class FilesViewModel : ViewModelBase
     private void FilterFiles()
     {
         if (UseFlatView) return;
-        
-        RealizeFileData(ref _currentFolder);
 
-        var items = _currentFolder.GetAllChildren()
+        var currentFolder = CurrentFolder;
+        RealizeFileData(ref currentFolder);
+
+        var items = CurrentFolder.GetAllChildren()
             .Where(item =>
             {
                 if (string.IsNullOrWhiteSpace(FileSearchFilter))
@@ -366,6 +391,42 @@ public partial class FilesViewModel : ViewModelBase
             .ThenBy(item => item.Name, new CustomComparer<string>(ComparisonExtensions.CompareNatural));
         
         FileViewCollection = new ObservableCollection<TreeItem>(items);
+    }
+    
+    [RelayCommand]
+    public void GoBack()
+    {
+        if (_backStack.Count == 0) return;
+    
+        var previousItem = _backStack.Pop();
+        BackStackCount = _backStack.Count;
+    
+        _forwardStack.Push(CurrentFolder);
+        ForwardStackCount = _forwardStack.Count;
+    
+        LoadFileItems(previousItem, addToStackHistory: false);
+    }
+
+    [RelayCommand]
+    public void GoForward()
+    {
+        if (_forwardStack.Count == 0) return;
+    
+        var nextItem = _forwardStack.Pop();
+        ForwardStackCount = _forwardStack.Count;
+    
+        _backStack.Push(CurrentFolder);
+        BackStackCount = _backStack.Count;
+    
+        LoadFileItems(nextItem, addToStackHistory: false);
+    }
+
+    [RelayCommand]
+    public void GoToParent()
+    {
+        if (CurrentFolder.Parent is null) return;
+    
+        LoadFileItems(CurrentFolder.Parent);
     }
 
     [RelayCommand]
