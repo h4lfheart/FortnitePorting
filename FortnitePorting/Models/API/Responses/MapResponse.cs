@@ -6,6 +6,7 @@ namespace FortnitePorting.Models.API.Responses;
 public class MapResponse
 {
     public string Id { get; set; }
+    public string Name { get; set; }
     public int Priority { get; set; }
     public string MapPath { get; set; }
     public string? MinimapPath { get; set; }

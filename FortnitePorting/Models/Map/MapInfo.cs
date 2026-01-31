@@ -1,4 +1,5 @@
 
+using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Newtonsoft.Json;
 
@@ -6,23 +7,24 @@ namespace FortnitePorting.Models.Map;
 
 public partial class MapInfo() : ObservableObject
 {
-    [ObservableProperty] private string id;
+    [ObservableProperty] private string _id;
+    [ObservableProperty] private string _name;
     [ObservableProperty] private int _priority = 1;
-    [ObservableProperty] private string mapPath;
-    [ObservableProperty] private string? minimapPath;
-    [ObservableProperty] private string? maskPath;
-    [ObservableProperty] private float scale;
-    [ObservableProperty] private int xOffset;
-    [ObservableProperty] private int yOffset;
-    [ObservableProperty] private int minGridDistance;
-    [ObservableProperty] private bool useMask;
-    [ObservableProperty] private bool rotateGrid = true;
-    [ObservableProperty] private bool isNonDisplay = false;
+    [ObservableProperty] private string _mapPath;
+    [ObservableProperty] private string? _minimapPath;
+    [ObservableProperty] private string? _maskPath;
+    [ObservableProperty] private float _scale;
+    [ObservableProperty] private int _xOffset;
+    [ObservableProperty] private int _yOffset;
+    [ObservableProperty] private int _minGridDistance;
+    [ObservableProperty] private bool _useMask;
+    [ObservableProperty] private bool _rotateGrid = true;
+    [ObservableProperty] private bool _isNonDisplay = false;
 
     [JsonIgnore] public bool IsPublished = false;
 
     public MapInfo(
-        string id,
+        string name,
         string mapPath,
         string? minimapPath = null,
         string? maskPath = null,
@@ -34,7 +36,8 @@ public partial class MapInfo() : ObservableObject
         bool rotateGrid = true,
         bool isNonDisplay = false) : this()
     {
-        Id = id;
+        Id = Guid.NewGuid().ToString();
+        Name = name;
         MapPath = mapPath;
         MinimapPath = minimapPath;
         MaskPath = maskPath;

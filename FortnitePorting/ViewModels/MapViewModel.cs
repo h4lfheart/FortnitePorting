@@ -92,7 +92,7 @@ public partial class MapViewModel : ViewModelBase
             {
                 if (!mapInfo.IsValid())
                 {
-                    Info.Message("Local Map Info", $"Failed to load {mapInfo.Id} due to invalid file paths, removing from local registry.");
+                    Info.Message("Local Map Info", $"Failed to load {mapInfo.Name} due to invalid file paths, removing from local registry.");
                     AppSettings.Application.LocalMapInfos.RemoveAll(map => map.Id.Equals(mapInfo.Id));
                     continue;
                 }
@@ -135,12 +135,12 @@ public partial class MapViewModel : ViewModelBase
                 
                 try
                 {
-                    CurrentlyLoadingMap = map.MapInfo.Id;
+                    CurrentlyLoadingMap = map.MapInfo.Name;
                     await map.Load();
                 }
                 catch (Exception e)
                 {
-                    Info.Message(map.MapInfo.Id, $"Failed to load {map.MapInfo.Id} for export, skipping.");
+                    Info.Message(map.MapInfo.Name, $"Failed to load {map.MapInfo.Name} for export, skipping.");
 #if DEBUG
                     Log.Error(e.ToString());
 #else
@@ -165,7 +165,7 @@ public partial class MapViewModel : ViewModelBase
             return;
         }
         
-        Info.Dialog("Publish Map", $"Are you sure you would like to publish {SelectedMap.MapInfo.Id}? This will make the map visible for all users.", buttons: [
+        Info.Dialog("Publish Map", $"Are you sure you would like to publish {SelectedMap.MapInfo.Name}? This will make the map visible for all users.", buttons: [
             new DialogButton
             {
                 Text = "Publish",
@@ -175,7 +175,7 @@ public partial class MapViewModel : ViewModelBase
                     SelectedMap.MapInfo.IsPublished = true;
                     AppSettings.Application.LocalMapInfos.RemoveAll(map => map.Id.Equals(SelectedMap.MapInfo.Id));
                     
-                    Info.Message("Publish Map", $"Successfully published {SelectedMap.MapInfo.Id}!");
+                    Info.Message("Publish Map", $"Successfully published {SelectedMap.MapInfo.Name}!");
                 })
             }
         ]);
@@ -184,26 +184,26 @@ public partial class MapViewModel : ViewModelBase
     [RelayCommand]
     public async Task EditorDelete()
     {
-        Info.Dialog("Delete Map", $"Are you sure you would like to delete {SelectedMap.MapInfo.Id}? This will remove the map for all users.", buttons: [
+        Info.Dialog("Delete Map", $"Are you sure you would like to delete {SelectedMap.MapInfo.Name}? This will remove the map for all users.", buttons: [
             new DialogButton
             {
                 Text = "Delete",
                 Action = () =>
                 {
-                    var targetId = SelectedMap.MapInfo.Id;
+                    var targetMapInfo = SelectedMap.MapInfo;
                     if (SelectedMap.MapInfo.IsPublished)
                     {
                         TaskService.Run(async () =>
                         {
-                            await Api.FortnitePorting.DeleteMap(targetId);
+                            await Api.FortnitePorting.DeleteMap(targetMapInfo.Id);
                         });
                     }
                         
                     Maps.Remove(SelectedMap);
                     SelectedMap = Maps.FirstOrDefault();
-                    AppSettings.Application.LocalMapInfos.RemoveAll(map => map.Id.Equals(targetId));
+                    AppSettings.Application.LocalMapInfos.RemoveAll(map => map.Id.Equals(targetMapInfo.Id));
                     
-                    Info.Message("Delete Map", $"Successfully deleted {targetId}!");
+                    Info.Message("Delete Map", $"Successfully deleted {targetMapInfo.Name}!");
                 }
             }
         ]);
@@ -238,7 +238,7 @@ public partial class MapViewModel : ViewModelBase
     {
         if (SelectedMap is null) return;
         
-        Discord.Update($"Browsing Map: \"{SelectedMap.MapInfo.Id}\"");
+        Discord.Update($"Browsing Map: \"{SelectedMap.MapInfo.Name}\"");
     }
 
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
@@ -251,7 +251,7 @@ public partial class MapViewModel : ViewModelBase
             {
                 GridsControl?.InvalidateVisual();
                 
-                Discord.Update($"Browsing Map: \"{SelectedMap.MapInfo.Id}\"");
+                Discord.Update($"Browsing Map: \"{SelectedMap.MapInfo.Name}\"");
                 break;
             }
         }

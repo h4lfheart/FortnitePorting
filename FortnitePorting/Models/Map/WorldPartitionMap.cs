@@ -365,7 +365,7 @@ public partial class WorldPartitionMap : ObservableObject
                 async Task ExportHeightMap(string folderName = "")
                 {
                     var heightImage = new Image<L16>(2048, 2048);
-                    heightImage.Mutate(ctx => ctx.Fill(MapInfo.Id.Equals("Rufus") ? Color.Black : HeightBaseColor));
+                    heightImage.Mutate(ctx => ctx.Fill(MapInfo.Name.Equals("Rufus") ? Color.Black : HeightBaseColor));
 
                     var minX = Math.Abs(heightTileInfos.Min(x => x.X));
                     var minY = Math.Abs(heightTileInfos.Min(x => x.Y));
@@ -386,7 +386,7 @@ public partial class WorldPartitionMap : ObservableObject
                     await heightImage.SaveAsPngAsync(GetExportPath($"Height_{WorldName}", folderName));
                 }
                 
-                if (MapInfo.Id.Equals("Rufus"))
+                if (MapInfo.Name.Equals("Rufus"))
                 {
                     await ExportHeightMap("BaseMap");
                     await ExportHeightMap("SnowBiome");
@@ -422,7 +422,7 @@ public partial class WorldPartitionMap : ObservableObject
                     await normalImage.SaveAsPngAsync(GetExportPath($"Normal_{WorldName}", folderName));
                 }
                 
-                if (MapInfo.Id.Equals("Rufus"))
+                if (MapInfo.Name.Equals("Rufus"))
                 {
                     await ExportNormalMap("BaseMap", info => info.Image.Width <= 128 || info.Image.Height <= 128);
                     await ExportNormalMap("SnowBiome", info => info.Image.Width > 128 || info.Image.Height > 128);
@@ -468,7 +468,7 @@ public partial class WorldPartitionMap : ObservableObject
                 
                 foreach (var (layerName, weightTileInfos) in weightmapTileInfos)
                 {
-                    if (MapInfo.Id.Equals("Rufus"))
+                    if (MapInfo.Name.Equals("Rufus"))
                     {
                         await ExportWeightMap(layerName, weightTileInfos, "BaseMap", info => info.Image.Width <= 128 || info.Image.Height <= 128);
                         await ExportWeightMap(layerName, weightTileInfos, "SnowBiome", info => info.Image.Width > 128 || info.Image.Height > 128);
