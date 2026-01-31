@@ -54,6 +54,18 @@ public class AnimExport : BaseExport
             }
             case EExportType.Emote:
             {
+                if (styles.Length > 0)
+                {
+                    foreach (var style in styles.OfType<AnimStyleData>())
+                    {
+                        if (style.StyleData is not UAnimMontage styleMontage) continue;
+                        
+                        AnimMontage(styleMontage);
+                    }
+                    
+                    break;
+                }
+                
                 var montage = asset.GetOrDefault<UAnimMontage?>("Animation");
                 montage ??= asset.GetOrDefault<UAnimMontage?>("FrontEndAnimation");
                 if (montage is null) break;

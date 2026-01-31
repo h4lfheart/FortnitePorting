@@ -13,7 +13,7 @@ namespace FortnitePorting.Models.Assets;
 public abstract partial class BaseStyleData : ObservableObject
 {
     [ObservableProperty] private string _styleName;
-    [ObservableProperty] private Bitmap _styleDisplayImage;
+    [ObservableProperty] private Bitmap? _styleDisplayImage;
     [ObservableProperty] private bool _showName = true;
     
     [RelayCommand]
@@ -50,5 +50,18 @@ public partial class ObjectStyleData : BaseStyleData
         StyleData = styleData;
         StyleName = name;
         StyleDisplayImage = previewImage;
+    }
+}
+
+public partial class AnimStyleData : BaseStyleData
+{
+    [ObservableProperty] private UObject _styleData;
+    
+    public AnimStyleData(string name, UObject styleData)
+    {
+        ShowName = true;
+        StyleData = styleData;
+        StyleName = name;
+        StyleDisplayImage = null;
     }
 }
