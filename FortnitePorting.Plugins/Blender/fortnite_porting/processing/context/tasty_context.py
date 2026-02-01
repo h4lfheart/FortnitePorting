@@ -76,9 +76,6 @@ class IKBone:
         self.name = name or "IK"
 
 
-TOGGLE_ON = 0.1
-TOGGLE_OFF = 0.0
-
 class TastyImportContext:
     
     def import_tasty_rig_standalone(self, data):
@@ -88,7 +85,7 @@ class TastyImportContext:
             Server.instance.send_message("An armature must be selected to apply the tasty rig onto. Please select an armature and try again.")
             return
 
-        if target_skeleton.get("is_tasty"):
+        if target_skeleton.data.get("is_tasty"):
             Server.instance.send_message("This armature already has the tasty rig applied onto it.")
             return
 
@@ -105,7 +102,7 @@ class TastyImportContext:
 
 
     def create_tasty_rig(self, target_skeleton, master_skeleton_mesh):
-        target_skeleton["is_tasty"] = True
+        target_skeleton.data["is_tasty"] = True
         armature_data = target_skeleton.data
         is_metahuman = any(armature_data.bones, lambda bone: bone.name == "FACIAL_C_FacialRoot")
         
@@ -154,21 +151,16 @@ class TastyImportContext:
         target_skeleton.select_set(True)
         master_skeletal_mesh.select_set(True)
         bpy.ops.object.join()
-    
-        if tasty_options_obj := bpy.data.objects.get("Tasty_Options"):
-            bpy.context.collection.objects.link(tasty_options_obj)
-    
-            bpy.context.view_layer.objects.active = target_skeleton
-            target_skeleton.select_set(True)
-            tasty_options_obj.select_set(True)
-            bpy.ops.object.join()
-    
-            if ik_finger_toggle := target_skeleton.pose.bones.get("finger_toggle"):
-                ik_finger_toggle.location[0] = TOGGLE_OFF
-    
-            if world_space_pole_toggle := target_skeleton.pose.bones.get("pole_toggle"):
-                world_space_pole_toggle.location[0] = TOGGLE_ON
-    
+
+
+        target_skeleton["use_ik_hand_r"] = True
+        target_skeleton["use_ik_hand_l"] = True
+        
+        target_skeleton["use_ik_leg_r"] = True
+        target_skeleton["use_ik_leg_l"] = True
+
+        target_skeleton["use_ik_fingers"] = False
+        target_skeleton["use_pole_targets"] = True
     
         # bone creation and modification
         bpy.ops.object.mode_set(mode='EDIT')
@@ -490,26 +482,24 @@ class TastyImportContext:
                 limit_location.owner_space = "LOCAL"
                 limit_location.use_transform_limit = True
     
-    
-    
         add_foot_ik_constraints("r")
         add_foot_ik_constraints("l")
-    
-    
-        use_pole_driver = DriverBuilder("loc > 0.05", [
-            DriverVariable("loc", "SINGLE_PROP", target_skeleton, 'pose.bones["pole_toggle"].location[0]')
+
+
+        use_pole_driver = DriverBuilder("use_pole", [
+            DriverVariable("use_pole", "SINGLE_PROP", target_skeleton, '["use_pole_targets"]')
         ])
-    
-        dont_use_pole_driver = DriverBuilder("loc < 0.05", [
-            DriverVariable("loc", "SINGLE_PROP", target_skeleton, 'pose.bones["pole_toggle"].location[0]')
+        
+        dont_use_pole_driver = DriverBuilder("not use_pole", [
+            DriverVariable("use_pole", "SINGLE_PROP", target_skeleton, '["use_pole_targets"]')
         ])
-    
-        use_ik_finger_driver = DriverBuilder("loc > 0.05", [
-            DriverVariable("loc", "SINGLE_PROP", target_skeleton, 'pose.bones["finger_toggle"].location[0]')
+        
+        use_ik_finger_driver = DriverBuilder("use_ik", [
+            DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_fingers"]')
         ])
-    
-        dont_use_ik_finger_driver = DriverBuilder("loc < 0.05", [
-            DriverVariable("loc", "SINGLE_PROP", target_skeleton, 'pose.bones["finger_toggle"].location[0]')
+        
+        dont_use_ik_finger_driver = DriverBuilder("not use_ik", [
+            DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_fingers"]')
         ])
     
         # bone name, target name, chain count, use rotation, lock axes
@@ -951,6 +941,53 @@ class TastyImportContext:
                 continue
     
             extra_collection.assign(pose_bone)
+
+        driver_hide_bones = [
+            ("ik_finger_thumb_r", dont_use_ik_finger_driver),
+            ("ik_finger_index_r", dont_use_ik_finger_driver),
+            ("ik_finger_middle_r", dont_use_ik_finger_driver),
+            ("ik_finger_ring_r", dont_use_ik_finger_driver),
+            ("ik_finger_pinky_r", dont_use_ik_finger_driver),
+            ("ik_finger_pole_thumb_r", dont_use_ik_finger_driver),
+            ("ik_finger_pole_index_r", dont_use_ik_finger_driver),
+            ("ik_finger_pole_middle_r", dont_use_ik_finger_driver),
+            ("ik_finger_pole_ring_r", dont_use_ik_finger_driver),
+            ("ik_finger_pole_pinky_r", dont_use_ik_finger_driver),
+            ("ik_hand_target_r", dont_use_ik_finger_driver),
+
+            ("ik_finger_thumb_l", dont_use_ik_finger_driver),
+            ("ik_finger_index_l", dont_use_ik_finger_driver),
+            ("ik_finger_middle_l", dont_use_ik_finger_driver),
+            ("ik_finger_ring_l", dont_use_ik_finger_driver),
+            ("ik_finger_pinky_l", dont_use_ik_finger_driver),
+            ("ik_finger_pole_thumb_l", dont_use_ik_finger_driver),
+            ("ik_finger_pole_index_l", dont_use_ik_finger_driver),
+            ("ik_finger_pole_middle_l", dont_use_ik_finger_driver),
+            ("ik_finger_pole_ring_l", dont_use_ik_finger_driver),
+            ("ik_finger_pole_pinky_l", dont_use_ik_finger_driver),
+            ("ik_hand_target_l", dont_use_ik_finger_driver),
+
+            ("ik_hand_pole_r", dont_use_pole_driver),
+            ("ik_hand_pole_l", dont_use_pole_driver),
+            ("ik_foot_pole_r", dont_use_pole_driver),
+            ("ik_foot_pole_l", dont_use_pole_driver),
+
+            ("thumb_control_r", use_ik_finger_driver),
+            ("index_control_r", use_ik_finger_driver),
+            ("middle_control_r", use_ik_finger_driver),
+            ("ring_control_r", use_ik_finger_driver),
+            ("pinky_control_r", use_ik_finger_driver),
+
+            ("thumb_control_l", use_ik_finger_driver),
+            ("index_control_l", use_ik_finger_driver),
+            ("middle_control_l", use_ik_finger_driver),
+            ("ring_control_l", use_ik_finger_driver),
+            ("pinky_control_l", use_ik_finger_driver),
+        ]
+
+        for bone_name, driver in driver_hide_bones:
+            if not (bone := pose_bones.get(bone_name)): continue
+            driver.add_to(bone, 'hide')
     
         bones = target_skeleton.data.bones
     
@@ -984,53 +1021,6 @@ class TastyImportContext:
         for bone_name in hide_bones:
             if not (bone := bones.get(bone_name)): continue
             bone.hide = True
-    
-        driver_hide_bones = [
-            ("ik_finger_thumb_r", dont_use_ik_finger_driver),
-            ("ik_finger_index_r", dont_use_ik_finger_driver),
-            ("ik_finger_middle_r", dont_use_ik_finger_driver),
-            ("ik_finger_ring_r", dont_use_ik_finger_driver),
-            ("ik_finger_pinky_r", dont_use_ik_finger_driver),
-            ("ik_finger_pole_thumb_r", dont_use_ik_finger_driver),
-            ("ik_finger_pole_index_r", dont_use_ik_finger_driver),
-            ("ik_finger_pole_middle_r", dont_use_ik_finger_driver),
-            ("ik_finger_pole_ring_r", dont_use_ik_finger_driver),
-            ("ik_finger_pole_pinky_r", dont_use_ik_finger_driver),
-            ("ik_hand_target_r", dont_use_ik_finger_driver),
-    
-            ("ik_finger_thumb_l", dont_use_ik_finger_driver),
-            ("ik_finger_index_l", dont_use_ik_finger_driver),
-            ("ik_finger_middle_l", dont_use_ik_finger_driver),
-            ("ik_finger_ring_l", dont_use_ik_finger_driver),
-            ("ik_finger_pinky_l", dont_use_ik_finger_driver),
-            ("ik_finger_pole_thumb_l", dont_use_ik_finger_driver),
-            ("ik_finger_pole_index_l", dont_use_ik_finger_driver),
-            ("ik_finger_pole_middle_l", dont_use_ik_finger_driver),
-            ("ik_finger_pole_ring_l", dont_use_ik_finger_driver),
-            ("ik_finger_pole_pinky_l", dont_use_ik_finger_driver),
-            ("ik_hand_target_l", dont_use_ik_finger_driver),
-    
-            ("ik_hand_pole_r", dont_use_pole_driver),
-            ("ik_hand_pole_l", dont_use_pole_driver),
-            ("ik_foot_pole_r", dont_use_pole_driver),
-            ("ik_foot_pole_l", dont_use_pole_driver),
-    
-            ("thumb_control_r", use_ik_finger_driver),
-            ("index_control_r", use_ik_finger_driver),
-            ("middle_control_r", use_ik_finger_driver),
-            ("ring_control_r", use_ik_finger_driver),
-            ("pinky_control_r", use_ik_finger_driver),
-    
-            ("thumb_control_l", use_ik_finger_driver),
-            ("index_control_l", use_ik_finger_driver),
-            ("middle_control_l", use_ik_finger_driver),
-            ("ring_control_l", use_ik_finger_driver),
-            ("pinky_control_l", use_ik_finger_driver),
-        ]
-    
-        for bone_name, driver in driver_hide_bones:
-            if not (bone := bones.get(bone_name)): continue
-            driver.add_to(bone, "hide")
     
     
         bpy.ops.object.mode_set(mode='OBJECT')

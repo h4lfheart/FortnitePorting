@@ -2,7 +2,6 @@ import os.path
 import math
 import bpy
 
-from .tasty_context import TOGGLE_OFF
 from ..enums import *
 from ..utils import *
 from ..mappings import *
@@ -23,16 +22,9 @@ class AnimImportContext:
             Server.instance.send_message("An armature must be selected to import an animation onto. Please select an armature and try again.")
             return
 
-        if target_skeleton.get("is_tasty"):
-            bpy.ops.object.mode_set(mode="POSE")
-            
-            if ik_finger_toggle := target_skeleton.pose.bones.get("finger_toggle"):
-                ik_finger_toggle.location[0] = TOGGLE_OFF
-
-            if world_space_pole_toggle := target_skeleton.pose.bones.get("pole_toggle"):
-                world_space_pole_toggle.location[0] = TOGGLE_OFF
-                
-            bpy.ops.object.mode_set(mode="OBJECT")
+        if target_skeleton.data.get("is_tasty"):
+            target_skeleton["use_pole_targets"] = False
+            target_skeleton["use_ik_fingers"] = False
             
 
         # clear old data

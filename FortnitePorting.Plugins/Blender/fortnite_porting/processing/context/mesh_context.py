@@ -89,7 +89,6 @@ class MeshImportContext:
         path = mesh.get("Path")
         name = mesh.get("Name")
         part_type = EFortCustomPartType(mesh.get("Type"))
-        num_lods = mesh.get("NumLods")
         
         if mesh.get("IsEmpty"):
             empty_object = bpy.data.objects.new(name, None)
