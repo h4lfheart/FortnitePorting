@@ -169,14 +169,15 @@ public class AnimExport : BaseExport
                 
                 var animSections = new List<ExportAnimSection>();
                 
-                if (propNotify.SkeletalMeshPropMontage is { } montage) HandleSectionTree(animSections, montage, montage.CompositeSections.First());
+                if (propNotify.SkeletalMeshPropMontage is { } montage) 
+                    HandleSectionTree(animSections, montage, montage.CompositeSections.First());
+                
                 if (animSections.Count == 0 && propNotify.SkeletalMeshPropAnimationMontage is { } secondMontage)
-                {
-                    var propExport = new AnimExport(secondMontage.Name, secondMontage, [], EExportType.Animation,
-                        Exporter.Meta);
+                    HandleSectionTree(animSections, secondMontage, secondMontage.CompositeSections.First());
 
-                    animSections = propExport.Sections;
-                }
+                if (animSections.Count == 0 && propNotify.SkeletalMeshPropAnimation is { } animSequence &&
+                    Exporter.AnimSequence(animSequence) is { } exportedSequenceSection)
+                    animSections = [exportedSequenceSection];
                 
                 var prop = new ExportProp
                 {

@@ -58,8 +58,6 @@ public partial class CUE4ParseService : ObservableObject, IService
     public readonly List<UAnimMontage> FemaleLobbyMontages = [];
     public readonly Dictionary<string, string> SetNames = [];
     
-    private static readonly Regex FortniteArchiveRegex = new(@"^FortniteGame(/|\\)Content(/|\\)Paks(/|\\)(pakchunk(?:0|10.*|\w+)-WindowsClient|global)\.(pak|utoc)$", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-
     private static readonly List<DirectoryInfo> ExtraDirectories = 
     [
         new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "FortniteGame", "Saved", "PersistentDownloadDir", "GameCustom", "InstalledBundles"))
@@ -252,13 +250,7 @@ public partial class CUE4ParseService : ObservableObject, IService
 
                 UpdateStatus($"Loading Fortnite On-Demand (This may take a while)");
 
-                var fileManifests = manifest.Files.Where(fileManifest => FortniteArchiveRegex.IsMatch(fileManifest.FileName));
-                foreach (var fileManifest in fileManifests)
-                {
-                    Provider.RegisterVfs(fileManifest.FileName, (Stream[]) [fileManifest.GetStream()],
-                        name => new FStreamArchive(name,
-                            manifest.Files.First(file => file.FileName.Equals(name)).GetStream()));
-                }
+                Provider.RegisterFiles(manifest);
                 
                 break;
             }
