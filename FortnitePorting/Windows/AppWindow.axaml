@@ -101,6 +101,12 @@
                                                    Tag="{x:Type views:ExportSettingsView}" />
                         <sidebar:SidebarItemButton Text="App Settings" Icon="Settings"
                                                    Tag="{x:Type views:SettingsView}" />
+                        
+                        <sidebar:SidebarItemSeparator />
+
+                        
+                        <sidebar:SidebarItemText Text="INFO" />
+                        <sidebar:SidebarItemButton Text="Console" Icon="Console" Tag="{x:Type views:ConsoleView}" />
                         <sidebar:SidebarItemButton Text="Help" Icon="Help" Tag="{x:Type views:HelpView}" />
 
                     </sidebar:Sidebar.Items>

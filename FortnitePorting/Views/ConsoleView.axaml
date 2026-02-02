@@ -1,0 +1,114 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             xmlns:viewModels="clr-namespace:FortnitePorting.ViewModels"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions"
+             xmlns:information="clr-namespace:FortnitePorting.Models.Information"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="FortnitePorting.Views.ConsoleView"
+             x:DataType="viewModels:ConsoleViewModel">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="{ext:Space 1}"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <Grid Grid.Row="0" Margin="{ext:Space 1, 1, 1, 0}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="{ext:Space 1}"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="{ext:Space 1}"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <TextBox Grid.Column="0" Watermark="Search..."
+                     Text="{Binding SearchFilter}"/>
+            
+            <ComboBox Grid.Column="2" ToolTip.Tip="Log Level Filter" HorizontalAlignment="Stretch"
+                      ItemsSource="{ext:EnumToItemsSource {x:Type information:ELogEventType}}"
+                      SelectedItem="{Binding FilterType, Converter={StaticResource EnumToRecord}}">
+
+                <ComboBox.Styles>
+                    <Style Selector="ComboBox[IsVisible=true] /template/ ContentPresenter#ContentPresenter">
+                        <Setter Property="ContentTemplate">
+                            <DataTemplate DataType="ext:EnumRecord">
+                                <controls:IconText Text="{Binding Description}" Icon="Filter" />
+                            </DataTemplate>
+                        </Setter>
+                    </Style>
+                </ComboBox.Styles>
+            </ComboBox>
+            
+            <Button Grid.Column="4" Content="{controls:IconText 'Open Log File', File}"
+                    Command="{Binding OpenLogCommand}"/>
+        </Grid>
+        
+        <controls:DynamicFadeScrollViewer Grid.Row="2" x:Name="Scroll"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding Logs}" 
+                          Margin="{ext:Space 1, 0}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <controls:ContentCard Padding="{ext:Space 1}" Margin="{ext:Space 0, 0, 0, 1}"
+                            Classes.Error="{Binding Level, 
+                                Converter={StaticResource EnumEquals}, 
+                                ConverterParameter={x:Static information:ELogEventType.Error}}"
+                            Classes.Warn="{Binding Level, 
+                                Converter={StaticResource EnumEquals}, 
+                                ConverterParameter={x:Static information:ELogEventType.Warn}}"
+                            Classes.Fatal="{Binding Level, 
+                                Converter={StaticResource EnumEquals}, 
+                                ConverterParameter={x:Static information:ELogEventType.Fatal}}">
+                            <controls:ContentCard.Styles>
+                                <Style Selector="controls|ContentCard.Error">
+                                    <Setter Property="Background" Value="#FF2B0606" />
+                                </Style>
+                                
+                                <Style Selector="controls|ContentCard.Warn">
+                                    <Setter Property="Background" Value="#FF2B2B06" />
+                                </Style>
+                                
+                                <Style Selector="controls|ContentCard.Fatal">
+                                    <Setter Property="Background" Value="#FF170303" />
+                                </Style>
+                            </controls:ContentCard.Styles>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="{ext:Space 1}"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="{ext:Space 1}"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <TextBlock Grid.Column="0" 
+                                           Text="{Binding Timestamp, StringFormat={}{0:HH:mm:ss.fff}}"
+                                           Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"/>
+                                
+                                <TextBlock Grid.Column="2" 
+                                           Text="{Binding LevelText}"
+                                           Foreground="{Binding TextColor}"
+                                           Classes="BodyStrongTextBlockStyle"/>
+                                
+                                
+                                <TextBlock Grid.Column="4" 
+                                           Text="{Binding Message}"
+                                           Foreground="{Binding TextColor}"/>
+                            </Grid>
+                        </controls:ContentCard>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <VirtualizingStackPanel/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+        </controls:DynamicFadeScrollViewer>
+    </Grid>
+</UserControl>

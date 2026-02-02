@@ -7,6 +7,7 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.Utils;
+using DynamicData;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.Information;
@@ -22,12 +23,15 @@ using MessageData = FortnitePorting.Models.Information.MessageData;
 
 namespace FortnitePorting.Services;
 
-public partial class InfoService : ObservableObject, IService
+public partial class InfoService : ObservableObject, IService, ILogEventSink
 {
     [ObservableProperty] private ObservableCollection<MessageData> _messages = [];
     [ObservableProperty] private DialogQueue _dialogQueue = new();
     [ObservableProperty] private BroadcastQueue _broadcastQueue = new();
+
+    public SourceList<FPLogEvent> LogList = new();
     
+    private readonly object _logLock = new();
     private readonly object _messageLock = new();
     
     public string LogFilePath;
@@ -53,6 +57,7 @@ public partial class InfoService : ObservableObject, IService
         Log.Logger = new LoggerConfiguration()
             .WriteTo.Console(theme: AnsiConsoleTheme.Literate)
             .WriteTo.File(LogFilePath)
+            .WriteTo.Sink(Info)
             .CreateLogger();
     }
 
@@ -139,5 +144,13 @@ public partial class InfoService : ObservableObject, IService
                 Action = () => App.LaunchSelected(LogFilePath)
             }
         ]);
+    }
+
+    public void Emit(LogEvent logEvent)
+    {
+        lock (_logLock)
+        {
+            LogList.Add(new FPLogEvent(logEvent));
+        }
     }
 }
