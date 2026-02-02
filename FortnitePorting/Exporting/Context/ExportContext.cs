@@ -118,7 +118,7 @@ public partial class ExportContext
             try
             {
                 Log.Information("Exporting {ExportType}: {Path}", asset.ExportType, path);
-                Export(asset, path);
+                Export(asset, path, isNanite);
             }
             catch (IOException e)
             {
@@ -149,7 +149,7 @@ public partial class ExportContext
         return ExportAsync(asset, returnRealPath, synchronousExport, embeddedAsset, isNanite).GetAwaiter().GetResult();
     }
 
-    private void Export(UObject asset, string path)
+    private void Export(UObject asset, string path, bool isNanite = false)
     {
         switch (asset)
         {
@@ -169,10 +169,19 @@ public partial class ExportContext
             }
             case UStaticMesh staticMesh:
             {
-                var exporter = new MeshExporter(staticMesh, FileExportOptions with { NaniteMeshFormat = Meta.Settings.ExportNanite ? ENaniteMeshFormat.OnlyNaniteLOD : ENaniteMeshFormat.OnlyNormalLODs});
-                foreach (var mesh in exporter.MeshLods)
+                // TODO refactor system to allow nanite adding if exists here rather than needing to pre-detect
+                var exporter = new MeshExporter(staticMesh, FileExportOptions);
+
+                if (isNanite && exporter.NaniteMesh is not null)
                 {
-                    File.WriteAllBytes(path, mesh.FileData);
+                    File.WriteAllBytes(path, exporter.NaniteMesh.FileData);
+                }
+                else
+                {
+                    foreach (var mesh in exporter.MeshLods)
+                    {
+                        File.WriteAllBytes(path, mesh.FileData);
+                    }
                 }
                 break;
             }

@@ -25,7 +25,7 @@ public class BaseExport
     {
         foreach (var task in Exporter.ExportTasks)
         {
-            await task.WaitAsync(TimeSpan.FromSeconds(5));
+            await task.WaitAsync(TimeSpan.FromSeconds(15));
         }
     }
 }

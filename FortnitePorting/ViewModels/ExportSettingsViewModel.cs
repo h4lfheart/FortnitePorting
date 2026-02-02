@@ -63,7 +63,7 @@ public partial class BaseExportSettings : ViewModelBase
             MeshFormat = MeshFormat,
             AnimFormat = AnimFormat,
             CompressionFormat = CompressionFormat,
-            NaniteMeshFormat = ENaniteMeshFormat.OnlyNormalLODs
+            NaniteMeshFormat = ExportNanite ? ENaniteMeshFormat.NaniteSeparateFile : ENaniteMeshFormat.OnlyNormalLODs
         };
     }
 }

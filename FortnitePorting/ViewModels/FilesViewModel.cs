@@ -125,7 +125,7 @@ public partial class FilesViewModel : ViewModelBase
 
     public bool CanGoBack => BackStackCount > 0;
     public bool CanGoForward => ForwardStackCount > 0;
-    public bool CanGoToParent => CurrentFolder.Parent is not null;
+    public bool CanGoToParent => CurrentFolder?.Parent is not null;
     
     private Stack<TreeItem> _backStack = new();
     private Stack<TreeItem> _forwardStack = new();

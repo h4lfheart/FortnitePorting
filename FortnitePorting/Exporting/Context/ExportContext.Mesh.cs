@@ -70,13 +70,13 @@ public partial class ExportContext
     public T? Mesh<T>(UStaticMesh? mesh) where T : ExportMesh, new()
     {
         if (mesh is null) return null;
-        if (!mesh.TryConvert(out var convertedMesh, Meta.Settings.ExportNanite ? ENaniteMeshFormat.AllLayersNaniteFirst : ENaniteMeshFormat.OnlyNormalLODs)) return null;
+        if (!mesh.TryConvert(out var convertedMesh, out var naniteLod, FileExportOptions.NaniteMeshFormat)) return null;
         if (convertedMesh.LODs.Count <= 0) return null;
-
+        
         var exportPart = new T
         {
             Name = mesh.Name,
-            Path = Export(mesh, embeddedAsset: mesh.Owner?.Name.SubstringAfterLast("/") != mesh.Name, isNanite: convertedMesh.LODs[0].IsNanite),
+            Path = Export(mesh, embeddedAsset: mesh.Owner?.Name.SubstringAfterLast("/") != mesh.Name, isNanite: naniteLod is not null),
             NumLods = convertedMesh.LODs.Count
         };
 
@@ -192,13 +192,13 @@ public partial class ExportContext
     public T? MeshComponent<T>(USplineMeshComponent? mesh) where T : ExportMesh, new()
     {
         if (mesh is null) return null;
-        if (!mesh.TryConvert(out var convertedMesh, Meta.Settings.ExportNanite ? ENaniteMeshFormat.AllLayersNaniteFirst : ENaniteMeshFormat.OnlyNormalLODs)) return null;
+        if (!mesh.TryConvert(out var convertedMesh, out var naniteLod, FileExportOptions.NaniteMeshFormat)) return null;
         if (convertedMesh.LODs.Count <= 0) return null;
 
         var exportPart = new T
         {
             Name = mesh.Name,
-            Path = Export(mesh, embeddedAsset: true, isNanite: convertedMesh.LODs[0].IsNanite),
+            Path = Export(mesh, embeddedAsset: true, isNanite: naniteLod is not null),
             NumLods = convertedMesh.LODs.Count
         };
 
