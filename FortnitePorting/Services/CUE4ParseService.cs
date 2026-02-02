@@ -102,6 +102,8 @@ public partial class CUE4ParseService : ObservableObject, IService
 
         Provider.LoadExtraDirectories = AppSettings.Installation.CurrentProfile.LoadInstalledBundles;
         
+        Provider.ReadNaniteData = AppSettings.Installation.CurrentProfile.LoadNaniteData;
+        
         Provider.OnDemandOptions = new IoStoreOnDemandOptions
         {
             ChunkHostUri = new Uri("https://download.epicgames.com/", UriKind.Absolute),

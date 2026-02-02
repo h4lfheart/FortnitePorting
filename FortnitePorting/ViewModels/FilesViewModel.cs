@@ -125,7 +125,7 @@ public partial class FilesViewModel : ViewModelBase
 
     public bool CanGoBack => BackStackCount > 0;
     public bool CanGoForward => ForwardStackCount > 0;
-    public bool CanGoToParent => CurrentFolder.Parent is not null;
+    public bool CanGoToParent => CurrentFolder?.Parent is not null;
     
     private Stack<TreeItem> _backStack = new();
     private Stack<TreeItem> _forwardStack = new();
@@ -755,7 +755,7 @@ public partial class FilesViewModel : ViewModelBase
         {
             if (!UEParse.Provider.TryLoadObjectExports(path, out var exports)) continue;
             
-            var exportPath = context.GetExportPath(meta.CustomPath is not null 
+            var exportPath = context.BuildExportPath(meta.CustomPath is not null 
                 ? path.SubstringAfterLast("/").SubstringBeforeLast(".") 
                 : path , "json");
             
@@ -800,7 +800,7 @@ public partial class FilesViewModel : ViewModelBase
 
             foreach (var (assetPath, assetData) in assets)
             {
-                var exportPath = context.GetExportPath(meta.CustomPath is not null 
+                var exportPath = context.BuildExportPath(meta.CustomPath is not null 
                     ? assetPath.SubstringAfterLast("/").SubstringBeforeLast(".") 
                     : assetPath, assetPath.SubstringAfterLast("."));
                 

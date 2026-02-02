@@ -3,11 +3,15 @@ using System.Linq;
 using CUE4Parse_Conversion.Meshes;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Animation;
+using CUE4Parse.UE4.Assets.Exports.Component;
 using CUE4Parse.UE4.Assets.Exports.Component.SkeletalMesh;
+using CUE4Parse.UE4.Assets.Exports.Component.SplineMesh;
 using CUE4Parse.UE4.Assets.Exports.Component.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Material;
+using CUE4Parse.UE4.Assets.Exports.Nanite;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
+using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.Utils;
 using FortnitePorting.Exporting.Models;
 using FortnitePorting.Shared.Extensions;
@@ -66,13 +70,13 @@ public partial class ExportContext
     public T? Mesh<T>(UStaticMesh? mesh) where T : ExportMesh, new()
     {
         if (mesh is null) return null;
-        if (!mesh.TryConvert(out var convertedMesh)) return null;
+        if (!mesh.TryConvert(out var convertedMesh, out var naniteLod, FileExportOptions.NaniteMeshFormat)) return null;
         if (convertedMesh.LODs.Count <= 0) return null;
-
+        
         var exportPart = new T
         {
             Name = mesh.Name,
-            Path = Export(mesh, embeddedAsset: mesh.Owner?.Name.SubstringAfterLast("/") != mesh.Name),
+            Path = Export(mesh, embeddedAsset: mesh.Owner?.Name.SubstringAfterLast("/") != mesh.Name, isNanite: naniteLod is not null),
             NumLods = convertedMesh.LODs.Count
         };
 
@@ -108,6 +112,7 @@ public partial class ExportContext
         return genericComponent switch
         {
             UInstancedStaticMeshComponent instancedStaticMeshComponent => MeshComponent(instancedStaticMeshComponent),
+            USplineMeshComponent splineMeshComponent => MeshComponent(splineMeshComponent),
             UStaticMeshComponent staticMeshComponent => MeshComponent(staticMeshComponent),
             USkeletalMeshComponent skeletalMeshComponent => MeshComponent(skeletalMeshComponent),
             _ => null
@@ -122,6 +127,8 @@ public partial class ExportContext
         var exportMesh = Mesh(mesh);
         if (exportMesh is null) return null;
         
+        SetMeshComponentTransforms(exportMesh, meshComponent);
+
         var overrideMaterials = meshComponent.GetOrDefault("OverrideMaterials", Array.Empty<UMaterialInterface?>());
         for (var idx = 0; idx < overrideMaterials.Length; idx++)
         {
@@ -139,9 +146,11 @@ public partial class ExportContext
         var mesh = meshComponent.GetStaticMesh().Load<UStaticMesh>();
         if (mesh is null) return null;
 
-        var exportMesh = Mesh(mesh);
+        var exportMesh = meshComponent is USplineMeshComponent splineComp ? MeshComponent(splineComp) : Mesh(mesh);
         if (exportMesh is null) return null;
         
+        SetMeshComponentTransforms(exportMesh, meshComponent);
+
         var overrideMaterials = meshComponent.GetOrDefault("OverrideMaterials", Array.Empty<UMaterialInterface?>());
         for (var idx = 0; idx < overrideMaterials.Length; idx++)
         {
@@ -165,11 +174,61 @@ public partial class ExportContext
         var exportMesh = Mesh(mesh);
         if (exportMesh is null) return null;
                 
+        SetMeshComponentTransforms(exportMesh, instanceComponent);
+
         foreach (var instance in instanceComponent.PerInstanceSMData ?? [])
         {
             exportMesh.Instances.Add(new ExportTransform(instance.TransformData));
         }
 
         return exportMesh;
+    }
+    
+    public ExportMesh? MeshComponent(USplineMeshComponent? mesh)
+    {
+        return MeshComponent<ExportMesh>(mesh);
+    }
+    
+    public T? MeshComponent<T>(USplineMeshComponent? mesh) where T : ExportMesh, new()
+    {
+        if (mesh is null) return null;
+        if (!mesh.TryConvert(out var convertedMesh, out var naniteLod, FileExportOptions.NaniteMeshFormat)) return null;
+        if (convertedMesh.LODs.Count <= 0) return null;
+
+        var exportPart = new T
+        {
+            Name = mesh.Name,
+            Path = Export(mesh, embeddedAsset: true, isNanite: naniteLod is not null),
+            NumLods = convertedMesh.LODs.Count
+        };
+
+        var sections = convertedMesh.LODs[0].Sections.Value;
+        foreach (var (index, section) in sections.Enumerate())
+        {
+            if (section.Material is null) continue;
+            if (!section.Material.TryLoad(out var materialObject)) continue;
+            if (materialObject is not UMaterialInterface material) continue;
+
+            exportPart.Materials.AddIfNotNull(Material(material, index));
+        }
+
+        return exportPart;
+    }
+    
+    public void SetMeshComponentTransforms(ExportMesh exportMesh, USceneComponent meshComponent)
+    {
+        if (!exportMesh.IsEmpty)
+        {
+            var meshComponentAbsTransform = meshComponent.GetAbsoluteTransform();
+            exportMesh.Location = meshComponentAbsTransform.Translation;
+            exportMesh.Rotation = meshComponentAbsTransform.Rotator();
+            exportMesh.Scale = meshComponentAbsTransform.Scale3D;
+        }
+        else
+        {
+            exportMesh.Location = meshComponent.GetOrDefault("RelativeLocation", FVector.ZeroVector);
+            exportMesh.Rotation = meshComponent.GetOrDefault("RelativeRotation", FRotator.ZeroRotator);
+            exportMesh.Scale = meshComponent.GetOrDefault("RelativeScale3D", FVector.OneVector);
+        }
     }
 }

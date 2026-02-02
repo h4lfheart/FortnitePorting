@@ -13,7 +13,9 @@ using CUE4Parse_Conversion.Textures;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Actor;
 using CUE4Parse.UE4.Assets.Exports.Animation;
+using CUE4Parse.UE4.Assets.Exports.Component.SplineMesh;
 using CUE4Parse.UE4.Assets.Exports.Engine.Font;
+using CUE4Parse.UE4.Assets.Exports.Nanite;
 using CUE4Parse.UE4.Assets.Exports.Rig;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Sound;
@@ -46,7 +48,7 @@ public partial class ExportContext
         FileExportOptions = Meta.Settings.CreateExportOptions();
     }
 
-    public async Task<string> ExportAsync(UObject asset, bool returnRealPath = false, bool synchronousExport = false, bool embeddedAsset = false)
+    public async Task<string> ExportAsync(UObject asset, bool returnRealPath = false, bool synchronousExport = false, bool embeddedAsset = false, bool isNanite = false)
     {
         var extension = asset switch
         {
@@ -79,9 +81,22 @@ public partial class ExportContext
             UFontFace => "ttf"
         };
 
-        var path = GetExportPath(asset, extension, embeddedAsset, excludeGamePath: Meta.CustomPath is not null);
+        var path = GetExportPath(asset, extension, embeddedAsset, isNanite, excludeGamePath: Meta.CustomPath is not null);
         
         var returnValue = returnRealPath ? path : (embeddedAsset ? $"{asset.Owner.Name}/{asset.Name}.{asset.Name}" : asset.GetPathName());
+
+        if (isNanite && !returnRealPath)
+        {
+            var naniteName = returnValue.SubstringAfterLast(".") + "_Nanite";
+            returnValue = $"{returnValue.SubstringBeforeLast("/")}/{naniteName}.{naniteName}";
+        }
+
+        if (asset is USplineMeshComponent splineComponent)
+        {
+            var assetName = $"{asset.Name}-{splineComponent.GetMeshId().AsSpan(0, 6)}";
+            if (isNanite) assetName += "_Nanite";
+            returnValue = $"{asset.Owner.Name}/{assetName}.{assetName}";
+        }
 
         if (asset is UDNAAsset dnaAsset)
         {
@@ -103,7 +118,7 @@ public partial class ExportContext
             try
             {
                 Log.Information("Exporting {ExportType}: {Path}", asset.ExportType, path);
-                Export(asset, path);
+                Export(asset, path, isNanite);
             }
             catch (IOException e)
             {
@@ -129,12 +144,12 @@ public partial class ExportContext
         return returnValue;
     }
     
-    public string Export(UObject asset, bool returnRealPath = false, bool synchronousExport = false, bool embeddedAsset = false)
+    public string Export(UObject asset, bool returnRealPath = false, bool synchronousExport = false, bool embeddedAsset = false, bool isNanite = false)
     {
-        return ExportAsync(asset, returnRealPath, synchronousExport, embeddedAsset).GetAwaiter().GetResult();
+        return ExportAsync(asset, returnRealPath, synchronousExport, embeddedAsset, isNanite).GetAwaiter().GetResult();
     }
 
-    private void Export(UObject asset, string path)
+    private void Export(UObject asset, string path, bool isNanite = false)
     {
         switch (asset)
         {
@@ -154,10 +169,19 @@ public partial class ExportContext
             }
             case UStaticMesh staticMesh:
             {
+                // TODO refactor system to allow nanite adding if exists here rather than needing to pre-detect
                 var exporter = new MeshExporter(staticMesh, FileExportOptions);
-                foreach (var mesh in exporter.MeshLods)
+
+                if (isNanite && exporter.NaniteMesh is not null)
                 {
-                    File.WriteAllBytes(path, mesh.FileData);
+                    File.WriteAllBytes(path, exporter.NaniteMesh.FileData);
+                }
+                else
+                {
+                    foreach (var mesh in exporter.MeshLods)
+                    {
+                        File.WriteAllBytes(path, mesh.FileData);
+                    }
                 }
                 break;
             }
@@ -315,7 +339,7 @@ public partial class ExportContext
         fileStream.Write(bitmap?.Encode(format, false, out _));
     }
     
-    public string GetExportPath(UObject obj, string ext, bool embeddedAsset = false, bool excludeGamePath = false)
+    public string GetExportPath(UObject obj, string ext, bool embeddedAsset = false, bool isNanite = false, bool excludeGamePath = false)
     {
         string path;
         if (obj is UDNAAsset dnaAsset)
@@ -332,12 +356,10 @@ public partial class ExportContext
             path = embeddedAsset ? $"{obj.Owner.Name}/{obj.Name}" : obj.Owner?.Name ?? string.Empty;
         }
 
-        return GetExportPath(path, ext);
+        return BuildExportPath(path, ext, isNanite, obj);
     }
     
-    
-    
-    public string GetExportPath(string path, string ext)
+    public string BuildExportPath(string path, string ext, bool isNanite = false, UObject? obj = null)
     {
         path = path.SubstringBeforeLast('.');
         if (path.StartsWith("/")) path = path[1..];
@@ -345,6 +367,12 @@ public partial class ExportContext
         var directory = Path.Combine(Meta.CustomPath ?? Meta.AssetsRoot, path);
         Directory.CreateDirectory(directory.SubstringBeforeLast("/"));
 
+        if (obj is USplineMeshComponent splineComponent)
+            directory += string.Concat("-", splineComponent.GetMeshId().AsSpan(0, 6));
+
+        if (isNanite)
+            directory += "_Nanite";
+        
         var finalPath = $"{directory}.{ext.ToLower()}";
         return finalPath;
     }

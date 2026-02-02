@@ -4,6 +4,10 @@ using CUE4Parse_Conversion;
 using CUE4Parse_Conversion.Animations;
 using CUE4Parse_Conversion.Meshes;
 using CUE4Parse_Conversion.UEFormat.Enums;
+using CUE4Parse.UE4.Assets.Exports.Nanite;
+using CUE4Parse.UE4.Versions;
+using FluentAvalonia.UI.Controls;
+using FortnitePorting.Application;
 using FortnitePorting.Exporting.Models;
 using FortnitePorting.Framework;
 using FortnitePorting.ViewModels.Settings;
@@ -44,6 +48,7 @@ public partial class BaseExportSettings : ViewModelBase
     [ObservableProperty] private bool _exportMaterials = true;
     
     [ObservableProperty] private EMeshFormat _meshFormat = EMeshFormat.UEFormat;
+    [ObservableProperty] private bool _exportNanite;
     [ObservableProperty] private bool _importInstancedFoliage = true;
     
     [ObservableProperty] private EAnimFormat _animFormat = EAnimFormat.UEFormat;
@@ -57,7 +62,8 @@ public partial class BaseExportSettings : ViewModelBase
         {
             MeshFormat = MeshFormat,
             AnimFormat = AnimFormat,
-            CompressionFormat = CompressionFormat
+            CompressionFormat = CompressionFormat,
+            NaniteMeshFormat = ExportNanite ? ENaniteMeshFormat.NaniteSeparateFile : ENaniteMeshFormat.OnlyNormalLODs
         };
     }
 }

@@ -4,8 +4,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
              xmlns:settings="clr-namespace:FortnitePorting.ViewModels.Settings"
-             xmlns:enums="clr-namespace:CUE4Parse_Conversion.UEFormat.Enums;assembly=CUE4Parse-Conversion"
+             xmlns:nanite="clr-namespace:CUE4Parse.UE4.Assets.Exports.Nanite;assembly=CUE4Parse"
              xmlns:meshes="clr-namespace:CUE4Parse_Conversion.Meshes;assembly=CUE4Parse-Conversion"
+             xmlns:enums="clr-namespace:CUE4Parse_Conversion.UEFormat.Enums;assembly=CUE4Parse-Conversion"
              xmlns:animations="clr-namespace:CUE4Parse_Conversion.Animations;assembly=CUE4Parse-Conversion"
              xmlns:fortnitePorting="clr-namespace:FortnitePorting"
              xmlns:controls="clr-namespace:FortnitePorting.Controls.Settings"
@@ -37,6 +38,12 @@
                 <controls:SettingsItem.Footer>
                     <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type meshes:ELodFormat}}"
                               SelectedItem="{Binding LodFormat, Converter={StaticResource EnumToRecord}}" />
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
+            
+            <controls:SettingsItem Title="Export Nanite" Description="Determines whether nanite meshes should be exported if available.">
+                <controls:SettingsItem.Footer>
+                    <ToggleSwitch IsChecked="{Binding ExportNanite}"/>
                 </controls:SettingsItem.Footer>
             </controls:SettingsItem>
             

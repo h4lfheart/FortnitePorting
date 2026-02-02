@@ -21,7 +21,7 @@ public class StaticMeshRenderer : MeshRenderer
 
     public StaticMeshRenderer(UStaticMesh staticMesh, List<KeyValuePair<UBuildingTextureData, int>>? textureData = null, int lodLevel = 0) : base(new ShaderProgram("shader"))
     {
-        if (!staticMesh.TryConvert(out var convertedMesh))
+        if (!staticMesh.TryConvert(out var convertedMesh, out _))
         {
             throw new RenderingXException("Failed to convert static mesh.");
         }

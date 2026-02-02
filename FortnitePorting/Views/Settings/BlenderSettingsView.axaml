@@ -8,6 +8,7 @@
              xmlns:settings="clr-namespace:FortnitePorting.ViewModels.Settings"
              xmlns:fortnitePorting="clr-namespace:FortnitePorting"
              xmlns:controls="clr-namespace:FortnitePorting.Controls.Settings"
+             xmlns:nanite="clr-namespace:CUE4Parse.UE4.Assets.Exports.Nanite;assembly=CUE4Parse"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FortnitePorting.Views.Settings.BlenderSettingsView"
              x:DataType="settings:BlenderSettingsViewModel">
@@ -99,6 +100,12 @@
                     <ui:NumberBox Value="{Binding TargetLOD}" 
                                   Minimum="0"
                                   SpinButtonPlacementMode="Inline"/>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
+            
+            <controls:SettingsItem Title="Export Nanite" Description="Determines whether nanite meshes should be exported if available.">
+                <controls:SettingsItem.Footer>
+                    <ToggleSwitch IsChecked="{Binding ExportNanite}"/>
                 </controls:SettingsItem.Footer>
             </controls:SettingsItem>
             

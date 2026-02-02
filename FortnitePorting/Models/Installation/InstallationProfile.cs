@@ -51,6 +51,7 @@ public partial class InstallationProfile : ObservableValidator
     [ObservableProperty] private ELanguage _gameLanguage = ELanguage.English;
     [ObservableProperty] private bool _useTextureStreaming = true;
     [ObservableProperty] private bool _loadInstalledBundles = true;
+    [ObservableProperty] private bool _loadNaniteData = true;
 
     [ObservableProperty] private bool _isSelected;
 
