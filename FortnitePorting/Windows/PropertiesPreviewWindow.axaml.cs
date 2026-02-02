@@ -33,13 +33,14 @@ public partial class PropertiesPreviewWindow : WindowBase<PropertiesPreviewWindo
     {
         base.OnLoaded(e);
         
-        
         Editor.TextArea.TextView.ScrollOffsetChanged += OnScrollOffsetChanged;
         Editor.TextArea.TextView.BackgroundRenderers.Add(new IndentGuideLinesRenderer(Editor));
         Editor.TextArea.TextView.ElementGenerators.Add(new FilePathElementGenerator());
         
         _foldingManager = FoldingManager.Install(Editor.TextArea);
         StyleFoldingMargin();
+        
+        _isInitialized = true;
         
         WindowModel.PropertyChanged += (_, args) =>
         {
@@ -48,8 +49,6 @@ public partial class PropertiesPreviewWindow : WindowBase<PropertiesPreviewWindo
                 UpdateEditorContent();
             }
         };
-
-        _isInitialized = true;
         
         if (WindowModel.SelectedAsset != null)
         {

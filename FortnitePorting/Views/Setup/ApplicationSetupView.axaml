@@ -1,0 +1,97 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
+             xmlns:versions="clr-namespace:CUE4Parse.UE4.Versions;assembly=CUE4Parse"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:fortnitePorting="clr-namespace:FortnitePorting"
+             xmlns:setup="clr-namespace:FortnitePorting.ViewModels.Setup"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls.Settings"
+             xmlns:controls1="clr-namespace:FortnitePorting.Controls"
+             d:DesignHeight="770" d:DesignWidth="1160"
+             x:Class="FortnitePorting.Views.Setup.ApplicationSetupView"
+             x:DataType="setup:ApplicationSetupViewModel">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="{ext:Space 1}"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <Border Grid.Row="0" Grid.RowSpan="3" CornerRadius="0">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0%, 100%" EndPoint="0%, 0%">
+                    <GradientStops>
+                        <GradientStop Color="#AA000000" Offset=".4"/>
+                        <GradientStop Color="#00000000" Offset="0.6"/>
+                    </GradientStops>
+                </LinearGradientBrush>
+            </Border.Background>
+        </Border>
+        
+        <StackPanel Grid.Row="0" VerticalAlignment="Center">
+            <TextBlock Text="Application Settings" FontFamily="{StaticResource SFDisplayBold}" FontSize="40" 
+                       HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{ext:Space 0, 0, 0, 1}">
+                <TextBlock.Effect>
+                    <DropShadowEffect BlurRadius="15" Color="#8F000000" OffsetX="0" OffsetY="0" />
+                </TextBlock.Effect>
+            </TextBlock>
+            
+            <TextBlock Text="Modify a few application settings to tailor your Fortnite Porting experience." HorizontalAlignment="Center"
+                       VerticalAlignment="Center" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"
+                       Margin="{ext:Space 0, 0, 0, 2}">
+                <TextBlock.Effect>
+                    <DropShadowEffect BlurRadius="15" Color="#8F000000" OffsetX="0" OffsetY="0" />
+                </TextBlock.Effect>
+            </TextBlock>
+            
+            <Button Content="Continue" Command="{Binding ContinueCommand}" 
+                    IsEnabled="{Binding !HasErrors}" Classes="Purple"
+                    HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+        </StackPanel>
+        
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Hidden" Margin="{ext:Space 4, 0, 4, 4}">
+            <StackPanel VerticalAlignment="Bottom" Margin="{ext:Space 1, 0}" Spacing="{ext:Space 0, 0, 0, 1}">
+                <controls:SettingsItem Title="Theme"
+                                       Description="The theme that should be used for Fortnite Porting.">
+                    <controls:SettingsItem.Footer>
+                        <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EThemeType}}"
+                                  SelectedItem="{Binding Settings.Application.Theme, Converter={StaticResource EnumToRecord}}" >
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate DataType="ext:EnumRecord">
+                                    <controls1:IconText Text="{Binding Description}"
+                                                        Icon="{Binding Icon}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </controls:SettingsItem.Footer>
+                </controls:SettingsItem>
+                
+                <controls:SettingsItem Title="Application Data Folder (Optional)" Description="The folder in which all saved application data will save to. Defaults to %localappdata%/FortnitePorting.">
+                    <controls:SettingsItem.Footer>
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox IsChecked="{Binding Settings.Application.UseAppDataPath}"/>
+                            <TextBox Text="{Binding Settings.Application.AppDataPath}" Watermark="Ex. D:/Apps/FortnitePorting" IsEnabled="{Binding Settings.Application.UseAppDataPath}"/>
+                            <Button Margin="4 0 0 0" Command="{Binding Settings.Application.BrowseAppDataPath}" IsEnabled="{Binding Settings.Application.UseAppDataPath}">
+                                <ui:SymbolIcon Symbol="Folder"/>
+                            </Button>
+                        </StackPanel>
+                    </controls:SettingsItem.Footer>
+                </controls:SettingsItem>
+                
+                <controls:SettingsItem Title="Assets Folder (Optional)" Description="The folder in which all assets will export to. Defaults to %localappdata%/FortnitePorting/Assets.">
+                    <controls:SettingsItem.Footer>
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox IsChecked="{Binding Settings.Application.UseAssetsPath}"/>
+                            <TextBox Text="{Binding Settings.Application.AssetsPath}" Watermark="Ex. D:/Apps/FortnitePorting/Assets" IsEnabled="{Binding Settings.Application.UseAssetsPath}"/>
+                            <Button Margin="4 0 0 0" Command="{Binding Settings.Application.BrowseAssetsPath}" IsEnabled="{Binding Settings.Application.UseAssetsPath}">
+                                <ui:SymbolIcon Symbol="Folder"/>
+                            </Button>
+                        </StackPanel>
+                    </controls:SettingsItem.Footer>
+                </controls:SettingsItem>
+            </StackPanel>
+        </ScrollViewer>
+        
+    </Grid>
+</UserControl>

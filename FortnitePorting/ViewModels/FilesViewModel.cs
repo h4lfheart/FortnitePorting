@@ -28,6 +28,7 @@ using FortnitePorting.Exporting.Context;
 using FortnitePorting.Exporting.Models;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
+using FortnitePorting.Models;
 using FortnitePorting.Models.Files;
 using FortnitePorting.Models.Information;
 using FortnitePorting.Models.Unreal;
@@ -35,6 +36,7 @@ using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Views;
 using FortnitePorting.Windows;
+using Material.Icons;
 using Newtonsoft.Json;
 using ReactiveUI;
 using Serilog;
@@ -89,9 +91,17 @@ public partial class FilesViewModel : ViewModelBase
         [EFileFilterType.Map] = ["World", "umap"]
     };
 
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(SearchText))] private bool _useFlatView = false;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SearchText), nameof(FlatViewToggleIcon), nameof(FlatViewToggleToolTip))] 
+    private bool _useFlatView = false;
+
+    public MaterialIconKind FlatViewToggleIcon =>
+        UseFlatView ? MaterialIconKind.Folder : MaterialIconKind.FormatListBulleted;
+
+    public string FlatViewToggleToolTip => UseFlatView ? "File View" : "Flat View";
+    
     [ObservableProperty] private bool _useRegex = false;
-    [ObservableProperty] private bool _showLoadingSplash = true;
+    [ObservableProperty] private bool _isLoading = true;
     
     [ObservableProperty] private List<FlatItem> _selectedFlatViewItems = [];
     [ObservableProperty] private ReadOnlyObservableCollection<FlatItem> _flatViewCollection = new([]);
@@ -100,20 +110,37 @@ public partial class FilesViewModel : ViewModelBase
     [ObservableProperty] private ObservableCollection<TreeItem> _fileViewCollection = [];
     [ObservableProperty] private ObservableCollection<TreeItem> _fileViewStack = [];
     [ObservableProperty] private ObservableCollection<TreeItem> _treeViewCollection = new([]);
+    
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(LoadingPercentageText))] private int _loadedFiles;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(LoadingPercentageText))] private int _totalFiles = int.MaxValue;
+    public string LoadingPercentageText => $"{(LoadedFiles == 0 && TotalFiles == 0 ? 0 : LoadedFiles * 100f / TotalFiles):N0}%";
+    
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(CanGoToParent))] private TreeItem _currentFolder;
+
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(CanGoBack))]
+    private int _backStackCount = 0;
+
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(CanGoForward))]
+    private int _forwardStackCount = 0;
+
+    public bool CanGoBack => BackStackCount > 0;
+    public bool CanGoForward => ForwardStackCount > 0;
+    public bool CanGoToParent => CurrentFolder.Parent is not null;
+    
+    private Stack<TreeItem> _backStack = new();
+    private Stack<TreeItem> _forwardStack = new();
 
     private readonly TreeItem _parentTreeItem = new("Files", ENodeType.Folder)
     {
         Expanded = true,
         Selected = true
     };
-    
-    private TreeItem _currentFolder;
 
     private readonly SourceCache<FlatItem, string> FlatViewAssetCache = new(item => item.Path);
     
     public override async Task Initialize()
     {
-        BuildTreeStructure();
+        BuildFileList();
         
         var assetFilter = this
             .WhenAnyValue(viewModel => viewModel.FlatSearchFilter, viewmodel => viewmodel.UseRegex)
@@ -128,15 +155,20 @@ public partial class FilesViewModel : ViewModelBase
 
         FlatViewCollection = flatCollection;
         TreeViewCollection = [_parentTreeItem];
-        LoadFileItems(_parentTreeItem);
+        LoadFileItems(_parentTreeItem, addToStackHistory: false);
+
+        CurrentFolder = _parentTreeItem;
             
-        ShowLoadingSplash = false;
+        IsLoading = false;
     }
 
-    private void BuildTreeStructure()
+    private void BuildFileList()
     {
+        TotalFiles = UEParse.Provider.Files.Count;
         foreach (var (_, file) in UEParse.Provider.Files)
         {
+            LoadedFiles++;
+            
             var path = file.Path;
             if (!IsValidFilePath(path)) continue;
                 
@@ -164,7 +196,7 @@ public partial class FilesViewModel : ViewModelBase
 
     public override async Task OnViewOpened()
     {
-        Discord.Update($"Browsing {UEParse.Provider.Files.Count} Files");
+        Discord.Update($"Browsing {UEParse.Provider.Files.Count:N0} Files");
     }
 
     public void ClearSearchFilter()
@@ -176,9 +208,18 @@ public partial class FilesViewModel : ViewModelBase
             FileSearchFilter = string.Empty;
     }
     
-    public void LoadFileItems(TreeItem item)
+    public void LoadFileItems(TreeItem item, bool addToStackHistory = true)
     {
-        _currentFolder = item;
+        if (addToStackHistory && CurrentFolder != item)
+        {
+            _backStack.Push(CurrentFolder);
+            BackStackCount = _backStack.Count;
+        
+            _forwardStack.Clear();
+            ForwardStackCount = 0;
+        }
+        
+        CurrentFolder = item;
 
         var allChildren = item.GetAllChildren();
         
@@ -281,6 +322,8 @@ public partial class FilesViewModel : ViewModelBase
         var foundItem = FlatViewAssetCache.Lookup(directory);
         if (!foundItem.HasValue) return;
 
+        FlatSearchFilter = string.Empty;
+        FlatSearchText = string.Empty;
         SelectedFlatViewItems = [foundItem.Value];
         UseFlatView = true;
     }
@@ -317,10 +360,11 @@ public partial class FilesViewModel : ViewModelBase
     private void FilterFiles()
     {
         if (UseFlatView) return;
-        
-        RealizeFileData(ref _currentFolder);
 
-        var items = _currentFolder.GetAllChildren()
+        var currentFolder = CurrentFolder;
+        RealizeFileData(ref currentFolder);
+
+        var items = CurrentFolder.GetAllChildren()
             .Where(item =>
             {
                 if (string.IsNullOrWhiteSpace(FileSearchFilter))
@@ -347,6 +391,42 @@ public partial class FilesViewModel : ViewModelBase
             .ThenBy(item => item.Name, new CustomComparer<string>(ComparisonExtensions.CompareNatural));
         
         FileViewCollection = new ObservableCollection<TreeItem>(items);
+    }
+    
+    [RelayCommand]
+    public void GoBack()
+    {
+        if (_backStack.Count == 0) return;
+    
+        var previousItem = _backStack.Pop();
+        BackStackCount = _backStack.Count;
+    
+        _forwardStack.Push(CurrentFolder);
+        ForwardStackCount = _forwardStack.Count;
+    
+        LoadFileItems(previousItem, addToStackHistory: false);
+    }
+
+    [RelayCommand]
+    public void GoForward()
+    {
+        if (_forwardStack.Count == 0) return;
+    
+        var nextItem = _forwardStack.Pop();
+        ForwardStackCount = _forwardStack.Count;
+    
+        _backStack.Push(CurrentFolder);
+        BackStackCount = _backStack.Count;
+    
+        LoadFileItems(nextItem, addToStackHistory: false);
+    }
+
+    [RelayCommand]
+    public void GoToParent()
+    {
+        if (CurrentFolder.Parent is null) return;
+    
+        LoadFileItems(CurrentFolder.Parent);
     }
 
     [RelayCommand]
@@ -387,14 +467,16 @@ public partial class FilesViewModel : ViewModelBase
             Info.Message("Properties", $"Failed to preview {selectedItemPath}");
         }
     }
-    
+        
     [RelayCommand]
     public async Task Preview()
     {
-        var selectedPaths = UseFlatView 
+        var selectedPaths = (UseFlatView 
             ? SelectedFlatViewItems.Select(file => file.Path) 
-            : SelectedFileViewItems.Where(file => file.Type == ENodeType.File).Select(file => file.FilePath);
-
+            : SelectedFileViewItems.Where(file => file.Type == ENodeType.File).Select(file => file.FilePath)).ToList();
+        
+        
+        var loadedAssets = new List<UObject>();
         foreach (var path in selectedPaths)
         {
             var basePath = Exporter.FixPath(path);
@@ -410,41 +492,59 @@ public partial class FilesViewModel : ViewModelBase
                 asset = await UEParse.Provider.SafeLoadPackageObjectAsync(basePath);
                 asset ??= await UEParse.Provider.SafeLoadPackageObjectAsync($"{basePath}.{basePath.SubstringAfterLast("/")}_C");
             }
+            
+            asset = TransformAssetForPreview(asset);
 
             if (asset is null)
             {
-                await Properties();
-                return;
+                continue;
             }
-
-            await PreviewAsset(asset);
+            
+            loadedAssets.Add(asset);
         }
         
+        if (loadedAssets.Count == 0)
+        {
+            await Properties();
+            return;
+        }
+
+        var meshAssets = loadedAssets.Where(x => x is ULevel or UStaticMesh or USkeletalMesh).ToArray();
+        if (meshAssets.Length > 0)
+        {
+            loadedAssets.RemoveMany(meshAssets);
+            ModelPreviewWindow.Preview(meshAssets);
+        }
+
+        foreach (var asset in loadedAssets)
+        {
+            await PreviewAsset(asset);
+        }
     }
 
-    public async Task PreviewAsset(UObject asset)
+    private UObject? TransformAssetForPreview(UObject? asset)
     {
-        var name = asset.Name;
-
         switch (asset)
         {
             case UVirtualTextureBuilder virtualTextureBuilder:
-            {
-                asset = virtualTextureBuilder.Texture.Load<UVirtualTexture2D>();
-                break;
-            }
+                return virtualTextureBuilder.Texture.Load<UVirtualTexture2D>();
             
             case UPaperSprite paperSprite:
-            {
-                asset = paperSprite.BakedSourceTexture.Load<UTexture2D>();
-                break;
-            }
+                return paperSprite.BakedSourceTexture?.Load<UTexture2D>();
+            
             case UWorld world:
-            {
-                asset = world.PersistentLevel.Load<ULevel>();
-                break;
-            }
+                return world.PersistentLevel.Load<ULevel>();
+            
+            default:
+                return asset;
         }
+    }
+
+    public async Task PreviewAsset(UObject? asset)
+    {
+        var name = asset?.Name!;
+        asset = TransformAssetForPreview(asset);
+        if (asset is null) return;
         
         switch (asset)
         {
@@ -517,7 +617,7 @@ public partial class FilesViewModel : ViewModelBase
             }
         }
     }
-    
+        
     [RelayCommand]
     public async Task Export()
     {
@@ -653,16 +753,15 @@ public partial class FilesViewModel : ViewModelBase
         
         foreach (var path in paths)
         {
-            var basePath = Exporter.FixPath(path);
-            var fileExports = await UEParse.Provider.LoadAllObjectsAsync(basePath);
+            if (!UEParse.Provider.TryLoadObjectExports(path, out var exports)) continue;
             
             var exportPath = context.BuildExportPath(meta.CustomPath is not null 
-                ? basePath.SubstringAfterLast("/").SubstringBeforeLast(".") 
-                : basePath , "json");
+                ? path.SubstringAfterLast("/").SubstringBeforeLast(".") 
+                : path , "json");
             
             Log.Information("Exporting Properties: {ExportPath}", exportPath);
             
-            var propertiesJson = JsonConvert.SerializeObject(fileExports, Formatting.Indented);
+            var propertiesJson = JsonConvert.SerializeObject(exports, Formatting.Indented);
             await File.WriteAllTextAsync(exportPath, propertiesJson);
         }
     }

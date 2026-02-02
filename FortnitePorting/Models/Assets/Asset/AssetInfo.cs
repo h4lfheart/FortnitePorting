@@ -2,9 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using CUE4Parse.UE4.Assets.Exports;
+using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
+using CUE4Parse.UE4.Objects.UObject;
+using CUE4Parse.Utils;
 using FortnitePorting.Extensions;
+using Serilog;
 
 namespace FortnitePorting.Models.Assets.Asset;
 
@@ -42,6 +46,42 @@ public partial class AssetInfo : Base.BaseAssetInfo
 
             var styleInfo = new AssetStyleInfo(channel, options, Asset.IconDisplayImage);
             if (styleInfo.StyleDatas.Count > 0) StyleInfos.Add(styleInfo);
+        }
+
+        if (Asset.CreationData.ExportType is EExportType.Emote)
+        {
+            var maleBaseAnimation = Asset.CreationData.Object.GetOrDefault<UAnimMontage?>("Animation");
+            maleBaseAnimation ??= Asset.CreationData.Object.GetOrDefault<UAnimMontage?>("FrontEndAnimation");
+            
+            var femaleBaseAnimation = Asset.CreationData.Object.GetOrDefault<UAnimMontage?>("AnimationFemaleOverride");
+            var animationOverrides = Asset.CreationData.Object.GetOrDefault<FStructFallback[]>("AnimationOverrides", []);
+
+            var sizedAnimations = new Dictionary<string, UAnimMontage>();
+
+            if (maleBaseAnimation is not null)
+                sizedAnimations.Add($"Male Medium ({maleBaseAnimation.Name})", maleBaseAnimation);
+            
+            if (femaleBaseAnimation is not null)
+                sizedAnimations.Add($"Female Medium ({femaleBaseAnimation.Name})", femaleBaseAnimation);
+
+            foreach (var animationOverride in animationOverrides)
+            {
+                var gender = animationOverride.Get<FName?>("Gender")?.Text.SubstringAfter("::");
+                var bodyType = animationOverride.Get<FName?>("BodyType")?.Text.SubstringAfter("::");
+                var montage = animationOverride.GetOrDefault<UAnimMontage?>("EmoteMontage");
+                if (gender is null || bodyType is null || montage is null) continue;
+                
+                sizedAnimations.Add($"{gender} {bodyType} ({montage.Name})", montage);
+            }
+
+            if (sizedAnimations.Count > 0)
+            {
+                var sizedStyleDatas = sizedAnimations
+                    .Select(kvp => new AnimStyleData(kvp.Key, kvp.Value))
+                    .ToArray();
+            
+                StyleInfos.Add(new AssetStyleInfo("Animation Type", sizedStyleDatas));
+            }
         }
     }
     

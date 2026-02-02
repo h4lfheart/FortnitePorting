@@ -31,8 +31,8 @@
             <TextBlock Grid.Row="0"
                        FontFamily="{StaticResource SFDisplaySemibold}" FontSize="40"
                        HorizontalAlignment="Center">
-                <Run Text="Fortnite" />
-                <Run Text="Porting" Foreground="#953bf8" />
+                <Run Text="Fortnite" Foreground="{DynamicResource FPTitleTextBrush}"/>
+                <Run Text="Porting" Foreground="{DynamicResource FPAccentBrush}" />
             </TextBlock>
             
             <TextBlock Grid.Row="1" Text="{Binding UEParse.Status}" 
@@ -55,6 +55,8 @@
                         FontFamily="{StaticResource SFTextRegular}" Command="{Binding LaunchGitHub}"/>
                 <Button Content="{controls:ImageText 'KoFi', /Assets/Icons/KoFi.png}" Width="125"
                         FontFamily="{StaticResource SFTextRegular}" Command="{Binding LaunchKoFi}"/>
+                <Button Content="{controls:ImageText 'Website', /Assets/LogoRebrand.png}" Width="125"
+                        FontFamily="{StaticResource SFTextRegular}" Command="{Binding LaunchWebsite}"/>
             </StackPanel>
 
         </Grid>
@@ -98,15 +100,8 @@
                                     <Border Grid.Column="0"
                                             CornerRadius="12" 
                                             Padding="{ext:Space 1, 0.5}"
-                                            HorizontalAlignment="Left" ClipToBounds="False">
-                                        <Border.Background>
-                                            <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
-                                                <GradientStops>
-                                                    <GradientStop Color="#8141db" Offset="0"/>
-                                                    <GradientStop Color="#953bf8" Offset="1"/>
-                                                </GradientStops>
-                                            </LinearGradientBrush>
-                                        </Border.Background>
+                                            HorizontalAlignment="Left" ClipToBounds="False"
+                                            Background="{DynamicResource FPAccentBrush}">
                             
                                         <TextBlock Text="{Binding Tag, Converter={StaticResource StringToUppercase}}" 
                                                    FontFamily="{StaticResource SFTextSemiBold}"

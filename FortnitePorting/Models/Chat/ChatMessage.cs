@@ -1,5 +1,7 @@
 using System;
 using System.Threading.Tasks;
+using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -22,6 +24,8 @@ public partial class ChatMessage : ObservableObject
     [ObservableProperty] private string? _replyId;
     [ObservableProperty] private string? _imagePath;
     
+    [ObservableProperty] private bool _isPing;
+    
     [ObservableProperty]
     [NotifyPropertyChangedFor(
         nameof(DidReactTo), 
@@ -29,8 +33,6 @@ public partial class ChatMessage : ObservableObject
         nameof(ReactionBrush)
     )]
     private string[] _reactorIds = [];
-
-    
     
     [ObservableProperty] private bool _isEditing;
 
@@ -39,8 +41,7 @@ public partial class ChatMessage : ObservableObject
     public string? FullImageUrl => ImagePath is not null
         ? $"https://supabase.fortniteporting.app/storage/v1/object/public/{ImagePath}"
         : null;
-
-
+    
     public string TimestampString =>
         Timestamp.Date == DateTime.Today ? Timestamp.ToString("t") : Timestamp.ToString("g");
 

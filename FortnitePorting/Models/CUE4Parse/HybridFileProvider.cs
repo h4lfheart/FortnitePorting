@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using CUE4Parse.FileProvider.Vfs;
+using CUE4Parse.UE4.IO;
 using CUE4Parse.UE4.Readers;
 using CUE4Parse.UE4.Versions;
 using CUE4Parse.Utils;
+using EpicManifestParser.UE;
 
 namespace FortnitePorting.Models.CUE4Parse;
 
@@ -54,9 +56,37 @@ public class HybridFileProvider : AbstractVfsFileProvider
         foreach (var file in directory.EnumerateFiles("*.*", EnumerationOptions))
         {
             var extension = file.Extension.SubstringAfter('.').ToLower();
-            if (extension is not ("pak" or "utoc")) continue;
+            if (extension is "pak" or "utoc")
+            {
+                RegisterVfs(file.FullName, [ file.OpenRead() ], it => new FStreamArchive(it, File.OpenRead(it), Versions));
+            }
 
-            RegisterVfs(file.FullName, [ file.OpenRead() ], it => new FStreamArchive(it, File.OpenRead(it), Versions));
+            if (extension is "uondemandtoc")
+            {
+                var ioChunkToc = new IoChunkToc(file.FullName);
+                RegisterVfs(ioChunkToc, OnDemandOptions);
+            }
+        }
+    }
+    public void RegisterFiles(FBuildPatchAppManifest manifest)
+    {
+        foreach (var file in manifest.Files)
+        {
+            if (!file.FileName.Contains("FortniteGame/Content/Paks")) continue;
+            
+            var extension = file.FileName.SubstringAfter('.').ToLower();
+            if (extension is "pak" or "utoc")
+            {
+                RegisterVfs(file.FileName, (Stream[]) [file.GetStream()],
+                    name => new FStreamArchive(name,
+                        manifest.Files.First(subFile => subFile.FileName.Equals(name)).GetStream()));
+            }
+
+            if (extension is "uondemandtoc")
+            {
+                var ioChunkToc = new IoChunkToc(new FStreamArchive(file.FileName, file.GetStream()));
+                RegisterVfs(ioChunkToc, OnDemandOptions);
+            }
 
         }
     }

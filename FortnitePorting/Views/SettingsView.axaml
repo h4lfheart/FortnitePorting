@@ -20,9 +20,8 @@
                 <sidebar:SidebarItemText Text="APP SETTINGS"/>
                 <sidebar:SidebarItemButton Text="Application" Icon="ApplicationCog" Tag="{x:Type settings:ApplicationSettingsView}"/>
                 <sidebar:SidebarItemButton Text="Installation" Icon="Folder" Tag="{x:Type settings:InstallationSettingsView}"/>
-                <sidebar:SidebarItemButton Text="Online" Icon="Web" Tag="{x:Type settings:OnlineSettingsView}"/>
-                <sidebar:SidebarItemButton Text="Theme" Icon="PaletteSwatch" Tag="{x:Type settings:ThemeSettingsView}"/>
-                <sidebar:SidebarItemButton Text="Debug" Icon="Bug" Tag="{x:Type settings:DebugSettingsView}"/>
+                <sidebar:SidebarItemButton Text="Account" Icon="User" Tag="{x:Type settings:AccountSettingsView}" IsVisible="{Binding SupaBase.IsLoggedIn}"/>
+                <sidebar:SidebarItemButton Text="Developer" Icon="Bug" Tag="{x:Type settings:DeveloperSettingsView}" IsVisible="{Binding Settings.Application.ShowDeveloperSettings}"/>
             </sidebar:Sidebar.Items>
             <sidebar:Sidebar.Footer>
                 <StackPanel Spacing="{ext:Space 1.5}">

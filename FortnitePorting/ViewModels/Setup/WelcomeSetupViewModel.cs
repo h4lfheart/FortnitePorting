@@ -13,10 +13,6 @@ public partial class WelcomeSetupViewModel : ViewModelBase
     [RelayCommand]
     public async Task Continue()
     {
-        AppServices.Services.GetRequiredService<SetupViewModel>().UseBlur = true;
-        if (AppSettings.Installation.Profiles.Count > 0)
-            Navigation.Setup.Open<OnlineSetupView>();
-        else
-            Navigation.Setup.Open<InstallationSetupView>();
+        Navigation.Setup.Open<ApplicationSetupView>();
     }
 }

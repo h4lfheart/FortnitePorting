@@ -289,8 +289,13 @@ def set_geo_nodes_param(geo_node_modifier, name, value):
     geo_node_modifier[identifier] = value
     
     
-def get_sequencer():
-    if not bpy.context.sequencer_scene:
-        bpy.context.scene.sequence_editor_create()
+def get_sequence_editor():
+    if not bpy.context.workspace.sequencer_scene:
+        bpy.context.workspace.sequencer_scene = bpy.context.scene
         
-    return bpy.context.sequencer_scene
+    seq_scene = bpy.context.workspace.sequencer_scene
+    
+    if not seq_scene.sequence_editor:
+        seq_scene.sequence_editor_create()
+        
+    return seq_scene.sequence_editor

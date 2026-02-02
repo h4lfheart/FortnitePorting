@@ -5,7 +5,6 @@ import bpy
 from ..enums import *
 from ..utils import *
 from ..mappings import *
-from ..tasty import TOGGLE_OFF
 from ...utils import *
 from ...logger import Log
 from ...ueformat.importer.logic import UEFormatImport
@@ -23,16 +22,9 @@ class AnimImportContext:
             Server.instance.send_message("An armature must be selected to import an animation onto. Please select an armature and try again.")
             return
 
-        if target_skeleton.get("is_tasty"):
-            bpy.ops.object.mode_set(mode="POSE")
-            
-            if ik_finger_toggle := target_skeleton.pose.bones.get("finger_toggle"):
-                ik_finger_toggle.location[0] = TOGGLE_OFF
-
-            if world_space_pole_toggle := target_skeleton.pose.bones.get("pole_toggle"):
-                world_space_pole_toggle.location[0] = TOGGLE_OFF
-                
-            bpy.ops.object.mode_set(mode="OBJECT")
+        if target_skeleton.data.get("is_tasty"):
+            target_skeleton["use_pole_targets"] = False
+            target_skeleton["use_ik_fingers"] = False
             
 
         # clear old data
@@ -56,10 +48,10 @@ class AnimImportContext:
                 active_mesh.data.shape_keys.animation_data_create()
             
             
-        if sequencer := get_sequencer():
-            sequences_to_remove = where(sequencer.sequences, lambda seq: seq.get("FPSound"))
+        if sequence_editor := get_sequence_editor():
+            sequences_to_remove = where(sequence_editor.strips, lambda seq: seq.get("FPSound"))
             for sequence in sequences_to_remove:
-                sequencer.sequences.remove(sequence)
+                sequence_editor.strips.remove(sequence)
 
         bpy.context.scene.frame_set(0)
 

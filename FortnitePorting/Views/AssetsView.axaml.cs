@@ -29,6 +29,19 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
             
             ChangeTab(enumType);
         });
+        
+        PointerWheelChangedEvent.AddClassHandler<TopLevel>((sender, args) =>
+        {
+            if ((args.KeyModifiers & KeyModifiers.Control) != 0)
+            {
+                var delta = args.Delta.Y;
+
+                AppSettings.Application.AssetScale =
+                    float.Clamp(AppSettings.Application.AssetScale + (delta > 0 ? 0.25f : -0.25f), 0.5f, 4.0f);
+            
+                args.Handled = true;
+            }
+        }, handledEventsToo: true);
     }
 
     private void ChangeTab(EExportType assetType)

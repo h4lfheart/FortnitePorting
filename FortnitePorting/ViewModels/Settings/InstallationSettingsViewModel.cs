@@ -1,4 +1,6 @@
+using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FortnitePorting.Application;
@@ -14,12 +16,15 @@ public partial class InstallationSettingsViewModel : SettingsViewModelBase
     [JsonIgnore] public SupabaseService SupaBase => AppServices.SupaBase;
     
     [ObservableProperty] private bool _finishedSetup;
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(CurrentProfile))] private int _currentProfileIndex;
     [ObservableProperty] private ObservableCollection<InstallationProfile> _profiles = [];
     [ObservableProperty] private bool _canRemoveProfiles;
 
-    public InstallationProfile CurrentProfile => CurrentProfileIndex < Profiles.Count && CurrentProfileIndex >= 0 ? Profiles[CurrentProfileIndex] : null;
+    [JsonIgnore] public InstallationProfile CurrentProfile => Profiles.FirstOrDefault(profile => profile.IsSelected);
 
+    [ObservableProperty]
+    [property: JsonIgnore]
+    private InstallationProfile _selectedEditProfile;
+    
     public override async Task Initialize()
     {
         CanRemoveProfiles = Profiles.Count > 1;
@@ -35,13 +40,22 @@ public partial class InstallationSettingsViewModel : SettingsViewModelBase
         var profile = new InstallationProfile { ProfileName = "Unnammed" };
 
         Profiles.Add(profile);
-        CurrentProfileIndex = Profiles.IndexOf(profile);
+        SelectedEditProfile = profile;
     }
     
     public async Task RemoveProfile()
     {
-        var selectedIndexToRemove = CurrentProfileIndex;
-        Profiles.RemoveAt(selectedIndexToRemove);
-        CurrentProfileIndex = selectedIndexToRemove == 0 ? 0 : selectedIndexToRemove - 1;
+        var indexToRemove = Profiles.IndexOf(SelectedEditProfile);
+        var isCurrentProfile = SelectedEditProfile.IsSelected;
+    
+        Profiles.Remove(SelectedEditProfile);
+    
+        if (isCurrentProfile && Profiles.Count > 0)
+        {
+            Profiles[0].IsSelected = true;
+        }
+    
+        var newIndex = Math.Min(indexToRemove, Profiles.Count - 1);
+        SelectedEditProfile = Profiles[newIndex];
     }
 }

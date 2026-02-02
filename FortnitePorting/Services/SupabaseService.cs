@@ -9,9 +9,12 @@ using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.Levels;
 using FortnitePorting.Models.Supabase.Tables;
 using FortnitePorting.Models.Supabase.User;
+using FortnitePorting.Views.Settings;
 using Mapster;
+using Serilog;
 using Supabase;
 using Supabase.Gotrue;
+using Supabase.Gotrue.Exceptions;
 using Supabase.Realtime.PostgresChanges;
 using Client = Supabase.Client;
 
@@ -38,25 +41,26 @@ public partial class SupabaseService : ObservableObject, IService
             
             Client.Auth.AddStateChangedListener(async (client, state) =>
             {
-                if (state != Constants.AuthState.SignedIn) return;  
-                if (client.CurrentSession is not { } session) return;
-                
-                
-                AppSettings.Online.SessionInfo = new UserSessionInfo(session.AccessToken!, session.RefreshToken!);
+                if (client.CurrentSession is { } session)
+                {
+                    AppSettings.Account.SessionInfo = new UserSessionInfo(
+                        session.AccessToken!, 
+                        session.RefreshToken!
+                    );
+                }
 
-                await OnLoggedIn();
-
-                if (_currentAuthState is not null) // fresh sign in
-                    Info.Message("Discord Integration", $"Successfully signed in discord user {UserInfo!.UserName}");
+                if (state == Constants.AuthState.SignedIn && !IsLoggedIn)
+                {
+                    await OnLoggedIn();
+                }
             });
             
             await Client.InitializeAsync();
 
-            if (AppSettings.Online.SessionInfo is { } sessionInfo)
+            if (AppSettings.Account.SessionInfo is { } sessionInfo)
             {
                 await SetSession(sessionInfo);
             }
-
         });
     }
     
@@ -81,7 +85,30 @@ public partial class SupabaseService : ObservableObject, IService
 
     public async Task SetSession(UserSessionInfo sessionInfo)
     {
-        await Client.Auth.SetSession(sessionInfo.AccessToken, sessionInfo.RefreshToken);
+        try
+        {
+            if (await Client.Auth.SetSession(sessionInfo.AccessToken, sessionInfo.RefreshToken) is { } session)
+            {
+                AppSettings.Account.SessionInfo = new UserSessionInfo(
+                    session.AccessToken!, 
+                    session.RefreshToken!
+                );
+            }
+        }
+        catch (GotrueException e) when (e.Message.Contains("refresh_token_already_used"))
+        {
+            AppSettings.Account.SessionInfo = null;
+            IsLoggedIn = false;
+            Info.Dialog("Session Expired", "Your session has expired. Please log in again.");
+            Log.Warning("Refresh token already used, session cleared");
+        }
+        catch (Exception e)
+        {
+            AppSettings.Account.SessionInfo = null;
+            IsLoggedIn = false;
+            Info.Dialog("Online Services", "The online session is invalid, please log in again.");
+            Log.Error(e.ToString());
+        }
     }
 
     public async Task SignIn()
@@ -89,8 +116,7 @@ public partial class SupabaseService : ObservableObject, IService
         _currentAuthState = await Client.Auth.SignIn(Constants.Provider.Discord, new SignInOptions
         {
             FlowType = Constants.OAuthFlowType.PKCE,
-            RedirectTo = "fortniteporting://auth/callback",
-            
+            RedirectTo = "https://api.fortniteporting.app/v1/auth/redirect",
         });
         
         App.Launch(_currentAuthState.Uri.AbsoluteUri);
@@ -103,11 +129,13 @@ public partial class SupabaseService : ObservableObject, IService
     
     public async Task SignOut()
     {
-        Info.Message("Discord Integration", $"Successfully signed out discord user {UserInfo!.UserName}");
+        // TODO on sign out event to decouple ui responsiblities
+        if (Navigation.Settings.IsTabOpen<AccountSettingsView>())
+            Navigation.Settings.Open<ApplicationSettingsView>();
 
         await Chat.Uninitialize();
 
-        AppSettings.Online.SessionInfo = null;
+        AppSettings.Account.SessionInfo = null;
         UserInfo = null;
         IsLoggedIn = false;
         
@@ -157,7 +185,6 @@ public partial class SupabaseService : ObservableObject, IService
         await PostLogin();
 
         await Chat.Initialize();
-        await LiveExport.Initialize();
     }
     
     private async Task PostLogin()

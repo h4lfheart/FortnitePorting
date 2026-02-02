@@ -2,6 +2,7 @@ using System;
 using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
@@ -24,8 +25,11 @@ namespace FortnitePorting.Views;
 public partial class ChatView : ViewBase<ChatViewModel>
 {
     private const double AutoScrollThreshold = 400;
+    private const double LoadMoreThreshold = 200;
     
     private bool _shouldAutoScroll = true;
+    private bool _didInitialScroll = false;
+    private bool _isLoadingMore = false;
     
     public ChatView()
     {
@@ -33,7 +37,15 @@ public partial class ChatView : ViewBase<ChatViewModel>
         ViewModel.ImageFlyout = ImageFlyout;
         TextBox.AddHandler(KeyDownEvent, OnTextKeyDown, RoutingStrategies.Tunnel);
 
-        Scroll.ScrollChanged += (sender, args) =>
+        Scroll.LayoutUpdated += (sender, args) =>
+        {
+            if (_didInitialScroll) return;
+            
+            Scroll.ScrollToEnd();
+            _didInitialScroll = true;
+        };
+
+        Scroll.ScrollChanged += async (sender, args) =>
         {
             var distanceFromBottom = Scroll.Extent.Height - Scroll.Viewport.Height - Scroll.Offset.Y;
             _shouldAutoScroll = distanceFromBottom <= AutoScrollThreshold;
@@ -42,9 +54,16 @@ public partial class ChatView : ViewBase<ChatViewModel>
             {
                 ViewModel.ClearNewMessageIndicator();
             }
+
+            // Check if we're near the top and should load more messages
+            var distanceFromTop = Scroll.Offset.Y;
+            if (distanceFromTop <= LoadMoreThreshold && !_isLoadingMore && Chat.HasMoreMessages)
+            {
+                await LoadMoreMessages();
+            }
         };
 
-        Chat.Messages.CollectionChanged += (sender, args) =>
+        Chat.MessageReceived += (sender, args) =>
         {
             TaskService.RunDispatcher(() =>
             {
@@ -55,12 +74,42 @@ public partial class ChatView : ViewBase<ChatViewModel>
                 {
                     Scroll.ScrollToEnd();
                 }
-                else if (args.Action == NotifyCollectionChangedAction.Add)
+                else
                 {
                     ViewModel.IncrementNewMessageIndicator();
                 }
             });
         };
+    }
+
+    private async Task LoadMoreMessages()
+    {
+        if (_isLoadingMore) return;
+        
+        _isLoadingMore = true;
+        
+        try
+        {
+            var previousExtentHeight = Scroll.Extent.Height;
+            var previousOffset = Scroll.Offset.Y;
+
+            var loaded = await Chat.LoadMoreMessages();
+
+            if (loaded)
+            {
+                await Task.Delay(50);
+
+                var newExtentHeight = Scroll.Extent.Height;
+                var heightDifference = newExtentHeight - previousExtentHeight;
+                var newOffset = previousOffset + heightDifference;
+
+                Scroll.Offset = Scroll.Offset.WithY(newOffset);
+            }
+        }
+        finally
+        {
+            _isLoadingMore = false;
+        }
     }
 
     public void OnTextKeyDown(object? sender, KeyEventArgs e)
@@ -109,7 +158,7 @@ public partial class ChatView : ViewBase<ChatViewModel>
                     }
                 }
                 
-                await Chat.SendMessage(text, replyId: ViewModel.ReplyMessage?.Id, imagePath: imagePath);
+                await Chat.SendMessage(Chat.ConvertMentionsToIds(text), replyId: ViewModel.ReplyMessage?.Id, imagePath: imagePath);
                 ViewModel.ReplyMessage = null;
             });
             
@@ -147,6 +196,8 @@ public partial class ChatView : ViewBase<ChatViewModel>
         Scroll.ScrollToEnd();
         TextBox.Focus();
         ViewModel.ClearNewMessageIndicator();
+
+        _didInitialScroll = false;
     }
 
     private void OnUserPressed(object? sender, PointerPressedEventArgs e)

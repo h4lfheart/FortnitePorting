@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Installation;
+using FortnitePorting.Services;
 using FortnitePorting.Views.Setup;
 using Newtonsoft.Json;
 using Serilog;
@@ -18,11 +19,14 @@ public partial class InstallationSetupViewModel : ViewModelBase
     [ObservableProperty] private InstallationProfile _profile = new()
     {
         ProfileName = "Default",
-        ArchiveDirectory = string.Empty
+        ArchiveDirectory = string.Empty,
+        IsSelected = true
     };
     
     public override async Task Initialize()
     {
+        AppSettings.Installation.Profiles.Clear();
+        
         await CheckForInstallation();
     }
 

@@ -5,7 +5,6 @@ from math import radians
 from ..mappings import *
 from ..enums import *
 from ..utils import *
-from ..tasty import *
 from ...utils import *
 from ...logger import Log
 from ...ueformat.importer.logic import UEFormatImport
@@ -47,8 +46,8 @@ class MeshImportContext:
                 set_geo_nodes_param(vertex_crunch_modifier, "Material", material)
                 
         if self.type in [EExportType.OUTFIT]:
-            for data in self.imported_meshes:
-                self.parent_deform_bones(data["Skeleton"], ["dfrm_", "deform_"])
+            for imported_mesh in self.imported_meshes:
+                self.parent_deform_bones(imported_mesh["Skeleton"], ["dfrm_", "deform_"])
             
         if self.type in [EExportType.OUTFIT, EExportType.FALL_GUYS_OUTFIT] and self.options.get("MergeArmatures"):
             master_skeleton = merge_armatures(self.imported_meshes)
@@ -81,7 +80,7 @@ class MeshImportContext:
                 solidify.material_offset = len(master_mesh.data.materials) - 1
                 
             if rig_type == ERigType.TASTY:
-                create_tasty_rig(self, master_skeleton, TastyRigOptions(scale=self.scale, use_dynamic_bone_shape=self.options.get("UseDynamicBoneShape")))
+                self.create_tasty_rig(master_skeleton, self.get_metadata("MasterSkeletalMesh"))
 
             if anim_data := data.get("Animation"):
                 self.import_anim_data(anim_data, master_skeleton)
@@ -90,7 +89,6 @@ class MeshImportContext:
         path = mesh.get("Path")
         name = mesh.get("Name")
         part_type = EFortCustomPartType(mesh.get("Type"))
-        num_lods = mesh.get("NumLods")
         
         if mesh.get("IsEmpty"):
             empty_object = bpy.data.objects.new(name, None)

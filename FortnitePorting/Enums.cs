@@ -218,7 +218,11 @@ public enum EExportType
     Material,
     
     [Description("MaterialInstance"), Export(EPrimitiveExportType.Material)]
-    MaterialInstance
+    MaterialInstance,
+    
+    // UTILITY
+    [Description("Tasty Rig"), Export(EPrimitiveExportType.TastyRig)]
+    TastyRig
 }
 
 public enum EPrimitiveExportType
@@ -242,7 +246,11 @@ public enum EPrimitiveExportType
     PoseAsset,
     
     [Description("Material")]
-    Material
+    Material,
+    
+    // UTILITY
+    [Description("Tasty Rig")]
+    TastyRig
 }
 
 public enum EAssetSortType
@@ -306,4 +314,23 @@ public enum EFileFilterType
     Sound,
     Font,
     Map
+}
+
+public enum EThemeType
+{
+    [Description("Dark")]
+    [Icon(MaterialIconKind.WeatherNight)]
+    Dark,
+    
+    [Description("Royal Purple")]
+    [Icon(MaterialIconKind.Crown)]
+    RoyalPurple,
+    
+    [Description("Ocean Blue")]
+    [Icon(MaterialIconKind.WaterDrop)]
+    OceanBlue,
+    
+    [Description("Mica")]
+    [Icon(MaterialIconKind.CircleOpacity)]
+    Mica,
 }

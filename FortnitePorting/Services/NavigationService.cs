@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CUE4Parse.Utils;
 using FluentAvalonia.UI.Controls;
+using FluentAvalonia.UI.Media.Animation;
 using FortnitePorting.Controls.Navigation.Sidebar;
 
 namespace FortnitePorting.Services;
@@ -22,7 +23,7 @@ public class NavigationService : IService
     public NavigationService()
     {
         App = RegisterContext(string.Empty);
-        Setup = RegisterContext("Setup"); // TODO do we need content frame route navigation?
+        Setup = RegisterContext("Setup");
         Assets = RegisterContext("Assets");
         Plugin = RegisterContext("Plugin");
         Settings = RegisterContext("Settings");
@@ -43,17 +44,19 @@ public class NavigationService : IService
         }
     }
 
-    private NavigatorContext RegisterContext(string name)
+    private NavigatorContext RegisterContext(string name, NavigationTransitionInfo? transitionInfo = null)
     {
-        var context = new NavigatorContext(name);
+        var context = new NavigatorContext(name, transitionInfo);
         _contexts.Add(context);
         return context;
     }
 }
 
-public class NavigatorContext(string name)
+public class NavigatorContext(string name, NavigationTransitionInfo? transitionInfo = null)
 {
     public string Name = name;
+    public NavigationTransitionInfo TransitionInfo = transitionInfo ?? new EntranceNavigationTransitionInfo();
+    
     private Sidebar? Sidebar;
     private Frame? ContentFrame;
 
@@ -129,7 +132,9 @@ public class NavigatorContext(string name)
         
             if (IsTabOpen(viewType)) return;
         
-            ContentFrame.Navigate(viewType, null, AppSettings.Application.Transition);
+            ContentFrame.Navigate(viewType, null, AppSettings.Application.UseTabTransitions
+                ? TransitionInfo
+                : new SuppressNavigationTransitionInfo());
 
             Sidebar?.SelectButton(Sidebar.Items.OfType<SidebarItemButton>().FirstOrDefault(item => item.Tag?.Equals(obj) ?? false));
         });

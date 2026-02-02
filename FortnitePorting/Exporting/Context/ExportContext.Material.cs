@@ -21,9 +21,10 @@ public partial class ExportContext
 {
     private ConcurrentHashSet<ExportMaterial> MaterialCache = [];
     
-    public ExportMaterial? Material(UMaterialInterface material, int index)
+    public ExportMaterial? Material(UMaterialInterface? material, int index)
     {
         if (!Meta.Settings.ExportMaterials) return null;
+        if (material is null) return null;
 
         var exportMat = material;
         if (Meta.Settings.NaniteMeshFormat != ENaniteMeshFormat.OnlyNormalLODs

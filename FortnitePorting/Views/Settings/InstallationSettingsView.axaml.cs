@@ -1,6 +1,11 @@
+using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
+using Avalonia.VisualTree;
+using FortnitePorting.Controls.Navigation.Sidebar;
 using FortnitePorting.Framework;
+using FortnitePorting.Models.Installation;
 using FortnitePorting.ViewModels.Settings;
 
 namespace FortnitePorting.Views.Settings;

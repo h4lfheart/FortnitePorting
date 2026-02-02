@@ -181,6 +181,9 @@ public partial class MusicViewModel : ViewModelBase
 
     public void UpdateOutputDevice()
     {
+        if (OutputDevice is null) return;
+        if (AudioReader is null) return;
+        
         OutputDevice.Stop();
         OutputDevice = new WaveOutEvent { DeviceNumber = AppSettings.Application.AudioDeviceIndex };
         OutputDevice.Init(AudioReader);

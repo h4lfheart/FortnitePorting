@@ -89,4 +89,9 @@ public partial class HomeViewModel() : ViewModelBase
     {
         App.Launch(Globals.KOFI_URL);
     }
+    
+    public void LaunchWebsite()
+    {
+        App.Launch(Globals.WEBSITE_URL);
+    }
 }

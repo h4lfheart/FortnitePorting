@@ -8,6 +8,7 @@ using FortnitePorting.Extensions;
 using FortnitePorting.Models.Assets.Asset;
 using FortnitePorting.Models.Assets.Custom;
 using FortnitePorting.Models.Clipboard;
+using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
 using SkiaSharp;
 using SkiaExtensions = FortnitePorting.Extensions.SkiaExtensions;
@@ -16,10 +17,9 @@ namespace FortnitePorting.Models.Assets.Base;
 
 public abstract partial class BaseAssetItem : ObservableObject
 {
+    public SettingsService Settings => AppSettings;
+    
     [ObservableProperty] private bool _isFavorite;
-
-    [ObservableProperty] private static float _displayWidth = 64;
-    [ObservableProperty] private static float _displayHeight = 80;
     
     public Guid Id { get; set; }
     public virtual BaseAssetItemCreationArgs CreationData { get; set; }
@@ -112,11 +112,5 @@ public abstract partial class BaseAssetItem : ObservableObject
             AppSettings.Application.FavoriteAssets.Remove(id);
             IsFavorite = false;
         }
-    }
-
-    public static void SetScale(float scale)
-    {
-        _displayWidth = 64 * scale;
-        _displayHeight = 80 * scale;
     }
 }

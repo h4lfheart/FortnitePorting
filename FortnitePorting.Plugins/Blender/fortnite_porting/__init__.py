@@ -3,13 +3,14 @@ import traceback
 from .server import Server
 from .logger import Log
 from .processing.importer import Importer
+from .operator.tasty_op import TASTY_PT_RigSettings
 
 bl_info = {
     "name": "Fortnite Porting",
     "description": "Import Server for Fortnite Porting",
     "author": "Half",
     "blender": (5, 0, 0),
-    "version": (4, 0, 8),
+    "version": (4, 1, 0),
     "category": "Import-Export",
 }
 
@@ -43,6 +44,9 @@ def register():
 
     bpy.app.timers.register(server_data_handler, persistent=True)
 
+    bpy.utils.register_class(TASTY_PT_RigSettings)
+
 
 def unregister():
     server.shutdown()
+    bpy.utils.unregister_class(TASTY_PT_RigSettings)

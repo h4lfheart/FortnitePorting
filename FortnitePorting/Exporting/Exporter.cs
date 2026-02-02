@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CUE4Parse.GameTypes.FN.Assets.Exports.DataAssets;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.Engine.Font;
@@ -35,6 +36,36 @@ namespace FortnitePorting.Exporting;
 
 public static class Exporter
 {
+    public static async Task ExportTastyRig(ExportDataMeta metaData)
+    {
+        await TaskService.RunAsync(async () =>
+        {
+            var serverType = metaData.ExportLocation.ServerType;
+            if (serverType is EExportServerType.None)
+                return;
+           
+            if (!await ExportClient.IsRunning(serverType))
+            {
+                var serverName = serverType.Description;
+                Info.Message($"{serverName} Server", $"The {serverName} Plugin for Fortnite Porting is not currently installed or running.", 
+                    severity: InfoBarSeverity.Error, closeTime: 3.0f,
+                    useButton: true, buttonTitle: "Install Plugin", buttonCommand: () =>
+                    {
+                        Navigation.App.Open<PluginView>();
+                        Navigation.Plugin.Open(metaData.ExportLocation);
+                    });
+                return;
+            }
+            
+            var exportData = new ExportData
+            {
+                MetaData = metaData,
+                Exports = [new TastyExport(metaData)]
+            };
+        
+            await ExportClient.SendExportAsync(serverType, exportData);
+        });
+    }
     
     public static async Task<bool> Export(Func<IEnumerable<BaseExport>> exportFunction, ExportDataMeta metaData)
     {
@@ -206,16 +237,16 @@ public static class Exporter
 
         metaData.UpdateProgress += updateDelegate;
         
-        var primitiveType = exportType.GetPrimitiveType();
+        var primitiveType = exportType.PrimitiveType;
         BaseExport export = primitiveType switch
         {
             EPrimitiveExportType.Mesh => new MeshExport(displayName, asset, styles, exportType, metaData),
-            EPrimitiveExportType.Texture => new TextureExport(displayName, asset, styles, exportType, metaData),
-            EPrimitiveExportType.Sound => new SoundExport(displayName, asset, styles, exportType, metaData),
+            EPrimitiveExportType.Texture => new TextureExport(displayName, asset, exportType, metaData),
+            EPrimitiveExportType.Sound => new SoundExport(displayName, asset, exportType, metaData),
             EPrimitiveExportType.Animation => new AnimExport(displayName, asset, styles, exportType, metaData),
-            EPrimitiveExportType.Font => new FontExport(displayName, asset, styles, exportType, metaData),
-            EPrimitiveExportType.PoseAsset => new PoseAssetExport(displayName, asset, styles, exportType, metaData),
-            EPrimitiveExportType.Material => new MaterialExport(displayName, asset, styles, exportType, metaData),
+            EPrimitiveExportType.Font => new FontExport(displayName, asset, exportType, metaData),
+            EPrimitiveExportType.PoseAsset => new PoseAssetExport(displayName, asset, exportType, metaData),
+            EPrimitiveExportType.Material => new MaterialExport(displayName, asset, exportType, metaData),
             _ => throw new NotImplementedException($"Exporting {primitiveType} assets is not supported yet.")
         };
         

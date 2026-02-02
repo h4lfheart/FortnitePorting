@@ -1,16 +1,22 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Avalonia.Controls;
+using Avalonia.Markup.Xaml;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FluentAvalonia.UI.Media.Animation;
+using FortnitePorting.Controls;
 using FortnitePorting.Framework;
 using FortnitePorting.Models;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.Assets.Base;
+using FortnitePorting.Models.Map;
 using FortnitePorting.Models.Radio;
+using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Validators;
 using NAudio.Wave;
 using Newtonsoft.Json;
@@ -28,9 +34,8 @@ public partial class ApplicationSettingsViewModel : SettingsViewModelBase
     private string _assetsPath;
     
     [ObservableProperty] private bool _useAssetsPath;
-    
-    [ObservableProperty] private string _portleExecutablePath;
-    [ObservableProperty] private bool _usePortlePath;
+
+    [ObservableProperty] private bool _showDeveloperSettings = false;
     
     [ObservableProperty] private HashSet<string> _favoriteAssets = [];
 
@@ -40,7 +45,7 @@ public partial class ApplicationSettingsViewModel : SettingsViewModelBase
 
     [ObservableProperty] private FPVersion _lastOnlineVersion = Globals.Version;
 
-
+    [ObservableProperty] private ObservableCollection<MapInfo> _localMapInfos = [];
     [ObservableProperty] private bool _useTabTransitions = true;
     [ObservableProperty] private float _assetScale = 1.0f;
     
@@ -50,16 +55,12 @@ public partial class ApplicationSettingsViewModel : SettingsViewModelBase
         
     [ObservableProperty] private EpicAuthResponse? _epicAuth;
     
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(TransparencyHints))] private EThemeType _theme = EThemeType.Dark;
+    
+    public ObservableCollection<WindowTransparencyLevel> TransparencyHints => Theme is EThemeType.Mica ? [WindowTransparencyLevel.Mica, WindowTransparencyLevel.AcrylicBlur] : [WindowTransparencyLevel.AcrylicBlur];
+    
     public string AssetPath => UseAssetsPath && Directory.Exists(AssetsPath) ? AssetsPath : App.AssetsFolder.FullName;
-    public string PortlePath => UsePortlePath && File.Exists(PortleExecutablePath) 
-        ? PortleExecutablePath 
-        : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Portle", "Portle.exe");
-
-
-    [JsonIgnore]
-    public NavigationTransitionInfo Transition => UseTabTransitions
-        ? new SlideNavigationTransitionInfo()
-        : new SuppressNavigationTransitionInfo();
+    
     
     
     public DirectSoundDeviceInfo[] AudioDevices => DirectSoundOut.Devices.ToArray()[1..];
@@ -74,28 +75,20 @@ public partial class ApplicationSettingsViewModel : SettingsViewModelBase
         if (await App.BrowseFolderDialog() is { } path) AssetsPath = path;
     }
     
-    public async Task BrowsePortlePath()
+    partial void OnAudioDeviceIndexChanged(int value)
     {
-        if (await App.BrowseFileDialog() is { } path) PortleExecutablePath = path;
+        MusicVM?.UpdateOutputDevice();
+        SoundPreviewWM?.UpdateOutputDevice();
     }
-
-    protected override async void OnPropertyChanged(PropertyChangedEventArgs e)
+    
+    partial void OnThemeChanged(EThemeType value)
     {
-        base.OnPropertyChanged(e);
+        if (Avalonia.Application.Current is not { } app) return;
 
-        switch (e.PropertyName)
-        {
-            case nameof(AudioDeviceIndex):
-            {
-                MusicVM?.UpdateOutputDevice();
-                SoundPreviewWM?.UpdateOutputDevice();
-                break;
-            }
-            case nameof(AssetScale):
-            {
-                BaseAssetItem.SetScale(AssetScale);
-                break;
-            }
-        }
+        app.Styles.RemoveAll(style => style is FPStyles);
+
+        var themeUri = new Uri($"avares://FortnitePorting/Assets/Themes/{value.ToString()}Theme.axaml");
+        if (AvaloniaXamlLoader.Load(themeUri) is FPStyles newTheme)
+            app.Styles.Add(newTheme);
     }
 }

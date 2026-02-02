@@ -13,23 +13,26 @@
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
              xmlns:loading="clr-namespace:FortnitePorting.Controls.Loading"
              xmlns:views="clr-namespace:FortnitePorting.Views"
+             xmlns:chatControls="clr-namespace:FortnitePorting.Controls.Chat"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FortnitePorting.Views.ChatView"
              x:DataType="viewModels:ChatViewModel">
     <UserControl.Resources>
-        <DataTemplate x:Key="MessageTemplate">
-            <DataTemplate.DataType>
-                <x:Type TypeName="framework:ObservableKeyValuePair" x:TypeArguments="x:String, chat:ChatMessage"/>
-            </DataTemplate.DataType>
+        <DataTemplate x:Key="MessageTemplate" DataType="chat:ChatMessage">
             
-            <Grid DataContext="{Binding Value}">
+            <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 
-                <controls:ContentCard x:Name="PointerOverTarget" Grid.Row="0"
-                             Margin="{ext:Space 0, 1, 0, 0}">
+                <controls:ContentCard x:Name="PointerOverTarget" Grid.Row="0" 
+                             Margin="{ext:Space 0, 1, 0, 0}" Classes.Ping="{Binding IsPing}">
+                    <controls:ContentCard.Styles>
+                        <Style Selector="controls|ContentCard.Ping">
+                            <Setter Property="Background" Value="{DynamicResource FPContentCardBackgroundBright}" />
+                        </Style>
+                    </controls:ContentCard.Styles>
                     <Grid Margin="{ext:Space 1}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -128,13 +131,11 @@
                         
                         <StackPanel Grid.Row="1" Grid.RowSpan="2" Grid.Column="2" Grid.ColumnSpan="9">
                             <Grid IsVisible="{Binding Text, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
-                                <controls:HighlightableTextBlock IsVisible="{Binding !IsEditing}"
-                                            HighlightBackground="#A9953BF8"
-                                            HighlightForeground="White"
-                                            HighlightText="{Binding $parent[views:ChatView].((viewModels:ChatViewModel)DataContext).MentionTextMatch}"
-                                           TextToHighlight="{Binding Text}" TextWrapping="Wrap" 
-                                           Classes="BodyTextBlockStyle TextFillColorSecondaryBrush" VerticalAlignment="Center">
-                                </controls:HighlightableTextBlock>
+                                <chatControls:ChatMentionTextBlock IsVisible="{Binding !IsEditing}"
+                                                               HighlightForeground="White"
+                                                               TextToHighlight="{Binding Text}" TextWrapping="Wrap" 
+                                                               Classes="BodyTextBlockStyle TextFillColorSecondaryBrush" VerticalAlignment="Center">
+                                </chatControls:ChatMentionTextBlock>
                         
                                 <TextBox IsVisible="{Binding IsEditing}"
                                          KeyDown="OnEditBoxKeyDown" Margin="{ext:Space 0, 0.5}"
@@ -142,7 +143,7 @@
                                          Classes="BodyTextBlockStyle" VerticalAlignment="Center"/>
                             </Grid>
                         
-                            <Border
+                            <Border Background="{DynamicResource FPContentCardBackgroundBright}"
                                     IsVisible="{Binding FullImageUrl, Converter={x:Static ObjectConverters.IsNotNull}}"
                                     CornerRadius="12" ClipToBounds="True" HorizontalAlignment="Left" Margin="{ext:Space 0, 1, 0, 0}">
                                 <Border.ContextMenu>
@@ -185,13 +186,9 @@
             <controls:DynamicFadeScrollViewer x:Name="Scroll"
                                               HorizontalScrollBarVisibility="Disabled"
                                               VerticalScrollBarVisibility="Auto">
-                <ItemsControl ItemsSource="{Binding Chat.Messages}" Margin="{ext:Space 1, 0}" ItemTemplate="{StaticResource MessageTemplate}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <VirtualizingStackPanel/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                </ItemsControl>
+                <ItemsControl ItemsSource="{Binding Chat.Messages}" 
+                              Margin="{ext:Space 1, 0}" 
+                              ItemTemplate="{StaticResource MessageTemplate}"/>
             </controls:DynamicFadeScrollViewer>
             
             <Border IsVisible="{Binding ShowNewMessageIndicator}"

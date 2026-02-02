@@ -55,7 +55,6 @@ public class AssetItem : Base.BaseAssetItem
         {
             SetName = setName;
         }
-            
         
         var seasonTag = CreationData.GameplayTags.GetValueOrDefault("Cosmetics.Filter.Season.")?.Text;
         Season = int.TryParse(seasonTag?.SubstringAfterLast("."), out var seasonNumber) ? seasonNumber : int.MaxValue;
@@ -115,7 +114,13 @@ public class AssetItem : Base.BaseAssetItem
     public override async Task NavigateTo()
     {
         Navigation.App.Open<FilesView>();
-        FilesVM.FileViewJumpTo(UEParse.Provider.FixPath(CreationData.Object.GetPathName().SubstringBefore(".")));
+
+        var assetPath = UEParse.Provider.FixPath(CreationData.Object.GetPathName().SubstringBefore("."));
+        if (FilesVM.UseFlatView)
+            FilesVM.FlatViewJumpTo(assetPath);
+        else
+            FilesVM.FileViewJumpTo(assetPath);
+        
         AppWM.Window.BringToTop();
     }
 

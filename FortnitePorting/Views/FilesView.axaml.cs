@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Controls.WrapPanel;
 using FortnitePorting.Framework;
@@ -14,6 +15,26 @@ public partial class FilesView : ViewBase<FilesViewModel>
     public FilesView() : base(FilesVM, initializeViewModel: false)
     {
         InitializeComponent();
+        
+        AddHandler(PointerPressedEvent, OnPointerPressed, RoutingStrategies.Tunnel);
+
+    }
+    
+    private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (ViewModel.UseFlatView) return;
+
+        var point = e.GetCurrentPoint(this);
+        if (point.Properties.IsXButton1Pressed && ViewModel.CanGoBack)
+        {
+            ViewModel.GoBack();
+            e.Handled = true;
+        }
+        else if (point.Properties.IsXButton2Pressed && ViewModel.CanGoForward)
+        {
+            ViewModel.GoForward();
+            e.Handled = true;
+        }
     }
 
     private void OnSearchKeyDown(object? sender, KeyEventArgs e)
@@ -87,5 +108,17 @@ public partial class FilesView : ViewBase<FilesViewModel>
         
         item.EnsureChildrenSorted();
         ViewModel.RealizeFileData(ref item);
+    }
+
+    private void OnFlatViewHyperlinkPressed(object? sender, PointerPressedEventArgs e)
+    {
+        var searchTerm = ViewModel.FileSearchFilter;
+        
+        ViewModel.FileSearchFilter = string.Empty;
+        ViewModel.FileSearchText = string.Empty;
+        
+        ViewModel.UseFlatView = true;
+        ViewModel.FlatSearchFilter = searchTerm;
+        ViewModel.FlatSearchText = searchTerm;
     }
 }

@@ -1,0 +1,42 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
+             xmlns:settings="clr-namespace:FortnitePorting.ViewModels.Settings"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls.Settings"
+             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="FortnitePorting.Views.Settings.AccountSettingsView"
+             x:DataType="settings:AccountSettingsViewModel">
+    
+    <ScrollViewer>
+        <StackPanel VerticalAlignment="Top" Margin="{ext:Space 1}" Spacing="{ext:Space 0, 0, 0, 1}">
+            
+            <controls:SettingsItem Title="{Binding SupaBase.UserInfo.DisplayName}" 
+                                   Description="{Binding SupaBase.UserInfo.UserName, StringFormat='@{0}'}">
+                <controls:SettingsItem.Header>
+                    <Grid>
+                        <Ellipse Height="48" Width="48" RenderOptions.BitmapInterpolationMode="HighQuality">
+                            <Ellipse.Fill>
+                                <ImageBrush
+                                    asyncImageLoader:ImageBrushLoader.Source="{Binding SupaBase.UserInfo.AvatarUrl, FallbackValue='https://cdn.fortniteporting.app/images/avatar/default.png'}"
+                                    Stretch="UniformToFill" />
+                            </Ellipse.Fill>
+                        </Ellipse>
+                    </Grid>
+                </controls:SettingsItem.Header>
+                <controls:SettingsItem.Footer>
+                    <Button Content="Sign Out" Command="{Binding SupaBase.SignOut}"/>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
+            
+            <controls:SettingsItem Title="Discord Rich Presence" Description="Displays Fortnite Porting runtime information in your discord profile.">
+                <controls:SettingsItem.Footer>
+                    <ToggleSwitch IsChecked="{Binding UseDiscordRichPresence}"/>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
+            
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

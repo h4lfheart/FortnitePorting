@@ -4,5 +4,5 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FortnitePorting.Controls.Navigation.Sidebar.SidebarItemSeparator">
-    <Border Background="{StaticResource FPSeparatorColorLayer1}" Height="1"/>
+    <Border Background="{DynamicResource FPSeparatorColorLayer1}" Height="1"/>
 </UserControl>

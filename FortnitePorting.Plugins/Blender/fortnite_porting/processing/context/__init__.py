@@ -6,10 +6,11 @@ from .sound_context import SoundImportContext
 from .anim_context import AnimImportContext
 from .font_context import FontImportContext
 from .pose_context import PoseImportContext
+from .tasty_context import TastyImportContext
 
 class ImportContext(BaseImportContext, MeshImportContext, MaterialImportContext, 
                    AnimImportContext, TextureImportContext, SoundImportContext, 
-                   FontImportContext, PoseImportContext):
+                   FontImportContext, PoseImportContext, TastyImportContext):
     
     def __init__(self, meta_data):
         BaseImportContext.__init__(self, meta_data)
@@ -24,4 +25,5 @@ __all__ = [
     'AnimImportContext',
     'FontImportContext',
     'PoseImportContext',
+    'TastyImportContext'
 ]

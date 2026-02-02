@@ -15,10 +15,11 @@
             <Setter Property="Opacity" Value="0.5"/> 
         </Style>
     </UserControl.Styles>
-    <Grid Cursor="Hand">
-        <controls:ContentCard CornerRadius="16"
-                            Classes.Selected="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=sidebar:SidebarItemButton}, FallbackValue=False}"
-                           Classes.NotSelected="{Binding !IsSelected, RelativeSource={RelativeSource AncestorType=sidebar:SidebarItemButton}, FallbackValue=True}">
+    <Grid Cursor="Hand" ColumnDefinitions="* Auto">
+        
+        <controls:ContentCard Grid.Column="0" CornerRadius="16"
+                              Classes.Selected="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=sidebar:SidebarItemButton}, FallbackValue=False}"
+                              Classes.NotSelected="{Binding !IsSelected, RelativeSource={RelativeSource AncestorType=sidebar:SidebarItemButton}, FallbackValue=True}">
             <controls:ContentCard.Transitions>
                 <Transitions>
                     <BrushTransition Property="Background" Duration="0:0:0.083"/>
@@ -27,12 +28,12 @@
             </controls:ContentCard.Transitions>
             <controls:ContentCard.Styles>
                 <Style Selector="controls|ContentCard.Selected">
-                    <Setter Property="Background" Value="{StaticResource FPButtonBackground}"/>
-                    <Setter Property="BorderBrush" Value="{StaticResource FPButtonBorderBrush}"/>
+                    <Setter Property="Background" Value="{DynamicResource FPButtonBackground}"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource FPButtonBorderBrush}"/>
                     <Setter Property="Opacity" Value="1"/>
                 </Style>
                 <Style Selector="controls|ContentCard.Selected:pointerover">
-                    <Setter Property="Background" Value="{StaticResource FPButtonBackgroundPointerOver}"/>
+                    <Setter Property="Background" Value="{DynamicResource FPButtonBackgroundPointerOver}"/>
                     <Setter Property="Opacity" Value="1"/>
                 </Style>
                 
@@ -42,31 +43,35 @@
                     <Setter Property="BoxShadow" Value="none"/>
                 </Style>
                 <Style Selector="controls|ContentCard.NotSelected:pointerover">
-                    <Setter Property="Background" Value="{StaticResource FPButtonBackgroundPointerOver}"/>
+                    <Setter Property="Background" Value="{DynamicResource FPButtonBackgroundPointerOver}"/>
                     <Setter Property="Opacity" Value="0.5"/>
                     <Setter Property="BoxShadow" Value="none"/>
                 </Style>
             </controls:ContentCard.Styles>
         </controls:ContentCard>
-        <Grid ColumnDefinitions="Auto *" Margin="{ext:Space 1, 0.5}" IsHitTestVisible="False">
+        <Grid Grid.Column="0" ColumnDefinitions="Auto *" Margin="{ext:Space 1, 0.5}" IsHitTestVisible="False">
         
-            <Grid Grid.Column="0" Margin="{ext:Space 0, 0, 1, 0}"
+            <Grid Grid.Column="0"
                   IsVisible="{Binding ShouldShowIcon, RelativeSource={RelativeSource AncestorType=sidebar:SidebarItemButton}}">
                 <material:MaterialIcon
-                                       IsVisible="{Binding !UseIconBitmap, RelativeSource={RelativeSource AncestorType=sidebar:SidebarItemButton}}"
+                                       IsVisible="{Binding IconBitmap, RelativeSource={RelativeSource AncestorType=sidebar:SidebarItemButton}, Converter={x:Static ObjectConverters.IsNull}}"
                                        Kind="{Binding Icon, RelativeSource={RelativeSource AncestorType=sidebar:SidebarItemButton}}"/>
             
             
-                <Image  Width="20" Height="20" RenderOptions.BitmapInterpolationMode="HighQuality"
-                       IsVisible="{Binding UseIconBitmap, RelativeSource={RelativeSource AncestorType=sidebar:SidebarItemButton}}"
-                       Source="{Binding IconBitmap, RelativeSource={RelativeSource AncestorType=sidebar:SidebarItemButton}}"/>
+                <Border Width="20" Height="20" ClipToBounds="True" CornerRadius="4"
+                        IsVisible="{Binding IconBitmap, RelativeSource={RelativeSource AncestorType=sidebar:SidebarItemButton}, Converter={x:Static ObjectConverters.IsNotNull}}">
+                    <Image Width="20" Height="20" RenderOptions.BitmapInterpolationMode="HighQuality"
+                           Source="{Binding IconBitmap, RelativeSource={RelativeSource AncestorType=sidebar:SidebarItemButton}}"/>
+                </Border>
+                
             </Grid>
                                 
-            <TextBlock Grid.Column="1" Text="{Binding Text, RelativeSource={RelativeSource AncestorType=sidebar:SidebarItemButton}}" 
-                       FontFamily="{StaticResource SFTextRegular}"
+            <TextBlock Grid.Column="1"  Text="{Binding Text, RelativeSource={RelativeSource AncestorType=sidebar:SidebarItemButton}}" 
+                       FontFamily="{StaticResource SFTextRegular}" Margin="{ext:Space 1, 0, 0, 0}"
                        Classes="TextFillColorSecondaryBrush" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
-            
-
         </Grid>
+        
+        <ContentPresenter Grid.Column="1" HorizontalAlignment="Right" Margin="{ext:Space 1, 0, 0, 0}"
+                          Content="{Binding Footer, RelativeSource={RelativeSource AncestorType=sidebar:SidebarItemButton}}"/>
     </Grid>
 </UserControl>

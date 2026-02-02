@@ -20,6 +20,7 @@ using CUE4Parse.UE4.Assets.Exports.Engine;
 using CUE4Parse.UE4.IO;
 using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.Core.Math;
+using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Pak;
 using CUE4Parse.UE4.Readers;
 using CUE4Parse.UE4.Versions;
@@ -32,6 +33,7 @@ using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.CUE4Parse;
 using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Shared.Extensions;
+using FortnitePorting.Windows;
 using Serilog;
 using UE4Config.Parsing;
 using FGuid = CUE4Parse.UE4.Objects.Core.Misc.FGuid;
@@ -56,8 +58,6 @@ public partial class CUE4ParseService : ObservableObject, IService
     public readonly List<UAnimMontage> FemaleLobbyMontages = [];
     public readonly Dictionary<string, string> SetNames = [];
     
-    private static readonly Regex FortniteArchiveRegex = new(@"^FortniteGame(/|\\)Content(/|\\)Paks(/|\\)(pakchunk(?:0|10.*|\w+)-WindowsClient|global)\.(pak|utoc)$", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-
     private static readonly List<DirectoryInfo> ExtraDirectories = 
     [
         new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "FortniteGame", "Saved", "PersistentDownloadDir", "GameCustom", "InstalledBundles"))
@@ -104,6 +104,14 @@ public partial class CUE4ParseService : ObservableObject, IService
         
         Provider.ReadNaniteData = AppSettings.Installation.CurrentProfile.LoadNaniteData;
         
+        Provider.OnDemandOptions = new IoStoreOnDemandOptions
+        {
+            ChunkHostUri = new Uri("https://download.epicgames.com/", UriKind.Absolute),
+            ChunkCacheDirectory = CacheFolder,
+            Authorization = new AuthenticationHeaderValue("Bearer", AppSettings.Application.EpicAuth?.Token),
+            Timeout = TimeSpan.FromSeconds(AppSettings.Developer.RequestTimeoutSeconds)
+        };
+        
         await CheckBlackHole();
         await CleanupCache();
 
@@ -140,7 +148,6 @@ public partial class CUE4ParseService : ObservableObject, IService
         }
         
         await LoadMappings();
-
         
         await LoadAssetRegistries();
 
@@ -184,7 +191,7 @@ public partial class CUE4ParseService : ObservableObject, IService
     {
         var files = CacheFolder.GetFiles();
 
-        var cutoffDate = DateTime.Now - TimeSpan.FromDays(AppSettings.Debug.ChunkCacheLifetime);
+        var cutoffDate = DateTime.Now - TimeSpan.FromDays(AppSettings.Developer.ChunkCacheLifetime);
         foreach (var file in files)
         {
             if (file.LastWriteTime >= cutoffDate) continue;
@@ -211,7 +218,6 @@ public partial class CUE4ParseService : ObservableObject, IService
     
     private async Task InitializeDetex()
     {
-        TextureDecoder.UseAssetRipperTextureDecoder = true;
         var detexPath = Path.Combine(App.DataFolder.FullName, DetexHelper.DLL_NAME);
         if (!File.Exists(detexPath)) await DetexHelper.LoadDllAsync(detexPath);
         DetexHelper.Initialize(detexPath);
@@ -246,13 +252,7 @@ public partial class CUE4ParseService : ObservableObject, IService
 
                 UpdateStatus($"Loading Fortnite On-Demand (This may take a while)");
 
-                var fileManifests = manifest.Files.Where(fileManifest => FortniteArchiveRegex.IsMatch(fileManifest.FileName));
-                foreach (var fileManifest in fileManifests)
-                {
-                    Provider.RegisterVfs(fileManifest.FileName, (Stream[]) [fileManifest.GetStream()],
-                        name => new FStreamArchive(name,
-                            manifest.Files.First(file => file.FileName.Equals(name)).GetStream()));
-                }
+                Provider.RegisterFiles(manifest);
                 
                 break;
             }
@@ -282,17 +282,8 @@ public partial class CUE4ParseService : ObservableObject, IService
             {
                 await Api.DownloadFileAsync($"https://download.epicgames.com/{tocPath}", onDemandFile.FullName);
             }
-
-            var options = new IoStoreOnDemandOptions
-            {
-                ChunkBaseUri = new Uri("https://download.epicgames.com/ias/fortnite/", UriKind.Absolute),
-                ChunkCacheDirectory = CacheFolder,
-                Authorization = new AuthenticationHeaderValue("Bearer", AppSettings.Application.EpicAuth?.Token),
-                Timeout = TimeSpan.FromSeconds(AppSettings.Debug.RequestTimeoutSeconds)
-            };
-
-            var chunkToc = new IoChunkToc(onDemandFile);
-            await Provider.RegisterVfs(chunkToc, options);
+            
+            await Provider.RegisterVfsAsync(new IoChunkToc(onDemandFile.FullName));
             await Provider.MountAsync();
         }
         catch (Exception e)

@@ -20,7 +20,7 @@ public class APIService : IService
         _client = new RestClient(new RestClientOptions
         {
             UserAgent = $"FortnitePorting/{Globals.VersionString}",
-            MaxTimeout = 1000 * AppSettings.Debug.RequestTimeoutSeconds,
+            MaxTimeout = 1000 * AppSettings.Developer.RequestTimeoutSeconds,
         }, configureSerialization: s => s.UseSerializer<JsonNetSerializer>());
         
         FortnitePorting = new FortnitePortingAPI(_client);

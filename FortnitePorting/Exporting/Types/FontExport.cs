@@ -1,7 +1,6 @@
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Engine.Font;
 using FortnitePorting.Exporting.Models;
-using FortnitePorting.Models.Assets;
 
 namespace FortnitePorting.Exporting.Types;
 
@@ -9,7 +8,7 @@ public class FontExport : BaseExport
 {
     public string Path;
     
-    public FontExport(string name, UObject asset, BaseStyleData[] styles, EExportType exportType, ExportDataMeta metaData) : base(name, asset, styles, exportType, metaData)
+    public FontExport(string name, UObject asset, EExportType exportType, ExportDataMeta metaData) : base(name, exportType, metaData)
     {
         if (asset is not UFontFace fontFace) return;
 

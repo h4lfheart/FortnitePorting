@@ -7,12 +7,12 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Framework;
-using FortnitePorting.Models;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.Information;
 using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Views;
+using Serilog;
 
 namespace FortnitePorting.WindowModels;
 
@@ -41,7 +41,7 @@ public partial class AppWindowModel(
     [ObservableProperty] private OnlineResponse? _onlineStatus;
     [ObservableProperty] private BroadcastResponse[] _broadcasts = [];
 
-    private const string PORTLE_URL = "https://portle.halfheart.dev/release/Portle.exe";
+    private const string PORTLE_URL = "https://cdn.fortniteporting.app/portle/Portle.exe";
 
     public override async Task Initialize()
     {
@@ -66,11 +66,13 @@ public partial class AppWindowModel(
     [RelayCommand]
     public async Task Update()
     {
-        if (!File.Exists(Settings.Application.PortlePath) ||
-            (!Settings.Application.UsePortlePath && (!Api.GetHash(PORTLE_URL)
-                ?.Equals(Settings.Application.PortlePath.GetHash()) ?? false)))
+        var remoteHash = Api.GetHash(PORTLE_URL) ?? string.Empty;
+        var localHash = Settings.Developer.PortlePath.GetHash();
+        
+        if (!File.Exists(Settings.Developer.PortlePath) || (!Settings.Developer.UsePortlePath && !remoteHash.Equals(localHash, StringComparison.OrdinalIgnoreCase)))
         {
-            await Api.DownloadFileAsync(PORTLE_URL, Settings.Application.PortlePath);
+            Log.Information($"Updating portle executable from {PORTLE_URL} at {Settings.Developer.PortlePath}");
+            await Api.DownloadFileAsync(PORTLE_URL, Settings.Developer.PortlePath);
         }
 
         var args = new[]
@@ -81,15 +83,19 @@ public partial class AppWindowModel(
             "--update-profile \"Fortnite Porting\" -force",
             "--launch-profile \"Fortnite Porting\"",
         };
+        
+        Info.Message("Portle", $"Fortnite Porting {UpdateVersion!.Version} is currently being downloaded.");
 
+        await Task.Delay(2500);
+        
         Process.Start(new ProcessStartInfo
         {
-            FileName = Settings.Application.PortlePath,
+            FileName = Settings.Developer.PortlePath,
             Arguments = string.Join(' ', args),
             WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory,
             UseShellExecute = true
         });
-
+        
         App.Lifetime.Shutdown();
     }
 

@@ -7,13 +7,30 @@
              xmlns:settings="clr-namespace:FortnitePorting.ViewModels.Settings"
              xmlns:wave="clr-namespace:NAudio.Wave;assembly=NAudio.Core"
              xmlns:controls="clr-namespace:FortnitePorting.Controls.Settings"
+             xmlns:controls1="clr-namespace:FortnitePorting.Controls"
+             xmlns:fortnitePorting="clr-namespace:FortnitePorting"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FortnitePorting.Views.Settings.ApplicationSettingsView"
              x:DataType="settings:ApplicationSettingsViewModel">
     
     <ScrollViewer>
         <StackPanel VerticalAlignment="Top" Margin="{ext:Space 1}" Spacing="{ext:Space 0, 0, 0, 1}">
-            <controls:SettingsItem Title="Application Data Path" Description="The path in which all saved application data will default to.">
+            <controls:SettingsItem Title="Theme"
+                                   Description="The theme that should be used for Fortnite Porting.">
+                <controls:SettingsItem.Footer>
+                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EThemeType}}"
+                              SelectedItem="{Binding Theme, Converter={StaticResource EnumToRecord}}" >
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate DataType="ext:EnumRecord">
+                                <controls1:IconText Text="{Binding Description}"
+                                                    Icon="{Binding Icon}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
+            
+            <controls:SettingsItem Title="Application Data Folder (Optional)" Description="The folder in which all saved application data will save to. Defaults to %localappdata%/FortnitePorting.">
                 <controls:SettingsItem.Footer>
                     <StackPanel Orientation="Horizontal">
                         <CheckBox IsChecked="{Binding UseAppDataPath}"/>
@@ -25,25 +42,12 @@
                 </controls:SettingsItem.Footer>
             </controls:SettingsItem>
             
-            <controls:SettingsItem Title="Assets Path" Description="The path in which all assets will export to.">
+            <controls:SettingsItem Title="Assets Folder (Optional)" Description="The folder in which all assets will export to. Defaults to %localappdata%/FortnitePorting/Assets.">
                 <controls:SettingsItem.Footer>
                     <StackPanel Orientation="Horizontal">
                         <CheckBox IsChecked="{Binding UseAssetsPath}"/>
                         <TextBox Text="{Binding AssetsPath}" Watermark="Ex. D:/Art/FortnitePorting/Assets" IsEnabled="{Binding UseAssetsPath}"/>
                         <Button Margin="4 0 0 0" Command="{Binding BrowseAssetsPath}" IsEnabled="{Binding UseAssetsPath}">
-                            <ui:SymbolIcon Symbol="Folder"/>
-                        </Button>
-                    </StackPanel>
-                </controls:SettingsItem.Footer>
-            </controls:SettingsItem>
-            
-            
-            <controls:SettingsItem Title="Portle Path" Description="The executable path for your Portle version manager.">
-                <controls:SettingsItem.Footer>
-                    <StackPanel Orientation="Horizontal">
-                        <CheckBox IsChecked="{Binding UsePortlePath}"/>
-                        <TextBox Text="{Binding PortleExecutablePath}" Watermark="Ex. D:/Art/FortnitePorting/Portle.exe" IsEnabled="{Binding UsePortlePath}"/>
-                        <Button Margin="4 0 0 0" Command="{Binding BrowsePortlePath}" IsEnabled="{Binding UsePortlePath}">
                             <ui:SymbolIcon Symbol="Folder"/>
                         </Button>
                     </StackPanel>
@@ -71,15 +75,10 @@
                 </controls:SettingsItem.Footer>
             </controls:SettingsItem>
             
-            <controls:SettingsItem Title="Asset Scale" Description="The scale multiplier for asset icons in the assets tab.">
+            
+            <controls:SettingsItem Title="Show Developer Settings" Description="Enables the developer settings tab.">
                 <controls:SettingsItem.Footer>
-                    <StackPanel Orientation="Horizontal">
-                        <Slider Value="{Binding AssetScale}" MinWidth="200"
-                                Minimum="0.5" Maximum="4"
-                                TickFrequency="0.25" TickPlacement="BottomRight" IsSnapToTickEnabled="True"/>
-                        <TextBlock Text="{Binding AssetScale, StringFormat=N2}" 
-                                   VerticalAlignment="Center" Margin="{ext:Space 1, 0, 0, 0}"/>
-                    </StackPanel>
+                    <ToggleSwitch IsChecked="{Binding ShowDeveloperSettings}"/>
                 </controls:SettingsItem.Footer>
             </controls:SettingsItem>
         </StackPanel>

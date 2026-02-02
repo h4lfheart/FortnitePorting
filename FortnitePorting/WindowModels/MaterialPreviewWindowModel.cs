@@ -54,7 +54,12 @@ public partial class MaterialPreviewWindowModel(SettingsService settings) : Wind
         var asset = await path.LoadOrDefaultAsync<UObject>();
         if (asset is null) return;
 
-        FilesVM.FileViewJumpTo(UEParse.Provider.FixPath(asset.GetPathName().SubstringBefore(".")));
+        var assetPath = UEParse.Provider.FixPath(UEParse.Provider.FixPath(asset.GetPathName().SubstringBefore(".")));
+        if (FilesVM.UseFlatView)
+            FilesVM.FlatViewJumpTo(assetPath);
+        else
+            FilesVM.FileViewJumpTo(assetPath);
+        
         Navigation.App.Open<FilesView>();
         AppWM.Window.BringToTop();
     }
@@ -65,7 +70,12 @@ public partial class MaterialPreviewWindowModel(SettingsService settings) : Wind
         var asset = await index.LoadOrDefaultAsync<UObject>();
         if (asset is null) return;
 
-        FilesVM.FileViewJumpTo(UEParse.Provider.FixPath(asset.GetPathName().SubstringBefore(".")));
+        var assetPath = UEParse.Provider.FixPath(UEParse.Provider.FixPath(asset.GetPathName().SubstringBefore(".")));
+        if (FilesVM.UseFlatView)
+            FilesVM.FlatViewJumpTo(assetPath);
+        else
+            FilesVM.FileViewJumpTo(assetPath);
+        
         Navigation.App.Open<FilesView>();
         AppWM.Window.BringToTop();
     }

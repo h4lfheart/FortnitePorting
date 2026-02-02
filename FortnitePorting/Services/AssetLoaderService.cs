@@ -209,7 +209,7 @@ public partial class AssetLoaderService : ObservableObject, IService
                     ClassNames = ["AthenaGadgetItemDefinition", "FortWeaponRangedItemDefinition", 
                         "FortWeaponMeleeItemDefinition", "FortCreativeWeaponMeleeItemDefinition", 
                         "FortCreativeWeaponRangedItemDefinition", "FortWeaponMeleeDualWieldItemDefinition"],
-                    HideNames = ["_Harvest", "Weapon_Pickaxe_", "Weapons_Pickaxe_", "Dev_WID"],
+                    HideNames = ["_Harvest", "Weapon_Pickaxe_", "Weapons_Pickaxe_", "Dev_WID", "Juno"],
                     HidePredicate = (loader, asset, name) =>
                     {
                         if (loader.FilteredAssetBag.Contains(name)) return true;
@@ -228,14 +228,14 @@ public partial class AssetLoaderService : ObservableObject, IService
                     ManuallyDefinedAssets = new Lazy<ManuallyDefinedAsset[]>(() =>
                     {
                         string[] weaponModClasses = ["FortWeaponModItemDefinition", "FortWeaponModItemDefinitionMagazine", "FortWeaponModItemDefinitionOptic"];
-                        var weaponModTable = AppServices.UEParse.Provider.LoadPackageObject<UDataTable>("WeaponMods/DataTables/WeaponModOverrideData");
-                        var assetDatas = AppServices.UEParse.AssetRegistry.Where(data => weaponModClasses.Contains(data.AssetClass.Text));
+                        var weaponModTable = UEParse.Provider.LoadPackageObject<UDataTable>("WeaponMods/DataTables/WeaponModOverrideData");
+                        var assetDatas = UEParse.AssetRegistry.Where(data => weaponModClasses.Contains(data.AssetClass.Text));
 
                         var weaponModAssets = new List<ManuallyDefinedAsset>();
                         var alreadyAddedNames = new HashSet<string>();
                         foreach (var assetData in assetDatas)
                         {
-                            if (!AppServices.UEParse.Provider.TryLoadPackageObject(assetData.ObjectPath, out var asset)) continue;
+                            if (!UEParse.Provider.TryLoadPackageObject(assetData.ObjectPath, out var asset)) continue;
 
                             var icon = AssetLoader.GetIcon(asset);
                             if (icon is null) continue;

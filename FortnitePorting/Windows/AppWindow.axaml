@@ -12,7 +12,8 @@
         xmlns:loading="clr-namespace:FortnitePorting.Controls.Loading"
         x:Class="FortnitePorting.Windows.AppWindow"
         x:DataType="windowModels:AppWindowModel"
-        Width="1600" Height="900" RequestedThemeVariant="Dark" Background="#0e0e0e" TransparencyLevelHint="Mica"
+        Width="1600" Height="900" RequestedThemeVariant="Dark" Background="{DynamicResource WindowBackgroundBrush}"
+        TransparencyLevelHint="{Binding Settings.Application.TransparencyHints}"
         ExtendClientAreaToDecorationsHint="True" ExtendClientAreaChromeHints="NoChrome"
         FontFamily="{StaticResource SFTextRegular}"
         WindowStartupLocation="CenterScreen" ClosingBehavior="OwnerAndChildWindows"
@@ -38,15 +39,15 @@
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
 
-                            <Image Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Source="/Assets/LogoRebrand.png"
+                            <Image Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Source="{DynamicResource FPLogoBitmap}"
                                    Width="48" Height="48" RenderOptions.BitmapInterpolationMode="HighQuality" />
 
                             <TextBlock Grid.Row="0" Grid.Column="2"
                                        FontSize="16" FontFamily="{StaticResource SFTextBold}"
                                        Classes="TextFillColorPrimaryBrush"
                                        VerticalAlignment="Center">
-                                <Run Text="Fortnite" />
-                                <Run Text="Porting" Foreground="#953bf8" />
+                                <Run Text="Fortnite" Foreground="{DynamicResource FPTitleTextBrush}"/>
+                                <Run Text="Porting" Foreground="{DynamicResource FPAccentBrush}" />
                             </TextBlock>
 
                             <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding VersionString}"
@@ -95,8 +96,6 @@
                         <sidebar:SidebarItemSeparator />
 
                         <sidebar:SidebarItemText Text="SETTINGS" />
-                        <sidebar:SidebarItemButton Text="Console" Icon="Console" Tag="{x:Type views:ConsoleView}"
-                                                   IsVisible="{Binding Settings.Debug.IsConsoleVisible}" />
                         <sidebar:SidebarItemButton Text="Plugin" Icon="Plug" Tag="{x:Type views:PluginView}" />
                         <sidebar:SidebarItemButton Text="Export Options" Icon="FileCog"
                                                    Tag="{x:Type views:ExportSettingsView}" />
@@ -132,7 +131,7 @@
 
                             <sidebar:SidebarItemSeparator Grid.Row="1" />
 
-                            <Grid Grid.Row="3" IsVisible="{Binding Settings.Online.SupaBase.IsLoggedIn}">
+                            <Grid Grid.Row="3" IsVisible="{Binding Settings.Account.SupaBase.IsLoggedIn}">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="*"/>
                                     <RowDefinition Height="{ext:Space 2}"/>
@@ -183,25 +182,17 @@
                                                  Height="8" MinWidth="0" Minimum="0"
                                                  Value="{Binding SupaBase.LevelStats.XPIntoNextLevel}"
                                                  Maximum="{Binding SupaBase.LevelStats.XPForNextLevel}">
-                                        <ProgressBar.Transitions>
-                                            <Transitions>
-                                                <DoubleTransition Property="Value" Duration="0:0:0.5">
-                                                    <DoubleTransition.Easing>
-                                                        <CubicEaseOut/>
-                                                    </DoubleTransition.Easing>
-                                                </DoubleTransition>
-                                            </Transitions>
-                                        </ProgressBar.Transitions>
+                                       
                                     </ProgressBar>
                                 </Grid>
                             </Grid>
 
                             <Grid Grid.Row="3" RowDefinitions="*,*"
-                                  IsVisible="{Binding !Settings.Online.SupaBase.IsLoggedIn}">
+                                  IsVisible="{Binding !Settings.Account.SupaBase.IsLoggedIn}">
                                 <Button Grid.Row="0"
                                         Content="{controls:ImageText 'Sign In', 'avares://FortnitePorting/Assets/Icons/Discord.png'}"
                                         HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                                        Command="{Binding Settings.Online.SupaBase.SignIn}" />
+                                        Command="{Binding Settings.Account.SupaBase.SignIn}" />
                             </Grid>
                         </Grid>
                     </sidebar:Sidebar.Footer>
@@ -210,9 +201,9 @@
 
             <GridSplitter Grid.Column="0" HorizontalAlignment="Right" Opacity="0" />
 
-            <Border x:Name="ContentBorder" Grid.Column="1" Background="#0a0a0a"
+            <Border x:Name="ContentBorder" Grid.Column="1" Background="{DynamicResource ContentBorderBackgroundBrush}"
                     BorderThickness="2 2 0 0" CornerRadius="16 0 0 0"
-                    BorderBrush="#212121" Margin="0 35 0 0" ClipToBounds="True">
+                    BorderBrush="{DynamicResource ContentBorderBorderBrush}" Margin="0 35 0 0" ClipToBounds="True">
                 <ui:Frame x:Name="ContentFrame" IsNavigationStackEnabled="False" />
             </Border>
         </Grid>
@@ -306,7 +297,7 @@
               IsVisible="{Binding IsOpen, FallbackValue=False}">
             
             <Border Grid.Column="0" Grid.ColumnSpan="3"
-                    Background="#80000000" IsHitTestVisible="False"/>
+                    Background="{DynamicResource DialogOverlayBackgroundBrush}" IsHitTestVisible="False"/>
             
             <controls:ContentCard Grid.Column="1" ClipToBounds="False" IsEnabled="{Binding IsOpen, FallbackValue=False}"
                                   VerticalAlignment="Center">
@@ -379,7 +370,7 @@
               IsVisible="{Binding IsOpen, FallbackValue=False}">
             
             <Border Grid.Column="0" Grid.ColumnSpan="3"
-                    Background="#80000000" IsHitTestVisible="False"/>
+                    Background="{DynamicResource BroadcastOverlayBackgroundBrush}" IsHitTestVisible="False"/>
             
             <controls:ContentCard Grid.Column="1" ClipToBounds="False" IsEnabled="{Binding IsOpen, FallbackValue=False}"
                                   VerticalAlignment="Center">

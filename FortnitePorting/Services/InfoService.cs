@@ -10,7 +10,6 @@ using CUE4Parse.Utils;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.Information;
-using FortnitePorting.Models.Serilog;
 using FortnitePorting.Models.Supabase.Tables;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Views;
@@ -23,9 +22,8 @@ using MessageData = FortnitePorting.Models.Information.MessageData;
 
 namespace FortnitePorting.Services;
 
-public partial class InfoService : ObservableObject, ILogEventSink, IService
+public partial class InfoService : ObservableObject, IService
 {
-    [ObservableProperty] private ObservableCollection<FortnitePortingLogEvent> _logs = [];
     [ObservableProperty] private ObservableCollection<MessageData> _messages = [];
     [ObservableProperty] private DialogQueue _dialogQueue = new();
     [ObservableProperty] private BroadcastQueue _broadcastQueue = new();
@@ -55,7 +53,6 @@ public partial class InfoService : ObservableObject, ILogEventSink, IService
         Log.Logger = new LoggerConfiguration()
             .WriteTo.Console(theme: AnsiConsoleTheme.Literate)
             .WriteTo.File(LogFilePath)
-            .WriteTo.Sink(this)
             .CreateLogger();
     }
 
@@ -140,17 +137,7 @@ public partial class InfoService : ObservableObject, ILogEventSink, IService
             {
                 Text = "Open Logs Folder",
                 Action = () => App.LaunchSelected(LogFilePath)
-            },
-            new DialogButton
-            {
-                Text = "Open Console",
-                Action = () =>Navigation.App.Open<ConsoleView>()
             }
         ]);
-    }
-
-    public void Emit(LogEvent logEvent)
-    {
-        Logs.Add(new FortnitePortingLogEvent(logEvent));
     }
 }

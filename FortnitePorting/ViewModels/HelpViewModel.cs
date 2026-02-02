@@ -22,7 +22,7 @@ public partial class HelpViewModel(SupabaseService supabase) : ViewModelBase
     
     [ObservableProperty, NotifyPropertyChangedFor(nameof(BuilderButtonText))] private bool _isBuilderOpen = false;
     public string BuilderButtonText => IsBuilderOpen ? "Open Help Articles List" : "Open Help Article Builder";
-    public bool AllowedToOpenBuilder => SupaBase.IsLoggedIn && SupaBase.Permissions.Role >= ESupabaseRole.Staff;
+    public bool AllowedToOpenBuilder => SupaBase is { IsLoggedIn: true, Permissions.Role: >= ESupabaseRole.Support };
     
     [ObservableProperty] private Article _builderArticle = new();
     [ObservableProperty] private int _selectedSectionIndex = 0;

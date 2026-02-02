@@ -4,6 +4,7 @@ using System.Linq;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.Animation.CurveExpression;
+using CUE4Parse.UE4.Assets.Exports.MetaSound;
 using CUE4Parse.UE4.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.UObject;
@@ -24,7 +25,7 @@ public class AnimExport : BaseExport
     public List<ExportCurveMapping> LegacyToMetahumanMappings = [];
     public List<ExportCurveMapping> MetahumanToLegacyMappings = [];
     
-    public AnimExport(string name, UObject asset, BaseStyleData[] styles, EExportType exportType, ExportDataMeta metaData) : base(name, asset, styles, exportType, metaData)
+    public AnimExport(string name, UObject asset, BaseStyleData[] styles, EExportType exportType, ExportDataMeta metaData) : base(name, exportType, metaData)
     {
         switch (exportType)
         {
@@ -53,6 +54,18 @@ public class AnimExport : BaseExport
             }
             case EExportType.Emote:
             {
+                if (styles.Length > 0)
+                {
+                    foreach (var style in styles.OfType<AnimStyleData>())
+                    {
+                        if (style.StyleData is not UAnimMontage styleMontage) continue;
+                        
+                        AnimMontage(styleMontage);
+                    }
+                    
+                    break;
+                }
+                
                 var montage = asset.GetOrDefault<UAnimMontage?>("Animation");
                 montage ??= asset.GetOrDefault<UAnimMontage?>("FrontEndAnimation");
                 if (montage is null) break;
@@ -156,14 +169,15 @@ public class AnimExport : BaseExport
                 
                 var animSections = new List<ExportAnimSection>();
                 
-                if (propNotify.SkeletalMeshPropMontage is { } montage) HandleSectionTree(animSections, montage, montage.CompositeSections.First());
+                if (propNotify.SkeletalMeshPropMontage is { } montage) 
+                    HandleSectionTree(animSections, montage, montage.CompositeSections.First());
+                
                 if (animSections.Count == 0 && propNotify.SkeletalMeshPropAnimationMontage is { } secondMontage)
-                {
-                    var propExport = new AnimExport(secondMontage.Name, secondMontage, [], EExportType.Animation,
-                        Exporter.Meta);
+                    HandleSectionTree(animSections, secondMontage, secondMontage.CompositeSections.First());
 
-                    animSections = propExport.Sections;
-                }
+                if (animSections.Count == 0 && propNotify.SkeletalMeshPropAnimation is { } animSequence &&
+                    Exporter.AnimSequence(animSequence) is { } exportedSequenceSection)
+                    animSections = [exportedSequenceSection];
                 
                 var prop = new ExportProp
                 {

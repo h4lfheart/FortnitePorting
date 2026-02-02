@@ -1,12 +1,16 @@
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FortnitePorting.Framework;
 using FortnitePorting.Services;
 
 namespace FortnitePorting.ViewModels;
 
-public partial class SettingsViewModel : ViewModelBase
+public partial class SettingsViewModel(SettingsService settings, SupabaseService supabase) : ViewModelBase
 {
+    [ObservableProperty] private SettingsService _settings = settings;
+    [ObservableProperty] private SupabaseService _supaBase = supabase;
+    
     public override async Task OnViewExited()
     {
         if (AppSettings.ShouldSaveOnExit)

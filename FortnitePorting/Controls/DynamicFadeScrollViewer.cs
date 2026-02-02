@@ -106,7 +106,15 @@ public class DynamicFadeScrollViewer : TemplatedControl
             UpdateOpacityMask();
         }
 
-        RaiseEvent(e);
+        var newArgs = new ScrollChangedEventArgs(
+            e.OffsetDelta,
+            e.ExtentDelta,
+            e.ViewportDelta);
+        
+        newArgs.RoutedEvent = ScrollChangedEvent;
+        newArgs.Source = this;
+        
+        RaiseEvent(newArgs);
     }
 
     private void UpdateOpacityMask()
@@ -148,7 +156,18 @@ public class DynamicFadeScrollViewer : TemplatedControl
         ScrollViewer?.ScrollToEnd();
     }
 
-    public Vector Offset => ScrollViewer?.Offset ?? default;
+    public Vector Offset
+    {
+        get => ScrollViewer?.Offset ?? default;
+        set
+        {
+            if (ScrollViewer != null)
+            {
+                ScrollViewer.Offset = value;
+            }
+        }
+    }
+    
     public Size Extent => ScrollViewer?.Extent ?? default;
     public Size Viewport => ScrollViewer?.Viewport ?? default;
 }

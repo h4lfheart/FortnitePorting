@@ -60,10 +60,12 @@ public partial class AssetLoader : ObservableObject
     
     [ObservableProperty] private ObservableCollection<BaseAssetInfo> _selectedAssetInfos = [];
     
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(LoadingStatus))] private int _loadedAssets;
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(LoadingStatus))] private int _totalAssets = int.MaxValue;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(LoadingPercentageText))] private int _loadedAssets;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(LoadingPercentageText))] private int _totalAssets = int.MaxValue;
     [ObservableProperty] private bool _finishedLoading = false;
-    public string LoadingStatus => $"Loading {Type.Description}: {(LoadedAssets == 0 && TotalAssets == 0 ? 0 : LoadedAssets * 100f / TotalAssets):N0}%";
+    
+    public string LoadingStatus => $"Loading {Type.Description}";
+    public string LoadingPercentageText => $"{(LoadedAssets == 0 && TotalAssets == 0 ? 0 : LoadedAssets * 100f / TotalAssets):N0}%";
     
     
     public readonly IObservable<SortExpressionComparer<BaseAssetItem>> AssetSort;
@@ -291,7 +293,7 @@ public partial class AssetLoader : ObservableObject
         var isHidden = HideNames.Any(name => asset.Name.Contains(name, StringComparison.OrdinalIgnoreCase)) || HidePredicate(this, asset, displayName);
         if (isHidden && !LoadHiddenAssets) return;
         
-        var icon = IconHandler(asset) ?? await AppServices.UEParse.Provider.SafeLoadPackageObjectAsync<UTexture2D>(PlaceholderIconPath);
+        var icon = IconHandler(asset) ?? await UEParse.Provider.SafeLoadPackageObjectAsync<UTexture2D>(PlaceholderIconPath);
         if (icon is null) return;
         
         var args = new AssetItemCreationArgs
@@ -312,12 +314,12 @@ public partial class AssetLoader : ObservableObject
     
     private async Task LoadAsset(ManuallyDefinedAsset manualAsset)
     {
-        var asset = await AppServices.UEParse.Provider.SafeLoadPackageObjectAsync(manualAsset.AssetPath);
+        var asset = await UEParse.Provider.SafeLoadPackageObjectAsync(manualAsset.AssetPath);
         if (asset is null) return;
 
         var displayName = manualAsset.Name;
             
-        var icon = await AppServices.UEParse.Provider.SafeLoadPackageObjectAsync<UTexture2D>(manualAsset.IconPath) ?? await AppServices.UEParse.Provider.SafeLoadPackageObjectAsync<UTexture2D>(PlaceholderIconPath);
+        var icon = await UEParse.Provider.SafeLoadPackageObjectAsync<UTexture2D>(manualAsset.IconPath) ?? await UEParse.Provider.SafeLoadPackageObjectAsync<UTexture2D>(PlaceholderIconPath);
         if (icon is null) return;
         
         var args = new AssetItemCreationArgs
@@ -408,7 +410,7 @@ public partial class AssetLoader : ObservableObject
         Func<BaseAssetItem, IComparable> sort = type switch
         {
             EAssetSortType.AZ => asset => asset.CreationData.DisplayName,
-            EAssetSortType.Season => asset => asset is AssetItem assetItem ? assetItem.Season + (double) assetItem.Rarity * 0.01 : asset.CreationData.DisplayName,
+            EAssetSortType.Season => asset => asset is AssetItem assetItem ? assetItem.Season + (double) assetItem.Rarity * 0.01 : 0,
             EAssetSortType.Rarity => asset => asset is AssetItem assetItem ? assetItem.Series?.DisplayName.Text + (int) assetItem.Rarity : asset.CreationData.DisplayName,
             _ => asset => asset is AssetItem assetItem ? assetItem.CreationData.Object?.Name ?? string.Empty : asset.CreationData.DisplayName
         };

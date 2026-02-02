@@ -36,8 +36,7 @@ public static class AppServices
     public static BlackHoleService BlackHole => Services.GetRequiredService<BlackHoleService>();
     public static AssetLoaderService AssetLoading => Services.GetRequiredService<AssetLoaderService>();
     public static ExportClientService ExportClient => Services.GetRequiredService<ExportClientService>();
-    public static LiveExportService LiveExport => Services.GetRequiredService<LiveExportService>();
-    
+   
     // ViewModels
     public static AppWindowModel AppWM => Services.GetRequiredService<AppWindowModel>();
     
@@ -46,10 +45,6 @@ public static class AppServices
     public static FilesViewModel FilesVM => Services.GetRequiredService<FilesViewModel>();
     public static MapViewModel MapVM => Services.GetRequiredService<MapViewModel>();
     public static MusicViewModel MusicVM => Services.GetRequiredService<MusicViewModel>();
-    
-    
-    public static ConsoleViewModel ConsoleVM => Services.GetRequiredService<ConsoleViewModel>();
-    
     public static TimeWasterViewModel TimeWasterVM => Services.GetRequiredService<TimeWasterViewModel>();
     public static SoundPreviewWindowModel SoundPreviewWM => Services.GetRequiredService<SoundPreviewWindowModel>();
     

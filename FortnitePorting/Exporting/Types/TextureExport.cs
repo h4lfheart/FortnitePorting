@@ -1,9 +1,9 @@
 using System.Collections.Generic;
+using CUE4Parse.GameTypes.FN.Assets.Exports.DataAssets;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using FortnitePorting.Exporting.Models;
 using FortnitePorting.Extensions;
-using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Models.Unreal;
 using FortnitePorting.Shared.Extensions;
@@ -22,7 +22,7 @@ public class TextureExport : BaseExport
         { EExportType.Emoticon, "SpriteSheet" }
     };
     
-    public TextureExport(string name, UObject asset, BaseStyleData[] styles, EExportType exportType, ExportDataMeta metaData) : base(name, asset, styles, exportType, metaData)
+    public TextureExport(string name, UObject asset, EExportType exportType, ExportDataMeta metaData) : base(name, exportType, metaData)
     {
         var textures = new List<UTexture>();
         switch (asset)
@@ -39,9 +39,9 @@ public class TextureExport : BaseExport
             }
             case UBuildingTextureData textureData:
             {
-                textures.AddIfNotNull(textureData.Diffuse);
-                textures.AddIfNotNull(textureData.Normal);
-                textures.AddIfNotNull(textureData.Specular);
+                textures.AddIfNotNull(textureData.Diffuse.Load<UTexture2D>());
+                textures.AddIfNotNull(textureData.Normal.Load<UTexture2D>());
+                textures.AddIfNotNull(textureData.Specular.Load<UTexture2D>());
                 break;
             }
             default:

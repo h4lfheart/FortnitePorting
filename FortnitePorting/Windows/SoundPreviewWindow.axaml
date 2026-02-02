@@ -6,7 +6,8 @@
         xmlns:windowModels="clr-namespace:FortnitePorting.WindowModels"
         x:Class="FortnitePorting.Windows.SoundPreviewWindow"
         x:DataType="windowModels:SoundPreviewWindowModel"
-        Width="540" SizeToContent="Height" RequestedThemeVariant="Dark" Background="#0e0e0e" TransparencyLevelHint="Mica"
+        Width="540" SizeToContent="Height" RequestedThemeVariant="Dark" Background="{DynamicResource WindowBackgroundBrush}"  
+        TransparencyLevelHint="{Binding Settings.Application.TransparencyHints}"
         ExtendClientAreaToDecorationsHint="True" ExtendClientAreaChromeHints="NoChrome" FontFamily="{StaticResource SFTextRegular}"
         WindowStartupLocation="CenterScreen" ClosingBehavior="OwnerAndChildWindows" ExtendClientAreaTitleBarHeightHint="35"
         Icon="/Assets/LogoRebrand.ico"
@@ -22,7 +23,7 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
             
-                <ui:ImageIcon Grid.Column="0" Source="/Assets/LogoRebrand.png" 
+                <ui:ImageIcon Grid.Column="0" Source="{DynamicResource FPLogoBitmap}" 
                               HorizontalAlignment="Right"
                               Width="20" Height="20" 
                               RenderOptions.BitmapInterpolationMode="HighQuality" RenderOptions.EdgeMode="Antialias"/>

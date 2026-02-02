@@ -24,36 +24,73 @@
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="6*" />
         </Grid.ColumnDefinitions>
-        
-        <sidebar:Sidebar x:Name="Sidebar" Grid.Column="0" ItemSelected="OnItemSelected" Items="{Binding SidebarItems}"/>
 
-        <GridSplitter Grid.Column="0" HorizontalAlignment="Right" Opacity="0"  IsVisible="{Binding !AssetLoader.ActiveLoader.FinishedLoading, FallbackValue=True}"/>
-        
-        <controls:ContentCard Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="{ext:Space 3}"
-                              IsVisible="{Binding !AssetLoader.ActiveLoader.FinishedLoading, FallbackValue=True}">
-            <StackPanel Spacing="{ext:Space 2}">
-                <TextBlock Text="{Binding AssetLoader.ActiveLoader.LoadingStatus}" 
+        <sidebar:Sidebar x:Name="Sidebar" Grid.Column="0" ItemSelected="OnItemSelected">
+            <sidebar:Sidebar.Items>
+                <sidebar:SidebarItemsSource ItemsSource="{Binding SidebarItems}" />
+            </sidebar:Sidebar.Items>
+        </sidebar:Sidebar>
+
+        <GridSplitter Grid.Column="0" HorizontalAlignment="Right" Opacity="0"
+                      IsVisible="{Binding !AssetLoader.ActiveLoader.FinishedLoading, FallbackValue=True}" />
+
+        <Grid Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center"
+              IsVisible="{Binding !AssetLoader.ActiveLoader.FinishedLoading, FallbackValue=True}">
+
+            <Ellipse Width="600" Height="600" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Ellipse.Styles>
+                    <Style Selector="Ellipse">
+                        <Style.Animations>
+                            <Animation Duration="0:0:3" IterationCount="Infinite" PlaybackDirection="Alternate"
+                                       Easing="SineEaseInOut">
+                                <KeyFrame Cue="0%">
+                                    <Setter Property="Opacity" Value="0.2" />
+                                </KeyFrame>
+                                <KeyFrame Cue="100%">
+                                    <Setter Property="Opacity" Value="0.5" />
+                                </KeyFrame>
+                            </Animation>
+                        </Style.Animations>
+                    </Style>
+                </Ellipse.Styles>
+                <Ellipse.Fill>
+                    <RadialGradientBrush>
+                        <GradientStop Color="#33A855F7" Offset="0" />
+                        <GradientStop Color="#1AA855F7" Offset="0.5" />
+                        <GradientStop Color="#00A855F7" Offset="1" />
+                    </RadialGradientBrush>
+                </Ellipse.Fill>
+            </Ellipse>
+
+            <StackPanel Spacing="{ext:Space 1}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock Text="{Binding AssetLoader.ActiveLoader.LoadingStatus}"
                            HorizontalAlignment="Center" VerticalAlignment="Center"
                            FontFamily="{StaticResource SFDisplaySemibold}"
-                           FontSize="20"/>
-                                       
+                           FontSize="20" />
+
+                <TextBlock Text="{Binding AssetLoader.ActiveLoader.LoadingPercentageText}"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                           Classes="BodyTextBlockStyle TextFillColorSecondaryBrush" Margin="{ext:Space 0, 0, 0, 1}" />
+
                 <ProgressBar HorizontalAlignment="Center" VerticalAlignment="Center" Height="8"
                              MinWidth="400"
                              Value="{Binding AssetLoader.ActiveLoader.LoadedAssets}"
                              Minimum="0"
                              Maximum="{Binding AssetLoader.ActiveLoader.TotalAssets}" />
             </StackPanel>
-        </controls:ContentCard>
-        
-        <Grid Grid.Column="1" Margin="{ext:Space 0, 1, 1, 1}" IsVisible="{Binding AssetLoader.ActiveLoader.FinishedLoading, FallbackValue=False}">
+        </Grid>
+
+        <Grid Grid.Column="1" Margin="{ext:Space 0, 1, 1, 1}"
+              IsVisible="{Binding AssetLoader.ActiveLoader.FinishedLoading, FallbackValue=False}">
             <Grid.Resources>
-                <converters:GridLengthConverter x:Key="AssetsBoxConverter" 
-                                           TrueValue="*" 
-                                           FalseValue="0"/>
+                <converters:GridLengthConverter x:Key="AssetsBoxConverter"
+                                                TrueValue="*"
+                                                FalseValue="0" />
             </Grid.Resources>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="2.5*" />
-                <ColumnDefinition Width="{Binding !!AssetLoader.ActiveLoader.SelectedAssetInfos.Count, Converter={StaticResource AssetsBoxConverter}}" />
+                <ColumnDefinition
+                    Width="{Binding !!AssetLoader.ActiveLoader.SelectedAssetInfos.Count, Converter={StaticResource AssetsBoxConverter}}" />
             </Grid.ColumnDefinitions>
 
             <Grid Grid.Column="0">
@@ -82,32 +119,32 @@
 
                     <Button Grid.Column="0" ToolTip.Tip="Random" Content="{material:MaterialIconExt DiceMultiple}"
                             Click="OnRandomButtonPressed" />
-                    
+
                     <ToggleButton Grid.Column="2" IsChecked="{Binding ShowNames}"
                                   ToolTip.Tip="Show Names">
                         <material:MaterialIcon Kind="{Binding ShowNamesIcon}" />
                     </ToggleButton>
-                    
+
                     <ToggleButton Grid.Column="4" IsChecked="{Binding AssetLoader.ActiveLoader.DescendingSort}"
                                   ToolTip.Tip="Ascending or Descending">
                         <material:MaterialIcon Kind="{Binding AssetLoader.ActiveLoader.SortIcon}" />
                     </ToggleButton>
-                    
+
                     <ComboBox Grid.Column="6" ToolTip.Tip="Sorting" HorizontalAlignment="Stretch"
                               ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EAssetSortType}}"
                               SelectedItem="{Binding AssetLoader.ActiveLoader.SortType, Converter={StaticResource EnumToRecord}}">
-                    
+
                         <ComboBox.Styles>
                             <Style Selector="ComboBox[IsVisible=true] /template/ ContentPresenter#ContentPresenter">
                                 <Setter Property="ContentTemplate">
                                     <DataTemplate DataType="ext:EnumRecord">
-                                        <controls:IconText Text="{Binding Description}" Icon="Sort"/>
+                                        <controls:IconText Text="{Binding Description}" Icon="Sort" />
                                     </DataTemplate>
                                 </Setter>
                             </Style>
                         </ComboBox.Styles>
                     </ComboBox>
-                    
+
                     <DropDownButton Grid.Column="8" HorizontalAlignment="Stretch">
                         <DropDownButton.Flyout>
                             <Flyout VerticalOffset="4">
@@ -164,7 +201,7 @@
 
                 <controls:ContentCard Grid.Row="2">
                     <Grid>
-                          <ListBox x:Name="AssetsListBox" SelectionMode="Multiple" AutoScrollToSelectedItem="False"
+                        <ListBox x:Name="AssetsListBox" SelectionMode="Multiple" AutoScrollToSelectedItem="False"
                                  ItemsSource="{Binding AssetLoader.ActiveCollection}"
                                  SelectionChanged="OnSelectionChanged" Margin="{ext:Space 1}">
                             <ListBox.Styles>
@@ -183,10 +220,12 @@
                                                 <MenuItem Header="Navigate To"
                                                           Icon="{material:MaterialIconExt ChevronRight}"
                                                           Command="{Binding NavigateToCommand}" />
-                                                <MenuItem Header="Copy Path" Icon="{material:MaterialIconExt Clipboard}"
+                                                <MenuItem Header="Copy Path"
+                                                          Icon="{material:MaterialIconExt Clipboard}"
                                                           Command="{Binding CopyPathCommand}" />
                                                 <MenuItem Header="Copy Icon" Icon="{material:MaterialIconExt Image}">
-                                                    <MenuItem Header="With Background" Command="{Binding CopyIconCommand}"
+                                                    <MenuItem Header="With Background"
+                                                              Command="{Binding CopyIconCommand}"
                                                               CommandParameter="{x:True}" />
                                                     <MenuItem Header="Without Background"
                                                               Command="{Binding CopyIconCommand}"
@@ -194,22 +233,35 @@
                                                 </MenuItem>
                                             </ContextMenu>
                                         </ContentControl.ContextMenu>
-                                        <StackPanel Width="{Binding DisplayWidth}" Spacing="4">
+                                        <StackPanel
+                                            Width="{Binding Settings.Application.AssetScale, 
+                                                    Converter={StaticResource Scale}, ConverterParameter='64'}"
+                                            Spacing="4">
                                             <ToolTip.Tip>
                                                 <StackPanel Spacing="{ext:Space 0.5}" Margin="{ext:Space 0.5}">
-                                                    <TextBlock Text="{Binding CreationData.DisplayName}"/> 
-                                                    <TextBlock Text="{Binding CreationData.ID}" Classes="TextFillColorSecondaryBrush"/> 
+                                                    <TextBlock Text="{Binding CreationData.DisplayName}" />
+                                                    <TextBlock Text="{Binding CreationData.ID}"
+                                                               Classes="TextFillColorSecondaryBrush" />
                                                 </StackPanel>
                                             </ToolTip.Tip>
                                             <Grid>
-                                                <controls:ContentCard Width="{Binding DisplayWidth}"
-                                                                   Height="{Binding DisplayHeight}" />
+                                                <controls:ContentCard
+                                                    Width="{Binding Settings.Application.AssetScale, 
+                                                    Converter={StaticResource Scale}, ConverterParameter='64'}"
+                                                    Height="{Binding Settings.Application.AssetScale, 
+                                                    Converter={StaticResource Scale}, ConverterParameter='80'}" />
                                                 <Border ClipToBounds="True" CornerRadius="8"
-                                                        Width="{Binding DisplayWidth}"
-                                                        Height="{Binding DisplayHeight}">
+                                                        Width="{Binding Settings.Application.AssetScale, 
+                                                    Converter={StaticResource Scale}, ConverterParameter='64'}"
+                                                        Height="{Binding Settings.Application.AssetScale, 
+                                                    Converter={StaticResource Scale}, ConverterParameter='80'}">
                                                     <Grid>
-                                                        <Image Stretch="UniformToFill" Source="{Binding BackgroundImage}" RenderOptions.BitmapInterpolationMode="HighQuality"/>
-                                                        <Image Stretch="UniformToFill" Source="{Binding IconDisplayImage}" RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                                                        <Image Stretch="UniformToFill"
+                                                               Source="{Binding BackgroundImage}"
+                                                               RenderOptions.BitmapInterpolationMode="HighQuality" />
+                                                        <Image Stretch="UniformToFill"
+                                                               Source="{Binding IconDisplayImage}"
+                                                               RenderOptions.BitmapInterpolationMode="HighQuality" />
                                                     </Grid>
                                                 </Border>
                                                 <Image IsVisible="{Binding IsFavorite}"
@@ -217,11 +269,12 @@
                                                        HorizontalAlignment="Right"
                                                        VerticalAlignment="Top" />
                                             </Grid>
-                                            
-                                            <TextBlock IsVisible="{Binding $parent[views:AssetsView].((viewModels:AssetsViewModel)DataContext).ShowNames}"
-                                                       HorizontalAlignment="Center" VerticalAlignment="Center" 
-                                                       FontSize="12" TextTrimming="CharacterEllipsis"
-                                                       Text="{Binding CreationData.DisplayName, Converter={StaticResource TitleCaseString}}" />
+
+                                            <TextBlock
+                                                IsVisible="{Binding $parent[views:AssetsView].((viewModels:AssetsViewModel)DataContext).ShowNames}"
+                                                HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                FontSize="12" TextTrimming="CharacterEllipsis"
+                                                Text="{Binding CreationData.DisplayName, Converter={StaticResource TitleCaseString}}" />
 
                                         </StackPanel>
                                     </ContentControl>
@@ -229,22 +282,23 @@
                             </ListBox.ItemTemplate>
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <wrapPanel:VirtualizingWrapPanel DistributeEvenly="True" ItemRealized="OnItemRealized"/>
+                                    <wrapPanel:VirtualizingWrapPanel DistributeEvenly="True"
+                                                                     ItemRealized="OnItemRealized" />
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
                         </ListBox>
-                        
-                        <TextBlock IsVisible="{Binding !AssetLoader.ActiveCollection.Count}" Text="No Assets Found" 
+
+                        <TextBlock IsVisible="{Binding !AssetLoader.ActiveCollection.Count}" Text="No Assets Found"
                                    Classes="BodyTextBlockStyle TextFillColorTertiaryBrush"
                                    HorizontalAlignment="Center" VerticalAlignment="Center" />
-                    
+
                     </Grid>
                 </controls:ContentCard>
 
             </Grid>
 
             <GridSplitter Grid.Column="0" Background="Transparent" HorizontalAlignment="Right"
-                          IsVisible="{Binding !!AssetLoader.ActiveLoader.SelectedAssetInfos.Count}"/>
+                          IsVisible="{Binding !!AssetLoader.ActiveLoader.SelectedAssetInfos.Count}" />
 
             <Grid Grid.Column="1" RowDefinitions="*,Auto" Margin="{ext:Space 1, 0, 0, 0}"
                   IsVisible="{Binding !!AssetLoader.ActiveLoader.SelectedAssetInfos.Count}">
@@ -264,15 +318,15 @@
                                     <controls:ContentCard Grid.Row="0" ClipToBounds="True">
                                         <Grid RowDefinitions="* 2*">
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="{ext:Space 1}"/>
-                                                <ColumnDefinition Width="2.5*"/>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="{ext:Space 1}" />
+                                                <ColumnDefinition Width="2.5*" />
                                             </Grid.ColumnDefinitions>
                                             <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" CornerRadius="8"
                                                     ClipToBounds="True" Margin="{ext:Space 1}">
-                                                <Image Source="{Binding Asset.IconDisplayImage}"/>
+                                                <Image Source="{Binding Asset.IconDisplayImage}" />
                                             </Border>
-                                            
+
                                             <TextBlock Grid.Row="0" Grid.Column="2" Classes="BodyStrongTextBlockStyle"
                                                        VerticalAlignment="Bottom" TextAlignment="Left"
                                                        TextTrimming="CharacterEllipsis"
@@ -290,7 +344,7 @@
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate DataType="assets:AssetStyleInfo">
                                                 <controls:ContentCard Margin="{ext:Space 0, 0, 0, 1}"
-                                                                   IsVisible="{Binding IsVisible}">
+                                                                      IsVisible="{Binding IsVisible}">
                                                     <Grid Margin="{ext:Space 0, 1, 0, 1}">
                                                         <Grid.RowDefinitions>
                                                             <RowDefinition Height="*" />
@@ -358,18 +412,18 @@
                                                                                         <Grid.ColumnDefinitions>
                                                                                             <ColumnDefinition
                                                                                                 Width="Auto" />
-                                                                                            <ColumnDefinition
-                                                                                                Width="{ext:Space 1}" />
                                                                                             <ColumnDefinition Width="*" />
                                                                                         </Grid.ColumnDefinitions>
                                                                                         <Border Grid.Column="0"
-                                                                                            Width="48" Height="48">
+                                                                                            Margin="{ext:Space 0, 0, 1, 0}"
+                                                                                            Width="48" Height="48"
+                                                                                            IsVisible="{Binding StyleDisplayImage, Converter={x:Static ObjectConverters.IsNotNull}}">
                                                                                             <Border.Background>
                                                                                                 <ImageBrush
                                                                                                     Source="{Binding StyleDisplayImage}" />
                                                                                             </Border.Background>
                                                                                         </Border>
-                                                                                        <TextBlock Grid.Column="2"
+                                                                                        <TextBlock Grid.Column="1"
                                                                                             Text="{Binding StyleName}"
                                                                                             HorizontalAlignment="Left"
                                                                                             VerticalAlignment="Center"
@@ -386,17 +440,19 @@
 
                                                             <Grid>
                                                                 <Grid.ColumnDefinitions>
-                                                                    <ColumnDefinition Width="Auto" />
-                                                                    <ColumnDefinition Width="{ext:Space 1}" />
+                                                                    <ColumnDefinition
+                                                                        Width="Auto" />
                                                                     <ColumnDefinition Width="*" />
                                                                 </Grid.ColumnDefinitions>
-                                                                <Border Grid.Column="0" Width="48" Height="48">
+                                                                <Border Grid.Column="0" Margin="{ext:Space 0, 0, 1, 0}"
+                                                                        Width="48" Height="48"
+                                                                        IsVisible="{Binding SelectedStyle.StyleDisplayImage, Converter={x:Static ObjectConverters.IsNotNull}}">
                                                                     <Border.Background>
                                                                         <ImageBrush
                                                                             Source="{Binding SelectedStyle.StyleDisplayImage}" />
                                                                     </Border.Background>
                                                                 </Border>
-                                                                <TextBlock Grid.Column="2"
+                                                                <TextBlock Grid.Column="1"
                                                                            Text="{Binding SelectedStyle.StyleName}"
                                                                            HorizontalAlignment="Left"
                                                                            VerticalAlignment="Center"
@@ -427,7 +483,7 @@
                                                             <ListBox.ItemTemplate>
                                                                 <DataTemplate DataType="assets:BaseStyleData">
                                                                     <ContentControl Padding="8"
-                                                                        ToolTip.Tip="{Binding StyleName}">
+                                                                            ToolTip.Tip="{Binding StyleName}">
                                                                         <Grid MaxWidth="48" RowDefinitions="*, Auto">
                                                                             <Border Grid.Row="0" Width="48" Height="48">
                                                                                 <Border.Background>
@@ -436,11 +492,11 @@
                                                                                 </Border.Background>
                                                                             </Border>
                                                                             <TextBlock Grid.Row="1"
-                                                                                Text="{Binding StyleName}"
-                                                                                HorizontalAlignment="Center"
-                                                                                Classes="CaptionTextBlockStyle"
-                                                                                TextTrimming="CharacterEllipsis"
-                                                                                IsVisible="{Binding ShowName}" />
+                                                                                    Text="{Binding StyleName}"
+                                                                                    HorizontalAlignment="Center"
+                                                                                    Classes="CaptionTextBlockStyle"
+                                                                                    TextTrimming="CharacterEllipsis"
+                                                                                    IsVisible="{Binding ShowName}" />
                                                                         </Grid>
                                                                     </ContentControl>
                                                                 </DataTemplate>
@@ -460,6 +516,7 @@
                 <Grid Grid.Row="1" HorizontalAlignment="Stretch" Margin="{ext:Space 0, 1, 0, 0}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="{ext:Space 1}" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
@@ -498,7 +555,15 @@
                         </StackPanel>
                     </SplitButton>
 
-                    <Button Grid.Column="2" ToolTip.Tip="Export Settings" Content="{material:MaterialIconExt Settings}"
+                    <Button Grid.Column="1" ToolTip.Tip="Apply Tasty Rig"
+                            Command="{Binding ExportTastyRigCommand}"
+                            Margin="{ext:Space 1, 0, 0, 0}"
+                            IsVisible="{Binding IsTastyRigApplyVisible}"
+                            RenderOptions.BitmapInterpolationMode="HighQuality" RenderOptions.EdgeMode="Antialias">
+                        <Image Width="16" Height="16" Source="/Assets/Icons/Tasty.png" />
+                    </Button>
+
+                    <Button Grid.Column="3" ToolTip.Tip="Export Settings" Content="{material:MaterialIconExt Settings}"
                             Command="{Binding OpenSettingsCommand}" />
 
                 </Grid>

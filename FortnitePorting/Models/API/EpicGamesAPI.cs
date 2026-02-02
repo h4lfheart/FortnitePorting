@@ -18,7 +18,7 @@ public class EpicGamesAPI(RestClient client) : APIBase(client)
     {
         var response = await ExecuteAsync(FORTNITE_LIVE_URL, parameters:
         [
-            new HeaderParameter("Authorization", $"bearer {AppServices.AppSettings.Application.EpicAuth?.Token}")
+            new HeaderParameter("Authorization", $"bearer {AppSettings.Application.EpicAuth?.Token}")
         ]);
         
         return ManifestInfo.Deserialize(response.RawBytes);
@@ -47,12 +47,12 @@ public class EpicGamesAPI(RestClient client) : APIBase(client)
     {
         var auth = await ExecuteAsync<EpicAuthResponse>(OATH_VERIFY_URL, parameters:
         [
-            new HeaderParameter("Authorization", $"bearer {AppServices.AppSettings.Application.EpicAuth?.Token}")
+            new HeaderParameter("Authorization", $"bearer {AppSettings.Application.EpicAuth?.Token}")
         ]);
 
         if (auth is null)
         {
-            AppServices.AppSettings.Application.EpicAuth = await GetAuthTokenAsync();
+            AppSettings.Application.EpicAuth = await GetAuthTokenAsync();
         }
     }
 }
