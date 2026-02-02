@@ -48,7 +48,7 @@ public partial class BaseExportSettings : ViewModelBase
     [ObservableProperty] private bool _exportMaterials = true;
     
     [ObservableProperty] private EMeshFormat _meshFormat = EMeshFormat.UEFormat;
-    [ObservableProperty] private ENaniteMeshFormat _naniteMeshFormat = ENaniteMeshFormat.OnlyNormalLODs;
+    [ObservableProperty] private bool _exportNanite;
     [ObservableProperty] private bool _importInstancedFoliage = true;
     
     [ObservableProperty] private EAnimFormat _animFormat = EAnimFormat.UEFormat;
@@ -63,7 +63,7 @@ public partial class BaseExportSettings : ViewModelBase
             MeshFormat = MeshFormat,
             AnimFormat = AnimFormat,
             CompressionFormat = CompressionFormat,
-            NaniteMeshFormat = NaniteMeshFormat
+            NaniteMeshFormat = ENaniteMeshFormat.OnlyNormalLODs
         };
     }
 }

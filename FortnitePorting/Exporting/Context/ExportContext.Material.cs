@@ -27,7 +27,7 @@ public partial class ExportContext
         if (material is null) return null;
 
         var exportMat = material;
-        if (Meta.Settings.NaniteMeshFormat != ENaniteMeshFormat.OnlyNormalLODs
+        if (Meta.Settings.ExportNanite
             && material.TryGetValue(out FMaterialOverrideNanite naniteMatStruct, "NaniteOverrideMaterial")
             && naniteMatStruct.bEnableOverride
             && naniteMatStruct.OverrideMaterial.TryLoad(out UMaterialInterface naniteMat))

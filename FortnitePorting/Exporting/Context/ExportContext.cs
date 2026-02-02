@@ -15,6 +15,7 @@ using CUE4Parse.UE4.Assets.Exports.Actor;
 using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.Component.SplineMesh;
 using CUE4Parse.UE4.Assets.Exports.Engine.Font;
+using CUE4Parse.UE4.Assets.Exports.Nanite;
 using CUE4Parse.UE4.Assets.Exports.Rig;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Sound;
@@ -168,7 +169,7 @@ public partial class ExportContext
             }
             case UStaticMesh staticMesh:
             {
-                var exporter = new MeshExporter(staticMesh, FileExportOptions);
+                var exporter = new MeshExporter(staticMesh, FileExportOptions with { NaniteMeshFormat = Meta.Settings.ExportNanite ? ENaniteMeshFormat.OnlyNaniteLOD : ENaniteMeshFormat.OnlyNormalLODs});
                 foreach (var mesh in exporter.MeshLods)
                 {
                     File.WriteAllBytes(path, mesh.FileData);

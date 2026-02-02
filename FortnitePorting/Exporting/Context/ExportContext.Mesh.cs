@@ -8,6 +8,7 @@ using CUE4Parse.UE4.Assets.Exports.Component.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Component.SplineMesh;
 using CUE4Parse.UE4.Assets.Exports.Component.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Material;
+using CUE4Parse.UE4.Assets.Exports.Nanite;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Objects.Core.Math;
@@ -69,7 +70,7 @@ public partial class ExportContext
     public T? Mesh<T>(UStaticMesh? mesh) where T : ExportMesh, new()
     {
         if (mesh is null) return null;
-        if (!mesh.TryConvert(out var convertedMesh, Meta.Settings.NaniteMeshFormat)) return null;
+        if (!mesh.TryConvert(out var convertedMesh, Meta.Settings.ExportNanite ? ENaniteMeshFormat.AllLayersNaniteFirst : ENaniteMeshFormat.OnlyNormalLODs)) return null;
         if (convertedMesh.LODs.Count <= 0) return null;
 
         var exportPart = new T
@@ -191,7 +192,7 @@ public partial class ExportContext
     public T? MeshComponent<T>(USplineMeshComponent? mesh) where T : ExportMesh, new()
     {
         if (mesh is null) return null;
-        if (!mesh.TryConvert(out var convertedMesh, Meta.Settings.NaniteMeshFormat)) return null;
+        if (!mesh.TryConvert(out var convertedMesh, Meta.Settings.ExportNanite ? ENaniteMeshFormat.AllLayersNaniteFirst : ENaniteMeshFormat.OnlyNormalLODs)) return null;
         if (convertedMesh.LODs.Count <= 0) return null;
 
         var exportPart = new T
@@ -217,7 +218,6 @@ public partial class ExportContext
     public void SetMeshComponentTransforms(ExportMesh exportMesh, USceneComponent meshComponent)
     {
         if (!exportMesh.IsEmpty)
-            // if (false)
         {
             var meshComponentAbsTransform = meshComponent.GetAbsoluteTransform();
             exportMesh.Location = meshComponentAbsTransform.Translation;
