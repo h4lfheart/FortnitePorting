@@ -2,8 +2,10 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.AssetRegistry.Objects;
@@ -45,7 +47,7 @@ public partial class AssetLoader : ObservableObject
     public Func<UObject, string?> DescriptionHandler = asset => asset.GetAnyOrDefault<FText?>("Description", "ItemDescription")?.Text;
     public Func<UObject, FGameplayTagContainer?> GameplayTagHandler = GetGameplayTags;
     
-    public readonly HashSet<BaseAssetItem> AssetBag = [];
+    public readonly ConcurrentBag<BaseAssetItem> AssetBag = [];
     public readonly ReadOnlyObservableCollection<BaseAssetItem> Filtered;
     public SourceCache<BaseAssetItem, Guid> Source = new(asset => asset.Id);
     public readonly ConcurrentBag<string> FilteredAssetBag = [];
@@ -77,7 +79,8 @@ public partial class AssetLoader : ObservableObject
     [ObservableProperty] private string _searchFilter = string.Empty;
     [ObservableProperty] private bool _useRegex = false;
     [ObservableProperty] private ObservableCollection<string> _searchAutoComplete = [];
-
+    
+    private readonly SemaphoreSlim _pauseSemaphore = new(1, 1);
     
     [ObservableProperty] private ObservableCollection<FilterItem> _activeFilters = [];
     public List<FilterCategory> FilterCategories { get; } =
@@ -199,8 +202,7 @@ public partial class AssetLoader : ObservableObject
     {
         if (BeganLoading) return;
         BeganLoading = true;
-
-
+        
         Assets = UEParse.AssetRegistry
             .Where(data => ClassNames.Contains(data.AssetClass.Text))
             .ToList();
@@ -221,20 +223,23 @@ public partial class AssetLoader : ObservableObject
 
         var manuallyDefinedAssets = ManuallyDefinedAssets.Value;
         TotalAssets = Assets.Count + manuallyDefinedAssets.Length + CustomAssets.Length;
-        foreach (var asset in Assets)
-        {
-            await WaitIfPausedAsync();
-            try
+        
+        await Parallel.ForEachAsync(Assets, new ParallelOptions { MaxDegreeOfParallelism = int.Clamp(Environment.ProcessorCount * 2, 4, 64) }, 
+            async (asset, ct) =>
             {
-                await LoadAsset(asset);
-            }
-            catch (Exception e)
-            {
-                Log.Error("{0}", e);
-            }
+                await WaitIfPausedAsync();
+                try
+                {
+                    await LoadAsset(asset);
+                }
+                catch (Exception e)
+                {
+                    Log.Error("{0}", e);
+                }
 
-            LoadedAssets++;
-        }
+                LoadedAssets++;
+            });
+      
 
         foreach (var manualAsset in manuallyDefinedAssets)
         {
@@ -373,19 +378,31 @@ public partial class AssetLoader : ObservableObject
     }
     
     
+    private async Task WaitIfPausedAsync()
+    {
+        if (IsPaused)
+        {
+            await _pauseSemaphore.WaitAsync();
+            _pauseSemaphore.Release();
+        }
+    }
+
     public void Pause()
     {
-        IsPaused = true;
+        if (!IsPaused)
+        {
+            _pauseSemaphore.Wait(); // Acquire the semaphore
+            IsPaused = true;
+        }
     }
 
     public void Unpause()
     {
-        IsPaused = false;
-    }
-
-    private async Task WaitIfPausedAsync()
-    {
-        while (IsPaused) await Task.Delay(1);
+        if (IsPaused)
+        {
+            IsPaused = false;
+            _pauseSemaphore.Release(); // Release waiting tasks
+        }
     }
     
     private static Func<BaseAssetItem, bool> CreateAssetFilter((string, ObservableCollection<FilterItem>, bool) values)

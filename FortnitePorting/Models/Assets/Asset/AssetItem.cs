@@ -61,8 +61,8 @@ public class AssetItem : Base.BaseAssetItem
 
         if (CreationData.Object.GetDataListItem<FPackageIndex>("Series") is { } seriesPackage)
         {
-            Series = SeriesCache!.GetOrAdd(seriesPackage.Name,
-                () => seriesPackage.Load<UFortItemSeriesDefinition>());
+            Series = SeriesCache.GetOrAdd(seriesPackage.Name,
+                _ => seriesPackage.Load<UFortItemSeriesDefinition>());
         }
     }
 
@@ -107,7 +107,7 @@ public class AssetItem : Base.BaseAssetItem
         }
 
         var bitmap = skiaBitmap.ToWriteableBitmap();
-        BackgroundCache.GetOrAdd(backgroundKey, bitmap);
+        BackgroundCache.TryAdd(backgroundKey, bitmap);
         return bitmap;
     }
 

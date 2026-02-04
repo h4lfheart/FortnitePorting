@@ -63,6 +63,15 @@ public partial class ChatView : ViewBase<ChatViewModel>
             }
         };
 
+        Chat.TypingUsers.CollectionChanged += (sender, args) =>
+        {
+            TaskService.RunDispatcher(() =>
+            {
+                if (_shouldAutoScroll)
+                    Scroll.ScrollToEnd();
+            });
+        };
+
         Chat.MessageReceived += (sender, args) =>
         {
             TaskService.RunDispatcher(() =>
