@@ -10,7 +10,7 @@ public partial class SettingsView : ViewBase<SettingsViewModel>
     {
         InitializeComponent();
         
-        Navigation.Settings.Initialize(ContentFrame);
+        Navigation.Settings.Initialize(Sidebar, ContentFrame);
     }
 
     private void OnItemSelected(object? sender, SidebarItemSelectedArgs e)

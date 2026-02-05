@@ -136,7 +136,7 @@ public class NavigatorContext(string name, NavigationTransitionInfo? transitionI
                 ? TransitionInfo
                 : new SuppressNavigationTransitionInfo());
 
-            Sidebar?.SelectButton(Sidebar.Items.OfType<SidebarItemButton>().FirstOrDefault(item => item.Tag?.Equals(obj) ?? false));
+            Sidebar?.SelectButton(Sidebar.FlattenedItems.OfType<SidebarItemButton>().FirstOrDefault(item => item.Tag?.Equals(obj) ?? false));
         });
     }
 

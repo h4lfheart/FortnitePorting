@@ -32,7 +32,10 @@ using FortnitePorting.Extensions;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.CUE4Parse;
 using FortnitePorting.Models.Fortnite;
+using FortnitePorting.Models.Information;
 using FortnitePorting.Shared.Extensions;
+using FortnitePorting.Views;
+using FortnitePorting.Views.Settings;
 using FortnitePorting.Windows;
 using Serilog;
 using UE4Config.Parsing;
@@ -42,7 +45,7 @@ namespace FortnitePorting.Services;
 
 public partial class CUE4ParseService : ObservableObject, IService
 {
-    [ObservableProperty] private string _status;
+    [ObservableProperty] private string _status = "Loading Files";
     [ObservableProperty] private bool _finishedLoading;
 
     public HybridFileProvider Provider;
@@ -86,6 +89,25 @@ public partial class CUE4ParseService : ObservableObject, IService
 
     public async Task Initialize()
     {
+        if (!HasValidArchivePath())
+        {
+            Info.Dialog("Invalid Installation Settings", "The archive directory set in Installation Settings does not exist or is empty. Please set it to your Fortnite installation's archive directory (generally located at FortniteGame/Content/Paks).", buttons:
+            [
+                new DialogButton
+                {
+                    Text = "Open Installation Settings",
+                    Action = () => TaskService.Run(async () =>
+                    {
+                        Navigation.App.Open<SettingsView>();
+                        await Task.Delay(250);
+                        Navigation.Settings.Open<InstallationSettingsView>();
+                    })
+                }
+            ]);
+            
+            return;
+        }
+        
         Provider = AppSettings.Installation.CurrentProfile.FortniteVersion switch
         {
             EFortniteVersion.LatestOnDemand => new HybridFileProvider(new VersionContainer(LATEST_GAME_VERSION)),
@@ -98,12 +120,10 @@ public partial class CUE4ParseService : ObservableObject, IService
         Log.Information("Unreal Version: {Version}", Provider.Versions.Game.ToString());
         
         ObjectTypeRegistry.RegisterEngine(Assembly.Load("FortnitePorting"));
-        ObjectTypeRegistry.RegisterEngine(Assembly.Load("FortnitePorting.Shared"));
-
+        
+    
         Provider.LoadExtraDirectories = AppSettings.Installation.CurrentProfile.LoadInstalledBundles;
-        
         Provider.ReadNaniteData = AppSettings.Installation.CurrentProfile.LoadNaniteData;
-        
         Provider.OnDemandOptions = new IoStoreOnDemandOptions
         {
             ChunkHostUri = new Uri("https://download.epicgames.com/", UriKind.Absolute),
@@ -121,7 +141,7 @@ public partial class CUE4ParseService : ObservableObject, IService
 
             UpdateStatus(reader.Name.Equals("plugin.utoc")
                 ? $"Loading GameFeature {reader.Path.SubstringBeforeLast("\\").SubstringAfterLast("\\")}"
-                : $"Loading File {reader.Name}");
+                : $"Loading {reader.Name}");
         };
         
         UpdateStatus("Loading Native Libraries");
@@ -166,6 +186,15 @@ public partial class CUE4ParseService : ObservableObject, IService
             Log.Information("[STATUS] {status}", status);
     }
 
+    private bool HasValidArchivePath()
+    {
+        return AppSettings.Installation.CurrentProfile.FortniteVersion switch
+        {
+            EFortniteVersion.LatestInstalled or EFortniteVersion.Custom => Directory.Exists(AppSettings.Installation.CurrentProfile.ArchiveDirectory),
+            _ => true
+        };
+    }
+
     private async Task CheckBlackHole()
     {
         if (AppSettings.Installation.CurrentProfile.FortniteVersion is not EFortniteVersion.LatestInstalled) return;
@@ -196,7 +225,7 @@ public partial class CUE4ParseService : ObservableObject, IService
         {
             if (file.LastWriteTime >= cutoffDate) continue;
             
-            Log.Information("Removing old cache entry {ChunkName}", file.Name);
+            UpdateStatus($"Removing Outdated Cache {file.Name}");
             file.Delete();
         }
     }

@@ -140,6 +140,8 @@ public partial class FilesViewModel : ViewModelBase
     
     public override async Task Initialize()
     {
+        if (UEParse.Provider is null) return;
+        
         BuildFileList();
         
         var assetFilter = this

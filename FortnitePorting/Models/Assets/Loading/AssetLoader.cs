@@ -224,7 +224,7 @@ public partial class AssetLoader : ObservableObject
         var manuallyDefinedAssets = ManuallyDefinedAssets.Value;
         TotalAssets = Assets.Count + manuallyDefinedAssets.Length + CustomAssets.Length;
         
-        await Parallel.ForEachAsync(Assets, new ParallelOptions { MaxDegreeOfParallelism = int.Clamp(Environment.ProcessorCount * 2, 4, 64) }, 
+        await Parallel.ForEachAsync(Assets, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, 
             async (asset, ct) =>
             {
                 await WaitIfPausedAsync();
