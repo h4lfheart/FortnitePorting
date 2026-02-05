@@ -68,11 +68,17 @@ public class HybridFileProvider : AbstractVfsFileProvider
             }
         }
     }
+    
     public void RegisterFiles(FBuildPatchAppManifest manifest)
     {
+        var targetCacheDirectory = Path.Combine(UEParse.CacheFolder.FullName, "uondemandtoc", manifest.Meta.BuildVersion);
+        Directory.CreateDirectory(targetCacheDirectory);
+        
         foreach (var file in manifest.Files)
         {
             if (!file.FileName.Contains("FortniteGame/Content/Paks")) continue;
+            
+            UEParse.UpdateStatus($"Registering On-Demand Archive {file.FileName.SubstringAfterLast("/")}");
             
             var extension = file.FileName.SubstringAfter('.').ToLower();
             if (extension is "pak" or "utoc")
@@ -84,7 +90,14 @@ public class HybridFileProvider : AbstractVfsFileProvider
 
             if (extension is "uondemandtoc")
             {
-                var ioChunkToc = new IoChunkToc(new FStreamArchive(file.FileName, file.GetStream()));
+                var targetPath = Path.Combine(targetCacheDirectory, file.FileName.SubstringAfterLast("/"));
+                if (!File.Exists(targetPath))
+                {
+                    using var fileStream = new FileStream(targetPath, FileMode.Create, FileAccess.Write);
+                    file.GetStream().CopyTo(fileStream);
+                }
+                
+                var ioChunkToc = new IoChunkToc(targetPath);
                 RegisterVfs(ioChunkToc, OnDemandOptions);
             }
 

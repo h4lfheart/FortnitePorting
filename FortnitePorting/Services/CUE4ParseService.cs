@@ -80,7 +80,7 @@ public partial class CUE4ParseService : ObservableObject, IService
 
     private const EGame LATEST_GAME_VERSION = EGame.GAME_UE5_8;
     
-    public static DirectoryInfo CacheFolder => new(Path.Combine(App.ApplicationDataFolder.FullName, ".cache"));
+    public DirectoryInfo CacheFolder => new(Path.Combine(App.ApplicationDataFolder.FullName, ".cache"));
 
     public CUE4ParseService()
     {
@@ -158,7 +158,10 @@ public partial class CUE4ParseService : ObservableObject, IService
         UpdateStatus("Submitting Keys");
         await LoadKeys();
         
-        UpdateStatus("Loading Virtual Paths");
+        UpdateStatus(AppSettings.Installation.CurrentProfile.FortniteVersion is EFortniteVersion.LatestOnDemand 
+            ? "Loading Virtual Paths (This may take a while)" 
+            : "Loading Virtual Paths");
+        
         Provider.LoadVirtualPaths();
         Provider.PostMount();
         
@@ -171,7 +174,7 @@ public partial class CUE4ParseService : ObservableObject, IService
         
         await LoadAssetRegistries();
 
-        UpdateStatus("Loading Application Assets");
+        UpdateStatus("Loading Required Assets");
         await LoadApplicationAssets();
         
         UpdateStatus(string.Empty);
@@ -179,7 +182,7 @@ public partial class CUE4ParseService : ObservableObject, IService
         FinishedLoading = true;
     }
 
-    private void UpdateStatus(string status)
+    public void UpdateStatus(string status)
     {
         Status = status;
         if (!string.IsNullOrEmpty(status))
@@ -278,8 +281,6 @@ public partial class CUE4ParseService : ObservableObject, IService
                 
                 var (manifest, element) = await manifestInfo.DownloadAndParseAsync(options);
                 LiveManifest = manifest;
-
-                UpdateStatus($"Loading Fortnite On-Demand (This may take a while)");
 
                 Provider.RegisterFiles(manifest);
                 
