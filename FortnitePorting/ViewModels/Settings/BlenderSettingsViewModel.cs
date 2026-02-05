@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse_Conversion;
 using CUE4Parse_Conversion.Animations;
 using CUE4Parse_Conversion.Meshes;
+using CUE4Parse.UE4.Assets.Exports.Nanite;
 using FortnitePorting.Export;
 
 namespace FortnitePorting.ViewModels.Settings;
@@ -52,6 +53,7 @@ public partial class BlenderSettingsViewModel : BaseExportSettings
             LodFormat = ELodFormat.AllLods,
             MeshFormat = EMeshFormat.UEFormat,
             AnimFormat = EAnimFormat.UEFormat,
+            NaniteMeshFormat = ENaniteMeshFormat.OnlyNormalLODs,
             CompressionFormat = CompressionFormat,
             ExportMorphTargets = true,
             ExportMaterials = false

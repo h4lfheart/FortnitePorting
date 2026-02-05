@@ -8,6 +8,7 @@ using CUE4Parse_Conversion;
 using CUE4Parse_Conversion.Animations;
 using CUE4Parse_Conversion.Meshes;
 using CUE4Parse_Conversion.UEFormat.Enums;
+using CUE4Parse.UE4.Assets.Exports.Nanite;
 using CUE4Parse.UE4.Versions;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
@@ -72,7 +73,8 @@ public partial class BaseExportSettings : ViewModelBase
         {
             MeshFormat = MeshFormat,
             AnimFormat = AnimFormat,
-            CompressionFormat = CompressionFormat
+            CompressionFormat = CompressionFormat,
+            NaniteMeshFormat = ENaniteMeshFormat.OnlyNormalLODs
         };
     }
 }

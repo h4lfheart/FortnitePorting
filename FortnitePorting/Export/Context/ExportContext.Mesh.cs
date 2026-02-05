@@ -66,7 +66,7 @@ public partial class ExportContext
     public T? Mesh<T>(UStaticMesh? mesh) where T : ExportMesh, new()
     {
         if (mesh is null) return null;
-        if (!mesh.TryConvert(out var convertedMesh)) return null;
+        if (!mesh.TryConvert(out var convertedMesh, out var naniteLod)) return null;
         if (convertedMesh.LODs.Count <= 0) return null;
 
         var exportPart = new T

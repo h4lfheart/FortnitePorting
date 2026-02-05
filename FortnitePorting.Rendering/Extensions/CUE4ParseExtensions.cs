@@ -39,7 +39,7 @@ public static class CUE4ParseExtensions
     
     public static CStaticMesh Convert(this UStaticMesh staticMesh)
     {
-        staticMesh.TryConvert(out var convertedMesh);
+        staticMesh.TryConvert(out var convertedMesh,  out _);
         return convertedMesh;
     }
     
