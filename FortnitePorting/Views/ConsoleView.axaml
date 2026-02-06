@@ -55,6 +55,7 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <controls:ContentCard Padding="{ext:Space 1}" Margin="{ext:Space 0, 0, 0, 1}"
+                                              Cursor="Hand" PointerPressed="OnPointerPressed"
                             Classes.Error="{Binding Level, 
                                 Converter={StaticResource EnumEquals}, 
                                 ConverterParameter={x:Static information:ELogEventType.Error}}"

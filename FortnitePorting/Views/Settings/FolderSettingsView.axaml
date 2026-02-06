@@ -18,6 +18,12 @@
             
             <TextBlock Text="General" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
             
+            <controls:SettingsItem Title="Open Export Folders" Description="Whether or not assets' folders should be opened upon exporting.">
+                <controls:SettingsItem.Footer>
+                    <ToggleSwitch IsChecked="{Binding OpenFoldersOnExport}"/>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
+            
             <controls:SettingsItem Title="Compression" Description="The type of compression that should be used on 'UE Format' assets.">
                 <controls:SettingsItem.Footer>
                     <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type enums:EFileCompressionFormat}}"

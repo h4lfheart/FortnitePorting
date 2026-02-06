@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Avalonia.Controls.Shapes;
 using CUE4Parse.GameTypes.FN.Assets.Exports.DataAssets;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Texture;
@@ -7,6 +8,8 @@ using FortnitePorting.Extensions;
 using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Models.Unreal;
 using FortnitePorting.Shared.Extensions;
+using FortnitePorting.ViewModels.Settings;
+using Path = System.IO.Path;
 
 namespace FortnitePorting.Exporting.Types;
 
@@ -51,16 +54,25 @@ public class TextureExport : BaseExport
             }
         }
 
+        var textureOpenPaths = new HashSet<string>();
         foreach (var texture in textures)
         {
             if (metaData.ExportLocation.IsFolder)
             {
-                Exporter.Export(texture, returnRealPath: true, synchronousExport: true);
+                var exportPath = Exporter.Export(texture, returnRealPath: true, synchronousExport: true);
+                if (Path.GetDirectoryName(exportPath) is { } exportFolder)
+                    textureOpenPaths.Add(exportFolder);
             }
             else
             {
                 Textures.Add(new ExportTexture(Exporter.Export(texture), texture.SRGB, texture.CompressionSettings));
             }
+        }
+
+        if (metaData.ExportLocation.IsFolder &&
+            metaData.Settings is FolderSettingsViewModel { OpenFoldersOnExport: true })
+        {
+            textureOpenPaths.ForEach(path => App.Launch(path));
         }
        
     }

@@ -8,6 +8,7 @@ namespace FortnitePorting.ViewModels.Settings;
 public partial class FolderSettingsViewModel : BaseExportSettings
 {
     [ObservableProperty] private ELodFormat _lodFormat = ELodFormat.AllLods;
+    [ObservableProperty] private bool _openFoldersOnExport;
     
     public override ExporterOptions CreateExportOptions()
     {

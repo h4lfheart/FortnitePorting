@@ -24,7 +24,7 @@ public partial class FortnitePortingApp : Avalonia.Application
 
         if (Styles.OfType<FluentAvaloniaTheme>().FirstOrDefault() is { } fluentTheme)
         {
-            fluentTheme.CustomAccentColor = Color.Parse("#303030");
+            fluentTheme.CustomAccentColor = Color.Parse("#953bf8");
         }
         
         AppServices.Initialize();

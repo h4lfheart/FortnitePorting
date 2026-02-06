@@ -140,6 +140,11 @@ public partial class InfoService : ObservableObject, IService, ILogEventSink
         Dialog("An unhandled exception has occurred", exceptionString, buttons: [
             new DialogButton
             {
+                Text = "Open Console",
+                Action = () => Navigation.App.Open<ConsoleView>()
+            },
+            new DialogButton
+            {
                 Text = "Open Logs Folder",
                 Action = () => App.LaunchSelected(LogFilePath)
             }

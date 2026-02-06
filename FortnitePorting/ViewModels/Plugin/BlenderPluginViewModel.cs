@@ -18,6 +18,8 @@ public partial class BlenderPluginViewModel : ViewModelBase
     [ObservableProperty] private ObservableCollection<BlenderInstallation> _installations = [];
     [ObservableProperty, JsonIgnore] private int _selectedInstallationIndex = 0;
 
+    [ObservableProperty] private bool _completedFirstInstall;
+
     public override async Task Initialize()
     {
         if (!BlenderInstallation.PluginWorkingDirectory.Exists)
@@ -46,7 +48,7 @@ public partial class BlenderPluginViewModel : ViewModelBase
         
         if (blenderVersion < BlenderInstallation.MinimumVersion)
         {
-            Info.Message("Blender Extension", 
+            Info.Message("Blender Plugin", 
                 $"Blender {blenderVersion} is too low of a version. Only Blender {BlenderInstallation.MinimumVersion} and higher are supported.", 
                 InfoBarSeverity.Error, autoClose: false);
             return;
@@ -72,6 +74,12 @@ public partial class BlenderPluginViewModel : ViewModelBase
         await TaskService.RunAsync(() =>
         {
             installation.Install();
+
+            if (!CompletedFirstInstall)
+            {
+                Info.Message("Blender Plugin", "In Fortnite Porting V4, you no longer need to enable the plugin in Blender. The plugin should now be working as is and you are free to continue!", autoClose: false);
+                CompletedFirstInstall = true;
+            }
         });
     }
 
