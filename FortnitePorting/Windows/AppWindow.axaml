@@ -343,6 +343,7 @@
                                     Content="{Binding Content}"/>
                     
                     <ItemsControl Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" 
+                                  IsVisible="{Binding !!Buttons.Count}"
                                   Margin="{ext:Space 0, 2, 0, 0}"
                                   ItemsSource="{Binding Buttons}"
                                   ClipToBounds="False">

@@ -67,9 +67,8 @@ public partial class AppWindowModel(
     public async Task Update()
     {
         var remoteHash = Api.GetHash(PORTLE_URL) ?? string.Empty;
-        var localHash = Settings.Developer.PortlePath.GetHash();
         
-        if (!File.Exists(Settings.Developer.PortlePath) || (!Settings.Developer.UsePortlePath && !remoteHash.Equals(localHash, StringComparison.OrdinalIgnoreCase)))
+        if (!File.Exists(Settings.Developer.PortlePath) || (!Settings.Developer.UsePortlePath && !remoteHash.Equals(Settings.Developer.PortlePath.GetHash(), StringComparison.OrdinalIgnoreCase)))
         {
             Log.Information($"Updating portle executable from {PORTLE_URL} at {Settings.Developer.PortlePath}");
             await Api.DownloadFileAsync(PORTLE_URL, Settings.Developer.PortlePath);
@@ -106,6 +105,18 @@ public partial class AppWindowModel(
         if (newestVersion is null || newestVersion.Version <= Globals.Version) return;
         
         UpdateVersion = newestVersion;
+
+        if (DateTime.Today > newestVersion.UploadTime.AddDays(6))
+        {
+            var outOfDateDays = DateTime.Today - newestVersion.UploadTime;
+            Info.Dialog($"Update {newestVersion.Version}", $"Your Fortnite Porting is {outOfDateDays.Days} days out of date, please consider updating.", buttons: [
+                new DialogButton
+                {
+                    Text = "Update",
+                    Action = () => TaskService.Run(Update)
+                }
+            ]);
+        }
     }
 
 }
