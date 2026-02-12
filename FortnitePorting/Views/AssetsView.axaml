@@ -258,10 +258,10 @@
                                                     <Grid>
                                                         <Image Stretch="UniformToFill"
                                                                Source="{Binding BackgroundImage}"
-                                                               RenderOptions.BitmapInterpolationMode="HighQuality" />
+                                                               RenderOptions.BitmapInterpolationMode="LowQuality" />
                                                         <Image Stretch="UniformToFill"
                                                                Source="{Binding IconDisplayImage}"
-                                                               RenderOptions.BitmapInterpolationMode="HighQuality" />
+                                                               RenderOptions.BitmapInterpolationMode="LowQuality" />
                                                     </Grid>
                                                 </Border>
                                                 <Image IsVisible="{Binding IsFavorite}"

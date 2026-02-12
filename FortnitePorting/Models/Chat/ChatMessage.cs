@@ -1,4 +1,5 @@
 using System;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -36,7 +37,7 @@ public partial class ChatMessage : ObservableObject
     
     [ObservableProperty] private bool _isEditing;
 
-    [ObservableProperty] private ObservableDictionary<string, ChatMessage> _replyMessages = [];
+    [ObservableProperty] private ObservableCollection<ChatMessage> _replyMessages = [];
 
     public string? FullImageUrl => ImagePath is not null
         ? $"https://supabase.fortniteporting.app/storage/v1/object/public/{ImagePath}"

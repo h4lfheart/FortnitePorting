@@ -3,7 +3,6 @@ namespace FortnitePorting.Models.API.Responses;
 public class OnlineResponse
 {
     public OnlineStatus Chat { get; set; } = new();
-    public OnlineStatus Voting { get; set; } = new();
     public OnlineStatus Leaderboard { get; set; } = new();
 }
 

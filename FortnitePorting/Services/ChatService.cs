@@ -170,7 +170,7 @@ public partial class ChatService : ObservableObject, IService
             }
 
             var addedCount = 0;
-            foreach (var message in messages)
+            foreach (var message in messages.OrderBy(x => x.ReplyId is not null))
             {
                 if (_messageCache.Lookup(message.Id).HasValue) continue;
                 
@@ -296,7 +296,7 @@ public partial class ChatService : ObservableObject, IService
                 {
                     var updatedMessage = broadcast.Get<Message>("message").Adapt<ChatMessage>();
                     var targetMessage = updatedMessage.ReplyId is not null
-                        ? _messageCache.Lookup(updatedMessage.ReplyId).Value.ReplyMessages[updatedMessage.Id]
+                        ? _messageCache.Lookup(updatedMessage.ReplyId).Value.ReplyMessages.FirstOrDefault(reply => reply.Id.Equals(updatedMessage.Id))
                         : _messageCache.Lookup(updatedMessage.Id).Value;
 
                     targetMessage.Text = updatedMessage.Text;
@@ -312,7 +312,7 @@ public partial class ChatService : ObservableObject, IService
                     
                     if (replyId is not null)
                     {
-                        _messageCache.Lookup(replyId).Value.ReplyMessages.Remove(messageId);
+                        _messageCache.Lookup(replyId).Value.ReplyMessages.RemoveAll(reply => reply.Id.Equals(replyId));
                     }
                     else
                     {
@@ -338,7 +338,8 @@ public partial class ChatService : ObservableObject, IService
         var message = inMessage.Adapt<ChatMessage>();
         if (message.ReplyId is not null)
         {
-            _messageCache.Lookup(message.ReplyId).Value.ReplyMessages.AddOrUpdate(message.Id, message);
+            if (_messageCache.Lookup(message.ReplyId) is { HasValue: true } replyParent)
+                replyParent.Value.ReplyMessages.Add(message);
         }
         else
         {

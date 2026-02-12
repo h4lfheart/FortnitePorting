@@ -191,9 +191,10 @@ public partial class AssetLoader : ObservableObject
             .Select(CreateAssetSort);
         
         Source.Connect()
-            .ObserveOn(RxApp.MainThreadScheduler)
+            .ObserveOn(RxApp.TaskpoolScheduler)
             .Filter(AssetFilter)
             .Sort(AssetSort)
+            .ObserveOn(RxApp.MainThreadScheduler)
             .Bind(out Filtered)
             .Subscribe();
     }
@@ -349,7 +350,7 @@ public partial class AssetLoader : ObservableObject
     
     public static UTexture2D? GetIcon(UObject asset)
     {
-        return asset.GetDataListItem<UTexture2D?>( "Icon", "LargeIcon")
+        return asset.GetDataListItem<UTexture2D?>("Icon", "LargeIcon")
                ?? asset.GetAnyOrDefault<UTexture2D?>("Icon", "SmallPreviewImage", "LargeIcon", "LargePreviewImage");
     }
     

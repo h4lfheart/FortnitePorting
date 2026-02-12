@@ -379,12 +379,13 @@
                     </Border>
 
                     <controls:ContentCard CornerRadius="12" Background="Transparent" IsHitTestVisible="False" 
-                                          Height="{Binding Bounds.Width, ElementName=MapBorder}">
-                        
+                                          Height="{Binding Bounds.Width, ElementName=MapBorder}"/>
+
+                    <Grid Height="{Binding Bounds.Width, ElementName=MapBorder}">
                         <ToggleButton Content="{controls:IconText 'Include Main Level', Landscape}" IsCheckedChanged="OnMainLevelIncludeChanged"
                                       HorizontalAlignment="Center" VerticalAlignment="Bottom" IsChecked="{Binding SelectedMap.IncludeMainLevel}"
                                       Margin="{ext:Space 0, 0, 0, 1}" IsVisible="{Binding !UseMapInfoCreator}"/>
-                    </controls:ContentCard>
+                    </Grid>
                     
                     <TextBlock Text="A preview of this map is not available."
                                HorizontalAlignment="Center" VerticalAlignment="Center"

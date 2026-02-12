@@ -27,6 +27,14 @@ public partial class PropertiesPreviewWindow : WindowBase<PropertiesPreviewWindo
         InitializeComponent();
         DataContext = WindowModel;
         Owner = App.Lifetime.MainWindow;
+        
+        WindowModel.PropertyChanged += (_, args) =>
+        {
+            if (args.PropertyName == nameof(PropertiesPreviewWindowModel.SelectedAsset) && _isInitialized)
+            {
+                UpdateEditorContent();
+            }
+        };
     }
 
     protected override void OnLoaded(RoutedEventArgs e)
@@ -41,14 +49,6 @@ public partial class PropertiesPreviewWindow : WindowBase<PropertiesPreviewWindo
         StyleFoldingMargin();
         
         _isInitialized = true;
-        
-        WindowModel.PropertyChanged += (_, args) =>
-        {
-            if (args.PropertyName == nameof(PropertiesPreviewWindowModel.SelectedAsset) && _isInitialized)
-            {
-                UpdateEditorContent();
-            }
-        };
         
         if (WindowModel.SelectedAsset != null)
         {
