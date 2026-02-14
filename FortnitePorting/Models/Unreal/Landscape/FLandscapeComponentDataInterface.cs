@@ -2,6 +2,9 @@ using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Runtime.InteropServices;
+using CUE4Parse_Conversion.Textures;
+using CUE4Parse.UE4.Assets.Exports.Component.Landscape;
+using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Exceptions;
 using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Readers;
@@ -47,7 +50,7 @@ public unsafe class FLandscapeComponentDataInterface : FLandscapeComponentDataIn
 			return true;
 		}
 		
-		var weightMapTexture = Component.WeightmapTextures[layerAllocation.WeightmapTextureIndex];
+		var weightMapTexture = Component.WeightmapTextures.Value[layerAllocation.WeightmapTextureIndex];
 
 		var data = weightMapTexture.GetMip(MipLevel)!.BulkData!.Data;
 		if (data is null) throw new ParserException("Weightmap bulk data is null, cannot continue with landscape inteface.");
@@ -72,7 +75,7 @@ public unsafe class FLandscapeComponentDataInterface : FLandscapeComponentDataIn
 	{
 		VertexXYToTexelXY(vertX, vertY, out var texelX, out var texelY);
 
-		var weightmapTexture = Component.WeightmapTextures[layerAllocation.WeightmapTextureIndex];
+		var weightmapTexture = Component.WeightmapTextures.Value[layerAllocation.WeightmapTextureIndex];
 
 		var weightmapStride = weightmapTexture.PlatformData.SizeX >> MipLevel;
 		var weightmapComponentOffsetX = (int)((weightmapTexture.PlatformData.SizeX >> MipLevel) * Component.WeightmapScaleBias.Z);

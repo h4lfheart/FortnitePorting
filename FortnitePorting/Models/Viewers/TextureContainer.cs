@@ -61,16 +61,11 @@ public partial class TextureContainer : ObservableObject
 
     private void UpdateTextureInfo()
     {
-        CTexture? bitmap;
+        FTexture2DMipMap? mip = null;
         if (Texture.PlatformData.Mips.Length > 0)
-        {
-            var mip = Texture.PlatformData.Mips[TargetMipIndex];
-            bitmap = Texture.Decode(mip, zLayer: TargetLayerIndex);
-        }
-        else
-        {
-            bitmap = Texture.Decode();
-        }
+            mip = Texture.PlatformData.Mips[TargetMipIndex];
+
+        var bitmap = Texture is UTexture2DArray ? UpdateTexture2DArray(mip) : UpdateTexture2D(mip);
         
         if (bitmap is null) return;
 
@@ -78,6 +73,19 @@ public partial class TextureContainer : ObservableObject
 
         OriginalBitmap = bitmap.ToWriteableBitmap();
 
+    }
+
+    private CTexture? UpdateTexture2D(FTexture2DMipMap? mip = null)
+    {
+        return mip != null ? Texture.Decode(mip) : Texture.Decode();
+    }
+
+    private CTexture? UpdateTexture2DArray(FTexture2DMipMap? mip = null)
+    {
+        var textures = ((UTexture2DArray)Texture).DecodeTextureArray(mip);
+        if (textures == null || textures.Length == 0) return null;
+        
+        return textures.Length < TargetLayerIndex ? textures[0] : textures[TargetLayerIndex];
     }
 
     private unsafe void UpdateBitmap()

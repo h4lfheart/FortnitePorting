@@ -36,15 +36,28 @@ public partial class AssetInfo : Base.BaseAssetInfo
                 "FortCosmeticParticleVariant" => "ParticleOptions",
                 "FortCosmeticMeshVariant" => "MeshOptions",
                 "FortCosmeticGameplayTagVariant" => "GenericTagOptions",
+                "FortCosmeticRichColorVariant" => "InlineVariant",
+                "FortCosmeticMaterialParameterSetVariant" => "MaterialParameterSetChoices",
+                "FortCosmeticMorphTargetVariant" => "MorphTargetOptions",
+                "FortCosmeticLoadoutTagDrivenVariant" => "Variants",
                 _ => null
             };
 
             if (optionsName is null) continue;
+            
+            // TODO: MaterialsToAlterForAllVariantMaterialParams handling (example in Wonder Onesie color styles)
+            AssetStyleInfo styleInfo;
+            if ("FortCosmeticRichColorVariant".Equals(style.ExportType) || "FortCosmeticMaterialParameterSetVariant".Equals(style.ExportType))
+            {
+                styleInfo = new AssetStyleInfo(channel, style, "FortCosmeticMaterialParameterSetVariant".Equals(style.ExportType));
+            }
+            else
+            {
+                var options = style.Get<FStructFallback[]>(optionsName);
+                if (options.Length == 0) continue;
+                    styleInfo = new AssetStyleInfo(channel, options, Asset.IconDisplayImage, "FortCosmeticLoadoutTagDrivenVariant".Equals(style.ExportType));
+            }
 
-            var options = style.Get<FStructFallback[]>(optionsName);
-            if (options.Length == 0) continue;
-
-            var styleInfo = new AssetStyleInfo(channel, options, Asset.IconDisplayImage);
             if (styleInfo.StyleDatas.Count > 0) StyleInfos.Add(styleInfo);
         }
 
