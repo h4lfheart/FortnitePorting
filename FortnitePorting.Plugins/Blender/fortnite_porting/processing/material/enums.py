@@ -39,3 +39,10 @@ class EMaterialShadingModel(IntEnum):
     MSM_NUM = auto()
     MSM_FromMaterialExpression = auto()
     MSM_MAX = auto()
+
+class ENodeType(IntEnum):
+    NT_Base = 0
+    NT_Layer = auto()
+    NT_Core_FX = auto()
+    NT_Advanced_FX = auto()
+    NT_Build = auto()

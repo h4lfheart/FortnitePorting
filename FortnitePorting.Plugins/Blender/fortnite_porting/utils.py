@@ -3,10 +3,11 @@ import os
 from math import radians
 from mathutils import Matrix, Vector, Euler, Quaternion
 
+blend_files = ["fortnite_porting_data.blend", "fortnite_porting_materials.blend"]
 
-def ensure_blend_data():
+def ensure_blend_data_for_file(file_name):
     addon_dir = os.path.dirname(os.path.splitext(__file__)[0])
-    with bpy.data.libraries.load(os.path.join(addon_dir, "data", "fortnite_porting_data.blend")) as (data_from, data_to):
+    with bpy.data.libraries.load(os.path.join(addon_dir, "data", file_name)) as (data_from, data_to):
         for node_group in data_from.node_groups:
             if not bpy.data.node_groups.get(node_group):
                 data_to.node_groups.append(node_group)
@@ -26,6 +27,13 @@ def ensure_blend_data():
         for font in data_from.fonts:
             if not bpy.data.fonts.get(font):
                 data_to.fonts.append(font)
+
+    
+# TODO: Make dynamic from mappings_registry.blend_files list?
+def ensure_blend_data():
+    for file_name in blend_files:
+        ensure_blend_data_for_file(file_name)
+
 
 def hash_code(num):
     return hex(abs(num))[2:]
