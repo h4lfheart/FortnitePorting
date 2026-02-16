@@ -272,6 +272,11 @@ class MeshImportContext:
         instances = mesh.get("Instances")
         if len(instances) > 0:
             mesh_data = imported_mesh.data
+
+            instance_materials = []
+            for slot_mat in imported_mesh.material_slots:
+                instance_materials.append(slot_mat.material)
+
             imported_object.select_set(True)
             bpy.ops.object.delete()
             
@@ -295,6 +300,10 @@ class MeshImportContext:
                 instance_object.location = make_vector(instance_transform.get("Location"), unreal_coords_correction=True) * self.scale
                 instance_object.scale = make_vector(instance_transform.get("Scale"))
             
+                for i, slot_mat in enumerate(instance_materials):
+                    instance_object.material_slots[i].material = slot_mat
+
+
         return imported_object
     
 
