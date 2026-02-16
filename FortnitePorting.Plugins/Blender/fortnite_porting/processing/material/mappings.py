@@ -264,6 +264,80 @@ class BaseToonMappings(MappingCollection):
 
 
 @registry.register
+class BaseFoliageMappings(MappingCollection):
+    node_name="FPv4 Base Foliage"
+    type=ENodeType.NT_Base
+
+    @classmethod
+    def meets_criteria(self, material_data):
+        switches = material_data.get("Switches")
+        base_blend_mode = EBlendMode(material_data.get("BaseBlendMode"))
+        shading_model = EMaterialShadingModel(material_data.get("ShadingModel"))
+        is_trunk = get_param(switches, "IsTrunk")
+
+        is_foliage = "Grass_Base" in material_data.get("BaseMaterialPath") or (base_blend_mode is EBlendMode.BLEND_Masked and shading_model in [EMaterialShadingModel.MSM_TwoSidedFoliage, EMaterialShadingModel.MSM_Subsurface])
+        return is_foliage and not is_trunk
+
+
+    textures=(
+        SlotMapping("Diffuse"),
+        SlotMapping("DiffuseTexture", "Diffuse"),
+        SlotMapping("T_CP_Grass_Tall_01A_BC", "Diffuse"),
+        SlotMapping("MaskTexture"),
+        SlotMapping("Mask2DTexture", "MaskTexture"),
+        SlotMapping("T_CP_Grass_Tall_01A_M", "MaskTexture"),
+        SlotMapping("Normals"),
+        SlotMapping("NormalMap", "Normals"),
+        SlotMapping("NormalTexture", "Normals"),
+        SlotMapping("T_CP_Grass_Tall_01A_N", "Normals"),
+        SlotMapping("SpecularMasks", switch_slot="UseSpecularMasks"),
+        SlotMapping("SMR_Texture", "SpecularMasks", switch_slot="UseSpecularMasks"),
+        SlotMapping("T_CP_Grass_Tall_01A_S", "SpecularMasks", switch_slot="UseSpecularMasks"),
+    )
+
+    scalars=(
+        SlotMapping("Roughness Leafs", "Roughness"),
+        SlotMapping("Specular_Leafs", "Specular"),
+    )
+
+    colors=(
+        SlotMapping("Color1_Base"),
+        SlotMapping("Color2_Lit"),
+        SlotMapping("Color3_Shadows"),
+        SlotMapping("FlowerColorMult"),
+        SlotMapping("FlowerV2_FlowerOnly_ColorMult", "FlowerColorMult"),
+    )
+
+    switches=(
+        SlotMapping("UseColorBlend"),
+        SlotMapping("UseAsteriaColorSystem", "UseColorBlend"),
+        SlotMapping("UsePrimitiveDataSeasonColoring", "UseColorBlend"),
+        SlotMapping("IsFlowers"),
+        SlotMapping("IsFlowerV2", "IsFlowers"),
+    )
+
+
+@registry.register
+class BaseTrunkMappings(MappingCollection):
+    node_name="FPv4 Base Material"
+    type=ENodeType.NT_Base
+
+    @classmethod
+    def meets_criteria(self, material_data):
+        return get_param(material_data.get("Switches"), "IsTrunk")
+
+
+    textures=(
+        SlotMapping("Trunk_BaseColor", "Diffuse"),
+        SlotMapping("BaseColor_Trunk", "Diffuse"),
+        SlotMapping("Trunk_Normal", "Normals"),
+        SlotMapping("Normal_Trunk", "Normals"),
+        SlotMapping("Trunk_Specular", "SpecularMasks"),
+        SlotMapping("SMR_Trunk", "SpecularMasks"),
+    )
+
+
+@registry.register
 class BaseBeanMappings(MappingCollection):
     node_name="FPv4 Base Bean"
     type=ENodeType.NT_Base
