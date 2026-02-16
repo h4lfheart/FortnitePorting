@@ -311,6 +311,7 @@ class BaseFoliageMappings(MappingCollection):
 
     switches=(
         SlotMapping("UseColorBlend"),
+        SlotMapping("UseGrassV2", "UseColorBlend"),
         SlotMapping("UseAsteriaColorSystem", "UseColorBlend"),
         SlotMapping("UsePrimitiveDataSeasonColoring", "UseColorBlend"),
         SlotMapping("IsFlowers"),
