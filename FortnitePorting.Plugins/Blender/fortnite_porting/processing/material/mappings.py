@@ -23,6 +23,7 @@ class DefaultMappings(MappingCollection):
         SlotMapping("Concrete", "Diffuse"),
         SlotMapping("Trunk_BaseColor", "Diffuse"),
         SlotMapping("Diffuse Top", "Diffuse"),
+        SlotMapping("Diffuse Texture", "Diffuse"),
         SlotMapping("BaseColor_Trunk", "Diffuse"),
         SlotMapping("CliffTexture", "Diffuse"),
         SlotMapping("PM_Diffuse", "Diffuse"),
@@ -41,6 +42,7 @@ class DefaultMappings(MappingCollection):
         SlotMapping("S", "SpecularMasks"),
         SlotMapping("SRM", "SpecularMasks", switch_slot="SwizzleRoughnessToGreen"),
         SlotMapping("S Mask", "SpecularMasks"),
+        SlotMapping("Input S", "SpecularMasks"),
         SlotMapping("Specular Mask", "SpecularMasks"),
         SlotMapping("SpecularMask", "SpecularMasks"),
         SlotMapping("Concrete_SpecMask", "SpecularMasks"),
@@ -66,6 +68,7 @@ class DefaultMappings(MappingCollection):
         SlotMapping("_Normal", "Normals"),
         SlotMapping("NormalTexture", "Normals"),
         SlotMapping("Normal Map", "Normals"),
+        SlotMapping("BakedNormal", "Normals"),
         SlotMapping("Baked Normal", "Normals"),
 
         SlotMapping("Emission"),
@@ -86,6 +89,7 @@ class DefaultMappings(MappingCollection):
         SlotMapping("TechArtMask", "FX Mask"),
         SlotMapping("FxMask", "FX Mask"),
         SlotMapping("FX_Mask", "FX Mask"),
+        SlotMapping("Input FX", "FX Mask"),
     )
 
     scalars=(
@@ -97,6 +101,9 @@ class DefaultMappings(MappingCollection):
         SlotMapping("SpecRoughnessMax", "Roughness Max"),
         SlotMapping("RawRoughnessMax", "Roughness Max"),
         SlotMapping("Rough Max", "Roughness Max"),
+
+        SlotMapping("MetalMaskPower"),
+        SlotMapping("MetalMaskPowerIntensity", "MetalMaskPower"),
 
         SlotMapping("EmissiveBrightness", "Emission Strength"),
         SlotMapping("emissive mult", "Emission Strength"),
@@ -117,6 +124,9 @@ class DefaultMappings(MappingCollection):
 
     switches=(
         SlotMapping("SwizzleRoughnessToGreen"),
+        SlotMapping("UseMetalMaskPower"),
+        SlotMapping("MetalMaskPower", "UseMetalMaskPower"),
+        SlotMapping("useMetalMaskPowerAdjustment", "UseMetalMaskPower"),
     )
 
 
@@ -363,6 +373,14 @@ class SkinMappings(MappingCollection):
     type=ENodeType.NT_Core_FX
     order=0
 
+    @classmethod
+    def meets_criteria(self, material_data):
+        switches = material_data.get("Switches")
+        skin_switch_old = get_param(switches, "Disable Skin Material") # Default False
+        skin_switch_new = get_param(switches, "UseSkinShader") # Default True
+        use_skin = (skin_switch_old is None or not skin_switch_old) or (skin_switch_new is None or skin_switch_new)
+        return MappingCollection.meets_criteria(material_data) and use_skin
+
     colors=(
         SlotMapping("Skin Boost Color And Exponent", "Skin Color", alpha_slot="Skin Boost"),
         SlotMapping("SkinTint", "Skin Color", alpha_slot="Skin Boost"),
@@ -604,7 +622,6 @@ class ClothFuzzMappings(MappingCollection):
         SlotMapping("ClothFuzzMaskChannel", "Cloth Channel"),
 
         SlotMapping("ClothFuzz Tint"),
-        SlotMapping("Fuzz Tint", "ClothFuzz Tint"),
         SlotMapping("ClothFuzzTint", "ClothFuzz Tint"),
         SlotMapping("Cloth Fuzz Tint", "ClothFuzz Tint"),
     )
@@ -641,6 +658,7 @@ class SilkMappings(MappingCollection):
     colors=(
         SlotMapping("SilkMaskChannel"),
         SlotMapping("Silk_Channel", "SilkMaskChannel"),
+        SlotMapping("Silk Channel", "SilkMaskChannel"),
 
         SlotMapping("SilkEdgeTint"),
     )
@@ -653,6 +671,7 @@ class SilkMappings(MappingCollection):
     component_masks=(
         SlotMapping("SilkMaskChannel"),
         SlotMapping("Silk_Channel", "SilkMaskChannel"),
+        SlotMapping("Silk Channel", "SilkMaskChannel"),
     )
 
 
