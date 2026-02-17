@@ -691,6 +691,12 @@ class ClothFuzzMappings(MappingCollection):
         SlotMapping("Cloth_BaseColorIntensity", "Cloth Base Color Intensity"),
         SlotMapping("Cloth Roughness"),
         SlotMapping("Cloth_Roughness", "Cloth Roughness"),
+        SlotMapping("Cloth Scattering Min"),
+        SlotMapping("ClothScatteringMin", "Cloth Scattering Min"),
+        SlotMapping("Cloth Scattering Max"),
+        SlotMapping("ClothScatteringMax", "Cloth Scattering Max"),
+        SlotMapping("Cloth Shader Intensity"),
+        SlotMapping("ClothShaderIntensity", "Cloth Shader Intensity"),
     )
 
     colors=(
