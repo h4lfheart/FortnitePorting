@@ -473,7 +473,6 @@ class MaterialImportContext:
         def add_shader_module(mapping):
             nonlocal node_position
             nonlocal previous_node
-            Log.info(f"Adding node: {mapping.node_name}")
             new_node = nodes.new(type="ShaderNodeGroup")
             new_node.node_tree = bpy.data.node_groups.get(mapping.node_name)
             new_node.location = (node_position, 0)
