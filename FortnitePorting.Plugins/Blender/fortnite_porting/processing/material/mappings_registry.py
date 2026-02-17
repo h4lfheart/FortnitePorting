@@ -49,11 +49,11 @@ class LayerMappingsTemplate():
         return False
 
     LAYER_TEXTURE_TEMPLATES = ()
-    LAYER_SCALARS_TEMPLATES = ()
-    LAYER_COLORS_TEMPLATES = ()
-    LAYER_VECTORS_TEMPLATES = ()
+    LAYER_SCALAR_TEMPLATES = ()
+    LAYER_COLOR_TEMPLATES = ()
+    LAYER_VECTOR_TEMPLATES = ()
     LAYER_SWITCH_TEMPLATES = ()
-    LAYER_COMPONENT_MASKS_TEMPLATES = ()
+    LAYER_COMPONENT_MASK_TEMPLATES = ()
 
     @classmethod
     def textures(self, index):
@@ -61,15 +61,15 @@ class LayerMappingsTemplate():
 
     @classmethod
     def scalars(self, index):
-        return create_layer_slots(self.LAYER_SWITCH_TEMPLATES, index)
+        return create_layer_slots(self.LAYER_SCALAR_TEMPLATES, index)
 
     @classmethod
     def colors(self, index):
-        return create_layer_slots(self.LAYER_COLORS_TEMPLATES, index)
+        return create_layer_slots(self.LAYER_COLOR_TEMPLATES, index)
 
     @classmethod
     def vectors(self, index):
-        return create_layer_slots(self.LAYER_VECTORS_TEMPLATES, index)
+        return create_layer_slots(self.LAYER_VECTOR_TEMPLATES, index)
 
     @classmethod
     def switches(self, index):
@@ -77,7 +77,7 @@ class LayerMappingsTemplate():
 
     @classmethod
     def component_masks(self, index):
-        return create_layer_slots(self.LAYER_COMPONENT_MASKS_TEMPLATES, index)
+        return create_layer_slots(self.LAYER_COMPONENT_MASK_TEMPLATES, index)
 
 
 class SlotMapping:

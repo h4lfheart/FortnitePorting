@@ -45,7 +45,14 @@ vertex_crunch_names = ["MI_VertexCrunch", "M_VertexCrunch", "M_Invis", "Transpar
 
 toon_outline_names = ["Outline", "Toon_Lines"]
 
-glass_master_names = ["M_MED_Glass_Master", "M_GlassParent", "M_MED_Glass_WithDiffuse", "M_Valet_Glass_Master"]
+glass_master_names = [
+    "M_MED_Glass_Master", 
+    "M_GlassParent", 
+    "M_MED_Glass_WithDiffuse", 
+    "M_Valet_Glass_Master", 
+    "M_Sedan_Getaway_Glass", 
+    "M_Sedan_NeonCity_Glass"
+]
 
 lite_shader_types = [EExportType.PROP, EExportType.PREFAB, EExportType.WORLD]
 

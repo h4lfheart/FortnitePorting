@@ -340,6 +340,41 @@ class BaseTrunkMappings(MappingCollection):
 
 
 @registry.register
+class BaseValetMappings(MappingCollection):
+    node_name="FPv4 Base Valet"
+    type=ENodeType.NT_Base
+
+    @classmethod
+    def meets_criteria(self, material_data):
+        return "M_FN_Valet_Master" in material_data.get("BaseMaterialPath")
+
+
+    textures=(
+        SlotMapping("Mask", alpha_slot="Mask Alpha"),
+        SlotMapping("Diffuse"),
+        SlotMapping("Gmap/Emissive/Lights", alpha_slot="Gmap/Emissive/Lights Alpha"),
+        SlotMapping("Normal"),
+        SlotMapping("Specular Mask"),
+    )
+
+    scalars=(
+        SlotMapping("CC_defaultlayer", "Clearcoat Base Weight"),
+        SlotMapping("CCR_defaultlayer", "Clearcoat Base Roughness"),
+        SlotMapping("EmissiveTexturePower", "Emissive Texture Power"),
+        SlotMapping("Override Emissive Mask Full"),
+    )
+
+    colors=(
+        SlotMapping("Emissive Color"),
+        SlotMapping("DiffuseToEmissiveColorScale"),
+    )
+
+    switches=(
+        SlotMapping("AddDiffuseToEmissive"),
+    )
+
+
+@registry.register
 class BaseBeanMappings(MappingCollection):
     node_name="FPv4 Base Bean"
     type=ENodeType.NT_Base
@@ -440,6 +475,39 @@ class ParentLayerMappings(LayerMappingsTemplate):
 
 
 create_layer_mappings(ParentLayerMappings, "")
+
+
+class ParentValetLayerMappings(LayerMappingsTemplate):
+    node_name="FPv4 Valet Layer"
+    type=ENodeType.NT_Layer
+
+    @classmethod
+    def meets_criteria_dynamic(self, material_data, index):
+        index_string = str(index)
+        has_layer_scalar = first(material_data.get("Scalars"), lambda param: f"Layer 0{index_string}" in param.get("Name").casefold())
+        return BaseValetMappings.meets_criteria(material_data) and (has_layer_scalar or get_param(material_data.get("Vectors"), f"Layer 0{index_string} Color") is not None)
+
+
+    LAYER_SCALAR_TEMPLATES = (
+        SlotMapping("Layer 0# Metalness", "Metalness"),
+        SlotMapping("Layer 0# Roughness Min", "Roughness Min"),
+        SlotMapping("Layer 0# Roughness Max", "Roughness Max"),
+        SlotMapping("Layer 0# Specular", "Specular"),
+        SlotMapping("Layer 0# Clearcoat", "Clearcoat"),
+        SlotMapping("Layer 0# Clearcoat Roughness Min", "Clearcoat Roughness Min"),
+        SlotMapping("Layer 0# Clearcoat Roughness Max", "Clearcoat Roughness Max"),
+    )
+
+    LAYER_COLOR_TEMPLATES = (
+        SlotMapping("Layer 0# Color", "Color"),
+    )
+
+    @classmethod
+    def scalars(self, index):
+        return create_layer_slots(self.LAYER_SCALAR_TEMPLATES, index) + (SlotMapping("Layer", default=index),)
+
+
+create_layer_mappings(ParentValetLayerMappings, "Valet", 1, 4)
 # End Layer groups
 
 # Start basic FX groups
@@ -969,7 +1037,6 @@ class GlassMappings(MappingCollection):
         SlotMapping("Color_DarkTint"),
         SlotMapping("GlassDiffuse"),
         SlotMapping("Diffuse Texture with Alpha Mask", "GlassDiffuse", alpha_slot="Mask"),
-        SlotMapping("PM_Diffuse", "GlassDiffuse"),
     )
 
     scalars=(
@@ -1022,6 +1089,109 @@ class GlassMappings(MappingCollection):
         SlotMapping("useDiffuseMap", "Diffuse"),
         SlotMapping("useSRM", "Use SRM"),
         SlotMapping("UseTextureOpacity", "Texture Opacity"),
+    )
+
+
+@registry.register
+class ValetScratchGrimeMappings(MappingCollection):
+    node_name="FPv4 Valet ScratchGrime"
+    type=ENodeType.NT_Advanced_FX
+    order=1
+
+    @classmethod
+    def meets_criteria(self, material_data):
+        return BaseValetMappings.meets_criteria(material_data) and super().meets_criteria(material_data)
+
+    textures=(
+        SlotMapping("Scratch/Grime/EMPTY"),
+    )
+
+    scalars=(
+        SlotMapping("Grime Spread"),
+        SlotMapping("Grime Intensity"),
+        SlotMapping("GrimeTintOverride", "Grime Tint Override"),
+        SlotMapping("Grime Metallic Multiplier"),
+        SlotMapping("Grime Roughness"),
+        SlotMapping("Grime Spec"),
+
+        SlotMapping("Scratch Intensity"),
+        SlotMapping("ScratchTintOverride", "Scratch Tint Override"),
+        SlotMapping("Scratch Base Color Desaturation"),
+        SlotMapping("Scratch Metalness Multiplier"),
+        SlotMapping("Scratch Roughness Multiplier"),
+        SlotMapping("Scratch Specular Multiplier"),
+    )
+
+    colors=(
+        SlotMapping("Scratch Tint"),
+        SlotMapping("Grime Tint"),
+    )
+
+
+@registry.register
+class ValetDecalMappings(MappingCollection):
+    node_name="FPv4 Valet Decal"
+    type=ENodeType.NT_Advanced_FX
+    order=2
+    node_spacing=700
+
+    @classmethod
+    def meets_criteria(self, material_data):
+        return BaseValetMappings.meets_criteria(material_data) and get_param(material_data.get("Switches"), "Use Decal") and get_param(material_data.get("Textures"), "Decal") is not None
+
+    textures=(
+        SlotMapping("Decal", "Decal Texture", closure=True),
+    )
+
+    scalars=(
+        SlotMapping("Decal Metallic"),
+        SlotMapping("Decal Roughness"),
+        SlotMapping("Decal Specular"),
+        SlotMapping("Decal Clearcoat"),
+    )
+
+    switches=(
+        SlotMapping("Use Decal"),
+        SlotMapping("use Second UV Channel for Decal", "Use Second UV Channel for Decal"),
+    )
+
+
+@registry.register
+class ValetLightsMappings(MappingCollection):
+    node_name="FPv4 Valet Lights"
+    type=ENodeType.NT_Advanced_FX
+    order=3
+    node_spacing=700
+
+    @classmethod
+    def meets_criteria(self, material_data):
+        return BaseValetMappings.meets_criteria(material_data)
+
+    textures=(
+        SlotMapping("ReverseLightMask", "ReverseLight Mask", closure=True),
+    )
+
+    scalars=(
+        SlotMapping("BlinkRate"),
+
+        SlotMapping("ReverseContrast", "ReverseLight Contrast"),
+        SlotMapping("ReversLightUV_TopLeft_X", "ReverseLight UV_TopLeft_X"),
+        SlotMapping("ReversLightUV_TopLeft_Y", "ReverseLight UV_TopLeft_Y"),
+        SlotMapping("ReversLightUV_BottomRight_X", "ReverseLight UV_BottomRight_X"),
+        SlotMapping("ReversLightUV_BottomRight_y", "ReverseLight UV_BottomRight_Y"),
+    )
+
+    colors=(
+        SlotMapping("Headlight Color"),
+
+        SlotMapping("Taillight Color"),
+        SlotMapping("TaillightBrakingColor", "Taillight Brake Color"),
+
+        SlotMapping("ReverseLight Color"),
+    )
+
+    switches=(
+        SlotMapping("ModulateEmissiveAgainstBaseColor"),
     )
 
 

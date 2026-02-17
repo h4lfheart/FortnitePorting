@@ -374,6 +374,7 @@ class MaterialImportContext:
                     node.image.colorspace_settings.name = "sRGB" if texture.default.sRGB else "Non-Color"
                     node.interpolation = "Smart"
                     node.label = texture.slot
+                    node.width = 250
                     node.hide = True
                     x, y = get_socket_pos(target_node, target_node.inputs.find(texture.slot))
                     if texture.closure:
