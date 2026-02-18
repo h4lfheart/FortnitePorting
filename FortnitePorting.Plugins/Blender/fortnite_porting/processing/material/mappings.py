@@ -523,7 +523,7 @@ class SkinMappings(MappingCollection):
         skin_switch_old = get_param(switches, "Disable Skin Material") # Default False
         skin_switch_new = get_param(switches, "UseSkinShader") # Default True
         use_skin = (skin_switch_old is None or not skin_switch_old) or (skin_switch_new is None or skin_switch_new)
-        return MappingCollection.meets_criteria(material_data) and use_skin
+        return super().meets_criteria(material_data) and use_skin
 
     colors=(
         SlotMapping("Skin Boost Color And Exponent", "Skin Color", alpha_slot="Skin Boost"),
