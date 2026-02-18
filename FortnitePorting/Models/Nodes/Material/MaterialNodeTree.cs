@@ -746,7 +746,7 @@ public class MaterialNodeTree : NodeTree
     private void AddColorInputs(ref MaterialNode node, bool includeRGBA = false)
     {
         node.AddOutput(new NodeSocket("RGB"));
-        node.Outputs.Add(new NodeSocket("R")
+        node.AddOutput(new NodeSocket("R")
         {
             SocketColor = Colors.Red
         });
