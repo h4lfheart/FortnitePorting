@@ -583,10 +583,10 @@ public class MeshExport : BaseExport
             if (tags == null) continue;
 
             if (tags.TryGetValue<FGameplayTagContainer>(out var tagsToApply, "MetaTagsToApply"))
-            metaTagsToApply.AddRange(tagsToApply.GameplayTags);
+                metaTagsToApply.AddRange(tagsToApply.GameplayTags);
 
             if (tags.TryGetValue<FGameplayTagContainer>(out var tagsToRemove, "MetaTagsToRemove"))
-            metaTagsToRemove.AddRange(tagsToRemove.GameplayTags);
+                metaTagsToRemove.AddRange(tagsToRemove.GameplayTags);
         }
 
         var metaTags = new FGameplayTagContainer(metaTagsToApply.Where(tag => !metaTagsToRemove.Contains(tag)).ToArray());
