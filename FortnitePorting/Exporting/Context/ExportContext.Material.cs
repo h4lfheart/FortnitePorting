@@ -12,6 +12,7 @@ using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using FortnitePorting.Exporting.Models;
 using FortnitePorting.Extensions;
+using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Shared.Extensions;
 
@@ -101,6 +102,102 @@ public partial class ExportContext
 
        
         return exportParametersSet;
+    }
+    
+
+    public List<ExportOverrideParameters>? OverrideColors(AssetColorStyleData colorStyle)
+    {
+        var materialsToAlter = colorStyle.StyleData.Get<FSoftObjectPath[]>("MaterialsToAlter");
+        if (materialsToAlter.Any(mat => mat.AssetPathName.IsNone)) return null;
+
+        return colorStyle.IsParamSet
+            ? ProcessParamSetOverride(colorStyle, materialsToAlter)
+            : ProcessColorSwatchOverride(colorStyle, materialsToAlter);
+    }
+    
+    private List<ExportOverrideParameters>? ProcessColorSwatchOverride(AssetColorStyleData colorStyle, FSoftObjectPath[] materialsToAlter)
+    {
+        var overrideColorValue = colorStyle.ColorData.GetOrDefault<FLinearColor>("ColorValue");
+        var paramName = colorStyle.StyleData.GetOrDefault("ColorParamName", new FName(overrideColorValue.Hex));
+        var overrideColor = new VectorParameter(paramName.Text, overrideColorValue);
+
+        List<ExportOverrideParameters> returnParams = [];
+        foreach (var materialToAlter in materialsToAlter)
+        {
+            var exportParams = new ExportOverrideParameters();
+            exportParams.Vectors.AddUnique(overrideColor);
+            exportParams.MaterialNameToAlter = materialToAlter.AssetPathName.Text.SubstringAfterLast(".");
+            exportParams.Hash = exportParams.GetHashCode();
+            returnParams.Add(exportParams);
+        }
+
+        return returnParams;
+    }
+    
+    private List<ExportOverrideParameters>? ProcessParamSetOverride(AssetColorStyleData colorStyle, FSoftObjectPath[] materialsToAlter)
+    {
+        var exportParamsTemplate = new ExportOverrideParameters();
+        var paramsToApply = colorStyle.ColorData.GetOrDefault<FStructFallback>("MaterialParamsToApply");
+
+        if (paramsToApply.TryGetValue(out FStructFallback[] colorParams, "ColorParams"))
+        {
+            foreach (var colorParam in colorParams)
+                exportParamsTemplate.Vectors.AddIfNotNull(BuildVectorSetParameter(colorParam));
+        }
+
+        if (paramsToApply.TryGetValue(out FStructFallback[] floatParams, "FloatParams"))
+        {
+            foreach (var floatParam in floatParams)
+                exportParamsTemplate.Scalars.AddIfNotNull(BuildScalarSetParameter(floatParam));
+        }
+
+        if (paramsToApply.TryGetValue(out FStructFallback[] texParams, "TextureParams"))
+        {
+            foreach (var texParam in texParams)
+                exportParamsTemplate.Textures.AddIfNotNull(BuildTextureSetParameter(texParam));
+        }
+
+        List<ExportOverrideParameters> returnParams = [];
+        foreach (var materialToAlter in materialsToAlter)
+        {
+            var exportParams = new ExportOverrideParameters();
+            exportParams.Vectors.AddRange(exportParamsTemplate.Vectors);
+            exportParams.Scalars.AddRange(exportParamsTemplate.Scalars);
+            exportParams.Textures.AddRange(exportParamsTemplate.Textures);
+            exportParams.MaterialNameToAlter = materialToAlter.AssetPathName.Text.SubstringAfterLast(".");
+            exportParams.Hash = exportParams.GetHashCode();
+            returnParams.Add(exportParams);
+        }
+
+        return returnParams;
+    }
+
+    private VectorParameter? BuildVectorSetParameter(FStructFallback param)
+    {
+        if (param.TryGetValue(out FName paramName, "ParamName")
+            && param.TryGetValue(out FLinearColor paramValue, "Value"))
+            return new VectorParameter(paramName.PlainText, paramValue);
+        
+        return null;
+    }
+
+    private ScalarParameter? BuildScalarSetParameter(FStructFallback param)
+    {
+        if (param.TryGetValue(out FName paramName, "ParamName")
+            && param.TryGetValue(out float paramValue, "Value"))
+            return new ScalarParameter(paramName.PlainText, paramValue);
+        
+        return null;
+    }
+
+    private TextureParameter? BuildTextureSetParameter(FStructFallback param)
+    {
+        if (param.TryGetValue(out FName paramName, "ParamName")
+            && param.TryGetValue(out FSoftObjectPath texturePath, "Value")
+            && texturePath.TryLoad(out UTexture texture))
+            return new TextureParameter(paramName.PlainText, new ExportTexture(Export(texture, embeddedAsset: texture.Owner != null), texture.SRGB, texture.CompressionSettings));
+
+        return null;
     }
     
     public void AccumulateParameters<T>(UMaterialInterface? materialInterface, ref T parameterCollection) where T : ParameterCollection

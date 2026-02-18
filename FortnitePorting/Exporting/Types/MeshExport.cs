@@ -33,6 +33,7 @@ public class MeshExport : BaseExport
     public readonly List<ExportMesh> OverrideMeshes = [];
     public readonly List<ExportOverrideMaterial> OverrideMaterials = [];
     public readonly List<ExportOverrideParameters> OverrideParameters = [];
+    public readonly List<ExportOverrideMorphTargets> OverrideMorphTargets = [];
     public ExportLightCollection Lights = new();
     public AnimExport? Animation;
     
@@ -345,8 +346,19 @@ public class MeshExport : BaseExport
                     Meshes.AddIfNotNull(Exporter.CharacterPart(part));
                 }
 
-                var parameterSet = new ExportOverrideParameters();
-                parameterSet.MaterialNameToAlter = "Global";
+                var bodyParams = new ExportOverrideParameters {MaterialNameToAlter = "MI_BeanChar_Body_Base"};
+                ExportOverrideParameters costumeParams = null;
+                ExportOverrideParameters headCostumeParams = null;
+                
+                // Costume material is always in slot 1 of the last mesh
+                if (Meshes.Last().Materials.Count > 1)
+                    costumeParams = new ExportOverrideParameters {MaterialNameToAlter = Meshes.Last().Materials[1].Name};
+                
+                // Head costume is a separate mesh, so we know one is used when there are 2+ meshes
+                if (Meshes.Count > 1)
+                    headCostumeParams = new ExportOverrideParameters {MaterialNameToAlter = Meshes[0].Materials[0].Name};
+                
+
                 var additionalFields = asset.GetOrDefault("AdditionalDataFields", Array.Empty<FPackageIndex>());
                 foreach (var additionalField in additionalFields)
                 {
@@ -354,31 +366,65 @@ public class MeshExport : BaseExport
                     if (field is null) continue;
                     if (!field.ExportType.Equals("BeanCosmeticItemDefinitionBase")) continue;
 
-                    void Texture(string propertyName, string shaderName)
-                    {
-                        if (!field.TryGetValue(out UTexture2D texture, propertyName)) return;
+                    // Eye
+                    ColorIndex("BodyEyesColorIndex", "Body_EyesColor", bodyParams);
+                    MaterialTypeIndex("BodyEyesMaterialTypeIndex", "Body_Eyes_MaterialProps", bodyParams);
                         
-                        parameterSet.Textures.AddUnique(new TextureParameter(shaderName, 
-                            new ExportTexture(Exporter.Export(texture), texture.SRGB, texture.CompressionSettings)));
-                    }
+                    // Main
+                    ColorIndex("BodyMainColorIndex", "Body_MainColor", bodyParams);
+                    MaterialTypeIndex("BodyMainMaterialTypeIndex", "Body_MaterialProps", bodyParams);
                     
-                    void ColorIndex(string propertyName, string shaderName)
-                    {
-                        if (!field.TryGetValue(out int index, propertyName)) return;
+                    // Pattern
+                    Texture("Body_Pattern", "Body_Pattern", bodyParams);
+                    ColorIndex("BodySecondaryColorIndex", "Body_SecondaryColor", bodyParams);
+                    MaterialTypeIndex("BodySecondaryMaterialTypeIndex", "Body_Secondary_MaterialProps", bodyParams);
+                    
+                    // Face Plate
+                    ColorIndex("BodyFaceplateColorIndex", "Body_FacePlateColor", bodyParams);
+                    MaterialTypeIndex("BodyFaceplateMaterialTypeIndex", "Body_Faceplate_MaterialProps", bodyParams);
+                    
+                    // Face Items
+                    ColorIndex("EyelashesColorIndex", "Eyelashes_Color", bodyParams);
+                    MaterialTypeIndex("EyelashesMaterialTypeIndex", "Eyelashes_MaterialProps", bodyParams);
+                    ColorIndex("GlassesFrameColorIndex", "Glasses_Frame_Color", bodyParams);
+                    MaterialTypeIndex("GlassesFrameMaterialTypeIndex", "Glasses_Frame_MaterialProps", bodyParams);
+                    ColorIndex("GlassesLensesColorIndex", "Glasses_Lense_Color", bodyParams);
+                    MaterialTypeIndex("GlassesLensesMaterialTypeIndex", "Glasses_Lense_MaterialProps", bodyParams);
 
-                        var color = UEParse.BeanstalkColors[index];
-                        parameterSet.Vectors.Add(new VectorParameter(shaderName, color.ToLinearColor()));
-                    }
-                    
-                    void MaterialTypeIndex(string propertyName, string shaderName)
+                    bodyParams.Vectors.Add(new VectorParameter("Body_GlassesEyeLashes", new FLinearColor
                     {
-                        if (!field.TryGetValue(out int index, propertyName)) return;
+                        R = field.GetOrDefault<bool>("bGlasses") ? 1 : 0,
+                        G = field.GetOrDefault<bool>("bGlassesLenses") ? 1 : 0,
+                        B = field.GetOrDefault<bool>("bEyelashes") ? 1 : 0
+                    }));
 
-                        var color = UEParse.BeanstalkMaterialProps[index];
-                        parameterSet.Vectors.Add(new VectorParameter(shaderName, color));
+                    if (costumeParams != null)
+                    {
+                        // Costume
+                        ColorIndex("CostumeMainColorIndex", "Costume_MainColor", costumeParams);
+                        MaterialTypeIndex("CostumeMainMaterialTypeIndex", "Costume_MainMaterialProps", costumeParams);
+                        ColorIndex("CostumeSecondaryColorIndex", "Costume_Secondary_Color", costumeParams);
+                        MaterialTypeIndex("CostumeSecondaryMaterialTypeIndex", "Costume_SecondaryMaterialProps", costumeParams);
+                        ColorIndex("CostumeAccentColorIndex", "Costume_AccentColor", costumeParams);
+                        MaterialTypeIndex("CostumeAccentMaterialTypeIndex", "Costume_AccentMaterialProps", costumeParams);
+                        AtlasTextureSlotIndex("CostumePatternAtlasTextureSlot", "Costume_UVPatternPosition", costumeParams);
                     }
                     
-                    void AtlasTextureSlotIndex(string propertyName, string shaderName)
+                    if (headCostumeParams != null)
+                    {
+                        // Head Costume
+                        ColorIndex("HeadCostumeMainColorIndex", "Head_Costume_MainColor", headCostumeParams);
+                        MaterialTypeIndex("HeadCostumeMainMaterialTypeIndex", "Head_Costume_MainMaterialProps", headCostumeParams);
+                        ColorIndex("HeadCostumeSecondaryColorIndex", "Head_Costume_Secondary_Color", headCostumeParams);
+                        MaterialTypeIndex("HeadCostumeSecondaryMaterialTypeIndex", "Head_Costume_SecondaryMaterialProps", headCostumeParams);
+                        ColorIndex("HeadCostumeAccentColorIndex", "Head_Costume_AccentColor", headCostumeParams);
+                        MaterialTypeIndex("HeadCostumeAccentMaterialTypeIndex", "Head_Costume_AccentMaterialProps", headCostumeParams);
+                        AtlasTextureSlotIndex("HeadCostumePatternAtlasTextureSlot", "Head_Costume_UVPatternPosition", headCostumeParams);
+                    }
+                    
+                    continue;
+                    
+                    void AtlasTextureSlotIndex(string propertyName, string shaderName, ExportOverrideParameters parameterSet)
                     {
                         if (!field.TryGetValue(out int index, propertyName))
                         {
@@ -400,61 +446,45 @@ public class MeshExport : BaseExport
                         parameterSet.Vectors.Add(new VectorParameter(shaderName, new FLinearColor(offset.X, offset.Y, offset.Z, 0)));
                     }
 
-                    // Eye
-                    ColorIndex("BodyEyesColorIndex", "Body_EyesColor");
-                    MaterialTypeIndex("BodyEyesMaterialTypeIndex", "Body_Eyes_MaterialProps");
-                    
-                    // Main
-                    ColorIndex("BodyMainColorIndex", "Body_MainColor");
-                    MaterialTypeIndex("BodyMainMaterialTypeIndex", "Body_MaterialProps");
-                    
-                    // Pattern
-                    Texture("Body_Pattern", "Body_Pattern");
-                    ColorIndex("BodySecondaryColorIndex", "Body_SecondaryColor");
-                    MaterialTypeIndex("BodySecondaryMaterialTypeIndex", "Body_Secondary_MaterialProps");
-                    
-                    // Face Plate
-                    ColorIndex("BodyFaceplateColorIndex", "Body_FacePlateColor");
-                    MaterialTypeIndex("BodyFaceplateMaterialTypeIndex", "Body_Faceplate_MaterialProps");
-                    
-                    // Face Items
-                    ColorIndex("EyelashesColorIndex", "Eyelashes_Color");
-                    MaterialTypeIndex("EyelashesMaterialTypeIndex", "Eyelashes_MaterialProps");
-                    ColorIndex("GlassesFrameColorIndex", "Glasses_Frame_Color");
-                    MaterialTypeIndex("GlassesFrameMaterialTypeIndex", "Glasses_Frame_MaterialProps");
-                    ColorIndex("GlassesLensesColorIndex", "Glasses_Lense_Color");
-                    MaterialTypeIndex("GlassesLensesMaterialTypeIndex", "Glasses_Lense_MaterialProps");
-                    
-                    // Costume
-                    ColorIndex("CostumeMainColorIndex", "Costume_MainColor");
-                    MaterialTypeIndex("CostumeMainMaterialTypeIndex", "Costume_MainMaterialProps");
-                    ColorIndex("CostumeSecondaryColorIndex", "Costume_Secondary_Color");
-                    MaterialTypeIndex("CostumeSecondaryMaterialTypeIndex", "Costume_SecondaryMaterialProps");
-                    ColorIndex("CostumeAccentColorIndex", "Costume_AccentColor");
-                    MaterialTypeIndex("CostumeAccentMaterialTypeIndex", "Costume_AccentMaterialProps");
-                    AtlasTextureSlotIndex("CostumePatternAtlasTextureSlot", "Costume_UVPatternPosition");
-                    
-                    
-                    // Head Costume
-                    ColorIndex("HeadCostumeMainColorIndex", "Head_Costume_MainColor");
-                    MaterialTypeIndex("HeadCostumeMainMaterialTypeIndex", "Head_Costume_MainMaterialProps");
-                    ColorIndex("HeadCostumeSecondaryColorIndex", "Head_Costume_Secondary_Color");
-                    MaterialTypeIndex("HeadCostumeSecondaryMaterialTypeIndex", "Head_Costume_SecondaryMaterialProps");
-                    ColorIndex("HeadCostumeAccentColorIndex", "Head_Costume_AccentColor");
-                    MaterialTypeIndex("HeadCostumeAccentMaterialTypeIndex", "Head_Costume_AccentMaterialProps");
-                    AtlasTextureSlotIndex("HeadCostumePatternAtlasTextureSlot", "Head_Costume_UVPatternPosition");
-
-                    parameterSet.Vectors.Add(new VectorParameter("Body_GlassesEyeLashes", new FLinearColor
+                    void ColorIndex(string propertyName, string shaderName, ExportOverrideParameters parameterSet)
                     {
-                        R = field.GetOrDefault<bool>("bGlasses") ? 1 : 0,
-                        G = field.GetOrDefault<bool>("bGlassesLenses") ? 1 : 0,
-                        B = field.GetOrDefault<bool>("bEyelashes") ? 1 : 0
-                    }));
+                        if (!field.TryGetValue(out int index, propertyName)) return;
+                    
+                        var color = UEParse.BeanstalkColors[index];
+                        parameterSet.Vectors.Add(new VectorParameter(shaderName, color.ToLinearColor()));
+                    }
+                    
+                    void MaterialTypeIndex(string propertyName, string shaderName, ExportOverrideParameters parameterSet)
+                    {
+                        if (!field.TryGetValue(out int index, propertyName)) return;
+                    
+                        var color = UEParse.BeanstalkMaterialProps[index];
+                        parameterSet.Vectors.Add(new VectorParameter(shaderName, color));
+                    }
+                    
+                    void Texture(string propertyName, string shaderName, ExportOverrideParameters parameterSet)
+                    {
+                        if (!field.TryGetValue(out UTexture2D texture, propertyName)) return;
+                    
+                        parameterSet.Textures.AddUnique(new TextureParameter(shaderName, 
+                            new ExportTexture(Exporter.Export(texture), texture.SRGB, texture.CompressionSettings)));
+                    }
+                }
+                    
+                bodyParams.Hash = bodyParams.GetHashCode();
+                OverrideParameters.Add(bodyParams);
+
+                if (costumeParams != null)
+                    {
+                    costumeParams.Hash = costumeParams.GetHashCode();
+                    OverrideParameters.Add(costumeParams);
                 }
 
-                parameterSet.Hash = parameterSet.GetHashCode();
-                
-                OverrideParameters.Add(parameterSet);
+                if (headCostumeParams != null)
+                {
+                    headCostumeParams.Hash = headCostumeParams.GetHashCode();
+                    OverrideParameters.Add(headCostumeParams);
+                }
                 
                 break;
             }
@@ -549,12 +579,13 @@ public class MeshExport : BaseExport
         var styleDatas = styles.Select(data => data.StyleData).ToArray();
         foreach (var style in styleDatas)
         {
-            var tags = style.Get<FStructFallback>("MetaTags");
+            var tags = style.GetOrDefault<FStructFallback?>("MetaTags");
+            if (tags == null) continue;
 
-            var tagsToApply = tags.Get<FGameplayTagContainer>("MetaTagsToApply");
+            if (tags.TryGetValue<FGameplayTagContainer>(out var tagsToApply, "MetaTagsToApply"))
             metaTagsToApply.AddRange(tagsToApply.GameplayTags);
 
-            var tagsToRemove = tags.Get<FGameplayTagContainer>("MetaTagsToRemove");
+            if (tags.TryGetValue<FGameplayTagContainer>(out var tagsToRemove, "MetaTagsToRemove"))
             metaTagsToRemove.AddRange(tagsToRemove.GameplayTags);
         }
 
@@ -576,6 +607,11 @@ public class MeshExport : BaseExport
         }
 
         foreach (var style in styleDatas) ExportStyleData(style);
+
+        var colorStyles = styles.Where(style => style is AssetColorStyleData)
+                                                 .Select(style => (AssetColorStyleData)style)
+                                                 .ToArray();
+        foreach (var colorStyle in colorStyles) OverrideParameters.AddRangeIfNotNull(Exporter.OverrideColors(colorStyle));
     }
 
     private void ExportStyleData(FStructFallback style)
@@ -595,5 +631,8 @@ public class MeshExport : BaseExport
             var overrideMesh = mesh.GetOrDefault<USkeletalMesh>("OverrideMesh");
             OverrideMeshes.AddIfNotNull(Exporter.Mesh(overrideMesh));
         }
+
+        var variantMorphTargets = style.GetOrDefault("MorphTargets", Array.Empty<FStructFallback>());
+        foreach (var morphTarget in variantMorphTargets) OverrideMorphTargets.AddIfNotNull(Exporter.OverrideMorphTargets(morphTarget));
     }
 }

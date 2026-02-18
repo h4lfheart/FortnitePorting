@@ -1,3 +1,4 @@
+using CUE4Parse.UE4.Assets.Exports.Component.Landscape;
 using CUE4Parse.UE4.Objects.Core.Math;
 
 namespace FortnitePorting.Models.Unreal.Landscape;

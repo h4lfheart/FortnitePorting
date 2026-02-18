@@ -20,6 +20,7 @@ class MeshImportContext:
         
         self.override_materials = data.get("OverrideMaterials")
         self.override_parameters = data.get("OverrideParameters")
+        self.override_morph_targets = data.get("OverrideMorphTargets")
         
         self.collection = create_or_get_collection(self.name) if self.options.get("ImportIntoCollection") else bpy.context.scene.collection
 
@@ -41,8 +42,8 @@ class MeshImportContext:
         if self.type in [EExportType.SIDEKICK]:
             master_mesh = self.imported_meshes[0]["Mesh"]
             for material in self.full_vertex_crunch_materials:
-                vertex_crunch_modifier = master_mesh.modifiers.new("FPv3 Full Vertex Crunch", type="NODES")
-                vertex_crunch_modifier.node_group = bpy.data.node_groups.get("FPv3 Full Vertex Crunch")
+                vertex_crunch_modifier = master_mesh.modifiers.new("FPv4 Full Vertex Crunch", type="NODES")
+                vertex_crunch_modifier.node_group = bpy.data.node_groups.get("FPv4 Full Vertex Crunch")
                 set_geo_nodes_param(vertex_crunch_modifier, "Material", material)
                 
         if self.type in [EExportType.OUTFIT]:
@@ -56,16 +57,16 @@ class MeshImportContext:
             self.update_preskinned_bounds(master_mesh)
             
             for material, elements in self.partial_vertex_crunch_materials.items():
-                vertex_crunch_modifier = master_mesh.modifiers.new("FPv3 Vertex Crunch", type="NODES")
-                vertex_crunch_modifier.node_group = bpy.data.node_groups.get("FPv3 Vertex Crunch")
+                vertex_crunch_modifier = master_mesh.modifiers.new("FPv4 Vertex Crunch", type="NODES")
+                vertex_crunch_modifier.node_group = bpy.data.node_groups.get("FPv4 Vertex Crunch")
 
                 set_geo_nodes_param(vertex_crunch_modifier, "Material", material)
                 for name, value in elements.items():
                     set_geo_nodes_param(vertex_crunch_modifier, name, value == 1)
                     
             for material in self.full_vertex_crunch_materials:
-                vertex_crunch_modifier = master_mesh.modifiers.new("FPv3 Full Vertex Crunch", type="NODES")
-                vertex_crunch_modifier.node_group = bpy.data.node_groups.get("FPv3 Full Vertex Crunch")
+                vertex_crunch_modifier = master_mesh.modifiers.new("FPv4 Full Vertex Crunch", type="NODES")
+                vertex_crunch_modifier.node_group = bpy.data.node_groups.get("FPv4 Full Vertex Crunch")
                 set_geo_nodes_param(vertex_crunch_modifier, "Material", material)
 
             if self.add_toon_outline:
@@ -84,6 +85,26 @@ class MeshImportContext:
 
             if anim_data := data.get("Animation"):
                 self.import_anim_data(anim_data, master_skeleton)
+
+        if self.type in [EExportType.SIDEKICK]:
+            master_mesh = self.imported_meshes[0]["Mesh"]
+            for material in self.full_vertex_crunch_materials:
+                vertex_crunch_modifier = master_mesh.modifiers.new("FPv4 Full Vertex Crunch", type="NODES")
+                vertex_crunch_modifier.node_group = bpy.data.node_groups.get("FPv4 Full Vertex Crunch")
+                set_geo_nodes_param(vertex_crunch_modifier, "Material", material)
+
+            for material, elements in self.partial_vertex_crunch_materials.items():
+                vertex_crunch_modifier = master_mesh.modifiers.new("FPv4 Vertex Crunch", type="NODES")
+                vertex_crunch_modifier.node_group = bpy.data.node_groups.get("FPv4 Vertex Crunch")
+                set_geo_nodes_param(vertex_crunch_modifier, "Material", material)
+                for name, value in elements.items():
+                    set_geo_nodes_param(vertex_crunch_modifier, name, value == 1)
+
+            shape_keys = master_mesh.data.shape_keys
+            if (len(self.override_morph_targets) > 0) and shape_keys is not None:
+                for morph_target in self.override_morph_targets:
+                    if key := best(shape_keys.key_blocks, lambda block: block.name.lower(), morph_target.get("Name").lower()):
+                        key.value = morph_target.get("Value")
 
     def import_model(self, mesh, parent=None, can_reorient=True, can_spawn_at_3d_cursor=False):
         path = mesh.get("Path")
@@ -251,6 +272,11 @@ class MeshImportContext:
         instances = mesh.get("Instances")
         if len(instances) > 0:
             mesh_data = imported_mesh.data
+
+            instance_materials = []
+            for slot_mat in imported_mesh.material_slots:
+                instance_materials.append(slot_mat.material)
+
             imported_object.select_set(True)
             bpy.ops.object.delete()
             
@@ -274,6 +300,10 @@ class MeshImportContext:
                 instance_object.location = make_vector(instance_transform.get("Location"), unreal_coords_correction=True) * self.scale
                 instance_object.scale = make_vector(instance_transform.get("Scale"))
             
+                for i, slot_mat in enumerate(instance_materials):
+                    instance_object.material_slots[i].material = slot_mat
+
+
         return imported_object
     
 

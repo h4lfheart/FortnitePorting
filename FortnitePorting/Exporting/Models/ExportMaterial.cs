@@ -44,6 +44,8 @@ public record ExportOverrideParameters : ParameterCollection
     public int Hash;
 }
 
+public record ExportOverrideMorphTargets(string Name, float Value);
+
 public record TextureParameter(string Name, ExportTexture Texture);
 
 public record ScalarParameter(string Name, float Value);

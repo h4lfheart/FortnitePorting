@@ -93,9 +93,15 @@ def merge_armatures(parts):
         if socket.casefold() == "hat":
             socket = "head"
 
+        if socket == "Tail":
         # Account for skins with lowercase tail socket bone
-        if socket == "Tail" and "tail" in master_skeleton.pose.bones:
-            socket = "tail"
+            if "tail" in master_skeleton.pose.bones:
+                socket = "tail"
+
+            # Add constraint to tail's root bone instead of on the armature
+            constraint_object(skeleton.pose.bones[0], master_skeleton, socket, [0, 0, 0])
+            return master_skeleton
+
 
         constraint_object(skeleton, master_skeleton, socket, [0, 0, 0], rot=False)
         constraint_object(skeleton, master_skeleton, socket, [0, 0, 0], loc=False, scale=False, use_inverse=True)

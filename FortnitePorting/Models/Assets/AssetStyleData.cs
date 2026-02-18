@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
+using CUE4Parse.UE4.Objects.Core.Math;
 using FortnitePorting.Extensions;
 using FortnitePorting.Models.Clipboard;
 
@@ -37,6 +38,25 @@ public partial class AssetStyleData : BaseStyleData
         StyleName = name;
         
         StyleDisplayImage = previewImage;
+    }
+    
+    public AssetStyleData(string name, FStructFallback styleData, Bitmap previewImage)
+    {
+        StyleData = styleData;
+        StyleName = name;
+        StyleDisplayImage = previewImage;
+    }
+}
+
+public partial class AssetColorStyleData : AssetStyleData
+{
+    [ObservableProperty] private FStructFallback _colorData;
+    [ObservableProperty] private bool _isParamSet;
+    
+    public AssetColorStyleData(string name, FStructFallback styleData, FStructFallback colorData, Bitmap previewImage, bool isParamSet = false) : base(name, styleData, previewImage)
+    {
+        ColorData = colorData;
+        IsParamSet = isParamSet;
     }
 }
 

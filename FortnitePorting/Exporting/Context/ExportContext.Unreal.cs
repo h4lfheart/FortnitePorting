@@ -14,6 +14,7 @@ using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using FortnitePorting.Exporting.Models;
 using FortnitePorting.Extensions;
+using FortnitePorting.Models.CUE4Parse;
 using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Models.Unreal.Lights;
 using FortnitePorting.Shared.Extensions;
@@ -235,12 +236,21 @@ public partial class ExportContext
         if (Meta.WorldFlags.HasFlag(EWorldFlags.Landscape) && actor is ALandscapeProxy landscapeProxy && landscapeProxy.ExportType != "Landscape")
         {
             var transform = landscapeProxy.GetAbsoluteTransformFromRootComponent();
+            var landscapeProcessor = new LandscapeProcessor(landscapeProxy);
+
+            var exportMesh = new ExportMesh
+            {
+                Name = landscapeProxy.Name,
+                Path = Export(landscapeProxy, embeddedAsset: true, synchronousExport: true),
+                Location = transform.Translation,
+                Scale = transform.Scale3D
+            };
             
-            var exportMesh = new ExportMesh();
-            exportMesh.Name = landscapeProxy.Name;
-            exportMesh.Path = Export(landscapeProxy, embeddedAsset: true, synchronousExport: true);
-            exportMesh.Location = transform.Translation;
-            exportMesh.Scale = transform.Scale3D;
+            for (var i = 0; i < landscapeProcessor.Components.Length; i++)
+            {
+                exportMesh.Materials.AddIfNotNull(Material(landscapeProcessor.Materials[i], i));
+            }
+
             meshes.Add(exportMesh);
         }
 

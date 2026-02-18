@@ -30,7 +30,8 @@ emissive_crop_vector_names = [
     "EmissiveUVs_RG_UpperLeftCorner_BA_LowerRightCorner",
     "Emissive Texture UVs RG_TopLeft BA_BottomRight",
     "Emissive 2 UV Positioning (RG)UpperLeft (BA)LowerRight",
-    "EmissiveUVPositioning (RG)UpperLeft (BA)LowerRight"
+    "EmissiveUVPositioning (RG)UpperLeft (BA)LowerRight",
+    "CroppedEmissiveUVs"
 ]
 
 emissive_crop_switch_names = [
@@ -44,8 +45,17 @@ vertex_crunch_names = ["MI_VertexCrunch", "M_VertexCrunch", "M_Invis", "Transpar
 
 toon_outline_names = ["Outline", "Toon_Lines"]
 
-glass_master_names = ["M_MED_Glass_Master", "M_GlassParent"]
+glass_master_names = [
+    "M_MED_Glass_Master", 
+    "M_GlassParent", 
+    "M_MED_Glass_WithDiffuse", 
+    "M_Valet_Glass_Master", 
+    "M_Sedan_Getaway_Glass", 
+    "M_Sedan_NeonCity_Glass"
+]
 
 lite_shader_types = [EExportType.PROP, EExportType.PREFAB, EExportType.WORLD]
 
 eye_names = ["M_Companion_Eyes_Parent", "M_Eyes_Parent"]
+
+vector_param_names = ["position", "scale", "rotation", "coordinate", "offset", "tiling", "pivot", "center", "uvs"]

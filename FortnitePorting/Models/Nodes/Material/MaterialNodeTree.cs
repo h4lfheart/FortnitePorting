@@ -335,9 +335,11 @@ public class MaterialNodeTree : NodeTree
         {
             case "MaterialExpressionMaterialFunctionCall":
             {
-                var materialFunction = expression.Get<FPackageIndex>("MaterialFunction");
+                if (!expression.TryGetValue(out FPackageIndex materialFunction, ["MaterialFunction", "Function"]))
+                    Log.Warning("Failed to get function information for expression: {0}", expression.Name);
+                    
                 node.Package = materialFunction;
-                node.Label = materialFunction.ResolvedObject?.Name.Text ?? "Material Function";
+                node.Label = materialFunction?.ResolvedObject?.Name.Text ?? "Material Function";
                 
                 node.Inputs.Clear();
                 var inputs = expression.GetOrDefault<FStructFallback[]>("FunctionInputs", []);

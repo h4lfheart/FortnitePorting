@@ -68,3 +68,30 @@ def get_node(shader_node, name):
         return None
 
     return links[0].from_node
+
+# Surround texture in closure and connect to socket
+def setup_closure(texture_node, socket_x, socket_y, slot_name, target_node, nodes, links):
+    closure_input = nodes.new("NodeClosureInput")
+    closure_input.width = 100
+    closure_input.hide = True
+
+    closure_output = nodes.new("NodeClosureOutput")
+    closure_output.width = 100
+    closure_output.hide = True
+    closure_output.input_items.new('VECTOR', "Vector")
+    closure_output.output_items.new('RGBA', "Color")
+    closure_output.output_items.new('FLOAT', "Alpha")
+
+    closure_input.pair_with_output(closure_output)
+    closure_input.outputs[1].hide = True
+    closure_output.inputs[2].hide = True
+
+    closure_input.location = socket_x - 510, socket_y
+    texture_node.location = socket_x - 405, socket_y
+    closure_output.location = socket_x - 150, socket_y
+
+    links.new(closure_input.outputs[0], texture_node.inputs[0])
+    links.new(texture_node.outputs[0], closure_output.inputs[0])
+    links.new(texture_node.outputs[1], closure_output.inputs[1])
+
+    links.new(closure_output.outputs[0], target_node.inputs[slot_name])

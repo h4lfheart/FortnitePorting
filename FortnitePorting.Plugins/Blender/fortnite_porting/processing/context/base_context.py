@@ -19,6 +19,7 @@ class BaseImportContext:
         self.meshes = []
         self.override_materials = []
         self.override_parameters = []
+        self.override_morph_targets = []
         self.imported_meshes = []
         self.full_vertex_crunch_materials = []
         self.partial_vertex_crunch_materials = {}
