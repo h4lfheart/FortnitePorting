@@ -475,7 +475,7 @@ public class MeshExport : BaseExport
                 OverrideParameters.Add(bodyParams);
 
                 if (costumeParams != null)
-                    {
+                {
                     costumeParams.Hash = costumeParams.GetHashCode();
                     OverrideParameters.Add(costumeParams);
                 }
