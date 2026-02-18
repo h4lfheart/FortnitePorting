@@ -15,6 +15,69 @@ from ..utils import *
 from ...utils import *
 from ...logger import Log
 
+def create_texture_node(nodes, name, image, srgb):
+    node = nodes.new(type="ShaderNodeTexImage")
+    node.image = image
+    node.image.alpha_mode = 'CHANNEL_PACKED'
+    node.image.colorspace_settings.name = "sRGB" if srgb else "Non-Color"
+    node.interpolation = "Smart"
+    node.label = name
+    node.width = 250
+    node.hide = True
+    return node
+
+def create_scalar_node(nodes, name, value):
+    node = nodes.new(type="ShaderNodeValue")
+    node.outputs[0].default_value = value
+    node.label = name
+    node.width = 250
+    return node
+
+def create_vector_node(nodes, name, value):
+    node = nodes.new(type="ShaderNodeGroup")
+    node.node_tree = bpy.data.node_groups.get("FPv4 Vector4")
+    node.inputs[0].default_value = value["R"]
+    node.inputs[1].default_value = value["G"]
+    node.inputs[2].default_value = value["B"]
+    node.inputs[3].default_value = value["A"]
+    node.label = name
+    node.width = 250
+    return node
+
+def create_color_node(nodes, name, value):
+    node = nodes.new(type="ShaderNodeRGB")
+    node.outputs[0].default_value = (value["R"], value["G"], value["B"], value["A"])
+    node.label = name
+    node.width = 250
+    return node
+
+def create_switch_node(nodes, name, value):
+    node = nodes.new("ShaderNodeGroup")
+    node.node_tree = bpy.data.node_groups.get("FPv4 Switch")
+    node.inputs[0].default_value = 1 if value else 0
+    node.label = name
+    node.width = 250
+    return node
+
+def create_uv_node(nodes, uv_map, ref_location):
+    uv = nodes.new(type="ShaderNodeUVMap")
+    uv.location = ref_location.x - 250, ref_location.y
+    uv.uv_map = uv_map
+    return uv
+
+
+def link_texture_node(nodes, links, node, target_node, mappings, x, y):
+    node.location = x - 300, y
+    node.hide = True
+    links.new(node.outputs[0], target_node.inputs[mappings.slot])
+
+    if mappings.alpha_slot:
+        links.new(node.outputs[1], target_node.inputs[mappings.alpha_slot])
+
+    if mappings.coords != "UV0":
+        uv = create_uv_node(nodes, mappings.coords, node.location)
+        links.new(uv.outputs[0], node.inputs[0])
+
 class MaterialImportContext:
     def import_material(self, material_slot, material_data, meta, as_material_data=False):
 
@@ -154,91 +217,61 @@ class MaterialImportContext:
 
             return None
 
-        unused_parameter_height = 0
-
-        # parameter handlers
-        def texture_param(data, target_mappings, target_node=shader_node, add_unused_params=False):
+        used_textures = set()
+        used_scalars = set()
+        used_vectors = set()
+        used_component_masks = set()
+        used_switches = set()
+        
+        def texture_param(data, target_mappings, target_node=shader_node):
             try:
                 name = data.get("Name")
                 path = data.get("Texture").get("Path")
                 texture_name = path.split(".")[1]
-
-                node = nodes.new(type="ShaderNodeTexImage")
-                node.image = self.import_image(path)
-                node.image.alpha_mode = 'CHANNEL_PACKED'
-                node.image.colorspace_settings.name = "sRGB" if data.get("Texture").get("sRGB") else "Non-Color"
-                node.interpolation = "Smart"
-                node.label = name
-                node.width = 250
-                node.hide = True
+                srgb = data.get("Texture").get("sRGB")
 
                 mappings = first(target_mappings.textures, lambda x: x.name.casefold() == name.casefold())
                 if mappings is None or texture_name in texture_ignore_names:
-                    if add_unused_params:
-                        nonlocal unused_parameter_height
-                        node.location = 400, unused_parameter_height
-                        unused_parameter_height -= 50
-                    else:
-                        nodes.remove(node)
                     return
 
+                node = create_texture_node(nodes, name, self.import_image(path), srgb)
                 x, y = get_socket_pos(target_node, target_node.inputs.find(mappings.slot))
                 if mappings.closure:
                     setup_closure(node, x, y, mappings.slot, target_node, nodes, links)
                 else:
-                    node.location = x - 300, y
-                    links.new(node.outputs[0], target_node.inputs[mappings.slot])
-
-                    if mappings.alpha_slot:
-                        links.new(node.outputs[1], target_node.inputs[mappings.alpha_slot])
-                    if mappings.coords != "UV0":
-                        uv = nodes.new(type="ShaderNodeUVMap")
-                        uv.location = node.location.x - 250, node.location.y
-                        uv.uv_map = mappings.coords
-                        links.new(uv.outputs[0], node.inputs[0])
+                    link_texture_node(nodes, links, node, target_node, mappings, x, y)
 
                 if mappings.switch_slot:
                     target_node.inputs[mappings.switch_slot].default_value = 1
-            except KeyError:
-                nodes.remove(node)
-                pass
+
+                used_textures.add(name.casefold())
             except Exception:
                 traceback.print_exc()
 
-        def scalar_param(data, target_mappings, target_node=shader_node, add_unused_params=False):
+        def scalar_param(data, target_mappings, target_node=shader_node):
             try:
                 name = data.get("Name")
                 value = data.get("Value")
 
-                node = nodes.new(type="ShaderNodeValue")
-                node.outputs[0].default_value = value
-                node.label = name
-                node.width = 250
-
-                if mappings := first(target_mappings.scalars, lambda x: x.name.casefold() == name.casefold()):
-                    x, y = get_socket_pos(target_node, target_node.inputs.find(mappings.slot))
-                    node.location = x - 300, y
-                    node.hide = True
-                    node.outputs[0].default_value = mappings.value_func(value) if mappings.value_func else value
-                    links.new(node.outputs[0], target_node.inputs[mappings.slot])
-                else:
-                    if add_unused_params:
-                        nonlocal unused_parameter_height
-                        node.location = 400, unused_parameter_height
-                        unused_parameter_height -= 100
-                    else:
-                        nodes.remove(node)
+                mappings = first(target_mappings.scalars, lambda x: x.name.casefold() == name.casefold())
+                if mappings is None:
                     return
+
+                node = create_scalar_node(nodes, name, value)
+                x, y = get_socket_pos(target_node, target_node.inputs.find(mappings.slot))
+                node.location = x - 300, y
+                node.hide = True
+                node.outputs[0].default_value = mappings.value_func(value) if mappings.value_func else value
+                links.new(node.outputs[0], target_node.inputs[mappings.slot])
 
                 if mappings.switch_slot:
                     target_node.inputs[mappings.switch_slot].default_value = 1 if value else 0
-            except KeyError:
-                nodes.remove(node)
-                pass
+
+                used_scalars.add(name.casefold())
             except Exception:
                 traceback.print_exc()
 
-        def vector_param(data, target_mappings, target_node=shader_node, add_unused_params=False):
+        def vector_param(data, target_mappings, target_node=shader_node):
             try:
                 name = data.get("Name")
                 value = data.get("Value")
@@ -252,154 +285,82 @@ class MaterialImportContext:
                 if mappings is None:
                     is_vector = any(vector_param_names, lambda x: x.casefold() in name.casefold()) or any(list(value.values())[0:4], lambda v: v < 0)
 
-                node = None
-                if is_vector:
-                    node = nodes.new(type="ShaderNodeGroup")
-                    node.node_tree = bpy.data.node_groups.get("FPv4 Vector4")
-                    node.inputs[0].default_value = value["R"]
-                    node.inputs[1].default_value = value["G"]
-                    node.inputs[2].default_value = value["B"]
-                    node.inputs[3].default_value = value["A"]
-                else:
-                    node = nodes.new(type="ShaderNodeRGB")
-                    node.outputs[0].default_value = (value["R"], value["G"], value["B"], value["A"])
-
-                node.label = name
-                node.width = 250
-
-                if mappings is not None:
-                    x, y = get_socket_pos(target_node, target_node.inputs.find(mappings.slot))
-                    node.location = x - 300, y
-                    node.hide = True
-                    links.new(node.outputs[0], target_node.inputs[mappings.slot])
-                else:
-                    if add_unused_params:
-                        nonlocal unused_parameter_height
-                        node.location = 400, unused_parameter_height
-                        unused_parameter_height -= 200
-                    else:
-                        nodes.remove(node)
+                if mappings is None:
                     return
 
-                if mappings.alpha_slot: # TODO: How to handle this with connected nodes?
+                node = create_vector_node(nodes, name, value) if is_vector else create_color_node(nodes, name, value)
+                x, y = get_socket_pos(target_node, target_node.inputs.find(mappings.slot))
+                node.location = x - 300, y
+                node.hide = True
+                links.new(node.outputs[0], target_node.inputs[mappings.slot])
+
+                if mappings.alpha_slot:
                     target_node.inputs[mappings.alpha_slot].default_value = value["A"]
                 if mappings.switch_slot:
                     target_node.inputs[mappings.switch_slot].default_value = 1 if value else 0
-            except KeyError:
-                nodes.remove(node)
-                pass
+
+                used_vectors.add(name.casefold())
             except Exception:
                 traceback.print_exc()
 
-        def component_mask_param(data, target_mappings, target_node=shader_node, add_unused_params=False):
+        def component_mask_param(data, target_mappings, target_node=shader_node):
             try:
                 name = data.get("Name")
                 value = data.get("Value")
 
-                # TODO: Move masks from vectors to component masks in mappings?
-                # node = nodes.new(type="ShaderNodeGroup")
-                # node.node_tree = bpy.data.node_groups.get("FPv4 ComponentMask")
-                # node.inputs[0].default_value = int(value["R"])
-                # node.inputs[1].default_value = int(value["G"])
-                # node.inputs[2].default_value = int(value["B"])
-                # node.inputs[3].default_value = int(value["A"])
-                node = nodes.new(type="ShaderNodeRGB") # TODO: switch back to FPv4 ComponentMask node
-                node.outputs[0].default_value = (value["R"], value["G"], value["B"], value["A"])
-                node.label = name
-                node.width = 250
-
-                # Materials that use this:
-                # M_F_Tie_Dye_Fashion_Summer_Lime - ClothFuzz and ThinFilm channels
-                # M_Med_Soldier_04_Celestial - PanningEmissive and Galaxy channels
-                # Pretty much anyone from the seven
-
-                if mappings := first(target_mappings.component_masks, lambda x: x.name.casefold() == name.casefold()):
-                    x, y = get_socket_pos(target_node, target_node.inputs.find(mappings.slot))
-                    node.location = x - 300, y
-                    node.hide = True
-                    links.new(node.outputs[0], target_node.inputs[mappings.slot])
-                else:
-                    if add_unused_params:
-                        nonlocal unused_parameter_height
-                        node.location = 400, unused_parameter_height
-                        unused_parameter_height -= 200
-                    else:
-                        nodes.remove(node)
+                mappings = first(target_mappings.component_masks, lambda x: x.name.casefold() == name.casefold())
+                if mappings is None:
                     return
 
-            except KeyError:
-                nodes.remove(node)
-                pass
+                node = create_color_node(nodes, name, value)
+                x, y = get_socket_pos(target_node, target_node.inputs.find(mappings.slot))
+                node.location = x - 300, y
+                node.hide = True
+                links.new(node.outputs[0], target_node.inputs[mappings.slot])
+
+                used_component_masks.add(name.casefold())
             except Exception:
                 traceback.print_exc()
 
-        def switch_param(data, target_mappings, target_node=shader_node, add_unused_params=False):
+        def switch_param(data, target_mappings, target_node=shader_node):
             try:
                 name = data.get("Name")
                 value = data.get("Value")
 
-                node = nodes.new("ShaderNodeGroup")
-                node.node_tree = bpy.data.node_groups.get("FPv4 Switch")
-                node.inputs[0].default_value = 1 if value else 0
-                node.label = name
-                node.width = 250
-
-                if mappings := first(target_mappings.switches, lambda x: x.name.casefold() == name.casefold()):
-                    x, y = get_socket_pos(target_node, target_node.inputs.find(mappings.slot))
-                    node.location = x - 300, y
-                    node.hide = True
-                    links.new(node.outputs[0], target_node.inputs[mappings.slot])
-                else:
-                    if add_unused_params:
-                        nonlocal unused_parameter_height
-                        node.location = 400, unused_parameter_height
-                        unused_parameter_height -= 125
-                    else:
-                        nodes.remove(node)
+                mappings = first(target_mappings.switches, lambda x: x.name.casefold() == name.casefold())
+                if mappings is None:
                     return
 
-            except KeyError:
-                nodes.remove(node)
-                pass
+                node = create_switch_node(nodes, name, value)
+                x, y = get_socket_pos(target_node, target_node.inputs.find(mappings.slot))
+                node.location = x - 300, y
+                node.hide = True
+                links.new(node.outputs[0], target_node.inputs[mappings.slot])
+
+                used_switches.add(name.casefold())
             except Exception:
                 traceback.print_exc()
 
-        # TODO: Refactor, break out node creation to utils and use here and in parameter handlers
         def handle_default_params(mappings, target_node):
             for texture in mappings.textures:
                 if texture.default is not None and get_node(target_node, texture.slot) is None:
-                    node = nodes.new(type="ShaderNodeTexImage")
-                    node.image = bpy.data.images.get(texture.default.name)
-                    node.image.alpha_mode = 'CHANNEL_PACKED'
-                    node.image.colorspace_settings.name = "sRGB" if texture.default.sRGB else "Non-Color"
-                    node.interpolation = "Smart"
-                    node.label = texture.slot
-                    node.width = 250
-                    node.hide = True
+                    node = create_texture_node(
+                        nodes, texture.slot,
+                        bpy.data.images.get(texture.default.name),
+                        texture.default.sRGB
+                    )
                     x, y = get_socket_pos(target_node, target_node.inputs.find(texture.slot))
                     if texture.closure:
                         setup_closure(node, x, y, texture.slot, target_node, nodes, links)
                     else:
-                        node.location = x - 300, y
-                        links.new(node.outputs[0], target_node.inputs[texture.slot])
-
-                        if texture.alpha_slot:
-                            links.new(node.outputs[1], target_node.inputs[texture.alpha_slot])
-                        if texture.coords != "UV0":
-                            uv = nodes.new(type="ShaderNodeUVMap")
-                            uv.location = node.location.x - 250, node.location.y
-                            uv.uv_map = texture.coords
-                            links.new(uv.outputs[0], node.inputs[0])
+                        link_texture_node(nodes, links, node, target_node, texture, x, y)
 
                     if texture.switch_slot:
                         target_node.inputs[texture.switch_slot].default_value = 1
 
             for scalar in mappings.scalars:
                 if scalar.default is not None and get_node(target_node, scalar.slot) is None:
-                    node = nodes.new(type="ShaderNodeValue")
-                    node.outputs[0].default_value = scalar.default
-                    node.label = scalar.slot
-                    node.width = 250
+                    node = create_scalar_node(nodes, scalar.slot, scalar.default)
                     x, y = get_socket_pos(target_node, target_node.inputs.find(scalar.slot))
                     node.location = x - 300, y
                     node.hide = True
@@ -407,14 +368,9 @@ class MaterialImportContext:
 
             for vector in mappings.vectors:
                 if vector.default is not None and get_node(target_node, vector.slot) is None:
-                    node = nodes.new(type="ShaderNodeGroup")
-                    node.node_tree = bpy.data.node_groups.get("FPv4 Vector4")
-                    node.inputs[0].default_value = vector.default[0]
-                    node.inputs[1].default_value = vector.default[1]
-                    node.inputs[2].default_value = vector.default[2]
-                    node.inputs[3].default_value = vector.default[3]
-                    node.label = vector.slot
-                    node.width = 250
+                    value = {"R": vector.default[0], "G": vector.default[1],
+                             "B": vector.default[2], "A": vector.default[3]}
+                    node = create_vector_node(nodes, vector.slot, value)
                     x, y = get_socket_pos(target_node, target_node.inputs.find(vector.slot))
                     node.location = x - 300, y
                     node.hide = True
@@ -426,39 +382,82 @@ class MaterialImportContext:
 
             for switch in mappings.switches:
                 if switch.default is not None and get_node(target_node, switch.slot) is None:
-                    node = nodes.new("ShaderNodeGroup")
-                    node.node_tree = bpy.data.node_groups.get("FPv4 Switch")
-                    node.inputs[0].default_value = switch.default
-                    node.label = switch.slot
-                    node.width = 250
+                    node = create_switch_node(nodes, switch.slot, switch.default)
                     x, y = get_socket_pos(target_node, target_node.inputs.find(switch.slot))
                     node.location = x - 300, y
                     node.hide = True
                     links.new(node.outputs[0], target_node.inputs[switch.slot])
 
-
-        def setup_params(mappings, target_node, add_unused_params=False):
+        def setup_params(mappings, target_node):
             for texture in textures:
-                texture_param(texture, mappings, target_node, add_unused_params)
-
+                texture_param(texture, mappings, target_node)
             for scalar in scalars:
-                scalar_param(scalar, mappings, target_node, add_unused_params)
-
+                scalar_param(scalar, mappings, target_node)
             for vector in vectors:
-                vector_param(vector, mappings, target_node, add_unused_params)
-
+                vector_param(vector, mappings, target_node)
             for component_mask in component_masks:
-                component_mask_param(component_mask, mappings, target_node, add_unused_params)
-
+                component_mask_param(component_mask, mappings, target_node)
             for switch in switches:
-                switch_param(switch, mappings, target_node, add_unused_params)
-
+                switch_param(switch, mappings, target_node)
             handle_default_params(mappings, target_node)
 
+    
+        def add_unused_params():
+            y = 0
+
+            for texture in textures:
+                name = texture.get("Name")
+                if name.casefold() in used_textures:
+                    continue
+                    
+                path = texture.get("Texture").get("Path")
+                
+                try:
+                    node = create_texture_node(nodes, name, self.import_image(path), texture.get("Texture").get("sRGB"))
+                    node.location = 400, y
+                    y -= 50
+                except Exception:
+                    traceback.print_exc()
+
+            for scalar in scalars:
+                name = scalar.get("Name")
+                if name.casefold() in used_scalars:
+                    continue
+                node = create_scalar_node(nodes, name, scalar.get("Value"))
+                node.location = 400, y
+                y -= 100
+
+            for vector in vectors:
+                name = vector.get("Name")
+                if name.casefold() in used_vectors:
+                    continue
+                value = vector.get("Value")
+                is_vector = (
+                        any(vector_param_names, lambda x: x.casefold() in name.casefold())
+                        or any(list(value.values())[0:4], lambda v: v < 0)
+                )
+                node = create_vector_node(nodes, name, value) if is_vector else create_color_node(nodes, name, value)
+                node.location = 400, y
+                y -= 200
+
+            for component_mask in component_masks:
+                name = component_mask.get("Name")
+                if name.casefold() in used_component_masks:
+                    continue
+                node = create_color_node(nodes, name, component_mask.get("Value"))
+                node.location = 400, y
+                y -= 200
+
+            for switch in switches:
+                name = switch.get("Name")
+                if name.casefold() in used_switches:
+                    continue
+                node = create_switch_node(nodes, name, switch.get("Value"))
+                node.location = 400, y
+                y -= 125
 
         all_mappings = find_all_matching_mappings(material_data)
 
-        # TODO: Move to mappings to allow for other build nodes?
         set_param("AO", self.options.get("AmbientOcclusion"))
         set_param("Cavity", self.options.get("Cavity"))
         set_param("Subsurface Scale", self.options.get("Subsurface"))
@@ -466,23 +465,19 @@ class MaterialImportContext:
         node_position = -200
         previous_node = shader_node
 
-        # Add default base layer if no base layer was matched
         if len(all_mappings) == 0 or all_mappings[-1].type != ENodeType.NT_Base:
             all_mappings.append(DefaultMappings)
 
-
         def add_shader_module(mapping):
-            nonlocal node_position
-            nonlocal previous_node
+            nonlocal node_position, previous_node
             new_node = nodes.new(type="ShaderNodeGroup")
             new_node.node_tree = bpy.data.node_groups.get(mapping.node_name)
             new_node.location = (node_position, 0)
             links.new(new_node.outputs[0], previous_node.inputs[0])
-            setup_params(mapping, new_node, False)
+            setup_params(mapping, new_node)
             previous_node = new_node
             node_position -= mapping.node_spacing
             return new_node
-
 
         for mapping in all_mappings:
             add_shader_module(mapping)
@@ -490,19 +485,15 @@ class MaterialImportContext:
                 material.surface_render_method = mapping.surface_render_method
                 material.show_transparent_back = mapping.show_transparent_back
 
-
         # TODO: MappingCollection.material_changes()?
         # That wouldn't give us the toon outline though because we couldn't call self.add_toon_outline
         if all_mappings[-1].node_name == "FPv4 Base Toon":
             set_param("Brightness", self.options.get("ToonShadingBrightness"), previous_node)
             self.add_toon_outline = True
 
-
-        # TODO: Part modifier handling? (fur, new toon outline, etc)      
-
-        # Temp to add all params for debugging
-        # TODO: Only unused on right logic
-        setup_params(MappingCollection(), shader_node, True)
+        # TODO: Part modifier handling? (fur, new toon outline, etc)
+        
+        add_unused_params()
 
         links.new(shader_node.outputs[0], output_node.inputs[0])
 
@@ -513,14 +504,11 @@ class MaterialImportContext:
             return
 
         if get_param(switches, "Use Vertex Colors for Mask"):
-            elements = {}
-            for scalar in scalars:
-                name = scalar.get("Name")
-                if "Hide Element" not in name:
-                    continue
-
-                elements[name] = scalar.get("Value")
-
+            elements = {
+                scalar.get("Name"): scalar.get("Value")
+                for scalar in scalars
+                if "Hide Element" in scalar.get("Name")
+            }
             self.partial_vertex_crunch_materials[material] = elements
 
 
