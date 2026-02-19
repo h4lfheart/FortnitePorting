@@ -117,6 +117,7 @@ class DefaultMappings(MappingCollection):
         SlotMapping("Emissive", "Emission Multiplier"),
         SlotMapping("EmissiveMultiplier", "Emission Multiplier"),
         SlotMapping("Emissive Multiplier", "Emission Multiplier"),
+        SlotMapping("EmissiveTint", "Emission Multiplier"),
 
         SlotMapping("Emissive Color", "Emission Color", switch_slot="Use Emission Color"),
         SlotMapping("EmissiveColor", "Emission Color", switch_slot="Use Emission Color"),
@@ -169,7 +170,7 @@ class BaseEyeMappings(MappingCollection):
         SlotMapping("Diffuse", closure=True),
         SlotMapping("Normal", default=DefaultTexture("FlatNormal", False), closure=True),
         SlotMapping("SpecularMasks", closure=True),
-        SlotMapping("SRM", "SpecularMasks", switch_slot="SwizzleRoughnessToGreen", closure=True), # TODO: Default SMR?
+        SlotMapping("SRM", "SpecularMasks", default=DefaultTexture("T_Eye_S_2022", False), switch_slot="SwizzleRoughnessToGreen", closure=True),
         SlotMapping("Emissive", closure=True),
     )
 
@@ -561,6 +562,7 @@ class CroppedEmissiveMappings(MappingCollection):
         SlotMapping("EmissiveColor", "Emission Multiplier"),
         SlotMapping("EmissiveMultiplier", "Emission Multiplier"),
         SlotMapping("Emissive Multiplier", "Emission Multiplier"),
+        SlotMapping("EmissiveTint", "Emission Multiplier"),
         SlotMapping("Emissive", "Emission Multiplier"),
     )
 
@@ -609,6 +611,7 @@ class EmissiveComponentMappings(MappingCollection):
         SlotMapping("EmissiveColor", "Emission Multiplier"),
         SlotMapping("EmissiveMultiplier", "Emission Multiplier"),
         SlotMapping("Emissive Multiplier", "Emission Multiplier"),
+        SlotMapping("EmissiveTint", "Emission Multiplier"),
         SlotMapping("Emissive", "Emission Multiplier"),
     )
 
