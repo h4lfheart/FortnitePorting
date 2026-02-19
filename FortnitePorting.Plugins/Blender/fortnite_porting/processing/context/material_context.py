@@ -317,6 +317,9 @@ class MaterialImportContext:
                 node.location = x - 300, y
                 node.hide = True
                 links.new(node.outputs[0], target_node.inputs[mappings.slot])
+                
+                if mappings.switch_slot:
+                    target_node.inputs[mappings.switch_slot].default_value = 1 if value else 0
 
                 used_component_masks.add(name.casefold())
             except Exception:
