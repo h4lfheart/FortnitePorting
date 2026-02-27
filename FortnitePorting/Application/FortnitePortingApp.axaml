@@ -99,12 +99,30 @@
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="CornerRadius" Value="16" />
             <Setter Property="MinHeight" Value="32" />
-            <Setter Property="BackgroundSizing" Value="CenterBorder" />
             <Setter Property="BoxShadow">
                 inset 0 1 2 -1 #50ffffff,
                 inset 0 -1 2 -2 #50ffffff,
                 0 4 8 #20000000,
                 0 8 12 #10000000
+            </Setter>
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{TemplateBinding CornerRadius}"
+                            BoxShadow="{TemplateBinding BoxShadow}"
+                            ClipToBounds="False">
+                        <Border CornerRadius="{TemplateBinding CornerRadius}"
+                                ClipToBounds="True">
+                            <ContentPresenter Content="{TemplateBinding Content}"
+                                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                                              Padding="{TemplateBinding Padding}"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                        </Border>
+                    </Border>
+                </ControlTemplate>
             </Setter>
 
             <Style Selector="^:disabled">

@@ -384,8 +384,6 @@ public partial class FilesViewModel : ViewModelBase
                 if (item.Type is ENodeType.Folder) 
                     return false;
                 
-                if (item.ExportType is null)
-                    Log.Information(item.Name);
                 return _searchTermsByFilter[FileTypeFilter].Any(filter => (item.ExportType?.Contains(filter, StringComparison.OrdinalIgnoreCase) ?? false) 
                                                                           || item.Extension.Contains(filter, StringComparison.OrdinalIgnoreCase));
             })

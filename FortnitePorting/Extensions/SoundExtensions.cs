@@ -120,8 +120,6 @@ public static class SoundExtensions
 
             radaProcess.Start();
             radaProcess.WaitForExit();
-            
-            Log.Information(radaProcess.StandardOutput.ReadToEnd());
         }
         
         MiscExtensions.TryDeleteFile(radaPath);

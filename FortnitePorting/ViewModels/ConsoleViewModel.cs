@@ -74,11 +74,6 @@ public partial class ConsoleViewModel : ViewModelBase
         });
     }
 
-    public override async Task OnViewOpened()
-    {
-        Scroll.ScrollToEnd();
-    }
-
     private Func<FPLogEvent, bool> CreateFilter((string, ELogEventType) items)
     {
         return logEvent =>
