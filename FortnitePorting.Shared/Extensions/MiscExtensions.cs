@@ -82,6 +82,14 @@ public static class MiscExtensions
             list.Add(item);
             return true;
         }
+        
+        public void InsertSorted(T item, SortExpressionComparer<T> comparer) 
+        {
+            var i = list.Count;
+            while (i > 0 && comparer.Compare(list[i - 1], item) > 0)
+                i--;
+            list.Insert(i, item);
+        }
     }
 
     extension<T, K>(IDictionary<T, K> dict)
@@ -244,16 +252,6 @@ public static class MiscExtensions
             }
 
             return removed;
-        }
-
-        public void InsertSorted(T item, SortExpressionComparer<T> comparer) 
-        {
-            list.Add(item);
-            var i = list.Count-1;
-            for ( ; i > 0 && comparer.Compare(list[i-1], item) < 0 ; i--) {
-                list[i] = list[i-1];
-            }
-            list[i] = item;
         }
     }
 

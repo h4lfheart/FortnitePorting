@@ -81,16 +81,19 @@
         </Grid>
 
         <Grid Grid.Column="1" Margin="{ext:Space 0, 1, 1, 1}"
-              IsVisible="{Binding AssetLoader.ActiveLoader.FinishedLoading, FallbackValue=False}">
+              IsVisible="{Binding AssetLoader.ActiveLoader.FinishedLoading, FallbackValue=False}"
+              x:Name="AssetInfoGrid">
             <Grid.Resources>
-                <converters:GridLengthConverter x:Key="AssetsBoxConverter"
-                                                TrueValue="*"
-                                                FalseValue="0" />
+                <converters:DoubleConditionalConverter x:Key="AssetsMinConverter" TrueValue="300" FalseValue="0" />
+                <converters:DoubleConditionalConverter x:Key="AssetsMaxConverter" TrueValue="99999" FalseValue="0" />
             </Grid.Resources>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="2.5*" />
-                <ColumnDefinition
-                    Width="{Binding !!AssetLoader.ActiveLoader.SelectedAssetInfos.Count, Converter={StaticResource AssetsBoxConverter}}" />
+                <ColumnDefinition Width="0"
+                                  MinWidth="{Binding !!AssetLoader.ActiveLoader.SelectedAssetInfos.Count, 
+                             Converter={StaticResource AssetsMinConverter}}"
+                                  MaxWidth="{Binding !!AssetLoader.ActiveLoader.SelectedAssetInfos.Count, 
+                             Converter={StaticResource AssetsMaxConverter}}" />
             </Grid.ColumnDefinitions>
 
             <Grid Grid.Column="0">

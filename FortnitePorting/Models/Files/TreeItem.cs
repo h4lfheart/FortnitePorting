@@ -94,9 +94,9 @@ public partial class TreeItem : ObservableObject
     }
 
     [RelayCommand]
-    public async Task CopyPath()
+    public async Task CopyPath(bool withoutExtension = false)
     {
-        await App.Clipboard.SetTextAsync(FilePath);
+        await App.Clipboard.SetTextAsync(withoutExtension ? FilePath.SubstringBefore(".") : FilePath);
     }
 
     partial void OnExpandedChanged(bool value)

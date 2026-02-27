@@ -19,9 +19,9 @@ public partial class FlatItem : ObservableObject
     }
 
     [RelayCommand]
-    public async Task CopyPath()
+    public async Task CopyPath(bool withoutExtension = false)
     {
-        await App.Clipboard.SetTextAsync(Path);
+        await App.Clipboard.SetTextAsync(withoutExtension ? Path.SubstringBefore(".") : Path);
     }
     
     

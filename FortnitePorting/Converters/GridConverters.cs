@@ -37,3 +37,4 @@ public class ConditionalConverter<T> : IValueConverter
 }
 
 public class GridLengthConverter : ConditionalConverter<GridLength>;
+public class DoubleConditionalConverter : ConditionalConverter<double>;

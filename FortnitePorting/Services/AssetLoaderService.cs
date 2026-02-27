@@ -101,7 +101,8 @@ public partial class AssetLoaderService : ObservableObject, IService
                 new AssetLoader(EExportType.Emote)
                 {
                     ClassNames = ["AthenaDanceItemDefinition"],
-                    HideNames = ["_CT", "_NPC"]
+                    HideNames = ["_CT", "_NPC", "_Sync", "_Follower", "_Owned", "Sprout"],
+                    LoadHiddenAssets = true
                 },
                 new AssetLoader(EExportType.SideKick)
                 {

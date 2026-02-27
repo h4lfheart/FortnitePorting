@@ -339,7 +339,7 @@ public partial class ChatService : ObservableObject, IService
         if (message.ReplyId is not null)
         {
             if (_messageCache.Lookup(message.ReplyId) is { HasValue: true } replyParent)
-                replyParent.Value.ReplyMessages.Add(message);
+                replyParent.Value.ReplyMessages.InsertSorted(message, SortExpressionComparer<ChatMessage>.Ascending(x => x.Timestamp));
         }
         else
         {

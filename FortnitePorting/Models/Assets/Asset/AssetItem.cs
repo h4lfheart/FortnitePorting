@@ -57,7 +57,7 @@ public class AssetItem : Base.BaseAssetItem
         }
         
         var seasonTag = CreationData.GameplayTags.GetValueOrDefault("Cosmetics.Filter.Season.")?.Text;
-        Season = int.TryParse(seasonTag?.SubstringAfterLast("."), out var seasonNumber) ? seasonNumber : 0;
+        Season = int.TryParse(seasonTag?.SubstringAfterLast("."), out var seasonNumber) ? seasonNumber : int.MaxValue;
 
         if (CreationData.Object.GetDataListItem<FPackageIndex>("Series") is { } seriesPackage)
         {

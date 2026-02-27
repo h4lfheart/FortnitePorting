@@ -16,7 +16,7 @@ public partial class DeveloperSettingsViewModel : SettingsViewModelBase
           : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Portle", "Portle.exe");
 
      
-     [ObservableProperty] private int _chunkCacheLifetime = 1;
+     [ObservableProperty] private int _chunkCacheLifetime = 7;
      [ObservableProperty] private int _requestTimeoutSeconds = 60;
      
      public async Task BrowsePortlePath()

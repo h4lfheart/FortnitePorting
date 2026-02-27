@@ -133,6 +133,8 @@ public partial class CUE4ParseService : ObservableObject, IService
         };
         
         await CheckBlackHole();
+        
+        UpdateStatus($"Removing Outdated Cache Files");
         await CleanupCache();
 
         Provider.VfsMounted += (sender, _) =>
@@ -228,7 +230,6 @@ public partial class CUE4ParseService : ObservableObject, IService
         {
             if (file.LastWriteTime >= cutoffDate) continue;
             
-            UpdateStatus($"Removing Outdated Cache {file.Name}");
             file.Delete();
         }
     }
