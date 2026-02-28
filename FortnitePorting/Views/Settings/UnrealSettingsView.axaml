@@ -3,145 +3,202 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
-             xmlns:nanite="clr-namespace:CUE4Parse.UE4.Assets.Exports.Nanite;assembly=CUE4Parse"
              xmlns:enums="clr-namespace:CUE4Parse_Conversion.UEFormat.Enums;assembly=CUE4Parse-Conversion"
              xmlns:controls="clr-namespace:FortnitePorting.Controls.Settings"
              xmlns:fortnitePorting="clr-namespace:FortnitePorting"
              xmlns:settings="clr-namespace:FortnitePorting.ViewModels.Settings"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:sidebar="clr-namespace:FortnitePorting.Controls.Navigation.Sidebar"
+             xmlns:controls1="clr-namespace:FortnitePorting.Controls"
+             mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="600"
              x:Class="FortnitePorting.Views.Settings.UnrealSettingsView"
-             x:DataType="settings:UnrealSettingsViewModel">
-   <ScrollViewer>
-       <StackPanel VerticalAlignment="Top" Margin="{ext:Space 1}" Spacing="{ext:Space 0, 0, 0, 1}">
-                    
-            <!-- todo auto generate from properties?-->
-            <TextBlock Text="General" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
-            
-            <controls:SettingsItem Title="Compression" Description="The type of compression that should be used on 'UE Format' assets.">
-                <controls:SettingsItem.Footer>
-                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type enums:EFileCompressionFormat}}"
-                              SelectedItem="{Binding CompressionFormat, Converter={StaticResource EnumToRecord}}" />
-                </controls:SettingsItem.Footer>
-            </controls:SettingsItem>
-            
-            <TextBlock Text="Skeleton" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
-            
-            <controls:SettingsItem Title="Import Sockets" Description="Whether or not to import bone sockets.">
-                <controls:SettingsItem.Footer>
-                    <ToggleSwitch IsChecked="{Binding ImportSockets}"/>
-                </controls:SettingsItem.Footer>
-            </controls:SettingsItem>
-            
-            <controls:SettingsItem Title="Import Virtual Bones" Description="Whether or not to import virtual bones.">
-                <controls:SettingsItem.Footer>
-                    <ToggleSwitch IsChecked="{Binding ImportVirtualBones}"/>
-                </controls:SettingsItem.Footer>
-            </controls:SettingsItem>
-          
-            <TextBlock Text="Mesh" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
-            
-            <controls:SettingsItem Title="Import Collision Geometry" Description="Imports the convex collision geometry if available.">
-                <controls:SettingsItem.Footer>
-                    <ToggleSwitch IsChecked="{Binding ImportCollision}"/>
-                </controls:SettingsItem.Footer>
-            </controls:SettingsItem>
-            
-            <controls:SettingsItem Title="Export Nanite" Description="Determines whether nanite meshes should be exported if available.">
-                <controls:SettingsItem.Footer>
-                    <ToggleSwitch IsChecked="{Binding ExportNanite}"/>
-                </controls:SettingsItem.Footer>
-            </controls:SettingsItem>
-            
-            <TextBlock Text="Animation" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
-            
-            <controls:SettingsItem Title="Import Lobby Animations" Description="Whether or not to import lobby animations. (Outfit Only)">
-                <controls:SettingsItem.Footer>
-                    <ToggleSwitch IsChecked="{Binding ImportLobbyPoses}"/>
-                </controls:SettingsItem.Footer>
-            </controls:SettingsItem>
-            
-            <TextBlock Text="Material" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
-            
-            <controls:SettingsItem Title="Export" Description="Whether or not to export materials.">
-                <controls:SettingsItem.Footer>
-                    <ToggleSwitch IsChecked="{Binding ExportMaterials}"/>
-                </controls:SettingsItem.Footer>
-            </controls:SettingsItem>
-            
-            <controls:SettingsItem Title="UEFN Compatibility" Description="Whether or not materials should be exported with UEFN compatibility.">
-                <controls:SettingsItem.Footer>
-                    <ToggleSwitch IsChecked="{Binding UseUEFNMaterial}"/>
-                </controls:SettingsItem.Footer>
-            </controls:SettingsItem>
-            
-            <controls:SettingsItem Title="Ambient Occlusion" Description="Adds darker details in the crevices of materials." IsEnabled="{Binding ExportMaterials}">
-                <controls:SettingsItem.Footer>
-                    <StackPanel Orientation="Horizontal">
-                        <Slider Value="{Binding AmbientOcclusion}" MinWidth="200"
-                                Minimum="0" Maximum="1"
-                                TickFrequency="0.05" TickPlacement="BottomRight" IsSnapToTickEnabled="True"/>
-                        <TextBlock Text="{Binding AmbientOcclusion, StringFormat=N2}" 
-                                   VerticalAlignment="Center" Margin="{ext:Space 1, 0, 0, 0}"/>
-                    </StackPanel>
-                </controls:SettingsItem.Footer>
-            </controls:SettingsItem>
-            
-            <controls:SettingsItem Title="Cavity" Description="Adds contrast to parts of the material using 'Soft Light' blending." IsEnabled="{Binding ExportMaterials}">
-                <controls:SettingsItem.Footer>
-                    <StackPanel Orientation="Horizontal">
-                        <Slider Value="{Binding Cavity}" MinWidth="200"
-                                Minimum="0" Maximum="1"
-                                TickFrequency="0.05" TickPlacement="BottomRight" IsSnapToTickEnabled="True"/>
-                        <TextBlock Text="{Binding Cavity, StringFormat=N2}" 
-                                   VerticalAlignment="Center" Margin="{ext:Space 1, 0, 0, 0}"/>
-                    </StackPanel>
-                </controls:SettingsItem.Footer>
-            </controls:SettingsItem>
-            
-            <controls:SettingsItem Title="Subsurface Scattering" Description="The scattering of light through skin or other surfaces." IsEnabled="{Binding ExportMaterials}">
-                <controls:SettingsItem.Footer>
-                    <StackPanel Orientation="Horizontal">
-                        <Slider Value="{Binding Subsurface}" MinWidth="200"
-                                Minimum="0" Maximum="1"
-                                TickFrequency="0.05" TickPlacement="BottomRight" IsSnapToTickEnabled="True"/>
-                        <TextBlock Text="{Binding Subsurface, StringFormat=N2}" 
-                                   VerticalAlignment="Center" Margin="{ext:Space 1, 0, 0, 0}"/>
-                    </StackPanel>
-                </controls:SettingsItem.Footer>
-            </controls:SettingsItem>
-            
-            <TextBlock Text="Texture" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
-               
-            <controls:SettingsItem Title="Image Format" Description="The file type that textures should be exported as.">
-                <controls:SettingsItem.Footer>
-                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EImageFormat}}"
-                              SelectedItem="{Binding ImageFormat, Converter={StaticResource EnumToRecord}}" />
-                </controls:SettingsItem.Footer>
-            </controls:SettingsItem>
-            
-            <TextBlock Text="Sound" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
-            
-            <controls:SettingsItem Title="Import Sounds" Description="Whether or not to import sounds collected from animation notifies.">
-                <controls:SettingsItem.Footer>
-                    <ToggleSwitch IsChecked="{Binding ImportSounds}"/>
-                </controls:SettingsItem.Footer>
-            </controls:SettingsItem>
-            
-            <controls:SettingsItem Title="Sound Format" Description="The file type that sounds should be exported as." IsEnabled="{Binding ImportSounds}">
-                <controls:SettingsItem.Footer>
-                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:ESoundFormat}}"
-                              SelectedItem="{Binding SoundFormat, Converter={StaticResource EnumToRecord}}" />
-                </controls:SettingsItem.Footer>
-            </controls:SettingsItem>
-            
-            <TextBlock Text="World" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
-            
-            <controls:SettingsItem Title="Import Instanced Foliage" Description="Whether or not to import instanced foliage meshes.">
-                <controls:SettingsItem.Footer>
-                    <ToggleSwitch IsChecked="{Binding ImportInstancedFoliage}"/>
-                </controls:SettingsItem.Footer>
-            </controls:SettingsItem>
-            
-        </StackPanel>
-    </ScrollViewer>
+             x:DataType="settings:UnrealSettingsViewModel"
+             Background="{DynamicResource ContentBorderLayer2BackgroundBrush}"
+             BorderBrush="{DynamicResource ContentBorderLayer2BorderBrush}"
+             BorderThickness="2 0 0 0">
+
+    <Grid ColumnDefinitions="* 5*">
+        <sidebar:Sidebar Grid.Column="0" ItemSelected="OnItemSelected">
+            <sidebar:Sidebar.Items>
+
+                <sidebar:SidebarItemButton Text="General" Icon="Tune">
+                    <sidebar:SidebarItemButton.Tag>
+                        <StackPanel Spacing="{ext:Space 0, 0, 0, 1}">
+                            <controls:SettingsItem Title="Compression"
+                                                   Description="The type of compression that should be used on 'UE Format' assets.">
+                                <controls:SettingsItem.Footer>
+                                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type enums:EFileCompressionFormat}}"
+                                              SelectedItem="{Binding CompressionFormat, Converter={StaticResource EnumToRecord}}"/>
+                                </controls:SettingsItem.Footer>
+                            </controls:SettingsItem>
+                        </StackPanel>
+                    </sidebar:SidebarItemButton.Tag>
+                </sidebar:SidebarItemButton>
+
+                <sidebar:SidebarItemButton Text="Skeleton" Icon="Bone">
+                    <sidebar:SidebarItemButton.Tag>
+                        <StackPanel Spacing="{ext:Space 0, 0, 0, 1}">
+                            <controls:SettingsItem Title="Import Sockets"
+                                                   Description="Whether or not to import bone sockets.">
+                                <controls:SettingsItem.Footer>
+                                    <ToggleSwitch IsChecked="{Binding ImportSockets}"/>
+                                </controls:SettingsItem.Footer>
+                            </controls:SettingsItem>
+                            <controls:SettingsItem Title="Import Virtual Bones"
+                                                   Description="Whether or not to import virtual bones.">
+                                <controls:SettingsItem.Footer>
+                                    <ToggleSwitch IsChecked="{Binding ImportVirtualBones}"/>
+                                </controls:SettingsItem.Footer>
+                            </controls:SettingsItem>
+                        </StackPanel>
+                    </sidebar:SidebarItemButton.Tag>
+                </sidebar:SidebarItemButton>
+
+                <sidebar:SidebarItemButton Text="Mesh" Icon="VectorSquare">
+                    <sidebar:SidebarItemButton.Tag>
+                        <StackPanel Spacing="{ext:Space 0, 0, 0, 1}">
+                            <controls:SettingsItem Title="Import Collision Geometry"
+                                                   Description="Imports the convex collision geometry if available.">
+                                <controls:SettingsItem.Footer>
+                                    <ToggleSwitch IsChecked="{Binding ImportCollision}"/>
+                                </controls:SettingsItem.Footer>
+                            </controls:SettingsItem>
+                            <controls:SettingsItem Title="Export Nanite"
+                                                   Description="Determines whether nanite meshes should be exported if available.">
+                                <controls:SettingsItem.Footer>
+                                    <ToggleSwitch IsChecked="{Binding ExportNanite}"/>
+                                </controls:SettingsItem.Footer>
+                            </controls:SettingsItem>
+                        </StackPanel>
+                    </sidebar:SidebarItemButton.Tag>
+                </sidebar:SidebarItemButton>
+
+                <sidebar:SidebarItemButton Text="Animation" Icon="Motion">
+                    <sidebar:SidebarItemButton.Tag>
+                        <StackPanel Spacing="{ext:Space 0, 0, 0, 1}">
+                            <controls:SettingsItem Title="Import Lobby Animations"
+                                                   Description="Whether or not to import lobby animations. (Outfit Only)">
+                                <controls:SettingsItem.Footer>
+                                    <ToggleSwitch IsChecked="{Binding ImportLobbyPoses}"/>
+                                </controls:SettingsItem.Footer>
+                            </controls:SettingsItem>
+                        </StackPanel>
+                    </sidebar:SidebarItemButton.Tag>
+                </sidebar:SidebarItemButton>
+
+                <sidebar:SidebarItemButton Text="Material" Icon="PaletteSwatch">
+                    <sidebar:SidebarItemButton.Tag>
+                        <StackPanel Spacing="{ext:Space 0, 0, 0, 1}">
+                            <controls:SettingsItem Title="Export"
+                                                   Description="Whether or not to export materials.">
+                                <controls:SettingsItem.Footer>
+                                    <ToggleSwitch IsChecked="{Binding ExportMaterials}"/>
+                                </controls:SettingsItem.Footer>
+                            </controls:SettingsItem>
+                            <controls:SettingsItem Title="UEFN Compatibility"
+                                                   Description="Whether or not materials should be exported with UEFN compatibility.">
+                                <controls:SettingsItem.Footer>
+                                    <ToggleSwitch IsChecked="{Binding UseUEFNMaterial}"/>
+                                </controls:SettingsItem.Footer>
+                            </controls:SettingsItem>
+                            <controls:SettingsItem Title="Ambient Occlusion"
+                                                   Description="Adds darker details in the crevices of materials."
+                                                   IsEnabled="{Binding ExportMaterials}">
+                                <controls:SettingsItem.Footer>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Slider Value="{Binding AmbientOcclusion}" MinWidth="200"
+                                                Minimum="0" Maximum="1"
+                                                TickFrequency="0.05" TickPlacement="BottomRight"
+                                                IsSnapToTickEnabled="True"/>
+                                        <TextBlock Text="{Binding AmbientOcclusion, StringFormat=N2}"
+                                                   VerticalAlignment="Center" Margin="{ext:Space 1, 0, 0, 0}"/>
+                                    </StackPanel>
+                                </controls:SettingsItem.Footer>
+                            </controls:SettingsItem>
+                            <controls:SettingsItem Title="Cavity"
+                                                   Description="Adds contrast to parts of the material using 'Soft Light' blending."
+                                                   IsEnabled="{Binding ExportMaterials}">
+                                <controls:SettingsItem.Footer>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Slider Value="{Binding Cavity}" MinWidth="200"
+                                                Minimum="0" Maximum="1"
+                                                TickFrequency="0.05" TickPlacement="BottomRight"
+                                                IsSnapToTickEnabled="True"/>
+                                        <TextBlock Text="{Binding Cavity, StringFormat=N2}"
+                                                   VerticalAlignment="Center" Margin="{ext:Space 1, 0, 0, 0}"/>
+                                    </StackPanel>
+                                </controls:SettingsItem.Footer>
+                            </controls:SettingsItem>
+                            <controls:SettingsItem Title="Subsurface Scattering"
+                                                   Description="The scattering of light through skin or other surfaces."
+                                                   IsEnabled="{Binding ExportMaterials}">
+                                <controls:SettingsItem.Footer>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Slider Value="{Binding Subsurface}" MinWidth="200"
+                                                Minimum="0" Maximum="1"
+                                                TickFrequency="0.05" TickPlacement="BottomRight"
+                                                IsSnapToTickEnabled="True"/>
+                                        <TextBlock Text="{Binding Subsurface, StringFormat=N2}"
+                                                   VerticalAlignment="Center" Margin="{ext:Space 1, 0, 0, 0}"/>
+                                    </StackPanel>
+                                </controls:SettingsItem.Footer>
+                            </controls:SettingsItem>
+                        </StackPanel>
+                    </sidebar:SidebarItemButton.Tag>
+                </sidebar:SidebarItemButton>
+
+                <sidebar:SidebarItemButton Text="Texture" Icon="ImageMultiple">
+                    <sidebar:SidebarItemButton.Tag>
+                        <StackPanel Spacing="{ext:Space 0, 0, 0, 1}">
+                            <controls:SettingsItem Title="Image Format"
+                                                   Description="The file type that textures should be exported as.">
+                                <controls:SettingsItem.Footer>
+                                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EImageFormat}}"
+                                              SelectedItem="{Binding ImageFormat, Converter={StaticResource EnumToRecord}}"/>
+                                </controls:SettingsItem.Footer>
+                            </controls:SettingsItem>
+                        </StackPanel>
+                    </sidebar:SidebarItemButton.Tag>
+                </sidebar:SidebarItemButton>
+
+                <sidebar:SidebarItemButton Text="Sound" Icon="VolumeHigh">
+                    <sidebar:SidebarItemButton.Tag>
+                        <StackPanel Spacing="{ext:Space 0, 0, 0, 1}">
+                            <controls:SettingsItem Title="Import Sounds"
+                                                   Description="Whether or not to import sounds collected from animation notifies.">
+                                <controls:SettingsItem.Footer>
+                                    <ToggleSwitch IsChecked="{Binding ImportSounds}"/>
+                                </controls:SettingsItem.Footer>
+                            </controls:SettingsItem>
+                            <controls:SettingsItem Title="Sound Format"
+                                                   Description="The file type that sounds should be exported as."
+                                                   IsEnabled="{Binding ImportSounds}">
+                                <controls:SettingsItem.Footer>
+                                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:ESoundFormat}}"
+                                              SelectedItem="{Binding SoundFormat, Converter={StaticResource EnumToRecord}}"/>
+                                </controls:SettingsItem.Footer>
+                            </controls:SettingsItem>
+                        </StackPanel>
+                    </sidebar:SidebarItemButton.Tag>
+                </sidebar:SidebarItemButton>
+
+                <sidebar:SidebarItemButton Text="World" Icon="Earth">
+                    <sidebar:SidebarItemButton.Tag>
+                        <StackPanel Spacing="{ext:Space 0, 0, 0, 1}">
+                            <controls:SettingsItem Title="Import Instanced Foliage"
+                                                   Description="Whether or not to import instanced foliage meshes.">
+                                <controls:SettingsItem.Footer>
+                                    <ToggleSwitch IsChecked="{Binding ImportInstancedFoliage}"/>
+                                </controls:SettingsItem.Footer>
+                            </controls:SettingsItem>
+                        </StackPanel>
+                    </sidebar:SidebarItemButton.Tag>
+                </sidebar:SidebarItemButton>
+
+            </sidebar:Sidebar.Items>
+        </sidebar:Sidebar>
+
+        <ScrollViewer Grid.Column="1">
+            <ContentControl x:Name="SectionContent" Margin="{ext:Space 2}"/>
+        </ScrollViewer>
+    </Grid>
 </UserControl>

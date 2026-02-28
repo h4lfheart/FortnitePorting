@@ -4,90 +4,131 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
              xmlns:settings="clr-namespace:FortnitePorting.ViewModels.Settings"
-             xmlns:nanite="clr-namespace:CUE4Parse.UE4.Assets.Exports.Nanite;assembly=CUE4Parse"
              xmlns:meshes="clr-namespace:CUE4Parse_Conversion.Meshes;assembly=CUE4Parse-Conversion"
              xmlns:enums="clr-namespace:CUE4Parse_Conversion.UEFormat.Enums;assembly=CUE4Parse-Conversion"
              xmlns:animations="clr-namespace:CUE4Parse_Conversion.Animations;assembly=CUE4Parse-Conversion"
              xmlns:fortnitePorting="clr-namespace:FortnitePorting"
              xmlns:controls="clr-namespace:FortnitePorting.Controls.Settings"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:sidebar="clr-namespace:FortnitePorting.Controls.Navigation.Sidebar"
+             xmlns:controls1="clr-namespace:FortnitePorting.Controls"
+             mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="600"
              x:Class="FortnitePorting.Views.Settings.FolderSettingsView"
-             x:DataType="settings:FolderSettingsViewModel">
-    <ScrollViewer>
-        <StackPanel VerticalAlignment="Top" Margin="{ext:Space 1}" Spacing="{ext:Space 0, 0, 0, 1}">
-            
-            <TextBlock Text="General" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
-            
-            <controls:SettingsItem Title="Open Export Folders" Description="Whether or not assets' folders should be opened upon exporting.">
-                <controls:SettingsItem.Footer>
-                    <ToggleSwitch IsChecked="{Binding OpenFoldersOnExport}"/>
-                </controls:SettingsItem.Footer>
-            </controls:SettingsItem>
-            
-            <controls:SettingsItem Title="Compression" Description="The type of compression that should be used on 'UE Format' assets.">
-                <controls:SettingsItem.Footer>
-                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type enums:EFileCompressionFormat}}"
-                              SelectedItem="{Binding CompressionFormat, Converter={StaticResource EnumToRecord}}" />
-                </controls:SettingsItem.Footer>
-            </controls:SettingsItem>
-            
-            <TextBlock Text="Mesh" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
-            
-            <controls:SettingsItem Title="Mesh Format" Description="The file type that meshes should be exported as.">
-                <controls:SettingsItem.Footer>
-                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type meshes:EMeshFormat}}"
-                              SelectedItem="{Binding MeshFormat, Converter={StaticResource EnumToRecord}}" />
-                </controls:SettingsItem.Footer>
-            </controls:SettingsItem>
-            
-            <controls:SettingsItem Title="LOD Format" Description="The way in which LOD models should be exported.">
-                <controls:SettingsItem.Footer>
-                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type meshes:ELodFormat}}"
-                              SelectedItem="{Binding LodFormat, Converter={StaticResource EnumToRecord}}" />
-                </controls:SettingsItem.Footer>
-            </controls:SettingsItem>
-            
-            <controls:SettingsItem Title="Export Nanite" Description="Determines whether nanite meshes should be exported if available.">
-                <controls:SettingsItem.Footer>
-                    <ToggleSwitch IsChecked="{Binding ExportNanite}"/>
-                </controls:SettingsItem.Footer>
-            </controls:SettingsItem>
-            
-            <TextBlock Text="Animation" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
-            
-            <controls:SettingsItem Title="Animation Format" Description="The file type that animations should be exported as.">
-                <controls:SettingsItem.Footer>
-                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type animations:EAnimFormat}}"
-                              SelectedItem="{Binding AnimFormat, Converter={StaticResource EnumToRecord}}" />
-                </controls:SettingsItem.Footer>
-            </controls:SettingsItem>
-            
-            <TextBlock Text="Material" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
-            
-            <controls:SettingsItem Title="Export" Description="Whether or not to export materials.">
-                <controls:SettingsItem.Footer>
-                    <ToggleSwitch IsChecked="{Binding ExportMaterials}"/>
-                </controls:SettingsItem.Footer>
-            </controls:SettingsItem>
-                    
-            <TextBlock Text="Texture" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
-            
-            <controls:SettingsItem Title="Image Format" Description="The file type that textures should be exported as.">
-                <controls:SettingsItem.Footer>
-                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EImageFormat}}"
-                              SelectedItem="{Binding ImageFormat, Converter={StaticResource EnumToRecord}}" />
-                </controls:SettingsItem.Footer>
-            </controls:SettingsItem>
-            
-            <TextBlock Text="Sound" Classes="SubtitleTextBlockStyle" HorizontalAlignment="Center"/>
-            
-            <controls:SettingsItem Title="Sound Format" Description="The file type that sounds should be exported as.">
-                <controls:SettingsItem.Footer>
-                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:ESoundFormat}}"
-                              SelectedItem="{Binding SoundFormat, Converter={StaticResource EnumToRecord}}" />
-                </controls:SettingsItem.Footer>
-            </controls:SettingsItem>
-            
-        </StackPanel>
-    </ScrollViewer>
+             x:DataType="settings:FolderSettingsViewModel"
+             Background="{DynamicResource ContentBorderLayer2BackgroundBrush}"
+             BorderBrush="{DynamicResource ContentBorderLayer2BorderBrush}"
+             BorderThickness="2 0 0 0">
+
+    <Grid ColumnDefinitions="* 5*">
+        <sidebar:Sidebar Grid.Column="0" ItemSelected="OnItemSelected">
+            <sidebar:Sidebar.Items>
+
+                <sidebar:SidebarItemButton Text="General" Icon="Tune">
+                    <sidebar:SidebarItemButton.Tag>
+                        <StackPanel Spacing="{ext:Space 0, 0, 0, 1}">
+                            <controls:SettingsItem Title="Open Export Folders"
+                                                   Description="Whether or not assets' folders should be opened upon exporting.">
+                                <controls:SettingsItem.Footer>
+                                    <ToggleSwitch IsChecked="{Binding OpenFoldersOnExport}"/>
+                                </controls:SettingsItem.Footer>
+                            </controls:SettingsItem>
+                            <controls:SettingsItem Title="Compression"
+                                                   Description="The type of compression that should be used on 'UE Format' assets.">
+                                <controls:SettingsItem.Footer>
+                                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type enums:EFileCompressionFormat}}"
+                                              SelectedItem="{Binding CompressionFormat, Converter={StaticResource EnumToRecord}}"/>
+                                </controls:SettingsItem.Footer>
+                            </controls:SettingsItem>
+                        </StackPanel>
+                    </sidebar:SidebarItemButton.Tag>
+                </sidebar:SidebarItemButton>
+
+                <sidebar:SidebarItemButton Text="Mesh" Icon="VectorSquare">
+                    <sidebar:SidebarItemButton.Tag>
+                        <StackPanel Spacing="{ext:Space 0, 0, 0, 1}">
+                            <controls:SettingsItem Title="Mesh Format"
+                                                   Description="The file type that meshes should be exported as.">
+                                <controls:SettingsItem.Footer>
+                                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type meshes:EMeshFormat}}"
+                                              SelectedItem="{Binding MeshFormat, Converter={StaticResource EnumToRecord}}"/>
+                                </controls:SettingsItem.Footer>
+                            </controls:SettingsItem>
+                            <controls:SettingsItem Title="LOD Format"
+                                                   Description="The way in which LOD models should be exported.">
+                                <controls:SettingsItem.Footer>
+                                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type meshes:ELodFormat}}"
+                                              SelectedItem="{Binding LodFormat, Converter={StaticResource EnumToRecord}}"/>
+                                </controls:SettingsItem.Footer>
+                            </controls:SettingsItem>
+                            <controls:SettingsItem Title="Export Nanite"
+                                                   Description="Determines whether nanite meshes should be exported if available.">
+                                <controls:SettingsItem.Footer>
+                                    <ToggleSwitch IsChecked="{Binding ExportNanite}"/>
+                                </controls:SettingsItem.Footer>
+                            </controls:SettingsItem>
+                        </StackPanel>
+                    </sidebar:SidebarItemButton.Tag>
+                </sidebar:SidebarItemButton>
+
+                <sidebar:SidebarItemButton Text="Animation" Icon="Motion">
+                    <sidebar:SidebarItemButton.Tag>
+                        <StackPanel Spacing="{ext:Space 0, 0, 0, 1}">
+                            <controls:SettingsItem Title="Animation Format"
+                                                   Description="The file type that animations should be exported as.">
+                                <controls:SettingsItem.Footer>
+                                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type animations:EAnimFormat}}"
+                                              SelectedItem="{Binding AnimFormat, Converter={StaticResource EnumToRecord}}"/>
+                                </controls:SettingsItem.Footer>
+                            </controls:SettingsItem>
+                        </StackPanel>
+                    </sidebar:SidebarItemButton.Tag>
+                </sidebar:SidebarItemButton>
+
+                <sidebar:SidebarItemButton Text="Material" Icon="PaletteSwatch">
+                    <sidebar:SidebarItemButton.Tag>
+                        <StackPanel Spacing="{ext:Space 0, 0, 0, 1}">
+                            <controls:SettingsItem Title="Export"
+                                                   Description="Whether or not to export materials.">
+                                <controls:SettingsItem.Footer>
+                                    <ToggleSwitch IsChecked="{Binding ExportMaterials}"/>
+                                </controls:SettingsItem.Footer>
+                            </controls:SettingsItem>
+                        </StackPanel>
+                    </sidebar:SidebarItemButton.Tag>
+                </sidebar:SidebarItemButton>
+
+                <sidebar:SidebarItemButton Text="Texture" Icon="ImageMultiple">
+                    <sidebar:SidebarItemButton.Tag>
+                        <StackPanel Spacing="{ext:Space 0, 0, 0, 1}">
+                            <controls:SettingsItem Title="Image Format"
+                                                   Description="The file type that textures should be exported as.">
+                                <controls:SettingsItem.Footer>
+                                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EImageFormat}}"
+                                              SelectedItem="{Binding ImageFormat, Converter={StaticResource EnumToRecord}}"/>
+                                </controls:SettingsItem.Footer>
+                            </controls:SettingsItem>
+                        </StackPanel>
+                    </sidebar:SidebarItemButton.Tag>
+                </sidebar:SidebarItemButton>
+
+                <sidebar:SidebarItemButton Text="Sound" Icon="VolumeHigh">
+                    <sidebar:SidebarItemButton.Tag>
+                        <StackPanel Spacing="{ext:Space 0, 0, 0, 1}">
+                            <controls:SettingsItem Title="Sound Format"
+                                                   Description="The file type that sounds should be exported as.">
+                                <controls:SettingsItem.Footer>
+                                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:ESoundFormat}}"
+                                              SelectedItem="{Binding SoundFormat, Converter={StaticResource EnumToRecord}}"/>
+                                </controls:SettingsItem.Footer>
+                            </controls:SettingsItem>
+                        </StackPanel>
+                    </sidebar:SidebarItemButton.Tag>
+                </sidebar:SidebarItemButton>
+
+            </sidebar:Sidebar.Items>
+        </sidebar:Sidebar>
+
+        <ScrollViewer Grid.Column="1">
+            <ContentControl x:Name="SectionContent" Margin="{ext:Space 2}"/>
+        </ScrollViewer>
+    </Grid>
 </UserControl>
