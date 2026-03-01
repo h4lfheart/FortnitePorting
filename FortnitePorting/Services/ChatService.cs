@@ -119,6 +119,12 @@ public partial class ChatService : ObservableObject, IService
             if (message.IsPing && !Navigation.App.IsTabOpen<ChatView>())
                 Info.Message($"Chat Message from {message.User.DisplayName}", ConvertIdsToMentions(message.Text), autoClose: false);
         };
+        
+        Users.CollectionChanged += (sender, args) =>
+        {
+            OnPropertyChanged(nameof(UserMentionNames));
+            OnPropertyChanged(nameof(UsersByGroup));
+        };
     }
 
     public async Task Uninitialize()
@@ -204,8 +210,7 @@ public partial class ChatService : ObservableObject, IService
             
             TaskService.Run(async () =>
             {
-                TypingUsers.Clear();
-                
+                var newTypingUsers = new List<ChatUser>();
                 var currentState = ChatPresence.CurrentState.ToDictionary();
                 foreach (var (presenceId, presences) in currentState)
                 {
@@ -215,8 +220,11 @@ public partial class ChatService : ObservableObject, IService
                     if (targetUser?.UserId is null || targetUser.UserId.Equals(SupaBase.UserInfo.UserId)) continue;
                     
                     if (targetPresence.IsTyping)
-                        TypingUsers.Add(targetUser);
+                        newTypingUsers.Add(targetUser);
                 }
+
+
+                TypingUsers = [..newTypingUsers];
             });
         });
 
@@ -243,9 +251,12 @@ public partial class ChatService : ObservableObject, IService
                     Users.AddOrUpdate(targetPresence.UserId, targetUser);
                     newUsers++;
                 }
-                
+
                 if (newUsers > 0)
+                {
+                    OnPropertyChanged(nameof(UserMentionNames));
                     OnPropertyChanged(nameof(UsersByGroup));
+                }
                 
                 if (Navigation.App.IsTabOpen<ChatView>())
                     Discord.Update($"Chatting with {Users.Count} {(Users.Count > 1 ? "Users" : "User")}");
@@ -312,7 +323,7 @@ public partial class ChatService : ObservableObject, IService
                     
                     if (replyId is not null)
                     {
-                        _messageCache.Lookup(replyId).Value.ReplyMessages.RemoveAll(reply => reply.Id.Equals(replyId));
+                        _messageCache.Lookup(replyId).Value.ReplyMessages.RemoveAll(reply => reply.Id.Equals(messageId));
                     }
                     else
                     {

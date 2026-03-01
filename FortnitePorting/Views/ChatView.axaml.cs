@@ -24,7 +24,7 @@ namespace FortnitePorting.Views;
 
 public partial class ChatView : ViewBase<ChatViewModel>
 {
-    private const double AutoScrollThreshold = 400;
+    private const double AutoScrollThreshold = 800;
     private const double LoadMoreThreshold = 200;
     
     private bool _shouldAutoScroll = true;

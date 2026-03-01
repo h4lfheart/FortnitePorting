@@ -32,7 +32,7 @@ public partial class ConsoleViewModel : ViewModelBase
 
     public DynamicFadeScrollViewer Scroll;
     
-    private const double AutoScrollThreshold = 400;
+    private const double AutoScrollThreshold = 800;
 
     public ConsoleViewModel(InfoService infoService)
     {
