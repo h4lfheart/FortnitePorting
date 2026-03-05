@@ -384,7 +384,7 @@ public class CUE4ParseViewModel : ViewModelBase
         
         if (string.IsNullOrEmpty(mappingsPath)) return;
         
-        Provider.MappingsContainer = new FileUsmapTypeMappingsProvider(mappingsPath);
+        Provider.MappingsContainer = new FileUsmapTypeMappingsProvider(mappingsPath, StringComparer.Ordinal);
         Log.Information("Loaded Mappings: {Path}", mappingsPath);
     }
     
