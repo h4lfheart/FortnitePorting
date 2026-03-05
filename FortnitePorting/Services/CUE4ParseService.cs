@@ -430,7 +430,7 @@ public partial class CUE4ParseService : ObservableObject, IService
             return;
         }
         
-        Provider.MappingsContainer = new FileUsmapTypeMappingsProvider(mappingsPath);
+        Provider.MappingsContainer = new FileUsmapTypeMappingsProvider(mappingsPath, StringComparer.Ordinal);
         Log.Information("Loaded Mappings: {Path}", mappingsPath);
     }
     
