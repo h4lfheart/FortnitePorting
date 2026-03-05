@@ -261,7 +261,7 @@ public partial class FilesViewModel : ViewModelBase
                 if (!pointer.Name.Text.Equals(item.NameWithoutExtension) && !pointer.Name.Text.Equals(item.NameWithoutExtension + "_C")) continue;
                         
                 // use texture as preview
-                var obj = ((AbstractUePackage) package).ConstructObject(pointer.Class?.Object?.Value as UStruct, package);
+                var obj = ((AbstractUePackage) package).ConstructObject(pointer.Class, package);
                 item.ExportType = obj.ExportType;
                 
                 if (obj is UTexture2D && pointer.TryLoad(out var textureObj) && textureObj is UTexture2D texture && texture.Decode(maxMipSize: 128) is { } decodedTexture)
@@ -299,7 +299,7 @@ public partial class FilesViewModel : ViewModelBase
 
             if (item.ExportType is null && new FPackageIndex(package, 1).ResolvedObject is { } zeroPointer)
             {
-                var zeroObj = ((AbstractUePackage) package).ConstructObject(zeroPointer.Class?.Object?.Value as UStruct, package);
+                var zeroObj = ((AbstractUePackage) package).ConstructObject(zeroPointer.Class, package);
                 item.ExportType = zeroObj.ExportType;
             }
         }

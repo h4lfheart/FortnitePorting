@@ -151,7 +151,7 @@ public static class Exporter
     
     public static async Task<bool> Export(UObject asset, EExportType type, ExportDataMeta metaData)
     {
-        return await Export(() => [CreateExport(asset.Outer?.Name.SubstringAfterLast("/") ?? asset.Name, asset, type, [], metaData)], metaData);
+        return await Export(() => [CreateExport(asset.Outer?.Name.Text.SubstringAfterLast("/") ?? asset.Name, asset, type, [], metaData)], metaData);
     }
 
     public static EExportType DetermineExportType(UObject asset) 
