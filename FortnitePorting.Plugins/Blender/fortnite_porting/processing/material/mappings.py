@@ -148,7 +148,9 @@ class BaseLayerMappings(MappingCollection):
 
     @classmethod
     def meets_criteria(self, material_data):
-        return get_param_multiple(material_data.get("Switches"), layer_switch_names) and get_param_multiple(material_data.get("Textures"), extra_layer_names)
+        return get_param_multiple(material_data.get("Switches"), layer_switch_names) \
+            and get_param_multiple(material_data.get("Textures"), extra_layer_names) \
+            and not BasePBWMappings.meets_criteria(material_data)
 
 
     textures=(
@@ -249,7 +251,6 @@ class BaseToonMappings(MappingCollection):
         SlotMapping("DFL_Color_Map", "InkLineColor_Texture"),
         SlotMapping("SSC_Texture"),
         SlotMapping("STM_Map", "SSC_Texture"),
-        SlotMapping("STT_Map"),
         SlotMapping("Normals"),
         SlotMapping("Normal_Map", "Normals")
     )
@@ -347,6 +348,35 @@ class BaseTrunkMappings(MappingCollection):
         SlotMapping("Normal_Trunk", "Normals"),
         SlotMapping("Trunk_Specular", "SpecularMasks"),
         SlotMapping("SMR_Trunk", "SpecularMasks"),
+    )
+
+
+@registry.register
+class BasePBWMappings(MappingCollection):
+    node_name="FPv4 Base PBW"
+    type=ENodeType.NT_Base
+
+    @classmethod
+    def meets_criteria(self, material_data):
+        return "Builder_2" in material_data.get("BaseMaterialPath")
+
+
+    textures=(
+        SlotMapping("Blueprint_Outline_Texture", alpha_slot="Blueprint_Outline_Texture Alpha"),
+        SlotMapping("Diffuse"),
+        SlotMapping("EmissiveTexture", "Emission"),
+        SlotMapping("NormalMap"),
+        SlotMapping("SpecularMasks"),
+    )
+
+    scalars=(
+        SlotMapping("SpecRoughnessMin"),
+        SlotMapping("SpecRoughnessMax"),
+    )
+
+    switches=(
+        SlotMapping("UseNormalMap", "Use Normal Map"),
+        SlotMapping("Use SpecMask 1", "Use Specular Mask"),
     )
 
 
@@ -463,9 +493,14 @@ class ParentLayerMappings(LayerMappingsTemplate):
 
     @classmethod
     def meets_criteria_dynamic(self, material_data, index):
+        # Exclude PBW materials
+        if BasePBWMappings.meets_criteria(material_data):
+            return False
+
+        # Check for specific layer textures
         for i in range(index, 11):
             if get_param_multiple(material_data.get("Switches"), [f"Use {i} Layers", f"Use {i} Materials"]):
-                return True
+                return BaseLayerMappings.meets_criteria(material_data)
         return False
 
 
@@ -489,6 +524,42 @@ class ParentLayerMappings(LayerMappingsTemplate):
 
 
 create_layer_mappings(ParentLayerMappings, "")
+
+
+class ParentPBWLayerMappings(LayerMappingsTemplate):
+    node_name="FPv4 PBW Layer"
+    type=ENodeType.NT_Layer
+
+    @classmethod
+    def meets_criteria_dynamic(self, material_data, index):
+        return BasePBWMappings.meets_criteria(material_data) \
+            and any(material_data.get("Textures"), lambda param: str(index) in param.get("Name"))
+
+
+    LAYER_TEXTURE_TEMPLATES = (
+        SlotMapping("Diffuse#", "Diffuse"),
+        SlotMapping("Normals_Texture_#", "Normals"),
+        SlotMapping("SpecularMasks_#", "SpecularMasks"),
+    )
+
+    LAYER_SCALAR_TEMPLATES = (
+        SlotMapping("SpecRoughnessMin"),
+        SlotMapping("SpecRoughnessMax"),
+    )
+
+    LAYER_SWITCH_TEMPLATES = (
+        SlotMapping("Use # Materials", "Use Layer"),
+        SlotMapping("Use multiple diffuse textures", "Use Diffuse"),
+        SlotMapping("Use Normal Texture #", "Use Normal Map"),
+        SlotMapping("Use SpecMask #", "Use Specular Mask"),
+    )
+
+    @classmethod
+    def scalars(self, index):
+        return create_layer_slots(self.LAYER_SCALAR_TEMPLATES, index) + (SlotMapping("Layer", default=index),)
+
+
+create_layer_mappings(ParentPBWLayerMappings, "PBW", 2, 6)
 
 
 class ParentValetLayerMappings(LayerMappingsTemplate):
@@ -1107,6 +1178,39 @@ class GlassMappings(MappingCollection):
         SlotMapping("useDiffuseMap", "Diffuse"),
         SlotMapping("useSRM", "Use SRM"),
         SlotMapping("UseTextureOpacity", "Texture Opacity"),
+    )
+
+
+@registry.register
+class PBWBuildEffectMappings(MappingCollection):
+    node_name="FPv4 PBW Build Effect"
+    type=ENodeType.NT_Advanced_FX
+    order=1
+
+    @classmethod
+    def meets_criteria(self, material_data):
+        return BasePBWMappings.meets_criteria(material_data)
+
+    scalars=(
+        SlotMapping("Blueprint_GridMultiplier"),
+        SlotMapping("Blueprint_UseDynamicOrStaticUVs"),
+        SlotMapping("Blueprint_Floor_or_Wall"),
+    )
+
+    colors=(
+        SlotMapping("Blueprint_Outline_Texture_Channel"),
+        SlotMapping("Blueprint_Outline_Texture_Channel2"),
+        SlotMapping("Blueprint_Outline_Texture_Channel3"),
+
+        SlotMapping("BlueprintColor1"),
+        SlotMapping("Color A", "BlueprintColor1"),
+        SlotMapping("BlueprintColor2"),
+        SlotMapping("Color B", "BlueprintColor2"),
+    )
+
+    switches=(
+        SlotMapping("Use 2 Materials"),
+        SlotMapping("Use 3 Materials"),
     )
 
 
