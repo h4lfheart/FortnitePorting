@@ -442,7 +442,7 @@
         </Style>
 
         <Style Selector="FlyoutPresenter[IsVisible=true]">
-            <Setter Property="Padding" Value="{ext:Space 1}" />
+            <Setter Property="MaxWidth" Value="99999" />
 
             <Style Selector="^ ListBoxItem">
                 <Setter Property="CornerRadius" Value="12" />

@@ -6,23 +6,22 @@
              xmlns:plugin="clr-namespace:FortnitePorting.ViewModels.Plugin"
              xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
-             xmlns:settingsControls="clr-namespace:FortnitePorting.Controls.Settings"
+             xmlns:plugin1="clr-namespace:FortnitePorting.Views.Plugin"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FortnitePorting.Views.Plugin.UnrealPluginView"
              x:DataType="plugin:UnrealPluginViewModel">
-    <Grid Margin="{ext:Space 1}">
+    <Grid Margin="{ext:Space 2}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="{ext:Space 1}" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="{ext:Space 1}" />
-            <RowDefinition Height="7*" />
-            <RowDefinition Height="{ext:Space 1}" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0" HorizontalAlignment="Center">
+        <Grid Grid.Row="0" HorizontalAlignment="Stretch">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="{ext:Space 1}" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="{ext:Space 1}" />
@@ -31,54 +30,118 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <TextBlock Grid.Column="0" Text="Unreal Projects" Classes="SubtitleTextBlockStyle" />
-            <Button Grid.Column="2" Content="{material:MaterialIconExt Plus}" Command="{Binding AddProject}" />
-            <Button Grid.Column="4" Content="{material:MaterialIconExt Minus}" Command="{Binding RemoveProject}" />
-            <Button Grid.Column="6" Content="{material:MaterialIconExt Sync}" Command="{Binding SyncProjects}" />
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="{ext:Space 1}" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="Unreal Engine" Classes="SubtitleTextBlockStyle" />
+                <TextBlock Grid.Row="2"
+                           Text="{Binding Installations.Count, StringFormat='{}{0} Project(s) Registered'}"
+                           Classes="BodyTextBlockStyle TextFillColorSecondaryBrush" />
+            </Grid>
+
+            <Button Grid.Column="2" Content="{controls:IconText 'Add Project', Plus}"
+                    Command="{Binding AddInstallation}" />
+
+            <Button Grid.Column="4"
+                    Command="{Binding SyncInstallations}"
+                    IsEnabled="{Binding !!Installations.Count}"
+                    VerticalAlignment="Center" HorizontalAlignment="Right"
+                    Content="{controls:IconText 'Sync', Sync}" />
+
+            <DropDownButton Grid.Column="6" HorizontalAlignment="Stretch">
+                <DropDownButton.Flyout>
+                    <Flyout VerticalOffset="4">
+                        <StackPanel Spacing="{ext:Space 1}" HorizontalAlignment="Stretch">
+                            <StackPanel Orientation="Horizontal" Spacing="{ext:Space 4}" VerticalAlignment="Center">
+                                <StackPanel Spacing="{ext:Space 1}">
+                                    <TextBlock Text="Auto-Sync" />
+                                    <TextBlock Text="Automatically syncs the plugin after an update has occurred."
+                                               Classes="CaptionTextBlockStyle TextFillColorSecondaryBrush"
+                                               VerticalAlignment="Center" />
+                                </StackPanel>
+                                <ToggleSwitch IsChecked="{Binding AutomaticallySync}" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Flyout>
+                </DropDownButton.Flyout>
+
+                <StackPanel Orientation="Horizontal">
+                    <material:MaterialIcon Kind="Settings" Margin="{ext:Space 0, 0, 1, 0}" />
+                    <TextBlock Text="Options" />
+                </StackPanel>
+            </DropDownButton>
         </Grid>
-        
-        <settingsControls:SettingsItem Grid.Row="2" Title="Automatic Sync" Description="Whether or not to automatically sync the Unreal plugin after an update has occurred. It is highly recommended to keep this enabled.">
-            <settingsControls:SettingsItem.Footer>
-                <ToggleSwitch IsChecked="{Binding AutomaticallySync}"/>
-            </settingsControls:SettingsItem.Footer>
-        </settingsControls:SettingsItem>
 
-        <TextBlock Grid.Row="4" Text="There are no Unreal projects registered yet." IsVisible="{Binding !Projects.Count}"
+        <Separator Grid.Row="1" Background="{DynamicResource FPSeparatorColorLayer1}" Margin="{ext:Space 0, 2}" />
+
+        <TextBlock Grid.Row="4" Text="No Projects Found" IsVisible="{Binding !Installations.Count}"
                    Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" HorizontalAlignment="Center"
-                   VerticalAlignment="Center" />
+                   VerticalAlignment="Center" Margin="{ext:Space 0, 4}" />
 
-        <controls:ContentCard Grid.Row="4" VerticalAlignment="Stretch">
-            <ListBox Margin="{ext:Space 1}" ItemsSource="{Binding Projects}" SelectedIndex="{Binding SelectedProjectIndex, Mode=TwoWay}">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <Grid Margin="{ext:Space 0, 1}">
+        <ItemsControl Grid.Row="4" ItemsSource="{Binding Installations}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <controls:ContentCard Padding="{ext:Space 2}">
+                        <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="{ext:Space 1}" />
+                                <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="{ext:Space 1}" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
 
                             <Border Grid.Column="0" CornerRadius="12" ClipToBounds="True">
-                                <Image Source="{Binding Image}" Width="48" Height="48" RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                                <Image Source="{Binding Image}" Width="48" Height="48"
+                                       RenderOptions.BitmapInterpolationMode="HighQuality" />
                             </Border>
-                            
+
                             <Grid Grid.Column="2">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="*" />
-                                    <RowDefinition Height="{ext:Space 0.5}" />
+                                    <RowDefinition Height="{ext:Space 1}" />
                                     <RowDefinition Height="*" />
                                 </Grid.RowDefinitions>
 
-                                <TextBlock Grid.Row="0" Text="{Binding Name}"
-                                           Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center"/>
-                                
-                                <TextBlock Grid.Row="2" Text="{Binding Version, TargetNullValue='Failed to Install'}" Classes="BodyTextBlockStyle" VerticalAlignment="Center"/>
+                                <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="{ext:Space 1}">
+                                    <TextBlock Text="{Binding Name}"
+                                               Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center" />
+
+                                    <Border CornerRadius="12" Padding="{ext:Space 1, 0.5}"
+                                            HorizontalAlignment="Left" ClipToBounds="False"
+                                            Background="{Binding StatusBrush}">
+                                        <TextBlock Text="{Binding Status, Converter={StaticResource EnumToString}}"
+                                                   FontFamily="{StaticResource SFTextSemiBold}"
+                                                   FontSize="12" Foreground="White" />
+                                    </Border>
+
+                                    <TextBlock Text="{Binding VersionString}"
+                                               Classes="CaptionTextBlockStyle TextFillColorSecondaryBrush"
+                                               VerticalAlignment="Center" />
+                                </StackPanel>
+
+                                <TextBlock Grid.Row="2" Text="{Binding ProjectFilePath}"
+                                           Classes="BodyTextBlockStyle TextFillColorTertiaryBrush"
+                                           VerticalAlignment="Center" />
                             </Grid>
+
+                            <Button Grid.Column="4" Content="{material:MaterialIconExt Close}"
+                                    Command="{Binding $parent[plugin1:UnrealPluginView].((plugin:UnrealPluginViewModel)DataContext).RemoveInstallation}"
+                                    CommandParameter="{Binding}" />
                         </Grid>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
-        </controls:ContentCard>
-        
+                    </controls:ContentCard>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Spacing="{ext:Space 1}" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
+
     </Grid>
 </UserControl>

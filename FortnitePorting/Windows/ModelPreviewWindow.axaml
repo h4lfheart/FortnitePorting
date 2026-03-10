@@ -59,7 +59,7 @@
             </Grid>
         </Grid>
 
-        <Border Grid.Row="1" Background="{DynamicResource ContentBorderBackgroundBrush}"
+        <Border Grid.Row="1" Background="{DynamicResource ContentBorderBackgroundBrush}" CornerRadius="0"
                 BorderThickness="0 2 0 0" BorderBrush="{DynamicResource ContentBorderBorderBrush}">
             <Grid Margin="{ext:Space 1}" ClipToBounds="True">
                 <ContentControl Content="{Binding Control}" IsVisible="{Binding !IsLoading}" />

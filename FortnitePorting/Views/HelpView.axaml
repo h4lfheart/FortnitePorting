@@ -15,32 +15,28 @@
              x:DataType="viewModels:HelpViewModel">
     <Grid>
         <ScrollViewer IsVisible="{Binding !IsBuilderOpen}">
-            <Grid Margin="{ext:Space 1}">
+            <Grid Margin="{ext:Space 2}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="{ext:Space 1}"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="{ext:Space 1}"/>
+                    <RowDefinition Height="{ext:Space 2}"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 
-                <Button Grid.Row="0" Content="{Binding BuilderButtonText}" 
-                        IsVisible="{Binding AllowedToOpenBuilder}"
-                        VerticalAlignment="Top" HorizontalAlignment="Left" Margin="{ext:Space 1}"
-                        Command="{Binding ToggleBuilderCommand}"/>
+                <Grid Grid.Row="0" ColumnDefinitions="Auto *">
+                    
+                    <Button Grid.Column="0" Grid.Row="0" Content="{Binding BuilderButtonText}" 
+                            IsVisible="{Binding AllowedToOpenBuilder}"
+                            VerticalAlignment="Center" HorizontalAlignment="Left" Margin="{ext:Space 0, 0, 1, 0}"
+                            Command="{Binding ToggleBuilderCommand}"/>
                 
-                <TextBlock Grid.Row="0" Text="Help Articles" Classes="SubtitleTextBlockStyle"
-                           Margin="{ext:Space 0, -1, 0, 0}"
-                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                <TextBlock Grid.Row="2" Text="Written by the Fortnite Porting Staff Team &lt;3" Classes="BodyTextBlockStyle TextFillColorTertiaryBrush"
-                           Margin="{ext:Space 0, -2, 0, 0}"
-                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <TextBox Grid.Column="1" Grid.Row="0" Watermark="Search..." Text="{Binding SearchFilter}"
+                               HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+                </Grid>
                 
-                <ItemsControl Grid.Row="4" ItemsSource="{Binding Articles}">
+                <ItemsControl Grid.Row="2" ItemsSource="{Binding Articles}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                             <settingsControls:SettingsItem Description="{Binding Description}" 
-                                                  Margin="{ext:Space 0, 0, 0, 1}" Padding="{ext:Space 2, 1, 1, 2}">
+                             <settingsControls:SettingsItem Description="{Binding Description}">
                                  <settingsControls:SettingsItem.TitleContent>
                                      <StackPanel Orientation="Horizontal">
                                          <TextBlock Text="{Binding Title}" Classes="BodyTextBlockStyle"/>
@@ -115,15 +111,20 @@
                              </settingsControls:SettingsItem>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Spacing="{ext:Space 1}"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
                 </ItemsControl>
                 
-                <TextBlock Grid.Row="4" IsVisible="{Binding !Articles.Count}" Text="No Help Articles Loaded" 
+                <TextBlock Grid.Row="2" IsVisible="{Binding !Articles.Count}" Text="No  Articles Found" 
                            Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"
                            HorizontalAlignment="Center" VerticalAlignment="Center" />
             </Grid>
         </ScrollViewer>
         <ScrollViewer IsVisible="{Binding IsBuilderOpen}">
-            <Grid Margin="{ext:Space 1}">
+            <Grid Margin="{ext:Space 2}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="{ext:Space 0}"/>

@@ -1,9 +1,11 @@
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using DynamicData;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Article;
@@ -11,14 +13,17 @@ using FortnitePorting.Models.Information;
 using FortnitePorting.Models.Supabase.Tables;
 
 using FortnitePorting.Services;
+using FortnitePorting.Shared.Extensions;
+using ReactiveUI;
 
 namespace FortnitePorting.ViewModels;
 
-public partial class HelpViewModel(SupabaseService supabase) : ViewModelBase
+public partial class HelpViewModel : ViewModelBase
 {
-    [ObservableProperty] private SupabaseService _supaBase = supabase;
-    
-    [ObservableProperty] private ObservableCollection<Article> _articles = [];
+    [ObservableProperty] private SupabaseService _supaBase;
+
+    [ObservableProperty] private string _searchFilter = string.Empty;
+    [ObservableProperty] private ReadOnlyObservableCollection<Article> _articles = new([]);
     
     [ObservableProperty, NotifyPropertyChangedFor(nameof(BuilderButtonText))] private bool _isBuilderOpen = false;
     public string BuilderButtonText => IsBuilderOpen ? "Open Help Articles List" : "Open Help Article Builder";
@@ -26,6 +31,30 @@ public partial class HelpViewModel(SupabaseService supabase) : ViewModelBase
     
     [ObservableProperty] private Article _builderArticle = new();
     [ObservableProperty] private int _selectedSectionIndex = 0;
+
+    private SourceCache<Article, string> _articleCache = new(x => x.Id);
+
+    public HelpViewModel(SupabaseService supabase) : this()
+    {
+        SupaBase = supabase;
+    }
+
+    private HelpViewModel()
+    {
+        
+        var filterObservable = this
+            .WhenAnyValue(vm => vm.SearchFilter)
+            .Select(CreateFilter);
+        
+        _articleCache.Connect()
+            .ObserveOn(RxApp.MainThreadScheduler)
+            .Filter(filterObservable)
+            .Bind(out var readOnlyArticles)
+            .Subscribe(); 
+
+        Articles = readOnlyArticles;
+        
+    }
 
     public override async Task Initialize()
     {
@@ -35,7 +64,11 @@ public partial class HelpViewModel(SupabaseService supabase) : ViewModelBase
     public async Task UpdateArticles()
     {
         var articles = await SupaBase.Client.From<Article>().Get();
-        Articles = [..articles.Models];
+        _articleCache.Edit(updater =>
+        {
+            updater.Clear();
+            updater.AddOrUpdate(articles.Models);
+        });
     }
 
     public override async Task OnViewOpened()
@@ -156,5 +189,12 @@ public partial class HelpViewModel(SupabaseService supabase) : ViewModelBase
         var selectedIndexToMove = SelectedSectionIndex;
         BuilderArticle.Sections.Move(SelectedSectionIndex, SelectedSectionIndex + 1);
         SelectedSectionIndex = selectedIndexToMove + 1;
+    }
+    
+    private Func<Article, bool> CreateFilter(string filter)
+    {
+        return article => MiscExtensions.Filter(article.Title, filter) 
+                          || MiscExtensions.Filter(article.Description, filter)
+                          || MiscExtensions.Filter(article.Tag, filter);
     }
 }

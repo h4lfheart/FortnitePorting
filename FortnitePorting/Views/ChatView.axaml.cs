@@ -24,7 +24,7 @@ namespace FortnitePorting.Views;
 
 public partial class ChatView : ViewBase<ChatViewModel>
 {
-    private const double AutoScrollThreshold = 800;
+    private const double AutoScrollThreshold = 1500;
     private const double LoadMoreThreshold = 200;
     
     private bool _shouldAutoScroll = true;
@@ -74,8 +74,10 @@ public partial class ChatView : ViewBase<ChatViewModel>
 
         Chat.MessageReceived += (sender, args) =>
         {
-            TaskService.RunDispatcher(() =>
+            TaskService.RunDispatcher(async () =>
             {
+                await Task.Delay(50); // short delay to account for image load
+                
                 var distanceFromBottom = Scroll.Extent.Height - Scroll.Viewport.Height - Scroll.Offset.Y;
                 _shouldAutoScroll = distanceFromBottom <= AutoScrollThreshold;
                 

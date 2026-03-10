@@ -7,22 +7,22 @@
              xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
              xmlns:settingsControls="clr-namespace:FortnitePorting.Controls.Settings"
+             xmlns:plugin1="clr-namespace:FortnitePorting.Views.Plugin"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FortnitePorting.Views.Plugin.BlenderPluginView"
              x:DataType="plugin:BlenderPluginViewModel">
-    <Grid Margin="{ext:Space 1}">
+    <Grid Margin="{ext:Space 2}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="{ext:Space 1}" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="{ext:Space 1}" />
-            <RowDefinition Height="7*" />
-            <RowDefinition Height="{ext:Space 1}" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0" HorizontalAlignment="Center">
+        <Grid Grid.Row="0" HorizontalAlignment="Stretch">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="{ext:Space 1}" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="{ext:Space 1}" />
@@ -31,56 +31,124 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <TextBlock Grid.Column="0" Text="Blender Plugin" Classes="SubtitleTextBlockStyle" />
-            <Button Grid.Column="2" Content="{material:MaterialIconExt Plus}" Command="{Binding AddInstallation}" />
-            <Button Grid.Column="4" Content="{material:MaterialIconExt Minus}" Command="{Binding RemoveInstallation}"
-                    IsEnabled="{Binding !!Installations.Count}"/>
-            <Button Grid.Column="6" Content="{material:MaterialIconExt Sync}" Command="{Binding SyncInstallations}" />
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="{ext:Space 1}" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="Blender" Classes="SubtitleTextBlockStyle" />
+
+                <TextBlock Grid.Row="2"
+                           Text="{Binding Installations.Count, StringFormat='{}{0} Version(s) Registered'}"
+                           Classes="BodyTextBlockStyle TextFillColorSecondaryBrush" />
+            </Grid>
+
+
+            <Button Grid.Column="2" Content="{controls:IconText 'Add Version', Plus}"
+                    Command="{Binding AddInstallation}" />
+
+            <Button Grid.Column="4"
+                    Command="{Binding SyncInstallations}"
+                    IsEnabled="{Binding !!Installations.Count}"
+                    VerticalAlignment="Center" HorizontalAlignment="Right" Content="{controls:IconText 'Sync', Sync}" />
+
+            <DropDownButton Grid.Column="6" HorizontalAlignment="Stretch">
+                <DropDownButton.Flyout>
+                    <Flyout VerticalOffset="4">
+                        <StackPanel Spacing="{ext:Space 1}" HorizontalAlignment="Stretch">
+                            <StackPanel Orientation="Horizontal" Spacing="{ext:Space 4}" VerticalAlignment="Center">
+                                <StackPanel Spacing="{ext:Space 1}">
+                                    <TextBlock Text="Auto-Sync"/>
+                                    <TextBlock Text="Automatically syncs the plugin after an update has occurred." Classes="CaptionTextBlockStyle TextFillColorSecondaryBrush" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <ToggleSwitch IsChecked="{Binding AutomaticallySync}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Flyout>
+                </DropDownButton.Flyout>
+
+                <StackPanel Orientation="Horizontal">
+                    <material:MaterialIcon Kind="Settings" Margin="{ext:Space 0, 0, 1, 0}" />
+                    <TextBlock Text="Options" />
+                </StackPanel>
+            </DropDownButton>
+
         </Grid>
-        
-        <settingsControls:SettingsItem Grid.Row="2" Title="Automatic Sync" Description="Whether or not to automatically sync the Blender plugin after an update has occurred. It is highly recommended to keep this enabled.">
-            <settingsControls:SettingsItem.Footer>
-                <ToggleSwitch IsChecked="{Binding AutomaticallySync}"/>
-            </settingsControls:SettingsItem.Footer>
-        </settingsControls:SettingsItem>
 
-        <TextBlock Grid.Row="4" Text="There are no Blender versions registered yet." IsVisible="{Binding !Installations.Count}"
+        <Separator Grid.Row="1" Background="{DynamicResource FPSeparatorColorLayer1}" Margin="{ext:Space 0, 2}" />
+
+        <TextBlock Grid.Row="4" Text="No Versions Found" IsVisible="{Binding !Installations.Count}"
                    Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" HorizontalAlignment="Center"
-                   VerticalAlignment="Center" />
+                   VerticalAlignment="Center" Margin="{ext:Space 0, 4}" />
 
-        <controls:ContentCard Grid.Row="4" VerticalAlignment="Stretch">
-            <ListBox Margin="{ext:Space 1}" ItemsSource="{Binding Installations}" SelectedIndex="{Binding SelectedInstallationIndex, Mode=TwoWay}">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <Grid Margin="{ext:Space 0, 1}">
+        <ItemsControl Grid.Row="4" ItemsSource="{Binding Installations}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <controls:ContentCard Padding="{ext:Space 2}">
+                        <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="{ext:Space 1}" />
-                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
 
-                            <Image Grid.Column="0" Source="/Assets/Icons/Blender.png" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality"/>
-                        
-                            <Grid Grid.Column="2">
+                            <Grid Grid.Column="0">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="*" />
-                                    <RowDefinition Height="{ext:Space 0.5}" />
+                                    <RowDefinition Height="{ext:Space 1}" />
                                     <RowDefinition Height="*" />
                                 </Grid.RowDefinitions>
 
-                                <StackPanel Grid.Row="0" Orientation="Horizontal">
+                                <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="{ext:Space 1}">
                                     <TextBlock Text="{Binding BlenderVersion, StringFormat=Blender {0}}"
-                                               Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center"/>
-                                    <TextBlock Text="{Binding Status}" Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" 
-                                               Margin="{ext:Space 1, 0, 0, 0}" VerticalAlignment="Center" />
+                                               Classes="BodyStrongTextBlockStyle" VerticalAlignment="Center" />
+
+                                    <Border
+                                        CornerRadius="12"
+                                        Padding="{ext:Space 1, 0.5}"
+                                        HorizontalAlignment="Left" ClipToBounds="False"
+                                        Background="{Binding StatusBrush}">
+
+                                        <TextBlock Text="{Binding Status, Converter={StaticResource EnumToString}}"
+                                                   FontFamily="{StaticResource SFTextSemiBold}"
+                                                   FontSize="12"
+                                                   Foreground="White" />
+                                    </Border>
+
+                                    <TextBlock Text="{Binding ExtensionVersionString}"
+                                               Classes="CaptionTextBlockStyle TextFillColorSecondaryBrush"
+                                               VerticalAlignment="Center" />
+
                                 </StackPanel>
-                                <TextBlock Grid.Row="2" Text="{Binding ExtensionVersion, TargetNullValue='Failed to Install'}" Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" VerticalAlignment="Center"/>
+
+                                <TextBlock Grid.Row="2" Text="{Binding BlenderPath}"
+                                           Classes="BodyTextBlockStyle TextFillColorTertiaryBrush"
+                                           VerticalAlignment="Center" />
+                            </Grid>
+
+                            <Grid Grid.Column="2" HorizontalAlignment="Right">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="{ext:Space 1}" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <Button Grid.Column="2" Content="{material:MaterialIconExt Close}"
+                                        Command="{Binding $parent[plugin1:BlenderPluginView].((plugin:BlenderPluginViewModel)DataContext).RemoveInstallation}"
+                                        CommandParameter="{Binding }" />
                             </Grid>
                         </Grid>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
-        </controls:ContentCard>
-        
+                    </controls:ContentCard>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Spacing="{ext:Space 1}" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
+
     </Grid>
 </UserControl>

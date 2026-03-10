@@ -1,8 +1,10 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FortnitePorting.Shared.Extensions;
+using FortnitePorting.ViewModels;
 using Newtonsoft.Json;
 using Tomlyn;
 
@@ -12,13 +14,22 @@ public partial class BlenderInstallation(string blenderExecutablePath) : Observa
 {
     [ObservableProperty] private string _blenderPath = blenderExecutablePath;
     
-    [ObservableProperty] 
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(ExtensionVersionString))] 
     [field: JsonIgnore]
     private Version? _extensionVersion = null;
+
+    public string ExtensionVersionString => ExtensionVersion is null ? string.Empty : $"v{ExtensionVersion.ToString()}";
     
-    [ObservableProperty]
-    [field: JsonIgnore]
-    private string _status = string.Empty;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(StatusBrush))]
+    private EPluginStatusType _status = EPluginStatusType.Modifying;
+
+    public SolidColorBrush StatusBrush => Status switch
+    {
+        EPluginStatusType.Newest => SolidColorBrush.Parse("#17854F"),
+        EPluginStatusType.UpdateAvailable => SolidColorBrush.Parse("#E0A100"),
+        EPluginStatusType.Failed => SolidColorBrush.Parse("#A61717"),
+        EPluginStatusType.Modifying => SolidColorBrush.Parse("#6F6F75"),
+    };
 
     public Version BlenderVersion => GetVersion(BlenderPath);
 
@@ -46,18 +57,26 @@ public partial class BlenderInstallation(string blenderExecutablePath) : Observa
         if (!File.Exists(ManifestPath))
         {
             Info.Message("Blender Extension", $"Plugin manifest does not exist at path {ManifestPath}, installation may have gone wrong.\nPlease remove the installation from Fortnite Porting and try again.");
+            Status = EPluginStatusType.Failed;
             return false;
         }
         
         var manifestContents = File.ReadAllText(ManifestPath);
         var manifestToml = Toml.ToModel(manifestContents);
         ExtensionVersion = new Version((string) manifestToml["version"]);
+
+        var fpExtensionVersion = new FPVersion(ExtensionVersion.Major, ExtensionVersion.Minor, ExtensionVersion.Build);
+        if (!fpExtensionVersion.Equals(Globals.Version))
+        {
+            Status = EPluginStatusType.UpdateAvailable;
+        }
+        
         return true;
     }
     
     public void Install(bool verbose = true)
     {
-        Status = "Installing";
+        Status = EPluginStatusType.Modifying;
         
         MiscExtensions.Copy(Path.Combine(PluginWorkingDirectory.FullName, "fortnite_porting"), Path.Combine(StartupPath, "fortnite_porting"));
 
@@ -69,15 +88,17 @@ public partial class BlenderInstallation(string blenderExecutablePath) : Observa
                 Info.Message("Plugin Installation Failed", 
                     "Failed to install the plugin, please install it manually by dragging and dropping the Fortnite Porting plugin in Blender.", 
                     useButton: true, buttonTitle: "Open Plugins Folder", buttonCommand: () => App.Launch(App.PluginsFolder.FullName));
+
+                Status = EPluginStatusType.Failed;
             }
         }
-        
-        Status = string.Empty;
+
+        Status = EPluginStatusType.Newest;
     }
 
     public void Uninstall()
     {
-        Status = "Uninstalling";
+        Status = EPluginStatusType.Modifying;
         
         Directory.Delete(Path.Combine(StartupPath, "fortnite_porting"), true);
     }

@@ -16,7 +16,6 @@ public partial class BlenderPluginViewModel : ViewModelBase
 {
     [ObservableProperty] private bool _automaticallySync = true;
     [ObservableProperty] private ObservableCollection<BlenderInstallation> _installations = [];
-    [ObservableProperty, JsonIgnore] private int _selectedInstallationIndex = 0;
 
     [ObservableProperty] private bool _completedFirstInstall;
 
@@ -49,7 +48,7 @@ public partial class BlenderPluginViewModel : ViewModelBase
         if (blenderVersion < BlenderInstallation.MinimumVersion)
         {
             Info.Message("Blender Plugin", 
-                $"Blender {blenderVersion} is too low of a version. Only Blender {BlenderInstallation.MinimumVersion} and higher are supported.", 
+                $"Blender {blenderVersion} is too low of a version. Only Blender versions {BlenderInstallation.MinimumVersion} and higher are supported.", 
                 InfoBarSeverity.Error, autoClose: false);
             return;
         }
@@ -69,7 +68,6 @@ public partial class BlenderPluginViewModel : ViewModelBase
         var installation = new BlenderInstallation(blenderPath);
         
         Installations.Add(installation);
-        SelectedInstallationIndex = Installations.Count - 1;
 
         await TaskService.RunAsync(() =>
         {
@@ -83,18 +81,14 @@ public partial class BlenderPluginViewModel : ViewModelBase
         });
     }
 
-    public async Task RemoveInstallation()
+    public async Task RemoveInstallation(BlenderInstallation installation)
     {
-        if (Installations.Count == 0) return;
-        
-        await TaskService.RunAsync(() =>
+        TaskService.Run(() =>
         {
-            Installations[SelectedInstallationIndex].Uninstall();
+            installation.Uninstall();
+
+            Installations.Remove(installation);
         });
-        
-        var selectedIndexToRemove = SelectedInstallationIndex;
-        Installations.RemoveAt(selectedIndexToRemove);
-        SelectedInstallationIndex = selectedIndexToRemove == 0 ? 0 : selectedIndexToRemove - 1;
     }
 
     public async Task SyncInstallations()
