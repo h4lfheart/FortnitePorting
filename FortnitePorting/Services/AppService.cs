@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input.Platform;
@@ -9,6 +10,8 @@ using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.Utils;
 using FluentAvalonia.UI.Controls;
+using FortnitePorting.Application;
+using FortnitePorting.Framework;
 using FortnitePorting.Models.Information;
 using FortnitePorting.ViewModels;
 using FortnitePorting.Views;
@@ -113,6 +116,19 @@ public class AppService : IService
     {
         if (AppSettings.ShouldSaveOnExit)
             AppSettings.Save();
+        
+        var viewModelTypes = Assembly.GetAssembly(typeof(ViewModelBase))?
+            .GetTypes()
+            .Where(type => !type.IsAbstract && type.IsAssignableTo(typeof(ViewModelBase))) ?? [];
+
+        foreach (var viewModelType in viewModelTypes)
+        {
+            if (viewModelType.GetCustomAttribute<TransientAttribute>() is not null)
+                continue;
+
+            var viewModel = AppServices.Services.GetService(viewModelType) as ViewModelBase;
+            viewModel?.OnApplicationExit();
+        }
     }
 
     private void RegisterUrlScheme()

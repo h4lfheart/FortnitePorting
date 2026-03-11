@@ -1,0 +1,157 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:windowModels="clr-namespace:FortnitePorting.WindowModels"
+        xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
+        xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+        xmlns:ui="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+        xmlns:controls="clr-namespace:FortnitePorting.Controls"
+        x:Class="FortnitePorting.Windows.MusicPlayerWindow"
+        x:DataType="windowModels:MusicPlayerWindowModel"
+        RequestedThemeVariant="Dark"
+        Background="{DynamicResource WindowBackgroundBrush}"
+        TransparencyLevelHint="{Binding Settings.Application.TransparencyHints}"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="NoChrome"
+        ExtendClientAreaTitleBarHeightHint="35"
+        FontFamily="{StaticResource SFTextRegular}"
+        WindowStartupLocation="Manual"
+        SizeToContent="Height"
+        Width="300"
+        CanResize="False"
+        Topmost="True"
+        Icon="/Assets/LogoRebrand.ico"
+        Title="Fortnite Porting — Music Player">
+
+    <Grid RowDefinitions="35, *" Margin="{Binding $parent[Window].OffScreenMargin}">
+
+        <Grid Grid.Row="0" HorizontalAlignment="Stretch" PointerPressed="OnPointerPressedUpperBar">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="{ext:Space 0.75}" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="{ext:Space 0.5}" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <ui:ImageIcon Grid.Column="0"
+                              Source="{DynamicResource FPLogoBitmap}"
+                              HorizontalAlignment="Right"
+                              Width="20" Height="20"
+                              RenderOptions.BitmapInterpolationMode="HighQuality"
+                              RenderOptions.EdgeMode="Antialias" />
+
+                <TextBlock Grid.Column="2"
+                           Text="Music Player"
+                           FontFamily="{StaticResource SFTextSemiBold}"
+                           FontSize="14"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center" />
+            </Grid>
+
+            <Grid HorizontalAlignment="Right">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="{ext:Space 0.5}" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="1" />
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" PointerPressed="OnMinimizePressed" Cursor="Hand" CornerRadius="0"
+                        Classes="MinimizeMaximize" Child="{material:MaterialIconExt Minus}"
+                        Width="35" Height="35" />
+                <Border Grid.Column="2" PointerPressed="OnClosePressed" Cursor="Hand" CornerRadius="0"
+                        Classes="Close" Child="{material:MaterialIconExt Close}"
+                        Width="35" Height="35" />
+            </Grid>
+        </Grid>
+
+        <Border Grid.Row="1" Background="{DynamicResource ContentBorderBackgroundBrush}" CornerRadius="0"
+                BorderThickness="0 2 0 0" BorderBrush="{DynamicResource ContentBorderBorderBrush}">
+
+            <StackPanel Margin="{ext:Space 2, 2, 2, 2}" Spacing="{ext:Space 1}">
+
+                <Border HorizontalAlignment="Stretch"
+                        CornerRadius="12"
+                        ClipToBounds="True">
+                    <Border.Background>
+                        <ImageBrush Source="{Binding ActiveItem.CoverArtBitmap}" Stretch="UniformToFill" />
+                    </Border.Background>
+                    <Panel Height="{Binding $self.Bounds.Width}" />
+                </Border>
+
+                <StackPanel Spacing="{ext:Space 0.5}" Margin="{ext:Space 0, 1, 0, 0}">
+                    <TextBlock Classes="BodyStrongTextBlockStyle"
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center"
+                               TextTrimming="CharacterEllipsis"
+                               Text="{Binding ActiveItem.TrackName, FallbackValue='No Song Playing'}" />
+                    <TextBlock Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center"
+                               TextWrapping="Wrap"
+                               Opacity="0.75"
+                               Text="{Binding ActiveItem.TrackDescription}" />
+                </StackPanel>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="{ext:Space 1}" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="{ext:Space 1}" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0"
+                               VerticalAlignment="Center"
+                               Text="{Binding CurrentTime, StringFormat=mm\\:ss, FallbackValue=0:00}"
+                               Classes="CaptionTextBlockStyle" />
+                    <Slider Grid.Column="2"
+                            VerticalAlignment="Center"
+                            Value="{Binding CurrentTime.TotalSeconds}"
+                            Minimum="0"
+                            Maximum="{Binding TotalTime.TotalSeconds}"
+                            ValueChanged="OnPlaybackSliderChanged" />
+                    <TextBlock Grid.Column="4"
+                               VerticalAlignment="Center"
+                               Text="{Binding TotalTime, StringFormat=mm\\:ss, FallbackValue=0:00}"
+                               Classes="CaptionTextBlockStyle" />
+                </Grid>
+
+                <Grid HorizontalAlignment="Stretch" Margin="{ext:Space 0, 0, 0, 1}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="{ext:Space 1}" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="{ext:Space 1}" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="{ext:Space 1}" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="{ext:Space 1}" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <ToggleButton Grid.Column="0" HorizontalAlignment="Stretch"
+                                  ToolTip.Tip="Loop" IsChecked="{Binding IsLooping}">
+                        <material:MaterialIcon Kind="Refresh" />
+                    </ToggleButton>
+                    <Button Grid.Column="2" HorizontalAlignment="Stretch"
+                            ToolTip.Tip="Previous" Command="{Binding PreviousCommand}">
+                        <material:MaterialIcon Kind="SkipPrevious" />
+                    </Button>
+                    <Button Grid.Column="4" HorizontalAlignment="Stretch"
+                            ToolTip.Tip="Play / Pause" Command="{Binding TogglePlayPauseCommand}">
+                        <material:MaterialIcon Kind="{Binding PlayIconKind}" Width="28" Height="28" />
+                    </Button>
+                    <Button Grid.Column="6" HorizontalAlignment="Stretch"
+                            ToolTip.Tip="Next" Command="{Binding NextCommand}">
+                        <material:MaterialIcon Kind="SkipNext" />
+                    </Button>
+                    <ToggleButton Grid.Column="8" HorizontalAlignment="Stretch"
+                                  ToolTip.Tip="Shuffle" IsChecked="{Binding IsShuffling}">
+                        <material:MaterialIcon Kind="Shuffle" />
+                    </ToggleButton>
+                </Grid>
+
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

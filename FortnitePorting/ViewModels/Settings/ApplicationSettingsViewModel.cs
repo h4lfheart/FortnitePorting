@@ -18,6 +18,7 @@ using FortnitePorting.Models.Map;
 using FortnitePorting.Models.Radio;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Validators;
+using FortnitePorting.Windows;
 using NAudio.Wave;
 using Newtonsoft.Json;
 
@@ -77,7 +78,7 @@ public partial class ApplicationSettingsViewModel : SettingsViewModelBase
     
     partial void OnAudioDeviceIndexChanged(int value)
     {
-        MusicVM?.UpdateOutputDevice();
+        MusicPlayerWindow.Instance?.WindowModel.UpdateOutputDevice();
         SoundPreviewWM?.UpdateOutputDevice();
     }
     

@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -109,16 +110,19 @@ public partial class MusicPackItem : ObservableObject
     [RelayCommand]
     public async Task SaveAudio()
     {
-        var fileType = MusicVM.SoundFormat switch
+        if (await App.SaveFileDialog(suggestedFileName: Id, [Globals.MP3FileType, Globals.WAVFileType, Globals.OGGFileType, Globals.FLACFileType]) is not { } path) return;
+
+        var extension = Path.GetExtension(path);
+        var soundFormat = extension switch
         {
-            ESoundFormat.MP3 => Globals.MP3FileType,
-            ESoundFormat.WAV => Globals.WAVFileType,
-            ESoundFormat.OGG => Globals.OGGFileType,
-            ESoundFormat.FLAC => Globals.FLACFileType,
+            ".wav" => ESoundFormat.WAV,
+            ".mp3" => ESoundFormat.MP3,
+            ".ogg" => ESoundFormat.OGG,
+            ".flac" => ESoundFormat.FLAC,
+            _ => throw new ArgumentOutOfRangeException(extension)
         };
         
-        if (await App.SaveFileDialog(suggestedFileName: Id, fileType) is not { } path) return;
-        await SaveAudio(path, MusicVM.SoundFormat);
+        await SaveAudio(path, soundFormat);
     }
 
     public async Task SaveAudio(string path, ESoundFormat soundFormat)
