@@ -129,9 +129,20 @@
                                            VerticalAlignment="Center" />
                             </Grid>
 
-                            <Button Grid.Column="4" Content="{material:MaterialIconExt Close}"
-                                    Command="{Binding $parent[plugin1:UnrealPluginView].((plugin:UnrealPluginViewModel)DataContext).RemoveInstallation}"
-                                    CommandParameter="{Binding}" />
+                            <Grid Grid.Column="4" HorizontalAlignment="Right">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="{ext:Space 1}" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                
+                                <Button Grid.Column="0" Content="{material:MaterialIconExt Launch}"
+                                        Command="{Binding Launch}"/>
+                                
+                                <Button Grid.Column="2" Content="{material:MaterialIconExt Close}"
+                                        Command="{Binding $parent[plugin1:UnrealPluginView].((plugin:UnrealPluginViewModel)DataContext).RemoveInstallation}"
+                                        CommandParameter="{Binding}" />
+                            </Grid>
                         </Grid>
                     </controls:ContentCard>
                 </DataTemplate>

@@ -1,8 +1,10 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.ViewModels;
 using Newtonsoft.Json;
@@ -23,7 +25,7 @@ public partial class BlenderInstallation(string blenderExecutablePath) : Observa
     
     [ObservableProperty, NotifyPropertyChangedFor(nameof(StatusBrush))]
     [property: JsonIgnore]
-    private EPluginStatusType _status = EPluginStatusType.Modifying;
+    private EPluginStatusType _status = EPluginStatusType.Newest;
 
     [JsonIgnore]
     public SolidColorBrush StatusBrush => Status switch
@@ -70,10 +72,9 @@ public partial class BlenderInstallation(string blenderExecutablePath) : Observa
         ExtensionVersion = new Version((string) manifestToml["version"]);
 
         var fpExtensionVersion = new FPVersion(ExtensionVersion.Major, ExtensionVersion.Minor, ExtensionVersion.Build);
-        if (!fpExtensionVersion.Equals(Globals.Version))
-        {
-            Status = EPluginStatusType.UpdateAvailable;
-        }
+        Status = fpExtensionVersion.Equals(Globals.Version)
+            ? EPluginStatusType.Newest
+            : EPluginStatusType.UpdateAvailable;
         
         return true;
     }
@@ -105,5 +106,10 @@ public partial class BlenderInstallation(string blenderExecutablePath) : Observa
         Status = EPluginStatusType.Modifying;
         
         Directory.Delete(Path.Combine(StartupPath, "fortnite_porting"), true);
+    }
+
+    public async Task Launch()
+    {
+        App.Launch(BlenderPath);
     }
 }

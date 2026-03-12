@@ -1,8 +1,10 @@
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.Utils;
 using FortnitePorting.Extensions;
 using FortnitePorting.Shared.Extensions;
@@ -61,7 +63,6 @@ public partial class UnrealInstallation : ObservableObject
     public UnrealInstallation(string projectFilePath)
     {
         ProjectFilePath = projectFilePath;
-        SyncVersion();
     }
 
     public bool SyncVersion()
@@ -77,9 +78,10 @@ public partial class UnrealInstallation : ObservableObject
         var pluginInfo = JsonConvert.DeserializeObject<UPlugin>(File.ReadAllText(PluginPath));
         Version = new Version(pluginInfo!.VersionName);
 
-        var fpVersion = new FPVersion(Version.Major, Version.Minor, Version.Build);
-        if (!fpVersion.Equals(Globals.Version))
-            Status = EPluginStatusType.UpdateAvailable;
+        var fpPluginVersion = new FPVersion(Version.Major, Version.Minor, Version.Build);
+        Status = fpPluginVersion.Equals(Globals.Version)
+            ? EPluginStatusType.Newest
+            : EPluginStatusType.UpdateAvailable;
 
         return true;
     }
@@ -124,6 +126,11 @@ public partial class UnrealInstallation : ObservableObject
 
         Image = new Bitmap(imageFilePath);
         OnPropertyChanged(nameof(Image));
+    }
+    
+    public async Task Launch()
+    {
+        App.Launch(ProjectFilePath);
     }
 }
 
