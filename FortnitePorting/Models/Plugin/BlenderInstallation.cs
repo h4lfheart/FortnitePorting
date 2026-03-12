@@ -15,14 +15,17 @@ public partial class BlenderInstallation(string blenderExecutablePath) : Observa
     [ObservableProperty] private string _blenderPath = blenderExecutablePath;
     
     [ObservableProperty, NotifyPropertyChangedFor(nameof(ExtensionVersionString))] 
-    [field: JsonIgnore]
+    [property: JsonIgnore]
     private Version? _extensionVersion = null;
 
+    [JsonIgnore]
     public string ExtensionVersionString => ExtensionVersion is null ? string.Empty : $"v{ExtensionVersion.ToString()}";
     
     [ObservableProperty, NotifyPropertyChangedFor(nameof(StatusBrush))]
+    [property: JsonIgnore]
     private EPluginStatusType _status = EPluginStatusType.Modifying;
 
+    [JsonIgnore]
     public SolidColorBrush StatusBrush => Status switch
     {
         EPluginStatusType.Newest => SolidColorBrush.Parse("#17854F"),
@@ -30,7 +33,8 @@ public partial class BlenderInstallation(string blenderExecutablePath) : Observa
         EPluginStatusType.Failed => SolidColorBrush.Parse("#A61717"),
         EPluginStatusType.Modifying => SolidColorBrush.Parse("#6F6F75"),
     };
-
+    
+    [JsonIgnore]
     public Version BlenderVersion => GetVersion(BlenderPath);
 
     private string StartupPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),

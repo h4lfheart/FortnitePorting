@@ -17,13 +17,17 @@ public partial class UnrealInstallation : ObservableObject
     private string _projectFilePath;
 
     [ObservableProperty, NotifyPropertyChangedFor(nameof(VersionString))] [field: JsonIgnore]
+    [property: JsonIgnore]
     private Version? _version;
 
+    [JsonIgnore]
     public string VersionString => Version is null ? string.Empty : $"v{Version}";
 
     [ObservableProperty, NotifyPropertyChangedFor(nameof(StatusBrush))]
+    [property: JsonIgnore]
     private EPluginStatusType _status = EPluginStatusType.Modifying;
 
+    [JsonIgnore]
     public SolidColorBrush StatusBrush => Status switch
     {
         EPluginStatusType.Newest => SolidColorBrush.Parse("#17854F"),
@@ -36,11 +40,19 @@ public partial class UnrealInstallation : ObservableObject
     public Bitmap Image { get; private set; } =
         ImageExtensions.AvaresBitmap("avares://FortnitePorting/Assets/UnrealLogo.png");
 
+    [JsonIgnore]
     public string Name => ProjectFilePath.SubstringAfterLast("/").SubstringBeforeLast(".");
 
+    [JsonIgnore]
     public string PluginsFolder => Path.Combine(ProjectFilePath.SubstringBeforeLast("/"), "Plugins");
+    
+    [JsonIgnore]
     public string FortnitePortingFolder => Path.Combine(PluginsFolder, "FortnitePorting");
+    
+    [JsonIgnore]
     public string UEFormatFolder => Path.Combine(PluginsFolder, "UEFormat");
+    
+    [JsonIgnore]
     public string PluginPath => Path.Combine(FortnitePortingFolder, "FortnitePorting.uplugin");
 
     public static readonly DirectoryInfo PluginWorkingDirectory =

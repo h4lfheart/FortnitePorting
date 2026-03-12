@@ -118,8 +118,10 @@ public partial class BlenderPluginViewModel : ViewModelBase
             {
                 if (verbose)
                 {
-                    Info.Message("Blender Extension", $"Blender {installation.BlenderVersion} is already up to date.");
+                    Info.Message("Blender Extension", $"Blender {installation.BlenderVersion} is already up to date, syncing anyways.");
                 }
+                
+                installation.Install(verbose);
                 
                 continue;
             }

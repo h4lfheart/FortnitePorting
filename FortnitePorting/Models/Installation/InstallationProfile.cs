@@ -37,16 +37,16 @@ public partial class InstallationProfile : ObservableValidator
     [ObservableProperty] 
     private FileEncryptionKey _mainKey = FileEncryptionKey.Empty;
     
-    [ObservableProperty] private int _selectedExtraKeyIndex;
+    [ObservableProperty] [property: JsonIgnore] private int _selectedExtraKeyIndex;
     [ObservableProperty] private ObservableCollection<FileEncryptionKey> _extraKeys = [];
-    [ObservableProperty, JsonIgnore] private string _fetchKeysVersion = string.Empty;
+    [ObservableProperty] [property: JsonIgnore] private string _fetchKeysVersion = string.Empty;
     
     [ObservableProperty] 
     [NotifyPropertyChangedFor(nameof(MappingsFileEnabled))]
     private bool _useMappingsFile;
     
     [ObservableProperty] private string _mappingsFile = string.Empty;
-    [ObservableProperty, JsonIgnore] private string _fetchMappingsVersion = string.Empty;
+    [ObservableProperty] [property: JsonIgnore] private string _fetchMappingsVersion = string.Empty;
     
     [ObservableProperty] private ELanguage _gameLanguage = ELanguage.English;
     [ObservableProperty] private bool _useTextureStreaming = true;

@@ -11,7 +11,7 @@ public partial class AccountSettingsViewModel : SettingsViewModelBase
 {
    [JsonIgnore] public SupabaseService SupaBase => AppServices.SupaBase;
 
-   [ObservableProperty] private UserSessionInfo? _sessionInfo;
+   [ObservableProperty] private string? _sessionInfoEncrypted = null;
 
    [ObservableProperty] private bool _useDiscordRichPresence = true;
 

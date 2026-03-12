@@ -58,12 +58,12 @@ public partial class ApplicationSettingsViewModel : SettingsViewModelBase
     
     [ObservableProperty, NotifyPropertyChangedFor(nameof(TransparencyHints))] private EThemeType _theme = EThemeType.Dark;
     
+    [JsonIgnore]
     public ObservableCollection<WindowTransparencyLevel> TransparencyHints => Theme is EThemeType.Mica ? [WindowTransparencyLevel.Mica, WindowTransparencyLevel.AcrylicBlur] : [WindowTransparencyLevel.AcrylicBlur];
     
     public string AssetPath => UseAssetsPath && Directory.Exists(AssetsPath) ? AssetsPath : App.AssetsFolder.FullName;
     
-    
-    
+    [JsonIgnore]
     public DirectSoundDeviceInfo[] AudioDevices => DirectSoundOut.Devices.ToArray()[1..];
 
     public async Task BrowseAppDataPath()

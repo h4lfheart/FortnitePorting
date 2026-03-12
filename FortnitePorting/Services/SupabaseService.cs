@@ -43,10 +43,12 @@ public partial class SupabaseService : ObservableObject, IService
             {
                 if (client.CurrentSession is { } session)
                 {
-                    AppSettings.Account.SessionInfo = new UserSessionInfo(
+                    var sessionInfo = new UserSessionInfo(
                         session.AccessToken!, 
                         session.RefreshToken!
                     );
+
+                    AppSettings.Account.SessionInfoEncrypted = sessionInfo.ToEncryptedString();
                 }
 
                 if (state == Constants.AuthState.SignedIn && !IsLoggedIn)
@@ -57,9 +59,11 @@ public partial class SupabaseService : ObservableObject, IService
             
             await Client.InitializeAsync();
 
-            if (AppSettings.Account.SessionInfo is { } sessionInfo)
+            if (AppSettings.Account.SessionInfoEncrypted is { } encryptedSession)
             {
-                await SetSession(sessionInfo);
+                var sessionInfo = UserSessionInfo.FromEncryptedString(encryptedSession);
+                if (sessionInfo is not null)
+                    await SetSession(sessionInfo);
             }
         });
     }
@@ -89,22 +93,24 @@ public partial class SupabaseService : ObservableObject, IService
         {
             if (await Client.Auth.SetSession(sessionInfo.AccessToken, sessionInfo.RefreshToken) is { } session)
             {
-                AppSettings.Account.SessionInfo = new UserSessionInfo(
+                var refreshedSessionInfo = new UserSessionInfo(
                     session.AccessToken!, 
                     session.RefreshToken!
                 );
+
+                AppSettings.Account.SessionInfoEncrypted = refreshedSessionInfo.ToEncryptedString();
             }
         }
         catch (GotrueException e) when (e.Message.Contains("refresh_token_already_used"))
         {
-            AppSettings.Account.SessionInfo = null;
+            AppSettings.Account.SessionInfoEncrypted = null;
             IsLoggedIn = false;
             Info.Dialog("Session Expired", "Your session has expired. Please log in again.");
             Log.Warning("Refresh token already used, session cleared");
         }
         catch (Exception e)
         {
-            AppSettings.Account.SessionInfo = null;
+            AppSettings.Account.SessionInfoEncrypted = null;
             IsLoggedIn = false;
             Info.Dialog("Online Services", "The online session is invalid, please log in again.");
             Log.Error(e.ToString());
@@ -135,7 +141,7 @@ public partial class SupabaseService : ObservableObject, IService
 
         await Chat.Uninitialize();
 
-        AppSettings.Account.SessionInfo = null;
+        AppSettings.Account.SessionInfoEncrypted = null;
         UserInfo = null;
         IsLoggedIn = false;
         

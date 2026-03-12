@@ -17,6 +17,7 @@ public partial class SettingsService : ObservableObject, IService
     [ObservableProperty] private PluginViewModel _plugin = new();
     [ObservableProperty] private DeveloperSettingsViewModel _developer = new();
 
+    [JsonIgnore]
     public bool ShouldSaveOnExit = true;
     
     public static readonly DirectoryInfo DirectoryPath = new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "FortnitePorting"));
@@ -46,7 +47,12 @@ public partial class SettingsService : ObservableObject, IService
         }
         catch (Exception e)
         {
-            Log.Error("Failed to load settings:");
+            var timestamp = DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss");
+            var backupName = $"{Path.GetFileNameWithoutExtension(FilePath.Name)}.recovery-{timestamp}.json";
+            var backupFile = new FileInfo(Path.Combine(FilePath.DirectoryName!, backupName));
+            File.Copy(FilePath.FullName, backupFile.FullName);
+            
+            Log.Information($"Failed to load settings, backed up to {backupFile.FullName}");
             Log.Error(e.ToString());
         }
     }

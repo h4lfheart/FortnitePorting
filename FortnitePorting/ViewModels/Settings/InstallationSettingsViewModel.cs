@@ -17,7 +17,7 @@ public partial class InstallationSettingsViewModel : SettingsViewModelBase
     
     [ObservableProperty] private bool _finishedSetup;
     [ObservableProperty] private ObservableCollection<InstallationProfile> _profiles = [];
-    [ObservableProperty] private bool _canRemoveProfiles;
+    [ObservableProperty] [property: JsonIgnore] private bool _canRemoveProfiles;
 
     [JsonIgnore] public InstallationProfile CurrentProfile => Profiles.FirstOrDefault(profile => profile.IsSelected);
 

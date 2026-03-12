@@ -13,7 +13,7 @@
         <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
         <SelfContained>true</SelfContained>
     </PropertyGroup>
-    
+
     <ItemGroup>
         <PackageReference Include="Avalonia" Version="11.3.2" />
         <PackageReference Include="Avalonia.Desktop" Version="11.3.2" />
@@ -30,7 +30,9 @@
         <PackageReference Include="FluentAvaloniaUI" Version="2.3.0" />
         <PackageReference Include="Mapster" Version="7.4.2-pre02" />
         <PackageReference Include="Material.Icons.Avalonia" Version="2.1.9" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0-preview.3.25171.5" />
+        <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="10.0.4" />
+        <PackageReference Include="Microsoft.AspNetCore.DataProtection.Extensions" Version="10.0.4" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.4" />
         <PackageReference Include="NAudio" Version="2.2.1" />
         <PackageReference Include="NAudio.Vorbis" Version="1.5.0" />
         <PackageReference Include="NodifyAvalonia" Version="6.5.0" />
@@ -39,14 +41,15 @@
         <PackageReference Include="RestSharp.Serializers.NewtonsoftJson" Version="110.2.1-alpha.0.20" />
         <PackageReference Include="Serilog.Sinks.File" Version="5.0.1-dev-00972" />
         <PackageReference Include="Supabase" Version="1.1.1" />
+        <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="8.0.0" />
         <PackageReference Include="Tomlyn" Version="0.17.0" />
         <PackageReference Include="z440.atl.core" Version="5.24.0" />
     </ItemGroup>
-    
+
     <ItemGroup>
         <AvaloniaResource Include="Assets\**" />
     </ItemGroup>
-    
+
     <ItemGroup>
         <ProjectReference Include="..\Dependencies\CUE4Parse\CUE4Parse-Conversion\CUE4Parse-Conversion.csproj" />
         <ProjectReference Include="..\Dependencies\CUE4Parse\CUE4Parse\CUE4Parse.csproj" />
@@ -60,6 +63,4 @@
         <PublishSingleFile>true</PublishSingleFile>
         <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     </PropertyGroup>
-
-
 </Project>
