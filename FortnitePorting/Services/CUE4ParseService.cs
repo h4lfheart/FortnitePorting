@@ -118,6 +118,7 @@ public partial class CUE4ParseService : ObservableObject, IService
         Log.Information("Installation Type: {Type}", AppSettings.Installation.CurrentProfile.FortniteVersion);
         Log.Information("Archive Path: {Path}", AppSettings.Installation.CurrentProfile.FortniteVersion is EFortniteVersion.LatestOnDemand ? "On-Demand" : AppSettings.Installation.CurrentProfile.ArchiveDirectory);
         Log.Information("Unreal Version: {Version}", Provider.Versions.Game.ToString());
+        Log.Information("Texture Streaming: {UseTextureStreaming}", AppSettings.Installation.CurrentProfile.UseTextureStreaming);
         
         ObjectTypeRegistry.RegisterEngine(Assembly.Load("FortnitePorting"));
         

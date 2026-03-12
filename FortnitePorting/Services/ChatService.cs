@@ -180,7 +180,7 @@ public partial class ChatService : ObservableObject, IService
             {
                 if (_messageCache.Lookup(message.Id).HasValue) continue;
                 
-                AddMessage(message, isInit: true);
+                await AddMessage(message, isInit: true);
                 addedCount++;
             }
 
@@ -289,7 +289,7 @@ public partial class ChatService : ObservableObject, IService
         if (_chatBroadcast is not null) return;
         
         _chatBroadcast = _chatChannel.Register<BaseBroadcast>();
-        _chatBroadcast.AddBroadcastEventHandler((sender, broadcast) =>
+        _chatBroadcast.AddBroadcastEventHandler(async (sender, broadcast) =>
         {
             if (!SupaBase.IsLoggedIn) return;
             if (broadcast is null) return;
@@ -299,16 +299,19 @@ public partial class ChatService : ObservableObject, IService
                 case "insert_message":
                 {
                     var message = broadcast.Get<Message>("message");
-                    AddMessage(message);
+                    await AddMessage(message);
                     
                     break;
                 }
                 case "update_message":
                 {
-                    var updatedMessage = broadcast.Get<Message>("message").Adapt<ChatMessage>();
+                    var updatedMessage = broadcast.Get<Message>("message");
                     var targetMessage = updatedMessage.ReplyId is not null
                         ? _messageCache.Lookup(updatedMessage.ReplyId).Value.ReplyMessages.FirstOrDefault(reply => reply.Id.Equals(updatedMessage.Id))
                         : _messageCache.Lookup(updatedMessage.Id).Value;
+
+                    if (targetMessage is null)
+                        break;
 
                     targetMessage.Text = updatedMessage.Text;
                     targetMessage.ReactorIds = updatedMessage.ReactorIds;
@@ -344,9 +347,11 @@ public partial class ChatService : ObservableObject, IService
         });
     }
 
-    public void AddMessage(Message inMessage, bool isInit = false)
+    public async Task AddMessage(Message inMessage, bool isInit = false)
     {
         var message = inMessage.Adapt<ChatMessage>();
+        message.User = await GetUser(inMessage.UserId);
+        
         if (message.ReplyId is not null)
         {
             if (_messageCache.Lookup(message.ReplyId) is { HasValue: true } replyParent)

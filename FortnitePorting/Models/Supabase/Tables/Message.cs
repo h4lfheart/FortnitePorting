@@ -47,17 +47,4 @@ public class Message : BaseModel
     [JsonProperty("reactor_ids")]
     [Column("reactor_ids", ignoreOnInsert: true,  ignoreOnUpdate: true)]
     public string[] ReactorIds { get; set; } = [];
-
-    static Message()
-    {
-        TypeAdapterConfig<Message, ChatMessage>.NewConfig()
-            .MapToConstructor(true)
-            .AfterMapping((src, dest) =>
-            {
-                TaskService.Run(async () =>
-                {
-                    dest.User = await AppServices.Chat.GetUser(src.UserId);
-                });
-            });
-    }
 }

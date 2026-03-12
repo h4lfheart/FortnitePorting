@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading.Tasks;
+using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -23,6 +24,8 @@ public partial class ChatViewModel(SupabaseService supabase, ChatService chatSer
     [ObservableProperty] private TeachingTip _imageFlyout;
     
     [ObservableProperty] private string _text = string.Empty;
+    [ObservableProperty] private TextBox _textBox;
+    
     [ObservableProperty] private Bitmap _selectedImage;
     [ObservableProperty] private string _selectedImageName;
     
@@ -46,13 +49,14 @@ public partial class ChatViewModel(SupabaseService supabase, ChatService chatSer
 
     public async Task ClipboardPaste()
     {
-        if (SupaBase.UserInfo?.Role < ESupabaseRole.Verified) return;
-        
-        if (await AvaloniaClipboard.GetTextAsync() is { } text)
+        if (await App.Clipboard.GetTextAsync() is { } text)
         {
-            Text += text;
+            var caret = TextBox.CaretIndex;
+            var current = TextBox.Text ?? string.Empty;
+            TextBox.Text = current.Insert(caret, text);
+            TextBox.CaretIndex = caret + text.Length;
         }
-        else if (await AvaloniaClipboard.GetImageAsync() is { } image)
+        else if (await AvaloniaClipboard.GetImageAsync() is { } image && SupaBase.UserInfo?.Role >= ESupabaseRole.Verified)
         {
             SelectedImageName = "clipboard.png";
             SelectedImage = image;
