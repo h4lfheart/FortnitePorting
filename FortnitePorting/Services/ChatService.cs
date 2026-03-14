@@ -28,17 +28,18 @@ namespace FortnitePorting.Services;
 public partial class ChatService : ObservableObject, IService
 {
     [ObservableProperty] private SupabaseService _supaBase;
-    
+
     public ChatService(SupabaseService supaBase)
     {
         SupaBase = supaBase;
     }
 
-    public event EventHandler<ChatMessage>? MessageReceived; 
-    
+    public event EventHandler<ChatMessage>? MessageReceived;
+
     [ObservableProperty] private ReadOnlyObservableCollection<ChatMessage> _messages = new([]);
-    
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(UsersByGroup)), NotifyPropertyChangedFor(nameof(UserMentionNames))] 
+
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(UsersByGroup)),
+     NotifyPropertyChangedFor(nameof(UserMentionNames))]
     private ObservableDictionary<string, ChatUser> _users = [];
 
     public IEnumerable<string> UserMentionNames
@@ -52,7 +53,7 @@ public partial class ChatService : ObservableObject, IService
             return baseUsers;
         }
     }
-    
+
     [ObservableProperty] private ObservableCollection<ChatUser> _typingUsers = [];
 
     public string? TypingUsersText => TypingUsers.Count > 0
@@ -60,13 +61,13 @@ public partial class ChatService : ObservableObject, IService
         : null;
 
     public ObservableDictionary<ESupabaseRole, List<ChatUser>> UsersByGroup => new(Users
-            .Select(user => user.Value)
-            .OrderBy(user => user.DisplayName)
-            .GroupBy(user => user.Role)
-            .OrderByDescending(group => group.Key)
-            .ToDictionary(group => group.Key, group => group.ToList())
+        .Select(user => user.Value)
+        .OrderBy(user => user.DisplayName)
+        .GroupBy(user => user.Role)
+        .OrderByDescending(group => group.Key)
+        .ToDictionary(group => group.Key, group => group.ToList())
     );
-    
+
     [ObservableProperty] private ObservableDictionary<string, ChatUser> _userCache = [];
 
     [ObservableProperty] private ChatUserPresence _presence;
@@ -76,7 +77,7 @@ public partial class ChatService : ObservableObject, IService
     private RealtimeBroadcast<BaseBroadcast> _chatBroadcast;
 
     private SourceCache<ChatMessage, string> _messageCache = new(message => message.Id);
-    
+
     private readonly SemaphoreSlim _userGetLock = new(1, 1);
     private readonly SemaphoreSlim _messageFetchLock = new(1, 1);
 
@@ -100,26 +101,27 @@ public partial class ChatService : ObservableObject, IService
 
         await InitializePresence();
         await InitializeBroadcasts();
-        
+
         await _chatChannel.Subscribe();
-        
+
         Presence = new ChatUserPresence
         {
             UserId = SupaBase.UserInfo!.UserId,
             Application = Globals.ApplicationTag,
             Version = Globals.VersionString
         };
-        
+
         await ChatPresence.Track(Presence);
-        
+
         await LoadMoreMessages();
 
         MessageReceived += (sender, message) =>
         {
             if (message.IsPing && !Navigation.App.IsTabOpen<ChatView>())
-                Info.Message($"Chat Message from {message.User.DisplayName}", ConvertIdsToMentions(message.Text), autoClose: false);
+                Info.Message($"Chat Message from {message.User.DisplayName}", ConvertIdsToMentions(message.Text),
+                    autoClose: false);
         };
-        
+
         Users.CollectionChanged += (sender, args) =>
         {
             OnPropertyChanged(nameof(UserMentionNames));
@@ -169,7 +171,7 @@ public partial class ChatService : ObservableObject, IService
             }
 
             _oldestFetchedTimestamp = messages.Last().Timestamp.ToUniversalTime();
-            
+
             if (originalCount < PageSize + 1)
             {
                 HasMoreMessages = false;
@@ -179,7 +181,7 @@ public partial class ChatService : ObservableObject, IService
             foreach (var message in messages.OrderBy(x => x.ReplyId is not null))
             {
                 if (_messageCache.Lookup(message.Id).HasValue) continue;
-                
+
                 await AddMessage(message, isInit: true);
                 addedCount++;
             }
@@ -200,14 +202,14 @@ public partial class ChatService : ObservableObject, IService
     private async Task InitializePresence()
     {
         if (ChatPresence is not null) return;
-        
+
         ChatPresence = _chatChannel.Register<ChatUserPresence>(SupaBase.UserInfo.UserId);
 
         TypingUsers.CollectionChanged += (sender, args) => OnPropertyChanged(nameof(TypingUsersText));
         ChatPresence.AddPresenceEventHandler(IRealtimePresence.EventType.Sync, (sender, type) =>
         {
             if (!SupaBase.IsLoggedIn) return;
-            
+
             TaskService.Run(async () =>
             {
                 var newTypingUsers = new List<ChatUser>();
@@ -215,10 +217,10 @@ public partial class ChatService : ObservableObject, IService
                 foreach (var (presenceId, presences) in currentState)
                 {
                     var targetPresence = presences.Last();
-                    
+
                     var targetUser = await GetUser(targetPresence.UserId) ?? await GetUser(presenceId);
                     if (targetUser?.UserId is null || targetUser.UserId.Equals(SupaBase.UserInfo.UserId)) continue;
-                    
+
                     if (targetPresence.IsTyping)
                         newTypingUsers.Add(targetUser);
                 }
@@ -231,7 +233,7 @@ public partial class ChatService : ObservableObject, IService
         ChatPresence.AddPresenceEventHandler(IRealtimePresence.EventType.Join, (sender, type) =>
         {
             if (!SupaBase.IsLoggedIn) return;
-            
+
             TaskService.Run(async () =>
             {
                 var currentState = ChatPresence.CurrentState.ToDictionary();
@@ -239,15 +241,15 @@ public partial class ChatService : ObservableObject, IService
                 foreach (var (presenceId, presences) in currentState)
                 {
                     var targetPresence = presences.Last();
-                    
+
                     var targetUser = await GetUser(targetPresence.UserId) ?? await GetUser(presenceId);
                     if (targetUser?.UserId is null) continue;
-                    
+
                     targetUser.Tag = targetPresence.Application;
                     targetUser.Version = targetPresence.Version;
-                    
+
                     if (Users.ContainsKey(targetUser.UserId)) continue;
-                    
+
                     Users.AddOrUpdate(targetPresence.UserId, targetUser);
                     newUsers++;
                 }
@@ -257,7 +259,7 @@ public partial class ChatService : ObservableObject, IService
                     OnPropertyChanged(nameof(UserMentionNames));
                     OnPropertyChanged(nameof(UsersByGroup));
                 }
-                
+
                 if (Navigation.App.IsTabOpen<ChatView>())
                     Discord.Update($"Chatting with {Users.Count} {(Users.Count > 1 ? "Users" : "User")}");
             });
@@ -266,7 +268,7 @@ public partial class ChatService : ObservableObject, IService
         ChatPresence.AddPresenceEventHandler(IRealtimePresence.EventType.Leave, (sender, type) =>
         {
             if (!SupaBase.IsLoggedIn) return;
-            
+
             var currentState = ChatPresence.CurrentState;
             var removedUsers = 0;
             foreach (var user in Users.ToArray())
@@ -277,17 +279,16 @@ public partial class ChatService : ObservableObject, IService
                     removedUsers++;
                 }
             }
-            
+
             if (removedUsers > 0)
                 OnPropertyChanged(nameof(UsersByGroup));
         });
-        
     }
 
     private async Task InitializeBroadcasts()
     {
         if (_chatBroadcast is not null) return;
-        
+
         _chatBroadcast = _chatChannel.Register<BaseBroadcast>();
         _chatBroadcast.AddBroadcastEventHandler(async (sender, broadcast) =>
         {
@@ -300,38 +301,46 @@ public partial class ChatService : ObservableObject, IService
                 {
                     var message = broadcast.Get<Message>("message");
                     await AddMessage(message);
-                    
+
                     break;
                 }
                 case "update_message":
                 {
                     var updatedMessage = broadcast.Get<Message>("message");
-                    var targetMessage = updatedMessage.ReplyId is not null
-                        ? _messageCache.Lookup(updatedMessage.ReplyId).Value.ReplyMessages.FirstOrDefault(reply => reply.Id.Equals(updatedMessage.Id))
-                        : _messageCache.Lookup(updatedMessage.Id).Value;
 
-                    if (targetMessage is null)
-                        break;
+                    var parentLookup = updatedMessage.ReplyId is not null
+                        ? _messageCache.Lookup(updatedMessage.ReplyId)
+                        : _messageCache.Lookup(updatedMessage.Id);
+
+                    if (!parentLookup.HasValue) break;
+
+                    var targetMessage = updatedMessage.ReplyId is not null
+                        ? parentLookup.Value.ReplyMessages.FirstOrDefault(reply => reply.Id.Equals(updatedMessage.Id))
+                        : parentLookup.Value;
+
+                    if (targetMessage is null) break;
 
                     targetMessage.Text = updatedMessage.Text;
                     targetMessage.ReactorIds = updatedMessage.ReactorIds;
                     targetMessage.WasEdited = updatedMessage.WasEdited;
-                    
                     break;
                 }
                 case "delete_message":
                 {
                     var messageId = broadcast.Get<string>("message_id");
                     var replyId = broadcast.Get<string?>("reply_id");
-                    
+
                     if (replyId is not null)
                     {
-                        _messageCache.Lookup(replyId).Value.ReplyMessages.RemoveAll(reply => reply.Id.Equals(messageId));
+                        var parentLookup = _messageCache.Lookup(replyId);
+                        if (parentLookup.HasValue)
+                            parentLookup.Value.ReplyMessages.RemoveAll(reply => reply.Id.Equals(messageId));
                     }
                     else
                     {
                         _messageCache.Remove(messageId);
                     }
+
                     break;
                 }
                 case "update_permissions":
@@ -351,11 +360,15 @@ public partial class ChatService : ObservableObject, IService
     {
         var message = inMessage.Adapt<ChatMessage>();
         message.User = await GetUser(inMessage.UserId);
-        
+
         if (message.ReplyId is not null)
         {
-            if (_messageCache.Lookup(message.ReplyId) is { HasValue: true } replyParent)
-                replyParent.Value.ReplyMessages.InsertSorted(message, SortExpressionComparer<ChatMessage>.Ascending(x => x.Timestamp));
+            var replyParent = _messageCache.Lookup(message.ReplyId);
+            if (replyParent.HasValue)
+                replyParent.Value.ReplyMessages.InsertSorted(
+                    message,
+                    SortExpressionComparer<ChatMessage>.Ascending(x => x.Timestamp)
+                );
         }
         else
         {
@@ -364,32 +377,32 @@ public partial class ChatService : ObservableObject, IService
 
         if (message.Text.Contains($"<@{SupaBase.UserInfo?.UserId}>") || message.Text.Contains("<@everyone>"))
             message.IsPing = true;
-                    
+
         if (!isInit)
             MessageReceived?.Invoke(this, message);
     }
-    
+
     public string ConvertMentionsToIds(string text)
     {
         if (string.IsNullOrEmpty(text)) return text;
 
         var mentionPattern = @"@([\w.]+)";
         var regex = new Regex(mentionPattern);
-    
+
         return regex.Replace(text, match =>
         {
             var username = match.Groups[1].Value;
-        
+
             if (username.Equals("everyone", StringComparison.OrdinalIgnoreCase))
                 return "<@everyone>";
-        
-            var user = Chat.Users.FirstOrDefault(x => 
+
+            var user = Chat.Users.FirstOrDefault(x =>
                 x.Value.UserName.Equals(username, StringComparison.OrdinalIgnoreCase));
-        
+
             return user != null ? $"<@{user.Value.UserId}>" : match.Value;
         });
     }
-    
+
     public string ConvertIdsToMentions(string text)
     {
         if (string.IsNullOrEmpty(text)) return text;
@@ -400,17 +413,17 @@ public partial class ChatService : ObservableObject, IService
         return regex.Replace(text, match =>
         {
             var userId = match.Groups[1].Value;
-    
+
             if (userId.Equals("everyone", StringComparison.OrdinalIgnoreCase))
                 return "@everyone";
-    
-            var user = Chat.UserCache.FirstOrDefault(x => 
+
+            var user = UserCache.FirstOrDefault(x =>
                 x.Key.Equals(userId, StringComparison.OrdinalIgnoreCase));
-    
+
             return user?.Value != null ? $"@{user.Value.DisplayName}" : match.Value;
         });
     }
-    
+
 
     public async Task<ChatUser?> GetUser(string id)
     {
@@ -421,10 +434,10 @@ public partial class ChatService : ObservableObject, IService
 
             var userInfo = await Api.FortnitePorting.UserInfo(id);
             if (userInfo is null) return null;
-        
+
             var user = userInfo.Adapt<ChatUser>();
             UserCache[id] = user;
-        
+
             return user;
         }
         finally
@@ -437,7 +450,7 @@ public partial class ChatService : ObservableObject, IService
     {
         await Api.FortnitePorting.PostMessage(text, replyId, imagePath);
     }
-    
+
     public async Task UpdateMessage(ChatMessage message, string text)
     {
         await Api.FortnitePorting.EditMessage(text, message.Id);

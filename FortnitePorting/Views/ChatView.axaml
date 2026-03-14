@@ -196,13 +196,13 @@
                               Margin="{ext:Space 1, 0}"
                               ItemTemplate="{StaticResource MessageTemplate}" />
             </controls:DynamicFadeScrollViewer>
-            
-            
+        
+        
             <TextBlock
-                       Text="No Messages Found" 
-                       Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" 
-                       VerticalAlignment="Center" HorizontalAlignment="Center"
-                       IsVisible="{Binding !Chat.Messages.Count}"/>
+                Text="No Messages Found" 
+                Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" 
+                VerticalAlignment="Center" HorizontalAlignment="Center"
+                IsVisible="{Binding !Chat.Messages.Count}"/>
 
             <Border IsVisible="{Binding ShowNewMessageIndicator}"
                     Background="#953BF8"
@@ -320,7 +320,12 @@
 
         </Grid>
 
-        <Grid Grid.Row="0" Grid.RowSpan="3" Grid.Column="1" Margin="{ext:Space 0, 1, 1, 1}">
+        
+        <Border Grid.Row="0" Grid.RowSpan="3" Grid.Column="1"
+                Background="{DynamicResource ContentBorderLayer2BackgroundBrush}"
+                BorderBrush="{DynamicResource ContentBorderLayer2BorderBrush}" BorderThickness="2 0 0 0">
+            
+            <Grid  Margin="{ext:Space 1}">
             <ItemsControl ItemsSource="{Binding Chat.UsersByGroup}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
@@ -400,6 +405,7 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </Grid>
+        </Border>
     </Grid>
 
 </UserControl>
