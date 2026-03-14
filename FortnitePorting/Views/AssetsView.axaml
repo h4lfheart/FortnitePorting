@@ -488,7 +488,7 @@
                                                                     <ContentControl Padding="8"
                                                                             ToolTip.Tip="{Binding StyleName}">
                                                                         <Grid MaxWidth="48" RowDefinitions="*, Auto">
-                                                                            <Border Grid.Row="0" Width="48" Height="48">
+                                                                            <Border Grid.Row="0" Width="48" Height="48" CornerRadius="8">
                                                                                 <Border.Background>
                                                                                     <ImageBrush
                                                                                         Source="{Binding StyleDisplayImage}" />

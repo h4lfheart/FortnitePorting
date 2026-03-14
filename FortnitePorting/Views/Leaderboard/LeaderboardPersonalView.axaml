@@ -307,6 +307,12 @@
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
             </ItemsControl>
+            
+            <TextBlock Grid.Row="4"
+                       Text="No Exports Found" 
+                       Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" 
+                       VerticalAlignment="Center" HorizontalAlignment="Center"
+                       IsVisible="{Binding !Items.Count}"/>
 
             <Grid Grid.Row="6" 
                   ColumnDefinitions="Auto * Auto"

@@ -196,6 +196,13 @@
                               Margin="{ext:Space 1, 0}"
                               ItemTemplate="{StaticResource MessageTemplate}" />
             </controls:DynamicFadeScrollViewer>
+            
+            
+            <TextBlock
+                       Text="No Messages Found" 
+                       Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" 
+                       VerticalAlignment="Center" HorizontalAlignment="Center"
+                       IsVisible="{Binding !Chat.Messages.Count}"/>
 
             <Border IsVisible="{Binding ShowNewMessageIndicator}"
                     Background="#953BF8"
@@ -363,7 +370,7 @@
                                                     </Grid.ColumnDefinitions>
 
                                                     <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0"
-                                                            CornerRadius="4" ClipToBounds="True">
+                                                            CornerRadius="8" ClipToBounds="True">
                                                         <Image
                                                             asyncImageLoader:ImageLoader.Source="{Binding AvatarUrl}"
                                                             RenderOptions.BitmapInterpolationMode="MediumQuality"
