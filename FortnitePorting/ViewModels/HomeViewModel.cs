@@ -34,6 +34,18 @@ public partial class HomeViewModel : ViewModelBase
     
     public override async Task Initialize()
     {
+        TaskService.RunDispatcher(async () =>
+        {
+            var dialog = new ContentDialog
+            {
+                Title = "Important Announcement",
+                Content = "This is a warning that you are using a version of Fortnite Porting that is out of date, please download Fortnite Porting V4.\n\nFortnite Porting V3 will only receive updates until September 14th, 2026.",
+                CloseButtonText = "I Understand"
+            };
+
+            await dialog.ShowAsync();
+        });
+        
         if (!AppSettings.Current.Online.HasReceivedFirstPrompt)
         {
             await AppSettings.Current.Online.PromptForAuthentication();

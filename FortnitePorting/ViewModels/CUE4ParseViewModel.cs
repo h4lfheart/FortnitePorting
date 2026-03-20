@@ -24,6 +24,7 @@ using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.IO;
+using CUE4Parse.UE4.IO.OnDemand;
 using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Pak;
@@ -283,7 +284,7 @@ public class CUE4ParseViewModel : ViewModelBase
                 await ApiVM.DownloadFileAsync($"https://download.epicgames.com/{tocPath}", onDemandFile.FullName);
             }
 
-            await Provider.RegisterVfsAsync(new IoChunkToc(onDemandFile.FullName));
+            await Provider.RegisterVfsAsync(new FOnDemandTocReader(onDemandFile.FullName));
             await Provider.MountAsync();
         }
         catch (Exception e)
