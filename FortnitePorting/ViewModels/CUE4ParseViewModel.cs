@@ -87,7 +87,7 @@ public class CUE4ParseViewModel : ViewModelBase
         "FortniteGame/Content/Animation/Game/MainPlayer/Menu/BR/Female_Commando_Idle_03_Montage"
     ];
 
-    private const EGame LATEST_GAME_VERSION = EGame.GAME_UE5_7;
+    private const EGame LATEST_GAME_VERSION = EGame.GAME_UE5_8;
 
     public CUE4ParseViewModel()
     {
