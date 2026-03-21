@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
 using System.Threading;
+using System.Threading.Tasks;
+using Avalonia.Threading;
 using FortnitePorting.Application;
 using FortnitePorting.Services;
 using Serilog;
@@ -17,6 +19,20 @@ internal static class Program
     [STAThread]
     public static void Main(string[] args)
     {
+        AppDomain.CurrentDomain.UnhandledException += (_, e) =>
+        {
+            if (e.ExceptionObject.ToString() is not { } exceptionString)
+                return;
+            
+            Log.Fatal(exceptionString);
+        };
+
+        TaskScheduler.UnobservedTaskException += (_, e) =>
+        {
+            Log.Fatal(e.Exception.ToString());
+            e.SetObserved();
+        };
+        
         try
         {
             _programMutex = new Mutex(true, "FortnitePortingMutex", out var isNew);
