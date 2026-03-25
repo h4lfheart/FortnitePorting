@@ -69,6 +69,10 @@
         <DependentUpon>RenderGeneratorView.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
+      <Compile Update="Views\VibeExportView.axaml.cs">
+        <DependentUpon>VibeExportView.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
     </ItemGroup>
 
     <PropertyGroup>

@@ -76,7 +76,7 @@
                         <sidebar:SidebarItemText Text="AI-POWERED" />
                         <sidebar:SidebarItemButton Text="FP GPT" Icon="RobotHappy" Tag="{x:Type views:GPTView}"/>
                         <sidebar:SidebarItemButton Text="Render Generator" Icon="ImageAutoAdjust" Tag="{x:Type views:RenderGeneratorView}"/>
-                        <sidebar:SidebarItemButton Text="Vibe Exporting" Icon="FileImage" />
+                        <sidebar:SidebarItemButton Text="Vibe Exporting" Icon="FileImage" Tag="{x:Type views:VibeExportView}" IsEnabled="{Binding UEParse.FinishedLoading}"/>
                         
                         <sidebar:SidebarItemSeparator />
 
