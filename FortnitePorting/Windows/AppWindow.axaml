@@ -47,8 +47,16 @@
                                        Classes="TextFillColorPrimaryBrush"
                                        VerticalAlignment="Center">
                                 <Run Text="Fortnite" Foreground="{DynamicResource FPTitleTextBrush}"/>
-                                <Run Text="Porting" Foreground="{DynamicResource FPAccentBrush}" />
-                                <Run Text="AI" Foreground="#13a5ff" />
+                                <Run Text="Porting AI">
+                                    <Run.Foreground>
+                                        <LinearGradientBrush StartPoint="0%, 0%" EndPoint="100%, 0%">
+                                            <GradientStops>
+                                                <GradientStop Offset="0" Color="{DynamicResource FPAccentColor}"/>
+                                                <GradientStop Offset="1" Color="#13a5ff"/>
+                                            </GradientStops>
+                                        </LinearGradientBrush>
+                                    </Run.Foreground>
+                                </Run>
                             </TextBlock>
 
                             <TextBlock Grid.Row="1" Grid.Column="2" Text="v4.0.0 AI"
@@ -67,8 +75,8 @@
                         
                         <sidebar:SidebarItemText Text="AI-POWERED" />
                         <sidebar:SidebarItemButton Text="FP GPT" Icon="RobotHappy" Tag="{x:Type views:GPTView}"/>
-                        <sidebar:SidebarItemButton Text="Render Generator" Icon="ImageAutoAdjust" />
-                        <sidebar:SidebarItemButton Text="Export Browser" Icon="FileImage" />
+                        <sidebar:SidebarItemButton Text="Render Generator" Icon="ImageAutoAdjust" Tag="{x:Type views:RenderGeneratorView}"/>
+                        <sidebar:SidebarItemButton Text="Vibe Exporting" Icon="FileImage" />
                         
                         <sidebar:SidebarItemSeparator />
 

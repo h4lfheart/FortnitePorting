@@ -10,11 +10,13 @@ using FortnitePorting.ViewModels;
 
 namespace FortnitePorting.Views;
 
-public partial class GPTView : ViewBase<GPTViewModel>
+public partial class RenderGeneratorView : ViewBase<RenderGeneratorViewModel>
 {
-    public GPTView()
+    public RenderGeneratorView()
     {
         InitializeComponent();
+
+        ViewModel.Scroll = MessageScroll;
         ViewModel.TextBox = NormalTextBox;
     }
 

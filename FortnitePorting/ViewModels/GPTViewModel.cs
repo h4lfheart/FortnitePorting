@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.ApricotFudge.GPT;
@@ -13,6 +14,8 @@ namespace FortnitePorting.ViewModels;
 public partial class GPTViewModel(SupabaseService supabaseService) : ViewModelBase
 {
     [ObservableProperty] private SupabaseService _supaBase = supabaseService;
+    
+    [ObservableProperty] private TextBox _textBox;
 
     [ObservableProperty] private bool _isWelcomeVisible = true;
 
@@ -239,7 +242,7 @@ public partial class GPTViewModel(SupabaseService supabaseService) : ViewModelBa
         ],
         ["ping"] = ["pong"],
         ["marco"] = ["polo"],
-        ["black hole"] = ["bros error was so dense it cause a blackhole 😭😭😭"]
+        ["blackhole"] = ["bros error was so dense it cause a blackhole 😭😭😭"]
     };
 
     private static string[] _defaultResponses =
@@ -358,5 +361,10 @@ public partial class GPTViewModel(SupabaseService supabaseService) : ViewModelBa
         }
 
         IsChatEnabled = true;
+        await TaskService.RunDispatcherAsync(() =>
+        {
+            TextBox.Focus();
+        });
+        
     }
 }

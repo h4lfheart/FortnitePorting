@@ -41,6 +41,7 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
     public async Task<RepositoryResponse?> Repository() => await ExecuteAsync<RepositoryResponse?>("v1/repository");
     public async Task<BroadcastResponse[]> Broadcasts() => await ExecuteAsync<BroadcastResponse[]?>("v1/broadcast") ?? [];
     public async Task<List<string>> GalleryImages() => await ExecuteAsync<List<string>>("v1/gallery") ?? [];
+    public async Task<List<string>> RenderGeneratorImages() => await ExecuteAsync<List<string>>("v1/april-fools/render-generator-images") ?? [];
     
     public async Task<MapResponse[]> Maps() => await ExecuteAsync<MapResponse[]>("v1/maps") ?? [];
 
