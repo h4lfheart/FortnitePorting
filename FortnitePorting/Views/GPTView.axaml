@@ -62,8 +62,7 @@
                                     </Ellipse>
                                     <controls:ContentCard Grid.Column="1" Padding="{ext:Space 2}">
                                         <Grid>
-                                            <TextBlock IsVisible="{Binding IsThinking}" Text="Thinking..." HorizontalAlignment="Stretch" TextAlignment="Left"
-                                                       TextWrapping="Wrap">
+                                            <TextBlock IsVisible="{Binding IsThinking}" Text="Thinking..." HorizontalAlignment="Stretch" TextAlignment="Left">
                                                 <TextBlock.Styles>
                                                     <Style Selector="TextBlock">
                                                         <Style.Animations>
@@ -79,7 +78,9 @@
                                                     </Style>
                                                 </TextBlock.Styles>
                                             </TextBlock>
-                                            <TextBlock IsVisible="{Binding !IsThinking}" Text="{Binding Text}" HorizontalAlignment="Stretch" TextAlignment="Left"/>
+                                            <TextBlock IsVisible="{Binding !IsThinking}" 
+                                                       TextWrapping="Wrap" Text="{Binding Text}" 
+                                                       HorizontalAlignment="Stretch" TextAlignment="Left"/>
                                         </Grid>
                                     </controls:ContentCard>
                                 </Grid>

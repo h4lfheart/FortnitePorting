@@ -233,7 +233,13 @@ public partial class GPTViewModel(SupabaseService supabaseService) : ViewModelBa
         ],
         ["oshawott"] = [
             "ASHASHASHOWATSHAASHHASHOWSHAHSHWOSGAHWHSHAWATTOSHAGWSHA"
-        ]
+        ],
+        ["longtext"] = [
+            "i ain't reading all that vro 💀💀💀"
+        ],
+        ["ping"] = ["pong"],
+        ["marco"] = ["polo"],
+        ["black hole"] = ["bros error was so dense it cause a blackhole 😭😭😭"]
     };
 
     private static string[] _defaultResponses =
@@ -335,6 +341,10 @@ public partial class GPTViewModel(SupabaseService supabaseService) : ViewModelBa
         }
 
 
+        if (userMessage.Text.Length > 200)
+        {
+            textSet = _responsesByKeyword["longtext"];
+        }
         
         var targetText = textSet.Random()!.Trim();
         await Task.Delay(Random.Shared.Next(500, 500 + 25*targetText.Length));
