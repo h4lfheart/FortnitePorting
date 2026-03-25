@@ -73,6 +73,11 @@ public partial class AssetsViewModel() : ViewModelBase
         });
     }
 
+    public override async Task OnViewOpened()
+    {
+        AppWM.ChippyText = "can you export me please :)";
+    }
+
     public override async Task OnViewExited()
     {
         AppSettings.Application.ShowAssetNames = ShowNames;

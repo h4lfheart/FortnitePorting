@@ -41,6 +41,9 @@ public partial class AppWindowModel(
     [ObservableProperty] private OnlineResponse? _onlineStatus;
     [ObservableProperty] private BroadcastResponse[] _broadcasts = [];
 
+    [ObservableProperty] private double _chippyOpacity = 1.0d;
+    [ObservableProperty] private string _chippyText = "hi im chippy!!";
+
     private const string PORTLE_URL = "https://cdn.fortniteporting.app/portle/Portle.exe";
 
     public override async Task Initialize()

@@ -1,0 +1,100 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             xmlns:viewModels="clr-namespace:FortnitePorting.ViewModels"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions"
+             xmlns:information="clr-namespace:FortnitePorting.Models.Information"
+             xmlns:gpt="clr-namespace:FortnitePorting.Models.ApricotFudge.GPT"
+             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+             xmlns:views="clr-namespace:FortnitePorting.Views"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="FortnitePorting.Views.GPTView"
+             x:DataType="viewModels:GPTViewModel">
+    <Grid Margin="{ext:Space 2}" ColumnDefinitions="* 4* *">
+        <Ellipse Grid.Column="0" Grid.ColumnSpan="3" Opacity="0.4"
+                 Width="1000" Height="1000" 
+                 HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Ellipse.Fill>
+                <RadialGradientBrush>
+                    <GradientStop Color="#33A855F7" Offset="0" />
+                    <GradientStop Color="#1AA855F7" Offset="0.5" />
+                    <GradientStop Color="#00A855F7" Offset="1" />
+                </RadialGradientBrush>
+            </Ellipse.Fill>
+        </Ellipse>
+        
+        <StackPanel Grid.Column="1" IsVisible="{Binding IsWelcomeVisible}" HorizontalAlignment="Stretch" VerticalAlignment="Center" Spacing="{ext:Space 3}">
+            <TextBlock Text="{Binding WelcomeText}" FontSize="24" FontFamily="{StaticResource SFDisplayMedium}" HorizontalAlignment="Center"/>
+            <TextBox x:Name="WelcomeTextBox" Text="{Binding PromptText}" Watermark="Ask anything." HorizontalAlignment="Stretch" KeyDown="OnWelcomeKeyDown"/>
+        </StackPanel>
+        
+        <Grid Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" IsVisible="{Binding !IsWelcomeVisible}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="{ext:Space 2}"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <controls:DynamicFadeScrollViewer x:Name="MessageScroll" Grid.Row="0" HorizontalAlignment="Stretch">
+                <ItemsControl ItemsSource="{Binding Messages}" HorizontalAlignment="Stretch">
+                    <ItemsControl.DataTemplates>
+                        <DataTemplate DataType="gpt:GPTMessage">
+                            <Grid ColumnDefinitions="* *">
+                                <Grid Grid.Column="{Binding IsUser}" ColumnDefinitions="Auto * Auto">
+                                    <Ellipse Grid.Column="0" IsVisible="{Binding !IsUser}" Margin="{ext:Space 0, 1, 1, 0}"
+                                             Height="32" Width="32" RenderOptions.BitmapInterpolationMode="HighQuality"
+                                             VerticalAlignment="Top">
+                                        <Ellipse.Fill>
+                                            <ImageBrush
+                                                asyncImageLoader:ImageBrushLoader.Source="https://cdn.fortniteporting.app/images/avatar/default.png"
+                                                Stretch="UniformToFill" />
+                                        </Ellipse.Fill>
+                                    </Ellipse>
+                                    <Ellipse Grid.Column="2" IsVisible="{Binding IsUser}" Margin="{ext:Space 1, 1, 0, 0}"
+                                             Height="32" Width="32" RenderOptions.BitmapInterpolationMode="HighQuality"
+                                             VerticalAlignment="Top">
+                                        <Ellipse.Fill>
+                                            <ImageBrush
+                                                asyncImageLoader:ImageBrushLoader.Source="{Binding $parent[views:GPTView].((viewModels:GPTViewModel)DataContext).SupaBase.UserInfo.AvatarUrl, FallbackValue='https://cdn.fortniteporting.app/images/avatar/default.png'}"
+                                                Stretch="UniformToFill" />
+                                        </Ellipse.Fill>
+                                    </Ellipse>
+                                    <controls:ContentCard Grid.Column="1" Padding="{ext:Space 2}">
+                                        <Grid>
+                                            <TextBlock IsVisible="{Binding IsThinking}" Text="Thinking..." HorizontalAlignment="Stretch" TextAlignment="Left"
+                                                       TextWrapping="Wrap">
+                                                <TextBlock.Styles>
+                                                    <Style Selector="TextBlock">
+                                                        <Style.Animations>
+                                                            <Animation Duration="0:0:1" IterationCount="INFINITE" PlaybackDirection="Alternate" Easing="SineEaseInOut">
+                                                                <KeyFrame Cue="0%">
+                                                                    <Setter Property="Opacity" Value="0.3"/>
+                                                                </KeyFrame>
+                                                                <KeyFrame Cue="100%">
+                                                                    <Setter Property="Opacity" Value="0.7"/>
+                                                                </KeyFrame>
+                                                            </Animation>
+                                                        </Style.Animations>
+                                                    </Style>
+                                                </TextBlock.Styles>
+                                            </TextBlock>
+                                            <TextBlock IsVisible="{Binding !IsThinking}" Text="{Binding Text}" HorizontalAlignment="Stretch" TextAlignment="Left"/>
+                                        </Grid>
+                                    </controls:ContentCard>
+                                </Grid>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.DataTemplates>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Spacing="{ext:Space 1}"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </controls:DynamicFadeScrollViewer>
+            
+            <TextBox x:Name="NormalTextBox" Grid.Row="2" IsEnabled="{Binding IsChatEnabled}" Text="{Binding PromptText}" Watermark="Ask anything." HorizontalAlignment="Stretch" VerticalAlignment="Bottom" KeyDown="OnNormalChatKeyDown"/>
+        </Grid>
+    </Grid>
+</UserControl>

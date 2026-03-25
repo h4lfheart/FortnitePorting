@@ -1,5 +1,7 @@
 using System;
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using FortnitePorting.Controls.Navigation.Sidebar;
 using FortnitePorting.Framework;
 using FortnitePorting.Services;
@@ -22,6 +24,19 @@ public partial class AppWindow : WindowBase<AppWindowModel>
         {
             TaskService.RunDispatcher(async () => await LevelUpOverlay.ShowLevelUp(level));
         };
+        
+        PointerMoved += OnPointerMoved;
+    }
+
+    private void OnPointerMoved(object? sender, PointerEventArgs e)
+    {
+        
+        var pos = e.GetPosition(ChippyImage);
+        var bounds = new Rect(ChippyImage.Bounds.Size);
+        var isOver = bounds.Contains(pos);
+        
+        WindowModel.ChippyOpacity = isOver ? 0.0d : 1.0d;
+        
     }
 
     private void OnSidebarItemSelected(object? sender, SidebarItemSelectedArgs args)
@@ -37,4 +52,5 @@ public partial class AppWindow : WindowBase<AppWindowModel>
 
         App.Lifetime.Shutdown();
     }
+
 }

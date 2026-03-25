@@ -36,6 +36,7 @@
         <PackageReference Include="NAudio" Version="2.2.1" />
         <PackageReference Include="NAudio.Vorbis" Version="1.5.0" />
         <PackageReference Include="NodifyAvalonia" Version="6.5.0" />
+        <PackageReference Include="Profanity.Detector" Version="0.1.8" />
         <PackageReference Include="ReactiveUI" Version="20.0.1" />
         <PackageReference Include="RestSharp" Version="112.1.0" />
         <PackageReference Include="RestSharp.Serializers.NewtonsoftJson" Version="110.2.1-alpha.0.20" />
@@ -57,6 +58,13 @@
         <ProjectReference Include="..\FortnitePorting.RenderingX\FortnitePorting.RenderingX.csproj" />
         <ProjectReference Include="..\FortnitePorting.Shared\FortnitePorting.Shared.csproj" />
         <ProjectReference Include="..\Dependencies\FluentAvalonia.BreadcrumbBar\FluentAvalonia.BreadcrumbBar\FluentAvalonia.BreadcrumbBar.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Views\GPTView.axaml.cs">
+        <DependentUpon>GPTView.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
     </ItemGroup>
 
     <PropertyGroup>
