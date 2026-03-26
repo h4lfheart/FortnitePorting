@@ -10,7 +10,16 @@ public partial class SettingsViewModel(SettingsService settings, SupabaseService
 {
     [ObservableProperty] private SettingsService _settings = settings;
     [ObservableProperty] private SupabaseService _supaBase = supabase;
-    
+
+    public override async Task OnViewOpened()
+    {
+        AppWM.UpdateChippy([
+            "change whatever settings you want, but don't turn me off please!!", "buttons!! sliders!! i love those!!",
+            "settings are scary but also kinda fun"
+        ]);
+    }
+
+
     public override async Task OnViewExited()
     {
         if (AppSettings.ShouldSaveOnExit)
@@ -22,7 +31,7 @@ public partial class SettingsViewModel(SettingsService settings, SupabaseService
     {
         App.Launch(App.ApplicationDataFolder.FullName);
     }
-    
+
     [RelayCommand]
     public async void Save()
     {
@@ -33,7 +42,7 @@ public partial class SettingsViewModel(SettingsService settings, SupabaseService
     [RelayCommand]
     public async void Reset()
     {
-        App.RestartWithMessage("A restart is required", "To reset all settings, FortnitePorting must be restarted.", AppSettings.Reset);
+        App.RestartWithMessage("A restart is required", "To reset all settings, FortnitePorting must be restarted.",
+            AppSettings.Reset);
     }
-    
 }

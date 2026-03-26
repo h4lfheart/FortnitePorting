@@ -163,6 +163,7 @@ public partial class FilesViewModel : ViewModelBase
             
         IsLoading = false;
     }
+    
 
     private void BuildFileList()
     {
@@ -199,6 +200,13 @@ public partial class FilesViewModel : ViewModelBase
     public override async Task OnViewOpened()
     {
         Discord.Update($"Browsing {UEParse.Provider.Files.Count:N0} Files");
+
+        AppWM.UpdateChippy([
+            "if you're searching for a file, make sure to use flat view", 
+            "if you look hard enough, you can find my character item definition in here!!",
+            "these are important!! i think!!"
+        ]);
+  
     }
 
     public void ClearSearchFilter()

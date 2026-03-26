@@ -14,8 +14,13 @@ public partial class NewsViewModel : ViewModelBase
     public override async Task OnViewOpened()
     {
         News = [..await Api.FortnitePorting.News()];
+
+        AppWM.UpdateChippy([
+            "any good news?", "maybe one day my face can be on a news article :(", "i love staying informed!! kinda!!",
+            "breaking news: you’re awesome", "i’m your tiny news anchor 😺"
+        ]);
     }
-    
+
     public void OpenNews(NewsResponse news)
     {
         ChangelogWindow.Preview(news.Description);

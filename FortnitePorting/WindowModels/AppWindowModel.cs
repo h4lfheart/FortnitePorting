@@ -3,9 +3,12 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Avalonia.Media.Imaging;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FluentAvalonia.UI.Controls;
+using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.Information;
@@ -42,12 +45,42 @@ public partial class AppWindowModel(
     [ObservableProperty] private BroadcastResponse[] _broadcasts = [];
 
     [ObservableProperty] private double _chippyOpacity = 1.0d;
-    [ObservableProperty] private string _chippyText = "hi im chippy!!";
+    [ObservableProperty] private string _chippyText = "nice to meet you!!";
+    [ObservableProperty] private Bitmap _chippyImage = _chippyIdle;
+
+    private string[] _textSet = [];
+
+    private static readonly Bitmap _chippyIdle =
+        ImageExtensions.AvaresBitmap("avares://FortnitePorting/Assets/ApricotFudge/chippy_idle.png");
+    
+    private static readonly Bitmap _chippyTada =
+        ImageExtensions.AvaresBitmap("avares://FortnitePorting/Assets/ApricotFudge/chippy_tada.png");
+    
+    private static readonly Bitmap _chippyExplain =
+        ImageExtensions.AvaresBitmap("avares://FortnitePorting/Assets/ApricotFudge/chippy_explain.png");
+    
+    private static readonly Bitmap _chippyError =
+        ImageExtensions.AvaresBitmap("avares://FortnitePorting/Assets/ApricotFudge/chippy_error.png");
+
+    private static readonly Bitmap[] _chippyTalkImages =
+    [
+        _chippyIdle,
+        _chippyTada,
+        _chippyExplain
+    ];
 
     private const string PORTLE_URL = "https://cdn.fortniteporting.app/portle/Portle.exe";
 
     public override async Task Initialize()
     {
+        var timer = new DispatcherTimer(TimeSpan.FromSeconds(5), DispatcherPriority.Normal,
+            (sender, args) =>
+            {
+                TickChippy();
+            });
+        
+        timer.Start();
+        
         if (!AppSettings.Installation.FinishedSetup)
         {
             await TaskService.RunDispatcherAsync(() =>
@@ -66,6 +99,20 @@ public partial class AppWindowModel(
         await CheckForUpdate();
     }
 
+    public void UpdateChippy(string[] textSet)
+    {
+        _textSet = textSet;
+        TickChippy();
+    }
+
+    private void TickChippy()
+    {
+        ChippyText = _textSet.Random()!;
+        if (_textSet.Length > 1)
+            ChippyImage = _chippyTalkImages.Random()!;
+    }
+
+    
     [RelayCommand]
     public async Task Update()
     {

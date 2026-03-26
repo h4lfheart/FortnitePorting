@@ -28,7 +28,7 @@ public partial class AssetsViewModel() : ViewModelBase
         AssetLoader = assetLoader;
         Api = api;
         Supabase = supabase;
-        
+
         AssetLoader.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName == nameof(AssetLoaderService.ActiveLoader))
@@ -38,18 +38,19 @@ public partial class AssetsViewModel() : ViewModelBase
         };
     }
 
-    public bool IsTastyRigApplyVisible => ExportLocation is EExportLocation.Blender && AssetLoader.ActiveLoader?.Type is EExportType.Outfit;
-    
-    [ObservableProperty] 
-    [NotifyPropertyChangedFor(nameof(IsTastyRigApplyVisible))]
+    public bool IsTastyRigApplyVisible => ExportLocation is EExportLocation.Blender &&
+                                          AssetLoader.ActiveLoader?.Type is EExportType.Outfit;
+
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(IsTastyRigApplyVisible))]
     private EExportLocation _exportLocation = EExportLocation.Blender;
-    
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(ShowNamesIcon))] private bool _showNames = AppSettings.Application.ShowAssetNames;
+
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(ShowNamesIcon))]
+    private bool _showNames = AppSettings.Application.ShowAssetNames;
 
     public MaterialIconKind ShowNamesIcon => ShowNames ? MaterialIconKind.TextLong : MaterialIconKind.TextShort;
-    
+
     [ObservableProperty] private ObservableCollection<ISidebarItem> _sidebarItems = [];
-    
+
     public override async Task Initialize()
     {
         await TaskService.RunDispatcherAsync(() =>
@@ -61,12 +62,13 @@ public partial class AssetsViewModel() : ViewModelBase
                 foreach (var loader in category.Loaders)
                 {
                     SidebarItems.Add(new SidebarItemButton(
-                        text: loader.Type.Description, 
-                        iconBitmap: ImageExtensions.AvaresBitmap($"avares://FortnitePorting/Assets/FN/{loader.Type.ToString()}.png"),
+                        text: loader.Type.Description,
+                        iconBitmap: ImageExtensions.AvaresBitmap(
+                            $"avares://FortnitePorting/Assets/FN/{loader.Type.ToString()}.png"),
                         tag: loader.Type
                     ));
                 }
-                
+
                 if (index < AssetLoader.Categories.Count - 1)
                     SidebarItems.Add(new SidebarItemSeparator());
             }
@@ -75,7 +77,12 @@ public partial class AssetsViewModel() : ViewModelBase
 
     public override async Task OnViewOpened()
     {
-        AppWM.ChippyText = "can you export me please :)";
+        AppWM.UpdateChippy([
+            "can you export me please :)",
+            "woah so many options!!",
+            "i like the emotes tab, twist is my favorite!!",
+            "check out my goat in the sidekick tab", "every asset deserves love!!"
+        ]);
     }
 
     public override async Task OnViewExited()
@@ -93,10 +100,11 @@ public partial class AssetsViewModel() : ViewModelBase
     public async Task Export()
     {
         if (AssetLoader.ActiveLoader is null) return;
-        
+
         AssetLoader.ActiveLoader.Pause();
-        
-        var exportedProperly = await Exporter.Export(AssetLoader.ActiveLoader.SelectedAssetInfos, AppSettings.ExportSettings.CreateExportMeta(ExportLocation));
+
+        var exportedProperly = await Exporter.Export(AssetLoader.ActiveLoader.SelectedAssetInfos,
+            AppSettings.ExportSettings.CreateExportMeta(ExportLocation));
         if (exportedProperly && SupaBase.IsLoggedIn)
         {
             await SupaBase.PostExports([
@@ -108,10 +116,10 @@ public partial class AssetsViewModel() : ViewModelBase
                     .Select(asset => $"Custom/{asset.Asset.Asset.Name}"),
             ]);
         }
-        
+
         AssetLoader.ActiveLoader.Unpause();
     }
-    
+
     [RelayCommand]
     public async Task Favorite()
     {
@@ -120,7 +128,7 @@ public partial class AssetsViewModel() : ViewModelBase
             info.Asset.Favorite();
         }
     }
-    
+
     [RelayCommand]
     public async Task ExportTastyRig()
     {

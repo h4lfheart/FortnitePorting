@@ -33,6 +33,8 @@ public partial class ApplicationSettingsViewModel : SettingsViewModelBase
     
     [NotifyDataErrorInfo] [DirectoryExists("Assets Path")] [ObservableProperty]
     private string _assetsPath;
+
+    [ObservableProperty] private bool _showChippy = true;
     
     [ObservableProperty] private bool _useAssetsPath;
 

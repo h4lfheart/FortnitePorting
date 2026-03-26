@@ -19,8 +19,9 @@ public partial class ExportSettingsViewModel : ViewModelBase
     [ObservableProperty] private BlenderSettingsViewModel _blender = new();
     [ObservableProperty] private UnrealSettingsViewModel _unreal = new();
     [ObservableProperty] private FolderSettingsViewModel _folder = new();
-    
-    public ExportDataMeta CreateExportMeta(EExportLocation exportLocation = EExportLocation.Blender, string? customPath = null) => new()
+
+    public ExportDataMeta CreateExportMeta(EExportLocation exportLocation = EExportLocation.Blender,
+        string? customPath = null) => new()
     {
         ExportLocation = exportLocation,
         AssetsRoot = AppSettings.Application.AssetPath,
@@ -35,8 +36,18 @@ public partial class ExportSettingsViewModel : ViewModelBase
 
     public override async Task OnViewExited()
     {
-        if (AppSettings.ShouldSaveOnExit) 
+        if (AppSettings.ShouldSaveOnExit)
             AppSettings.Save();
+    }
+
+    public override async Task OnViewOpened()
+    {
+        AppWM.UpdateChippy([
+            "you should turn on nanite and export the whole map :)",
+            "fun fact: tasty rig is older than me :O", "how fancy do you want it??",
+            "tiny tweaks make big difference!! i think!!",
+            "this part feels important… i’m focused!!"
+        ]);
     }
 }
 
@@ -46,16 +57,16 @@ public partial class BaseExportSettings : ViewModelBase
 
     [ObservableProperty] private EImageFormat _imageFormat = EImageFormat.PNG;
     [ObservableProperty] private bool _exportMaterials = true;
-    
+
     [ObservableProperty] private EMeshFormat _meshFormat = EMeshFormat.UEFormat;
     [ObservableProperty] private bool _exportNanite;
     [ObservableProperty] private bool _importInstancedFoliage = true;
-    
+
     [ObservableProperty] private EAnimFormat _animFormat = EAnimFormat.UEFormat;
     [ObservableProperty] private bool _importLobbyPoses = false;
-    
+
     [ObservableProperty] private ESoundFormat _soundFormat = ESoundFormat.WAV;
-    
+
     public virtual ExporterOptions CreateExportOptions()
     {
         return new ExporterOptions()
@@ -67,4 +78,3 @@ public partial class BaseExportSettings : ViewModelBase
         };
     }
 }
-

@@ -75,6 +75,11 @@
                 </controls:SettingsItem.Footer>
             </controls:SettingsItem>
             
+            <controls:SettingsItem Title="Show Chippy" Description="Enables the chippy character on the screen.">
+                <controls:SettingsItem.Footer>
+                    <ToggleSwitch IsChecked="{Binding ShowChippy}"/>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
             <controls:SettingsItem Title="Show Developer Settings" Description="Enables the developer settings tab.">
                 <controls:SettingsItem.Footer>

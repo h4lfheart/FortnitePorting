@@ -231,15 +231,15 @@
         </Grid>
         
         
-        <Grid Grid.Row="0" Grid.RowSpan="2" IsHitTestVisible="False" x:Name="ChippyImage" IsVisible="False"
-              MaxHeight="400" HorizontalAlignment="Right" VerticalAlignment="Bottom" Opacity="{Binding ChippyOpacity}">
+        <Grid Grid.Row="0" Grid.RowSpan="2" IsHitTestVisible="False" x:Name="ChippyImage" IsVisible="{Binding Settings.Application.ShowChippy}"
+               HorizontalAlignment="Right" VerticalAlignment="Bottom" Opacity="{Binding ChippyOpacity}">
             <Grid.Transitions>
                 <Transitions>
-                    <DoubleTransition Property="Opacity" Duration="0:0:0.3"/>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.1"/>
                 </Transitions>
             </Grid.Transitions>
             
-            <Image Source="/Assets/ApricotFudge/chippy_idle.png" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+            <Image MaxHeight="400" Source="{Binding ChippyImage}" HorizontalAlignment="Right" VerticalAlignment="Bottom">
                 <Image.Effect>
                     <DropShadowEffect Color="Black" BlurRadius="25"/>
                 </Image.Effect>
@@ -247,16 +247,38 @@
             
             
             <Grid HorizontalAlignment="Right" VerticalAlignment="Bottom" 
-                  Margin="0,0,300,400">
+                  Margin="0,0,270,360">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 
+                
+                <Path Grid.Row="1"
+                      HorizontalAlignment="Right"
+                      Margin="0,0,40,0"
+                      Fill="White"
+                      Data="M 0,0 L 36,22 L 36,0 Z">
+                    
+                    <Path.Effect>
+                        <DropShadowEffect Color="Black" BlurRadius="25"/>
+                    </Path.Effect>
+                </Path>
+                
                 <Border Grid.Row="0"
-                        Background="White"
                         CornerRadius="20"
                         Padding="24,18">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
+                            <GradientStops>
+                                <GradientStop Color="White" Offset="0" />
+                                <GradientStop Color="LightGray" Offset="1" />
+                            </GradientStops>
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <Border.Effect>
+                        <DropShadowEffect Color="Black" BlurRadius="25"/>
+                    </Border.Effect>
                     <TextBlock Text="{Binding ChippyText}"
                                Foreground="#1c1c1e"
                                FontSize="22"
@@ -265,11 +287,6 @@
                                MaxWidth="380"/>
                 </Border>
                 
-                <Path Grid.Row="1"
-                      HorizontalAlignment="Right"
-                      Margin="0,0,40,0"
-                      Fill="White"
-                      Data="M 0,0 L 36,22 L 36,0 Z"/>
 
             </Grid>
         </Grid>

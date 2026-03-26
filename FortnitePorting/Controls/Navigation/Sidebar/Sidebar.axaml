@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:ext="clr-namespace:FortnitePorting.Extensions"
              xmlns:sidebar="clr-namespace:FortnitePorting.Controls.Navigation.Sidebar"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FortnitePorting.Controls.Navigation.Sidebar.Sidebar">
     <Grid Margin="{ext:Space 2}">
@@ -18,7 +19,7 @@
                         IsVisible="{Binding Header, RelativeSource={RelativeSource AncestorType=sidebar:Sidebar}, Converter={x:Static ObjectConverters.IsNotNull}}"
                         Margin="{ext:Space 0, 0, 0, 2}"/>
     
-        <ScrollViewer Grid.Row="1" Margin="{ext:Space -1}" ClipToBounds="False" VerticalScrollBarVisibility="Hidden">
+        <controls:DynamicFadeScrollViewer Grid.Row="1" Margin="{ext:Space -1}" ClipToBounds="False" VerticalScrollBarVisibility="Hidden">
             <ItemsControl x:Name="SidebarItems" Margin="{ext:Space 1}"
                           ItemsSource="{Binding FlattenedItems, RelativeSource={RelativeSource AncestorType=sidebar:Sidebar}}" 
                           ClipToBounds="False" PointerPressed="OnItemSelected">
@@ -28,7 +29,7 @@
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
             </ItemsControl>
-        </ScrollViewer>
+        </controls:DynamicFadeScrollViewer>
     
         <ContentControl Grid.Row="2" 
                         Content="{Binding Footer, RelativeSource={RelativeSource AncestorType=sidebar:Sidebar}}"

@@ -15,7 +15,6 @@ using FortnitePorting.Framework;
 using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Models.Information;
 using FortnitePorting.Models.Map;
-
 using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Views;
@@ -34,7 +33,7 @@ public partial class MapViewModel : ViewModelBase
         AppSettings = settings;
         SupaBase = supabase;
     }
-    
+
     [ObservableProperty] private ObservableCollection<WorldPartitionMap> _maps = [];
     [ObservableProperty] private WorldPartitionMap _selectedMap;
     [ObservableProperty] private EExportLocation _exportLocation = EExportLocation.Blender;
@@ -43,16 +42,23 @@ public partial class MapViewModel : ViewModelBase
     [ObservableProperty] private string? _currentlyLoadingMap;
 
     [ObservableProperty] private bool _useMapInfoCreator;
-    
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(LoadingPercentageText))] private int _loadedMaps;
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(LoadingPercentageText))] private int _totalMaps = int.MaxValue;
-    public string LoadingPercentageText => $"{(LoadedMaps == 0 && TotalMaps == 0 ? 0 : LoadedMaps * 100f / TotalMaps):N0}%";
-    
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(MapTransform))] private Matrix _mapMatrix = Matrix.Identity;
+
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(LoadingPercentageText))]
+    private int _loadedMaps;
+
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(LoadingPercentageText))]
+    private int _totalMaps = int.MaxValue;
+
+    public string LoadingPercentageText =>
+        $"{(LoadedMaps == 0 && TotalMaps == 0 ? 0 : LoadedMaps * 100f / TotalMaps):N0}%";
+
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(MapTransform))]
+    private Matrix _mapMatrix = Matrix.Identity;
+
     public MatrixTransform MapTransform => new(MapMatrix);
 
     public ItemsControl? GridsControl;
-    
+
     public DirectoryInfo MapsFolder => new(Path.Combine(App.ApplicationDataFolder.FullName, "Maps"));
 
     public MapViewModel()
@@ -75,8 +81,8 @@ public partial class MapViewModel : ViewModelBase
     {
         await TaskService.RunDispatcherAsync(async () =>
         {
-             IsLoading = true;
-        
+            IsLoading = true;
+
             var maps = await Api.FortnitePorting.Maps();
             foreach (var map in maps)
             {
@@ -84,7 +90,7 @@ public partial class MapViewModel : ViewModelBase
                 if (!mapInfo.IsValid()) continue;
 
                 mapInfo.IsPublished = true;
-                
+
                 Maps.Add(new WorldPartitionMap(mapInfo));
             }
 
@@ -92,7 +98,8 @@ public partial class MapViewModel : ViewModelBase
             {
                 if (!mapInfo.IsValid())
                 {
-                    Info.Message("Local Map Info", $"Failed to load {mapInfo.Name} due to invalid file paths, removing from local registry.");
+                    Info.Message("Local Map Info",
+                        $"Failed to load {mapInfo.Name} due to invalid file paths, removing from local registry.");
                     AppSettings.Application.LocalMapInfos.RemoveAll(map => map.Id.Equals(mapInfo.Id));
                     continue;
                 }
@@ -107,22 +114,27 @@ public partial class MapViewModel : ViewModelBase
                 {
                     if (mountedVfs is not IoStoreReader { Name: "plugin.utoc" } ioStoreReader) continue;
 
-                    var gameFeatureDataFile = ioStoreReader.Files.FirstOrDefault(file => file.Key.EndsWith("GameFeatureData.uasset", StringComparison.OrdinalIgnoreCase));
+                    var gameFeatureDataFile = ioStoreReader.Files.FirstOrDefault(file =>
+                        file.Key.EndsWith("GameFeatureData.uasset", StringComparison.OrdinalIgnoreCase));
                     if (gameFeatureDataFile.Value is null) continue;
 
-                    var gameFeatureData = await UEParse.Provider.SafeLoadPackageObjectAsync<UFortGameFeatureData>(gameFeatureDataFile.Value.PathWithoutExtension);
+                    var gameFeatureData =
+                        await UEParse.Provider.SafeLoadPackageObjectAsync<UFortGameFeatureData>(gameFeatureDataFile
+                            .Value.PathWithoutExtension);
 
                     if (gameFeatureData?.ExperienceData?.DefaultMap is not { } defaultMapPath) continue;
 
                     var defaultMap = await defaultMapPath.LoadAsync();
-                    if (PluginRemoveList.Any(item => defaultMap.Name.Contains(item, StringComparison.OrdinalIgnoreCase))) continue;
+                    if (PluginRemoveList.Any(item =>
+                            defaultMap.Name.Contains(item, StringComparison.OrdinalIgnoreCase))) continue;
 
-                    var mapInfo = MapInfo.CreateNonDisplay(defaultMap.Name, defaultMap.GetPathName().SubstringBeforeLast("."));
-                
+                    var mapInfo = MapInfo.CreateNonDisplay(defaultMap.Name,
+                        defaultMap.GetPathName().SubstringBeforeLast("."));
+
                     Maps.Add(new WorldPartitionMap(mapInfo));
                 }
             }
-            
+
             if (Maps.Count == 0)
             {
                 Info.Message("No Supported Maps", "Failed to find any supported maps for processing.");
@@ -132,7 +144,7 @@ public partial class MapViewModel : ViewModelBase
             foreach (var map in Maps.ToArray())
             {
                 LoadedMaps++;
-                
+
                 try
                 {
                     CurrentlyLoadingMap = map.MapInfo.Name;
@@ -150,12 +162,11 @@ public partial class MapViewModel : ViewModelBase
             }
 
             SelectedMap = Maps.FirstOrDefault();
-            
+
             IsLoading = false;
         });
-
     }
-    
+
     [RelayCommand]
     public async Task EditorPublish()
     {
@@ -164,51 +175,54 @@ public partial class MapViewModel : ViewModelBase
             Info.Message("Publish Map", "Map information is invalid, ensure all paths exist");
             return;
         }
-        
-        Info.Dialog("Publish Map", $"Are you sure you would like to publish {SelectedMap.MapInfo.Name}? This will make the map visible for all users.", buttons: [
-            new DialogButton
-            {
-                Text = "Publish",
-                Action = () => TaskService.Run(async () =>
+
+        Info.Dialog("Publish Map",
+            $"Are you sure you would like to publish {SelectedMap.MapInfo.Name}? This will make the map visible for all users.",
+            buttons:
+            [
+                new DialogButton
                 {
-                    await Api.FortnitePorting.PostMap(SelectedMap.MapInfo);
-                    SelectedMap.MapInfo.IsPublished = true;
-                    AppSettings.Application.LocalMapInfos.RemoveAll(map => map.Id.Equals(SelectedMap.MapInfo.Id));
-                    
-                    Info.Message("Publish Map", $"Successfully published {SelectedMap.MapInfo.Name}!");
-                })
-            }
-        ]);
+                    Text = "Publish",
+                    Action = () => TaskService.Run(async () =>
+                    {
+                        await Api.FortnitePorting.PostMap(SelectedMap.MapInfo);
+                        SelectedMap.MapInfo.IsPublished = true;
+                        AppSettings.Application.LocalMapInfos.RemoveAll(map => map.Id.Equals(SelectedMap.MapInfo.Id));
+
+                        Info.Message("Publish Map", $"Successfully published {SelectedMap.MapInfo.Name}!");
+                    })
+                }
+            ]);
     }
 
     [RelayCommand]
     public async Task EditorDelete()
     {
-        Info.Dialog("Delete Map", $"Are you sure you would like to delete {SelectedMap.MapInfo.Name}? This will remove the map for all users.", buttons: [
-            new DialogButton
-            {
-                Text = "Delete",
-                Action = () =>
+        Info.Dialog("Delete Map",
+            $"Are you sure you would like to delete {SelectedMap.MapInfo.Name}? This will remove the map for all users.",
+            buttons:
+            [
+                new DialogButton
                 {
-                    var targetMapInfo = SelectedMap.MapInfo;
-                    if (SelectedMap.MapInfo.IsPublished)
+                    Text = "Delete",
+                    Action = () =>
                     {
-                        TaskService.Run(async () =>
+                        var targetMapInfo = SelectedMap.MapInfo;
+                        if (SelectedMap.MapInfo.IsPublished)
                         {
-                            await Api.FortnitePorting.DeleteMap(targetMapInfo.Id);
-                        });
+                            TaskService.Run(async () => { await Api.FortnitePorting.DeleteMap(targetMapInfo.Id); });
+                        }
+
+                        Maps.Remove(SelectedMap);
+                        SelectedMap = Maps.FirstOrDefault();
+                        AppSettings.Application.LocalMapInfos.RemoveAll(map => map.Id.Equals(targetMapInfo.Id));
+
+                        Info.Message("Delete Map", $"Successfully deleted {targetMapInfo.Name}!");
                     }
-                        
-                    Maps.Remove(SelectedMap);
-                    SelectedMap = Maps.FirstOrDefault();
-                    AppSettings.Application.LocalMapInfos.RemoveAll(map => map.Id.Equals(targetMapInfo.Id));
-                    
-                    Info.Message("Delete Map", $"Successfully deleted {targetMapInfo.Name}!");
                 }
-            }
-        ]);
+            ]);
     }
-    
+
     [RelayCommand]
     public async Task EditorReload()
     {
@@ -217,27 +231,33 @@ public partial class MapViewModel : ViewModelBase
             Info.Message("Refresh Map", "Map information is invalid, ensure all paths exist");
             return;
         }
-        
+
         await SelectedMap.Refresh();
     }
-    
+
     [RelayCommand]
     public async Task OpenSettings()
     {
         Navigation.App.Open<ExportSettingsView>();
         Navigation.ExportSettings.Open(ExportLocation);
     }
-    
+
     [RelayCommand]
     public async Task SetExportLocation(EExportLocation location)
     {
         ExportLocation = location;
     }
-    
+
     public override async Task OnViewOpened()
     {
+        AppWM.UpdateChippy([
+            "athena_terrain is so tuff", "they should add the yacht back, I miss my home",
+            "when are we getting a cat themed map", "we’re exporting a whole map?? that’s huge!!"
+        ]);
+
+
         if (SelectedMap is null) return;
-        
+
         Discord.Update($"Browsing Map: \"{SelectedMap.MapInfo.Name}\"");
     }
 
@@ -250,7 +270,7 @@ public partial class MapViewModel : ViewModelBase
             case nameof(SelectedMap):
             {
                 GridsControl?.InvalidateVisual();
-                
+
                 Discord.Update($"Browsing Map: \"{SelectedMap.MapInfo.Name}\"");
                 break;
             }

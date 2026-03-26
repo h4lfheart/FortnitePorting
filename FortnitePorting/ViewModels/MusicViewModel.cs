@@ -107,7 +107,18 @@ public partial class MusicViewModel : ViewModelBase
         AppSettings.Application.Playlists = CustomPlaylists.Select(RadioPlaylistSerializeData.FromPlaylist).ToArray();
     }
 
-    public override async Task OnViewOpened() => Discord.Update("Browsing Music");
+    public override async Task OnViewOpened()
+    { 
+        AppWM.UpdateChippy([
+            "you should listen to \"I'm A Cat,\" hit single by the one and only", 
+            "subterfuge is a banger, definitely listen to it",
+            "this is my workout music fr",
+            
+        ]);
+        
+        Discord.Update("Browsing Music");
+    }
+
 
     [RelayCommand]
     public async Task AddPlaylist() => Playlists.Add(new RadioPlaylist(isDefault: false));

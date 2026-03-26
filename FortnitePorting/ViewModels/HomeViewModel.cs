@@ -60,6 +60,17 @@ public partial class HomeViewModel() : ViewModelBase
         }
     }
 
+    public override async Task OnViewOpened()
+    {
+        AppWM.UpdateChippy([
+            "welcome to my home!! :D", 
+            "i love the home tab", 
+            "so many amazing featured artists!!", 
+            "waiting for some meowscles featured art 🙄🙄🙄", 
+            "you look ready to make something cool"
+        ]);
+    }
+
     public void OpenNews(NewsResponse news)
     {
         ChangelogWindow.Preview(news.Description);

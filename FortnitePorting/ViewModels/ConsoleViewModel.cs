@@ -13,7 +13,6 @@ using FortnitePorting.Framework;
 using FortnitePorting.Models.Article;
 using FortnitePorting.Models.Information;
 using FortnitePorting.Models.Supabase.Tables;
-
 using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
 using ReactiveUI;
@@ -31,7 +30,7 @@ public partial class ConsoleViewModel : ViewModelBase
     [ObservableProperty] private ELogEventType _filterType = ELogEventType.None;
 
     public DynamicFadeScrollViewer Scroll;
-    
+
     private const double AutoScrollThreshold = 800;
 
     public ConsoleViewModel(InfoService infoService)
@@ -39,13 +38,21 @@ public partial class ConsoleViewModel : ViewModelBase
         Info = infoService;
     }
 
+    public override async Task OnViewOpened()
+    {
+        AppWM.UpdateChippy([
+            "wow imagine having an error", "do you think if i lick the log file it'll fix your issue",
+            "uh oh… this is the serious screen", "i definitely didn’t cause those errors",
+            "if it’s red… we pretend we didn’t see it", "logs logs logs!! i love reading… not really"
+        ]);
+    }
+
     public override async Task Initialize()
     {
-        
         var filterObservable = this
             .WhenAnyValue(vm => vm.SearchFilter, vm => vm.FilterType)
             .Select(CreateFilter);
-        
+
         Info.LogList.Connect()
             .ObserveOn(RxApp.MainThreadScheduler)
             .Buffer(TimeSpan.FromMilliseconds(100)) // Batch changes instead of throttling
@@ -53,7 +60,7 @@ public partial class ConsoleViewModel : ViewModelBase
             .FlattenBufferResult()
             .Filter(filterObservable)
             .Bind(out var readOnlyLogs)
-            .Subscribe(_ => AutoScrollIfNeeded()); 
+            .Subscribe(_ => AutoScrollIfNeeded());
 
         Logs = readOnlyLogs;
     }

@@ -305,6 +305,11 @@ public partial class GPTViewModel(SupabaseService supabaseService) : ViewModelBa
     ];
 
     private ProfanityFilter.ProfanityFilter _profanityFilter = new();
+    
+    public override async Task OnViewOpened()
+    {
+        AppWM.UpdateChippy(["i love talking to mr. fortnite porting gpt in here", "thinking… thinking… big brain time…", "we are so cooking right now"]);
+    }
 
     public async Task SendPrompt()
     {

@@ -28,6 +28,10 @@ public partial class VibeExportViewModel(SupabaseService supabaseService) : View
 
     public string WelcomeText => $"Hello {SupaBase.UserInfo?.DisplayName ?? "there"}, what do you want to export?";
     
+    public override async Task OnViewOpened()
+    {
+        AppWM.UpdateChippy(["this new AI tool is so good!", "i have zero issues with this amazing tool", "it works perfectly every time!"]);
+    }
 
     public async Task SendPrompt()
     {
