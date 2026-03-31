@@ -231,8 +231,14 @@
         </Grid>
         
         
-        <Grid Grid.Row="0" Grid.RowSpan="2" IsHitTestVisible="False" x:Name="ChippyImage" IsVisible="{Binding Settings.Application.ShowChippy}"
+        <Grid Grid.Row="0" Grid.RowSpan="2" IsHitTestVisible="False" x:Name="ChippyImage"
                HorizontalAlignment="Right" VerticalAlignment="Bottom" Opacity="{Binding ChippyOpacity}">
+            <Grid.IsVisible>
+                <MultiBinding Converter="{StaticResource AndConverter}">
+                    <Binding Path="ShowChippy" />
+                    <Binding Path="Settings.Application.ShowChippy" />
+                </MultiBinding>
+            </Grid.IsVisible>
             <Grid.Transitions>
                 <Transitions>
                     <DoubleTransition Property="Opacity" Duration="0:0:0.1"/>

@@ -5,6 +5,7 @@ using Avalonia.Input;
 using FortnitePorting.Controls.Navigation.Sidebar;
 using FortnitePorting.Framework;
 using FortnitePorting.Services;
+using FortnitePorting.Views;
 using AppWindowModel = FortnitePorting.WindowModels.AppWindowModel;
 
 namespace FortnitePorting.Windows;
@@ -44,6 +45,8 @@ public partial class AppWindow : WindowBase<AppWindowModel>
         if (!AppSettings.Installation.FinishedSetup) return;
         
         Navigation.App.Open(args.Tag);
+
+        WindowModel.ShowChippy = !(args.Tag!.Equals(typeof(VibeExportView)) || args.Tag.Equals(typeof(GPTView)) || args.Tag.Equals(typeof(RenderGeneratorView)));
     }
 
     protected override void OnClosed(EventArgs e)

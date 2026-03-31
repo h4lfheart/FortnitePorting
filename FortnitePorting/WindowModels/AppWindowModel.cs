@@ -47,6 +47,7 @@ public partial class AppWindowModel(
     [ObservableProperty] private double _chippyOpacity = 1.0d;
     [ObservableProperty] private string _chippyText = "nice to meet you!!";
     [ObservableProperty] private Bitmap _chippyImage = _chippyIdle;
+    [ObservableProperty] private bool _showChippy = true;
 
     private string[] _textSet = [];
 
