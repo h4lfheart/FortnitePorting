@@ -2,6 +2,8 @@ import bpy
 from ..enums import *
 import os.path
 
+image_cache = {}
+
 class TextureImportContext:
     
     def import_texture_data(self, data):
@@ -53,11 +55,14 @@ class TextureImportContext:
         return texture_path, name
 
     def import_image(self, path: str):
-        path, name = self.format_image_path(path)
-        if existing := bpy.data.images.get(name):
-            return existing
 
+        if existing := image_cache.get(path):
+            return existing
+            
+        path, name = self.format_image_path(path)
         if not os.path.exists(path):
             return None
 
-        return bpy.data.images.load(path, check_existing=True)
+        image = bpy.data.images.load(path, check_existing=True)
+        image_cache[name] = image
+        return image

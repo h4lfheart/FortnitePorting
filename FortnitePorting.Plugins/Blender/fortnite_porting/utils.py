@@ -8,7 +8,13 @@ from .logger import Log
 
 blend_files = ["fortnite_porting_data.blend", "fortnite_porting_materials.blend"]
 
+_loaded_versions: dict[str, tuple] = {}
+
 def ensure_blend_data_for_file(file_name):
+    current = addon_version()
+    if _loaded_versions.get(file_name) == current:
+        return
+
     addon_dir = os.path.dirname(os.path.splitext(__file__)[0])
 
     with bpy.data.libraries.load(os.path.join(addon_dir, "data", file_name)) as (data_from, data_to):
@@ -33,9 +39,11 @@ def ensure_blend_data_for_file(file_name):
             if not bpy.data.fonts.get(font):
                 data_to.fonts.append(font)
 
-    for node_group in bpy.data.node_groups:
-        if "FPv4" in node_group.name and not node_group.get("addon_version"):
+    for node_group in data_to.node_groups:
+        if not node_group.get("addon_version"):
             node_group["addon_version"] = version_string()
+
+    _loaded_versions[file_name] = current
 
 
 # TODO: Make dynamic from mappings_registry.blend_files list?

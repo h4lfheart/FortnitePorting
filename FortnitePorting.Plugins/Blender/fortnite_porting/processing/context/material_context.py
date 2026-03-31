@@ -71,7 +71,11 @@ def link_texture_node(nodes, links, node, target_node, mappings, x, y):
         uv = create_uv_node(nodes, mappings.coords, node.location)
         links.new(uv.outputs[0], node.inputs[0])
 
+material_hash_cache = {}
+material_name_cache = {}
+
 class MaterialImportContext:
+    
     def import_material(self, material_slot, material_data, meta, as_material_data=False):
 
         if not as_material_data:
@@ -132,13 +136,16 @@ class MaterialImportContext:
             material_hash += additional_hash
             material_name += f"_{hash_code(material_hash)}"
 
-        if existing_material := first(bpy.data.materials, lambda mat: mat.get("Hash") == hash_code(material_hash)):
+        hash_key = hash_code(material_hash)
+
+        if existing_material := material_hash_cache.get(hash_key):
             if not as_material_data:
                 material_slot.material = existing_material
+                return
 
         # same name but different hash
-        if (name_existing := first(bpy.data.materials, lambda mat: mat.name == material_name)) and name_existing.get("Hash") != material_hash:
-            material_name += f"_{hash_code(material_hash)}"
+        if (name_existing := material_name_cache.get(material_name.casefold())) and name_existing.get("Hash") != hash_key:
+            material_name += f"_{hash_key}"
 
         if not as_material_data and material_slot.material.name.casefold() != material_name.casefold():
             material_slot.material = bpy.data.materials.new(material_name)
@@ -151,7 +158,7 @@ class MaterialImportContext:
         material.use_nodes = True
         material.surface_render_method = "DITHERED"
 
-        if any(vertex_crunch_names, lambda x: x in material_name) or get_param(scalars, "HT_CrunchVerts") == 1 or any(toon_outline_names, lambda x: x in material_name):
+        if any(vertex_crunch_names, lambda x: x in material_name) or get_param(scalars, "HT_CrunchVerts") == 1 or any(toon_outline_names, lambda x: x in material_name and not x.startswith("MI_OutlineLove")):
             self.full_vertex_crunch_materials.append(material)
             return
 
@@ -509,6 +516,9 @@ class MaterialImportContext:
                 if "Hide Element" in scalar.get("Name")
             }
             self.partial_vertex_crunch_materials[material] = elements
+
+        material_hash_cache[hash_key] = material
+        material_name_cache[material_name.casefold()] = material
 
 
     def import_material_standalone(self, data):
