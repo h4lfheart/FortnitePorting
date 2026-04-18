@@ -307,15 +307,9 @@
                                                     </DataTemplate>
                                                     
                                                     <DataTemplate DataType="nodes:JsonPropertyContainer">
-                                                        <DropDownButton>
-                                                            <DropDownButton.Flyout>
-                                                                <Flyout>
-                                                                    <TextBox IsReadOnly="True" Text="{Binding JsonData}"/>
-                                                                </Flyout>
-                                                            </DropDownButton.Flyout>
-                                                            
+                                                        <Button Command="{Binding OpenPropertiesCommand}">
                                                             <avalonia:MaterialIcon Kind="CodeJson"/>
-                                                        </DropDownButton>
+                                                        </Button>
                                                     </DataTemplate>
                                                     
                                                     <DataTemplate DataType="sys:Object">

@@ -2,12 +2,17 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Objects;
+using CUE4Parse.Utils;
 using DynamicData;
 using DynamicData.Binding;
+using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
+using FortnitePorting.Windows;
 using Newtonsoft.Json;
 using ReactiveUI;
 
@@ -77,8 +82,21 @@ public partial class NodeTree : ObservableObject
 
             if (JsonPropertyTypes.Contains(propType) || propType.IsArray)
             {
+                var ownerName = propertyHolder switch
+                {
+                    UObject obj => obj.Owner?.Name.SubstringAfterLast("/") ?? "Material",
+                    _ => "Material"
+                };
+                
+                var nodeName = propertyHolder switch
+                {
+                    UObject obj => obj.Name,
+                    _ => "Node"
+                };
+                
                 targetData = new JsonPropertyContainer
                 {
+                    Name = $"{ownerName}:{nodeName}.{property.Name.Text}",
                     JsonData = JsonConvert.SerializeObject(targetData, Formatting.Indented)
                 };
             }
@@ -101,6 +119,16 @@ public partial class NodeTree : ObservableObject
 
 public partial class JsonPropertyContainer : ObservableObject
 {
+    [ObservableProperty] private string _name;
     [ObservableProperty] private string _jsonData;
+
+    [RelayCommand]
+    public async Task OpenProperties()
+    {
+        TaskService.RunDispatcher(() =>
+        {
+            PropertiesPreviewWindow.Preview(Name, JsonData);
+        });
+    }
 }
 
