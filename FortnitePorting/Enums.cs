@@ -125,6 +125,9 @@ public enum EExportType
     
     [Description("Sidekicks"), Export(EPrimitiveExportType.Mesh)]
     SideKick,
+    
+    [Description("Kicks"), Export(EPrimitiveExportType.Mesh)]
+    Kicks,
 
     
     // CREATIVE

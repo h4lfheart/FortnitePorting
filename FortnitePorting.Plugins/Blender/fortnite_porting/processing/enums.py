@@ -33,6 +33,7 @@ class EExportType(IntEnum):
     LOADING_SCREEN = auto()
     EMOTE = auto()
     SIDEKICK = auto()
+    KICKS = auto()
     
     # CREATIVE
     PROP = auto()

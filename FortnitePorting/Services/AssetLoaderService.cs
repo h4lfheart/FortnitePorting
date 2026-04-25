@@ -160,7 +160,12 @@ public partial class AssetLoaderService : ObservableObject, IService
                             }
                         }
                     ],
-                }
+                },
+                new AssetLoader(EExportType.Kicks)
+                {
+                    ClassNames = ["CosmeticShoesItemDefinition"],
+                    LoadHiddenAssets = true
+                },
             ]
         },
         new(EAssetCategory.Creative)

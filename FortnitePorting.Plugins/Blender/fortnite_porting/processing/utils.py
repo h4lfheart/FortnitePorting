@@ -7,42 +7,23 @@ from math import radians
 from mathutils import Matrix, Vector, Euler, Quaternion
 from bpy_extras import anim_utils
 
-def merge_armatures(parts):
+def merge_armatures(base_armature, extra_armatures):
     bpy.ops.object.select_all(action='DESELECT')
 
-    merge_parts = []
-    constraint_parts = []
-
-    for part in parts:
-        if (meta := part.get("Meta")) and meta.get("AttachToSocket") and meta.get("Socket") not in ["Face", "Helmet", None]:
-            constraint_parts.append(part)
-        else:
-            merge_parts.append(part)
+    all_meshes = [get_armature_mesh(a) for a in [base_armature] + extra_armatures]
 
     # merge skeletons
-    for part in merge_parts:
-        data = part.get("Data")
-        mesh_type = part.get("Type")
-        skeleton = part.get("Skeleton")
-
-        if mesh_type == EFortCustomPartType.BODY:
-            bpy.context.view_layer.objects.active = skeleton
-
-        skeleton.select_set(True)
-
+    bpy.context.view_layer.objects.active = base_armature
+    for armature in [base_armature] + extra_armatures:
+        armature.select_set(True)
+    
     bpy.ops.object.join()
     master_skeleton = bpy.context.active_object
     bpy.ops.object.select_all(action='DESELECT')
 
     # merge meshes
-    for part in merge_parts:
-        data = part.get("Data")
-        mesh_type = part.get("Type")
-        mesh = part.get("Mesh")
-
-        if mesh_type == EFortCustomPartType.BODY:
-            bpy.context.view_layer.objects.active = mesh
-
+    bpy.context.view_layer.objects.active = all_meshes[0]
+    for mesh in all_meshes:
         mesh.select_set(True)
 
     bpy.ops.object.join()
@@ -82,6 +63,29 @@ def merge_armatures(parts):
 
     bpy.ops.object.mode_set(mode='OBJECT')
 
+    return master_skeleton
+
+
+def merge_parts(parts):
+    bpy.ops.object.select_all(action='DESELECT')
+
+    merge_parts = []
+    constraint_parts = []
+
+    for part in parts:
+        if (meta := part.get("Meta")) and meta.get("AttachToSocket") and meta.get("Socket") not in ["Face", "Helmet", None]:
+            constraint_parts.append(part)
+        else:
+            merge_parts.append(part)
+
+    body_part = first(merge_parts, lambda p: p.get("Type") == EFortCustomPartType.BODY)
+    other_parts = where(merge_parts, lambda p: p.get("Type") != EFortCustomPartType.BODY)
+
+    base_armature = body_part.get("Skeleton")
+    extra_armatures = [p.get("Skeleton") for p in other_parts]
+
+    master_skeleton = merge_armatures(base_armature, extra_armatures)
+
     # constraint meshes
     for part in constraint_parts:
         skeleton = part.get("Skeleton")
@@ -94,14 +98,13 @@ def merge_armatures(parts):
             socket = "head"
 
         if socket == "Tail":
-        # Account for skins with lowercase tail socket bone
+            # Account for skins with lowercase tail socket bone
             if "tail" in master_skeleton.pose.bones:
                 socket = "tail"
 
             # Add constraint to tail's root bone instead of on the armature
             constraint_object(skeleton.pose.bones[0], master_skeleton, socket, [0, 0, 0])
             return master_skeleton
-
 
         constraint_object(skeleton, master_skeleton, socket, [0, 0, 0], rot=False)
         constraint_object(skeleton, master_skeleton, socket, [0, 0, 0], loc=False, scale=False, use_inverse=True)

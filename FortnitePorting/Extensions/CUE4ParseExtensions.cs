@@ -277,7 +277,7 @@ public static class CUE4ParseExtensions
 
     extension(FInstancedStruct[] structList)
     {
-        public T? GetItem<T>(params string[] names)
+        public T? GetItemOrDefault<T>(params string[] names)
         {
             foreach (var data in structList)
             {
@@ -329,7 +329,7 @@ public static class CUE4ParseExtensions
         
         public T? GetDataListItem<T>(params string[] names)
         {
-            return propertyHolder.TryGetValue(out FInstancedStruct[] dataList, "DataList") ? dataList.GetItem<T>(names) : default;
+            return propertyHolder.TryGetValue(out FInstancedStruct[] dataList, "DataList") ? dataList.GetItemOrDefault<T>(names) : default;
         }
 
         public List<T> GetDataListItems<T>(params string[] names)

@@ -265,9 +265,9 @@ public class AnimExport : BaseExport
         foreach (var group in groups)
         {
             var entries = group.GetOrDefault<FInstancedStruct[]>("Entries");
-            var targetMontage = entries.GetItem<UAnimMontage?>("MaleMontage");
-            targetMontage ??= entries.GetItem<UAnimMontage?>("MaleMontage");
-            targetMontage ??= entries.GetItem<UAnimMontage?>("DefaultMontage");
+            var targetMontage = entries.GetItemOrDefault<UAnimMontage?>("MaleMontage");
+            targetMontage ??= entries.GetItemOrDefault<UAnimMontage?>("MaleMontage");
+            targetMontage ??= entries.GetItemOrDefault<UAnimMontage?>("DefaultMontage");
             
             if (targetMontage is not null)
                 return targetMontage;

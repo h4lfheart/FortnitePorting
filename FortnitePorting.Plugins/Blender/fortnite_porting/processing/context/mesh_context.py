@@ -21,6 +21,9 @@ class MeshImportContext:
         self.override_materials = data.get("OverrideMaterials")
         self.override_parameters = data.get("OverrideParameters")
         self.override_morph_targets = data.get("OverrideMorphTargets")
+
+        pre_import_selected_armature = get_selected_armature()
+        pre_import_selected_armature_active = pre_import_selected_armature is not None and pre_import_selected_armature.select_get()
         
         self.collection = create_or_get_collection(self.name) if self.options.get("ImportIntoCollection") else bpy.context.scene.collection
 
@@ -45,7 +48,7 @@ class MeshImportContext:
                 self.parent_bones(imported_mesh["Skeleton"], extra_deform_mappings)
             
         if self.type in [EExportType.OUTFIT, EExportType.FALL_GUYS_OUTFIT] and self.options.get("MergeArmatures"):
-            master_skeleton = merge_armatures(self.imported_meshes)
+            master_skeleton = merge_parts(self.imported_meshes)
             master_mesh = get_armature_mesh(master_skeleton)
             # Update attribute to account for joined mesh
             self.update_preskinned_bounds(master_mesh)
@@ -99,6 +102,18 @@ class MeshImportContext:
                 for morph_target in self.override_morph_targets:
                     if key := best(shape_keys.key_blocks, lambda block: block.name.lower(), morph_target.get("Name").lower()):
                         key.value = morph_target.get("Value")
+                        
+        if self.type in [EExportType.KICKS]:
+
+            kick_armature = get_selected_armature()
+            kick_armature["is_kicks"] = True
+            
+            if pre_import_selected_armature_active and "pelvis" in pre_import_selected_armature.data.bones and not pre_import_selected_armature.get("is_kicks"):
+                merge_armatures(pre_import_selected_armature, [kick_armature])
+                bpy.data.collections.remove(self.collection)
+            
+            
+            
 
     def import_model(self, mesh, parent=None, can_reorient=True, can_spawn_at_3d_cursor=False):
         path = mesh.get("Path")

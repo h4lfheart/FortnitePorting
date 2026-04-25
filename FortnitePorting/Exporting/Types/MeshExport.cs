@@ -553,6 +553,33 @@ public class MeshExport : BaseExport
                 
                 break;
             }
+            case EExportType.Kicks:
+            {
+                var parts = asset.GetOrDefault("CharacterParts", Array.Empty<UObject>());
+                foreach (var part in parts)
+                {
+                    if (!part.TryGetValue(out FInstancedStruct[] dataList, "CosmeticPartDataList"))
+                        continue;
+                    
+                    var skeletalMesh = dataList
+                        .GetItemOrDefault<FStructFallback[]>("SkeletalMeshParameters")?
+                        .FirstOrDefault(p => p.Get<string>("ParameterName").Equals("ShoeMesh"))?
+                        .Get<FSoftObjectPath>("ParameterValue")
+                        .LoadOrDefault<USkeletalMesh>();
+                    
+                    var material = dataList
+                        .GetItemOrDefault<FStructFallback[]>("MaterialParameters")?
+                        .FirstOrDefault(p => p.Get<string>("ParameterName").Equals("ShoeMaterial"))?
+                        .Get<FSoftObjectPath>("ParameterValue")
+                        .LoadOrDefault<UMaterialInterface>();
+
+                    var exportMesh = Exporter.Mesh(skeletalMesh);
+                    exportMesh?.Materials.AddIfNotNull(Exporter.Material(material, 0));
+                    Meshes.AddIfNotNull(exportMesh);
+                }
+                
+                break;
+            }
         }
     }
 
