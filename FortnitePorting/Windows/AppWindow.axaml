@@ -87,7 +87,8 @@
                         <sidebar:SidebarItemText Text="ONLINE" />
                         <sidebar:SidebarItemButton Text="Chat" Icon="Message" Tag="{x:Type views:ChatView}"
                                                    IsEnabled="{Binding SupaBase.IsLoggedIn}"
-                                                   IsVisible="{Binding OnlineStatus.Chat.Enabled}" />
+                                                   IsVisible="{Binding OnlineStatus.Chat.Enabled}" 
+                                                   NotificationCount="{Binding Chat.UnseenMessageCount}"/>
                         <sidebar:SidebarItemButton Text="Leaderboard" Icon="Trophy"
                                                    Tag="{x:Type views:LeaderboardView}"
                                                    IsEnabled="{Binding SupaBase.IsLoggedIn}"

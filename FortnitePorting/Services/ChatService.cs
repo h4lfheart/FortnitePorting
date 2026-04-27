@@ -72,6 +72,8 @@ public partial class ChatService : ObservableObject, IService
 
     [ObservableProperty] private ChatUserPresence _presence;
 
+    [ObservableProperty] private int _unseenMessageCount = 0;
+
     private RealtimeChannel _chatChannel;
     public RealtimePresence<ChatUserPresence> ChatPresence;
     private RealtimeBroadcast<BaseBroadcast> _chatBroadcast;
@@ -117,9 +119,13 @@ public partial class ChatService : ObservableObject, IService
 
         MessageReceived += (sender, message) =>
         {
-            if (message.IsPing && !Navigation.App.IsTabOpen<ChatView>())
-                Info.Message($"Chat Message from {message.User.DisplayName}", ConvertIdsToMentions(message.Text),
-                    autoClose: false);
+            if (Navigation.App.IsTabOpen<ChatView>())
+                return;
+            
+            if (message.IsPing)
+                Info.Message($"Chat Message from {message.User.DisplayName}", ConvertIdsToMentions(message.Text), autoClose: false);
+
+            UnseenMessageCount++;
         };
 
         Users.CollectionChanged += (sender, args) =>

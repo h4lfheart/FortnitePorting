@@ -79,5 +79,7 @@ public partial class ChatViewModel(SupabaseService supabase, ChatService chatSer
     public override async Task OnViewOpened()
     {
         Discord.Update($"Chatting with {Chat.Users.Count} {(Chat.Users.Count > 1 ? "Users" : "User")}");
+
+        Chat.UnseenMessageCount = 0;
     }
 }

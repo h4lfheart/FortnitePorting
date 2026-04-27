@@ -21,15 +21,18 @@ public partial class AppWindowModel(
     SettingsService settings,
     SupabaseService supabase,
     CUE4ParseService cue4Parse,
-    BlackHoleService blackHole) : WindowModelBase
+    BlackHoleService blackHole,
+    ChatService chat) : WindowModelBase
 {
     [ObservableProperty] private InfoService _info = info;
     [ObservableProperty] private SettingsService _settings = settings;
     [ObservableProperty] private SupabaseService _supaBase = supabase;
     [ObservableProperty] private CUE4ParseService _UEParse = cue4Parse;
     [ObservableProperty] private BlackHoleService _blackHole = blackHole;
+    [ObservableProperty] private ChatService _chat = chat;
     
     [ObservableProperty] private string _versionString = Globals.VersionString;
+    [ObservableProperty] private int _unreadNewsCount = 0;
 
     [ObservableProperty] private int _chatNotifications;
     [ObservableProperty] private int _unsubmittedPolls;

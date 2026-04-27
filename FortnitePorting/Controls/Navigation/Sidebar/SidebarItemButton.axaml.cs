@@ -16,6 +16,8 @@ public partial class SidebarItemButton : UserControl, ISidebarItem
     [AvaDirectProperty] private Bitmap? _iconBitmap;
     [AvaDirectProperty] private bool _isSelectable = true;
     [AvaDirectProperty] private Control? _footer;
+    [AvaDirectProperty] private int _notificationCount = 0;
+    
     [AvaStyledProperty] private bool _isSelected = false;
     [AvaStyledProperty] private bool _isDragOver = false;
     [AvaStyledProperty] private bool _canReorder = false;
