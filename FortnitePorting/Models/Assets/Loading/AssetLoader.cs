@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -81,6 +83,8 @@ public partial class AssetLoader : ObservableObject
     [ObservableProperty] private ObservableCollection<string> _searchAutoComplete = [];
     
     private readonly SemaphoreSlim _pauseSemaphore = new(1, 1);
+    
+    private readonly Subject<Unit> _filterRefresh = new();
     
     [ObservableProperty] private ObservableCollection<FilterItem> _activeFilters = [];
     public List<FilterCategory> FilterCategories { get; } =
@@ -184,7 +188,8 @@ public partial class AssetLoader : ObservableObject
         
         AssetFilter = this
             .WhenAnyValue(loader => loader.SearchFilter, loader => loader.ActiveFilters, loader => loader.UseRegex)
-            .Select(CreateAssetFilter);
+            .Select(CreateAssetFilter)
+            .Merge(_filterRefresh.Select(_ => CreateAssetFilter((SearchFilter, ActiveFilters, UseRegex))));
         
         AssetSort = this
             .WhenAnyValue(loader => loader.SortType, loader => loader.DescendingSort)
@@ -375,7 +380,7 @@ public partial class AssetLoader : ObservableObject
         else
             ActiveFilters.Remove(item);
         
-        FakeRefreshFilters();
+        _filterRefresh.OnNext(Unit.Default);
     }
     
     
@@ -445,14 +450,6 @@ public partial class AssetLoader : ObservableObject
         return descending
             ? SortExpressionComparer<BaseAssetItem>.Descending(sort)
             : SortExpressionComparer<BaseAssetItem>.Ascending(sort);
-    }
-    
-    // scuffed fix to get filter to update
-    private void FakeRefreshFilters()
-    {
-        var temp = ActiveFilters;
-        ActiveFilters = [];
-        ActiveFilters = temp;
     }
     
 }

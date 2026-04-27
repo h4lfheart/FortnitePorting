@@ -179,21 +179,20 @@ internal class RealizedWrappedElements
         estimatedElementSize = estimatedSize;
 
         // Estimate the element at the start of the viewport.
-        var index = Math.Min((int) (viewportStart.V / estimatedSize.V) * (int) (viewportEnd.U / estimatedSize.U) + (int) (viewportStart.U / estimatedSize.U), itemCount - 1);
+        var itemsPerRow = Math.Max(1, (int)Math.Floor(viewportEnd.U / estimatedSize.U));
+        var index = Math.Min(
+            (int)(viewportStart.V / estimatedSize.V) * itemsPerRow
+            + (int)(viewportStart.U / estimatedSize.U),
+            itemCount - 1);
         return (index, GetPosition(index, estimatedSize, viewportEnd));
     }
 
     private UVSize GetPosition(int index, UVSize estimate, UVSize viewportEnd)
     {
-        // Calculate how many items fit in one row
-        var itemsPerRow = Math.Max(1, (int)(viewportEnd.U / estimate.U));
-    
-        // Calculate which row this index is in
+        var itemsPerRow = Math.Max(1, (int)Math.Floor(viewportEnd.U / estimate.U));
         var row = index / itemsPerRow;
-    
-        // Calculate position within the row
         var positionInRow = index % itemsPerRow;
-    
+
         return new UVSize(viewportEnd.Orientation)
         {
             U = positionInRow * estimate.U,
@@ -217,7 +216,7 @@ internal class RealizedWrappedElements
         if (endIndex >= _positions.Count)
             return null;
 
-        return _positions[index];
+        return _positions[endIndex];
     }
 
     public UVSize GetOrEstimateElementUV(int index, ref UVSize estimatedElementSizeUV, UVSize viewportEnd)

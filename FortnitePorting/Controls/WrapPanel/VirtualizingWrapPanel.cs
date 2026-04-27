@@ -10,6 +10,7 @@ using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Utilities;
 using Avalonia.VisualTree;
+using Serilog;
 
 namespace FortnitePorting.Controls.WrapPanel;
 
@@ -162,6 +163,7 @@ public class VirtualizingWrapPanel : VirtualizingPanel
             // Now swap the measureElements and realizedElements collection.
             (_measureElements, _realizedElements) = (_realizedElements, _measureElements);
             _measureElements.ResetForReuse(Orientation);
+            InvalidateArrange();
 
             return CalculateDesiredSize(orientation, items.Count, viewport);
         }
@@ -180,7 +182,7 @@ public class VirtualizingWrapPanel : VirtualizingPanel
         get => GetValue(DistributeEvenlyProperty);
         set => SetValue(DistributeEvenlyProperty, value);
     }
-    
+
     public static readonly StyledProperty<bool> CenterLastLineProperty =
         AvaloniaProperty.Register<VirtualizingWrapPanel, bool>(nameof(CenterLastLine), false);
 
@@ -189,234 +191,219 @@ public class VirtualizingWrapPanel : VirtualizingPanel
         get => GetValue(CenterLastLineProperty);
         set => SetValue(CenterLastLineProperty, value);
     }
-    
-    
-protected override Size ArrangeOverride(Size finalSize)
-{
-    if (_realizedElements is null)
-        return default;
 
-    _isInLayout = true;
+    private readonly Dictionary<double, List<(Control element, UVSize position, int index)>> _rowBuffer = new();
 
-    try
+    protected override Size ArrangeOverride(Size finalSize)
     {
-        var orientation = Orientation;
-        var horizontal = orientation == Orientation.Horizontal;
-        var sizeUV = _realizedElements.SizeUV;
-        var availableU = horizontal ? finalSize.Width : finalSize.Height;
+        if (_realizedElements is null)
+            return default;
 
-        var totalItemCount = Items.Count;
-        var lastItemIndex = totalItemCount - 1;
-        var lastRealizedIndex = _realizedElements.LastIndex;
-        var isLastItemRealized = lastRealizedIndex >= 0 && lastRealizedIndex == lastItemIndex;
+        _isInLayout = true;
 
-        // Group elements by row
-        var rows = new Dictionary<double, List<(Control element, UVSize position, int index)>>();
-        for (var i = 0; i < _realizedElements.Count; ++i)
+        try
         {
-            var e = _realizedElements.Elements[i];
-            if (e is not null)
+            foreach (var child in Children)
             {
-                var positionUV = _realizedElements.PositionsUV[i];
-                var vPos = Math.Round(positionUV.V, 2);
-
-                if (!rows.ContainsKey(vPos))
-                    rows[vPos] = new List<(Control, UVSize, int)>();
-
-                rows[vPos].Add((e, positionUV, i));
-            }
-        }
-
-        // Find the last row V position
-        double? lastRowV = null;
-        if (isLastItemRealized && _realizedElements.Count > 0)
-        {
-            for (var i = _realizedElements.Count - 1; i >= 0; i--)
-            {
-                var element = _realizedElements.Elements[i];
-                if (element is not null)
+                if (child.IsVisible && _realizedElements.GetIndex(child) == -1)
                 {
-                    var positions = _realizedElements.PositionsUV;
-                    if (i < positions.Count)
+                    if (child == _scrollToElement)
+                        continue; 
+                    child.IsVisible = false;
+                }
+            }
+            
+            var orientation = Orientation;
+            var horizontal = orientation == Orientation.Horizontal;
+            var sizeUV = _realizedElements.SizeUV;
+            var availableU = horizontal ? finalSize.Width : finalSize.Height;
+
+            var totalItemCount = Items.Count;
+            var lastItemIndex = totalItemCount - 1;
+            var lastRealizedIndex = _realizedElements.LastIndex;
+            var isLastItemRealized = lastRealizedIndex >= 0 && lastRealizedIndex == lastItemIndex;
+
+            // Group elements by row, reusing buffer
+            foreach (var list in _rowBuffer.Values) list.Clear();
+            _rowBuffer.Clear();
+
+            for (var i = 0; i < _realizedElements.Count; ++i)
+            {
+                var e = _realizedElements.Elements[i];
+                if (e is not null)
+                {
+                    var positionUV = _realizedElements.PositionsUV[i];
+                    var vPos = Math.Round(positionUV.V, 2);
+
+                    if (!_rowBuffer.TryGetValue(vPos, out var row))
                     {
-                        lastRowV = Math.Round(positions[i].V, 2);
-                        break;
+                        row = new List<(Control, UVSize, int)>();
+                        _rowBuffer[vPos] = row;
+                    }
+
+                    row.Add((e, positionUV, i));
+                }
+            }
+
+            // Find the last row V position
+            double? lastRowV = null;
+            if (isLastItemRealized && _realizedElements.Count > 0)
+            {
+                for (var i = _realizedElements.Count - 1; i >= 0; i--)
+                {
+                    var element = _realizedElements.Elements[i];
+                    if (element is not null)
+                    {
+                        var positions = _realizedElements.PositionsUV;
+                        if (i < positions.Count)
+                        {
+                            lastRowV = Math.Round(positions[i].V, 2);
+                            break;
+                        }
                     }
                 }
             }
-        }
 
-        // Arrange each row
-        foreach (var kvp in rows)
-        {
-            var vPos = kvp.Key;
-            var row = kvp.Value;
-            var isLastRow = lastRowV.HasValue && Math.Abs(vPos - lastRowV.Value) < 0.01;
-            
-            row.Sort((a, b) => a.position.U.CompareTo(b.position.U));
-            var rowItemCount = row.Count;
-
-            // Check if we should center this row
-            var shouldCenter = CenterLastLine && isLastRow;
-
-            if (!DistributeEvenly)
+            // Arrange each row
+            foreach (var kvp in _rowBuffer)
             {
-                // Default spacing mode - items are packed together with no gaps
-                if (shouldCenter)
-                {
-                    // Center the last row as a group (no spacing between items)
-                    var totalItemWidth = rowItemCount * sizeUV.U;
-                    var offset = Math.Max(0, (availableU - totalItemWidth) / 2);
+                var vPos = kvp.Key;
+                var row = kvp.Value;
+                var isLastRow = lastRowV.HasValue && Math.Abs(vPos - lastRowV.Value) < 0.01;
 
-                    for (var i = 0; i < rowItemCount; i++)
+                row.Sort((a, b) => a.position.U.CompareTo(b.position.U));
+                var rowItemCount = row.Count;
+
+                var shouldCenter = CenterLastLine && isLastRow;
+
+                if (!DistributeEvenly)
+                {
+                    if (shouldCenter)
                     {
-                        var (element, positionUV, _) = row[i];
+                        var totalItemWidth = rowItemCount * sizeUV.U;
+                        var offset = Math.Max(0, (availableU - totalItemWidth) / 2);
+
+                        for (var i = 0; i < rowItemCount; i++)
+                        {
+                            var (element, positionUV, _) = row[i];
+                            var centeredPosition = new UVSize(orientation)
+                            {
+                                U = offset + (i * sizeUV.U),
+                                V = positionUV.V
+                            };
+
+                            var rect = new Rect(centeredPosition.Width, centeredPosition.Height, sizeUV.Width,
+                                sizeUV.Height);
+                            element.Arrange(rect);
+                            _scrollViewer?.RegisterAnchorCandidate(element);
+                        }
+                    }
+                    else
+                    {
+                        for (var i = 0; i < rowItemCount; i++)
+                        {
+                            var (element, positionUV, _) = row[i];
+                            var rect = new Rect(positionUV.Width, positionUV.Height, sizeUV.Width, sizeUV.Height);
+                            element.Arrange(rect);
+                            _scrollViewer?.RegisterAnchorCandidate(element);
+                        }
+                    }
+                }
+                else
+                {
+                    if (shouldCenter)
+                    {
+                        var itemsPerFullRow = Math.Max(1, (int)(availableU / sizeUV.U));
+                        var totalSpacingFullRow = availableU - (itemsPerFullRow * sizeUV.U);
+                        var spacingFullRow = totalSpacingFullRow / (itemsPerFullRow + 1);
+
+                        var totalItemWidth = rowItemCount * sizeUV.U;
+                        var totalSpacingNeeded = (rowItemCount - 1) * spacingFullRow;
+                        var rowWidth = totalItemWidth + totalSpacingNeeded;
+                        var offset = Math.Max(0, (availableU - rowWidth) / 2);
+
+                        for (var i = 0; i < rowItemCount; i++)
+                        {
+                            var (element, positionUV, _) = row[i];
+                            var distributedPosition = new UVSize(orientation)
+                            {
+                                U = offset + (i * (sizeUV.U + spacingFullRow)),
+                                V = positionUV.V
+                            };
+
+                            var rect = new Rect(distributedPosition.Width, distributedPosition.Height, sizeUV.Width,
+                                sizeUV.Height);
+                            element.Arrange(rect);
+                            _scrollViewer?.RegisterAnchorCandidate(element);
+                        }
+                    }
+                    else if (isLastRow)
+                    {
+                        var itemsPerFullRow = Math.Max(1, (int)(availableU / sizeUV.U));
+                        var totalSpacingFullRow = availableU - (itemsPerFullRow * sizeUV.U);
+                        var spacingFullRow = totalSpacingFullRow / (itemsPerFullRow + 1);
+
+                        for (var i = 0; i < rowItemCount; i++)
+                        {
+                            var (element, positionUV, _) = row[i];
+                            var distributedPosition = new UVSize(orientation)
+                            {
+                                U = spacingFullRow + (i * (sizeUV.U + spacingFullRow)),
+                                V = positionUV.V
+                            };
+
+                            var rect = new Rect(distributedPosition.Width, distributedPosition.Height, sizeUV.Width,
+                                sizeUV.Height);
+                            element.Arrange(rect);
+                            _scrollViewer?.RegisterAnchorCandidate(element);
+                        }
+                    }
+                    else if (rowItemCount == 1)
+                    {
+                        var (element, positionUV, _) = row[0];
+                        var offset = Math.Max(0, (availableU - sizeUV.U) / 2);
                         var centeredPosition = new UVSize(orientation)
                         {
-                            U = offset + (i * sizeUV.U),
+                            U = offset,
                             V = positionUV.V
                         };
 
-                        var rect = new Rect(
-                            centeredPosition.Width,
-                            centeredPosition.Height,
-                            sizeUV.Width,
+                        var rect = new Rect(centeredPosition.Width, centeredPosition.Height, sizeUV.Width,
                             sizeUV.Height);
-
                         element.Arrange(rect);
                         _scrollViewer?.RegisterAnchorCandidate(element);
                     }
-                }
-                else
-                {
-                    // Use default positioning
-                    for (var i = 0; i < rowItemCount; i++)
+                    else
                     {
-                        var (element, positionUV, _) = row[i];
-                        var rect = new Rect(positionUV.Width, positionUV.Height, sizeUV.Width, sizeUV.Height);
-                        element.Arrange(rect);
-                        _scrollViewer?.RegisterAnchorCandidate(element);
+                        var totalItemWidth = rowItemCount * sizeUV.U;
+                        var totalSpacing = availableU - totalItemWidth;
+                        var spacing = totalSpacing / (rowItemCount + 1);
+
+                        for (var i = 0; i < rowItemCount; i++)
+                        {
+                            var (element, positionUV, _) = row[i];
+                            var distributedPosition = new UVSize(orientation)
+                            {
+                                U = spacing * (i + 1) + sizeUV.U * i,
+                                V = positionUV.V
+                            };
+
+                            var rect = new Rect(distributedPosition.Width, distributedPosition.Height, sizeUV.Width,
+                                sizeUV.Height);
+                            element.Arrange(rect);
+                            _scrollViewer?.RegisterAnchorCandidate(element);
+                        }
                     }
                 }
             }
-            else
-            {
-                // DistributeEvenly mode
-                if (shouldCenter)
-                {
-                    // Center the last row using the same spacing as full rows
-                    var itemsPerFullRow = Math.Max(1, (int)(availableU / sizeUV.U));
-                    var totalItemWidthFullRow = itemsPerFullRow * sizeUV.U;
-                    var totalSpacingFullRow = availableU - totalItemWidthFullRow;
-                    var spacingFullRow = totalSpacingFullRow / (itemsPerFullRow + 1);
-                    
-                    var totalItemWidth = rowItemCount * sizeUV.U;
-                    var totalSpacingNeeded = (rowItemCount - 1) * spacingFullRow;
-                    var rowWidth = totalItemWidth + totalSpacingNeeded;
-                    var offset = Math.Max(0, (availableU - rowWidth) / 2);
 
-                    for (var i = 0; i < rowItemCount; i++)
-                    {
-                        var (element, positionUV, _) = row[i];
-                        var distributedPosition = new UVSize(orientation)
-                        {
-                            U = offset + (i * (sizeUV.U + spacingFullRow)),
-                            V = positionUV.V
-                        };
-
-                        var rect = new Rect(
-                            distributedPosition.Width,
-                            distributedPosition.Height,
-                            sizeUV.Width,
-                            sizeUV.Height);
-
-                        element.Arrange(rect);
-                        _scrollViewer?.RegisterAnchorCandidate(element);
-                    }
-                }
-                else if (isLastRow)
-                {
-                    // Last row but not centering - use spacing from full rows but left-align
-                    var itemsPerFullRow = Math.Max(1, (int)(availableU / sizeUV.U));
-                    var totalItemWidthFullRow = itemsPerFullRow * sizeUV.U;
-                    var totalSpacingFullRow = availableU - totalItemWidthFullRow;
-                    var spacingFullRow = totalSpacingFullRow / (itemsPerFullRow + 1);
-
-                    for (var i = 0; i < rowItemCount; i++)
-                    {
-                        var (element, positionUV, _) = row[i];
-                        var distributedPosition = new UVSize(orientation)
-                        {
-                            U = spacingFullRow + (i * (sizeUV.U + spacingFullRow)),
-                            V = positionUV.V
-                        };
-
-                        var rect = new Rect(
-                            distributedPosition.Width,
-                            distributedPosition.Height,
-                            sizeUV.Width,
-                            sizeUV.Height);
-
-                        element.Arrange(rect);
-                        _scrollViewer?.RegisterAnchorCandidate(element);
-                    }
-                }
-                else if (rowItemCount == 1)
-                {
-                    // Single item - center it
-                    var (element, positionUV, _) = row[0];
-                    var offset = Math.Max(0, (availableU - sizeUV.U) / 2);
-                    var centeredPosition = new UVSize(orientation)
-                    {
-                        U = offset,
-                        V = positionUV.V
-                    };
-
-                    var rect = new Rect(
-                        centeredPosition.Width,
-                        centeredPosition.Height,
-                        sizeUV.Width,
-                        sizeUV.Height);
-
-                    element.Arrange(rect);
-                    _scrollViewer?.RegisterAnchorCandidate(element);
-                }
-                else
-                {
-                    // Full row - distribute evenly
-                    var totalItemWidth = rowItemCount * sizeUV.U;
-                    var totalSpacing = availableU - totalItemWidth;
-                    var spacing = totalSpacing / (rowItemCount + 1);
-
-                    for (var i = 0; i < rowItemCount; i++)
-                    {
-                        var (element, positionUV, _) = row[i];
-                        var distributedPosition = new UVSize(orientation)
-                        {
-                            U = spacing * (i + 1) + sizeUV.U * i,
-                            V = positionUV.V
-                        };
-
-                        var rect = new Rect(
-                            distributedPosition.Width,
-                            distributedPosition.Height,
-                            sizeUV.Width,
-                            sizeUV.Height);
-
-                        element.Arrange(rect);
-                        _scrollViewer?.RegisterAnchorCandidate(element);
-                    }
-                }
-            }
+            return finalSize;
         }
-
-        return finalSize;
+        finally
+        {
+            _isInLayout = false;
+        }
     }
-    finally
-    {
-        _isInLayout = false;
-    }
-}
 
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {
@@ -454,6 +441,9 @@ protected override Size ArrangeOverride(Size finalSize)
                 break;
             case NotifyCollectionChangedAction.Reset:
                 _realizedElements.ItemsReset(_recycleElementOnItemRemoved, Orientation);
+                if (_recyclePool is not null)
+                    foreach (var pooled in _recyclePool)
+                        pooled.IsVisible = false;
                 break;
         }
     }
@@ -841,8 +831,17 @@ protected override Size ArrangeOverride(Size finalSize)
 
         while (index >= 0)
         {
-            // Predict if this item will be visible, and if not, stop realizing it
-            if (uv.U - size.U < viewport.viewportUVStart.U && uv.V <= viewport.viewportUVStart.V) break;
+            var itemsPerRow = Math.Max(1, (int)Math.Floor(viewport.viewportUVEnd.U / size.U));
+            var row = index / itemsPerRow;
+            var col = index % itemsPerRow;
+
+            uv = new UVSize(Orientation)
+            {
+                U = col * size.U,
+                V = row * size.V
+            };
+
+            if (uv.V + size.V < viewport.viewportUVStart.V) break;
 
             if (firstChildMeasured)
                 childConstraint = new Size(size.Width, size.Height);
@@ -855,23 +854,7 @@ protected override Size ArrangeOverride(Size finalSize)
                 size = new UVSize(Orientation,
                     isItemWidthSet ? itemWidth : e.DesiredSize.Width,
                     isItemHeightSet ? itemHeight : e.DesiredSize.Height);
-
                 firstChildMeasured = true;
-            }
-
-            // Calculate position moving backwards
-            uv.U -= size.U;
-
-            // Test if the item will be moved to the previous row
-            if (uv.U < viewport.viewportUVStart.U)
-            {
-                // Move to previous row, starting from the right edge
-                var uLength = viewport.viewportUVEnd.U - viewport.viewportUVStart.U;
-                var itemsPerRow = Math.Max(1, (int)(uLength / size.U));
-                var lastItemU = viewport.viewportUVStart.U + ((itemsPerRow - 1) * size.U);
-
-                uv.U = lastItemU;
-                uv.V -= size.V;
             }
 
             _measureElements!.Add(index, e, uv, size);
@@ -885,14 +868,29 @@ protected override Size ArrangeOverride(Size finalSize)
     private Control GetOrCreateElement(IReadOnlyList<object?> items, int index)
     {
         var item = items[index];
+        bool needsBitmapLoad = false;
 
-        var e = GetRealizedElement(index) ??
-                GetItemIsOwnContainer(items, index) ??
-                GetRecycledElement(items, index) ??
-                CreateElement(items, index);
+        Control e;
+        if (GetRealizedElement(index) is { } realized)
+        {
+            e = realized;
+        }
+        else if (GetItemIsOwnContainer(items, index) is { } ownContainer)
+        {
+            e = ownContainer;
+        }
+        else if (GetRecycledElement(items, index) is { } recycled)
+        {
+            e = recycled;
+            needsBitmapLoad = true;
+        }
+        else
+        {
+            e = CreateElement(items, index);
+            needsBitmapLoad = true;
+        }
 
-        // Always fire the event when an item is realized
-        if (item is not null)
+        if (item is not null && needsBitmapLoad)
         {
             var eventArgs = new ItemRealizedEventArgs(index, e, item);
             eventArgs.RoutedEvent = ItemRealizedEvent;

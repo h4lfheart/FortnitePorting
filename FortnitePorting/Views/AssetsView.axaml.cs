@@ -76,8 +76,8 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
         
         if (AssetsListBox.SelectedItem is not AssetItem item) return;
         if (item.IconDisplayImage is not null) return;
-        
-        item.LoadBitmap();
+
+        TaskService.Run(item.LoadBitmap);
     }
 
     private void OnSelectionChanged(object? sender, SelectionChangedEventArgs e)

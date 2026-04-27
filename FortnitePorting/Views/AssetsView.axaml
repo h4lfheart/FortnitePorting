@@ -204,92 +204,89 @@
 
                 <controls:ContentCard Grid.Row="2">
                     <Grid>
-                        <ListBox x:Name="AssetsListBox" SelectionMode="Multiple" AutoScrollToSelectedItem="False"
-                                 ItemsSource="{Binding AssetLoader.ActiveCollection}"
-                                 SelectionChanged="OnSelectionChanged" Margin="{ext:Space 1}">
-                            <ListBox.Styles>
-                                <Style Selector="ListBoxItem">
-                                    <Setter Property="MinWidth" Value="0" />
-                                    <Setter Property="Padding" Value="0" />
-                                </Style>
-                            </ListBox.Styles>
-                            <ListBox.ItemTemplate>
-                                <DataTemplate DataType="base:BaseAssetItem">
-                                    <ContentControl Padding="8">
-                                        <ContentControl.ContextMenu>
-                                            <ContextMenu>
-                                                <MenuItem Header="Favorite" Icon="{material:MaterialIconExt Heart}"
-                                                          Command="{Binding FavoriteCommand}" />
-                                                <MenuItem Header="Navigate To"
-                                                          Icon="{material:MaterialIconExt ChevronRight}"
-                                                          Command="{Binding NavigateToCommand}" />
-                                                <MenuItem Header="Copy Path"
-                                                          Icon="{material:MaterialIconExt Clipboard}"
-                                                          Command="{Binding CopyPathCommand}" />
-                                                <MenuItem Header="Copy Icon" Icon="{material:MaterialIconExt Image}">
-                                                    <MenuItem Header="With Background"
-                                                              Command="{Binding CopyIconCommand}"
-                                                              CommandParameter="{x:True}" />
-                                                    <MenuItem Header="Without Background"
-                                                              Command="{Binding CopyIconCommand}"
-                                                              CommandParameter="{x:False}" />
-                                                </MenuItem>
-                                            </ContextMenu>
-                                        </ContentControl.ContextMenu>
-                                        <StackPanel
-                                            Width="{Binding Settings.Application.AssetScale, 
-                                                    Converter={StaticResource Scale}, ConverterParameter='64'}"
-                                            Spacing="4">
-                                            <ToolTip.Tip>
-                                                <StackPanel Spacing="{ext:Space 0.5}" Margin="{ext:Space 0.5}">
-                                                    <TextBlock Text="{Binding CreationData.DisplayName}" />
-                                                    <TextBlock Text="{Binding CreationData.ID}"
-                                                               Classes="TextFillColorSecondaryBrush" />
-                                                </StackPanel>
-                                            </ToolTip.Tip>
-                                            <Grid>
-                                                <controls:ContentCard
-                                                    Width="{Binding Settings.Application.AssetScale, 
-                                                    Converter={StaticResource Scale}, ConverterParameter='64'}"
-                                                    Height="{Binding Settings.Application.AssetScale, 
-                                                    Converter={StaticResource Scale}, ConverterParameter='80'}" />
-                                                <Border ClipToBounds="True" CornerRadius="8"
-                                                        Width="{Binding Settings.Application.AssetScale, 
-                                                    Converter={StaticResource Scale}, ConverterParameter='64'}"
-                                                        Height="{Binding Settings.Application.AssetScale, 
-                                                    Converter={StaticResource Scale}, ConverterParameter='80'}">
-                                                    <Grid>
-                                                        <Image Stretch="UniformToFill"
-                                                               Source="{Binding BackgroundImage}"
-                                                               RenderOptions.BitmapInterpolationMode="LowQuality" />
-                                                        <Image Stretch="UniformToFill"
-                                                               Source="{Binding IconDisplayImage}"
-                                                               RenderOptions.BitmapInterpolationMode="LowQuality" />
-                                                    </Grid>
-                                                </Border>
-                                                <Image IsVisible="{Binding IsFavorite}"
-                                                       Source="/Assets/FN/Favorite.png" Width="24" Height="24"
-                                                       HorizontalAlignment="Right"
-                                                       VerticalAlignment="Top" />
-                                            </Grid>
+                        <controls:DynamicFadeScrollViewer Margin="{ext:Space 1}">
+                            <ListBox x:Name="AssetsListBox" SelectionMode="Multiple" AutoScrollToSelectedItem="False"
+                                     ItemsSource="{Binding AssetLoader.ActiveCollection}"
+                                     SelectionChanged="OnSelectionChanged">
+                                <ListBox.Styles>
+                                    <Style Selector="ListBoxItem">
+                                        <Setter Property="MinWidth" Value="0" />
+                                        <Setter Property="Padding" Value="0" />
+                                    </Style>
+                                </ListBox.Styles>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate DataType="base:BaseAssetItem">
+                                        <ContentControl Padding="8">
+                                            <ContentControl.ContextMenu>
+                                                <ContextMenu>
+                                                    <MenuItem Header="Favorite" Icon="{material:MaterialIconExt Heart}"
+                                                              Command="{Binding FavoriteCommand}" />
+                                                    <MenuItem Header="Navigate To"
+                                                              Icon="{material:MaterialIconExt ChevronRight}"
+                                                              Command="{Binding NavigateToCommand}" />
+                                                    <MenuItem Header="Copy Path"
+                                                              Icon="{material:MaterialIconExt Clipboard}"
+                                                              Command="{Binding CopyPathCommand}" />
+                                                    <MenuItem Header="Copy Icon" Icon="{material:MaterialIconExt Image}">
+                                                        <MenuItem Header="With Background"
+                                                                  Command="{Binding CopyIconCommand}"
+                                                                  CommandParameter="{x:True}" />
+                                                        <MenuItem Header="Without Background"
+                                                                  Command="{Binding CopyIconCommand}"
+                                                                  CommandParameter="{x:False}" />
+                                                    </MenuItem>
+                                                </ContextMenu>
+                                            </ContentControl.ContextMenu>
+                                            <StackPanel
+                                                Width="{Binding Settings.Application.AssetScale, 
+                                                        Converter={StaticResource Scale}, ConverterParameter='64'}"
+                                                Spacing="4">
+                                                <ToolTip.Tip>
+                                                    <StackPanel Spacing="{ext:Space 0.5}" Margin="{ext:Space 0.5}">
+                                                        <TextBlock Text="{Binding CreationData.DisplayName}" />
+                                                        <TextBlock Text="{Binding CreationData.ID}"
+                                                                   Classes="TextFillColorSecondaryBrush" />
+                                                    </StackPanel>
+                                                </ToolTip.Tip>
+                                                <Grid>
+                                                    <Border ClipToBounds="True" CornerRadius="8"
+                                                            Width="{Binding Settings.Application.AssetScale, 
+                                                        Converter={StaticResource Scale}, ConverterParameter='64'}"
+                                                            Height="{Binding Settings.Application.AssetScale, 
+                                                        Converter={StaticResource Scale}, ConverterParameter='80'}">
+                                                        <Grid>
+                                                            <Image Stretch="UniformToFill"
+                                                                   Source="{Binding BackgroundImage}"
+                                                                   RenderOptions.BitmapInterpolationMode="LowQuality" />
+                                                            <Image Stretch="UniformToFill"
+                                                                   Source="{Binding IconDisplayImage}"
+                                                                   RenderOptions.BitmapInterpolationMode="LowQuality" />
+                                                        </Grid>
+                                                    </Border>
+                                                    <Image IsVisible="{Binding IsFavorite}"
+                                                           Source="/Assets/FN/Favorite.png" Width="24" Height="24"
+                                                           HorizontalAlignment="Right"
+                                                           VerticalAlignment="Top" />
+                                                </Grid>
 
-                                            <TextBlock
-                                                IsVisible="{Binding $parent[views:AssetsView].((viewModels:AssetsViewModel)DataContext).ShowNames}"
-                                                HorizontalAlignment="Center" VerticalAlignment="Center"
-                                                FontSize="12" TextTrimming="CharacterEllipsis"
-                                                Text="{Binding CreationData.DisplayName, Converter={StaticResource TitleCaseString}}" />
+                                                <TextBlock
+                                                    IsVisible="{Binding $parent[views:AssetsView].((viewModels:AssetsViewModel)DataContext).ShowNames}"
+                                                    HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                    FontSize="12" TextTrimming="CharacterEllipsis"
+                                                    Text="{Binding CreationData.DisplayName, Converter={StaticResource TitleCaseString}}" />
 
-                                        </StackPanel>
-                                    </ContentControl>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                            <ListBox.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <wrapPanel:VirtualizingWrapPanel DistributeEvenly="True"
-                                                                     ItemRealized="OnItemRealized" />
-                                </ItemsPanelTemplate>
-                            </ListBox.ItemsPanel>
-                        </ListBox>
+                                            </StackPanel>
+                                        </ContentControl>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                                <ListBox.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <wrapPanel:VirtualizingWrapPanel DistributeEvenly="True"
+                                                                         ItemRealized="OnItemRealized" />
+                                    </ItemsPanelTemplate>
+                                </ListBox.ItemsPanel>
+                            </ListBox>
+                        </controls:DynamicFadeScrollViewer>
 
                         <TextBlock IsVisible="{Binding !AssetLoader.ActiveCollection.Count}" Text="No Assets Found"
                                    Classes="BodyTextBlockStyle TextFillColorTertiaryBrush"
