@@ -628,11 +628,12 @@ class CroppedEmissiveMappings(MappingCollection):
     def meets_criteria(self, material_data):
         return any(get_params(material_data.get("Switches"), emissive_crop_switch_names), lambda bool: bool is True) \
             and get_param_multiple(material_data.get("Vectors"), emissive_crop_vector_names) is not None \
-            and get_param_multiple(material_data.get("Textures"), ["Emissive", "CroppedEmissive"]) is not None
+            and get_param_multiple(material_data.get("Textures"), ["Emissive", "CroppedEmissive", "EmissiveCropped"]) is not None
 
     textures=(
         SlotMapping("Emissive", closure=True),
         SlotMapping("CroppedEmissive", "Emissive", closure=True),
+        SlotMapping("EmissiveCropped", "Emissive", closure=True),
     )
 
     scalars=(
