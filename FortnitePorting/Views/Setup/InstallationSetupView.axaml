@@ -109,9 +109,9 @@
                         </StackPanel>
                     </controls:SettingsItem.Footer>
                 </controls:SettingsItem>
-                <controls:SettingsItem Title="On-Demand Texture Streaming" 
-                                     Description="Downloads high resolution cosmetic textures on-demand. Disable if you already have this package installed." 
-                                     IsVisible="{Binding Profile.TextureStreamingEnabled}">
+                <controls:SettingsItem Title="On-Demand Assets"
+                                       Description="Allows the streaming of on-demand assets, served from Fortnite's servers."
+                                       IsVisible="{Binding Profile.TextureStreamingEnabled}">
                     <controls:SettingsItem.Footer>
                         <ToggleSwitch IsChecked="{Binding Profile.UseTextureStreaming}"/>
                     </controls:SettingsItem.Footer>

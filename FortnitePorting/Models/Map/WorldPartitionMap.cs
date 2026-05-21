@@ -37,7 +37,7 @@ public partial class WorldPartitionMap : ObservableObject
 {
     [ObservableProperty] private MapInfo _mapInfo;
     [ObservableProperty] private Bitmap? _mapBitmap;
-    [ObservableProperty] private Bitmap _maskBitmap;
+    [ObservableProperty] private Bitmap? _maskBitmap;
     [ObservableProperty] private string _worldName = string.Empty;
     [ObservableProperty] private bool _dataLoaded = false;
     [ObservableProperty] private EMapTextureExportType _textureExportType = EMapTextureExportType.Minimap;
@@ -74,10 +74,10 @@ public partial class WorldPartitionMap : ObservableObject
         if (!MapInfo.IsNonDisplay)
         {
             var maskTexture = await UEParse.Provider.SafeLoadPackageObjectAsync<UTexture2D>(MapInfo.UseMask ? MapInfo.MaskPath : "FortniteGame/Content/Global/Textures/Default/Blanks/T_White");
-            MaskBitmap = maskTexture!.Decode()!.ToSkBitmap().ToOpacityMask().ToWriteableBitmap();
+            MaskBitmap = maskTexture?.Decode()?.ToSkBitmap().ToOpacityMask().ToWriteableBitmap();
         
             var mapTexture = await UEParse.Provider.SafeLoadPackageObjectAsync<UTexture2D>(MapInfo.MinimapPath);
-            MapBitmap = mapTexture.Decode()!.ToWriteableBitmap();
+            MapBitmap = mapTexture?.Decode()?.ToWriteableBitmap();
         }
         
         WorldName = MapInfo.MapPath.SubstringAfterLast("/");

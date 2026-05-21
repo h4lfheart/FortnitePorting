@@ -122,8 +122,8 @@ public partial class CUE4ParseService : ObservableObject, IService
         Log.Information("Texture Streaming: {UseTextureStreaming}", AppSettings.Installation.CurrentProfile.UseTextureStreaming);
         
         ObjectTypeRegistry.RegisterEngine(Assembly.Load("FortnitePorting"));
-        
-    
+
+        Provider.LoadOnDemandTocs = AppSettings.Installation.CurrentProfile is { TextureStreamingEnabled: true, UseTextureStreaming: true };
         Provider.LoadExtraDirectories = AppSettings.Installation.CurrentProfile.LoadInstalledBundles;
         Provider.ReadNaniteData = AppSettings.Installation.CurrentProfile.LoadNaniteData;
         Provider.OnDemandOptions = new IoStoreOnDemandOptions

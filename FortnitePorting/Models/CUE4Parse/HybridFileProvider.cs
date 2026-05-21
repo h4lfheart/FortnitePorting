@@ -15,6 +15,7 @@ namespace FortnitePorting.Models.CUE4Parse;
 public class HybridFileProvider : AbstractVfsFileProvider
 {
     public bool LoadExtraDirectories;
+    public bool LoadOnDemandTocs;
     private readonly DirectoryInfo WorkingDirectory;
     private readonly IEnumerable<DirectoryInfo> ExtraDirectories;
     private const SearchOption SearchOption = System.IO.SearchOption.AllDirectories;
@@ -62,7 +63,7 @@ public class HybridFileProvider : AbstractVfsFileProvider
                 RegisterVfs(file.FullName, [ file.OpenRead() ], it => new FStreamArchive(it, File.OpenRead(it), Versions));
             }
 
-            if (extension is "uondemandtoc")
+            if (extension is "uondemandtoc" && LoadOnDemandTocs)
             {
                 var archive = new FByteArchive(file.FullName, File.ReadAllBytes(file.FullName), Versions);
                 var ioChunkToc = new FOnDemandTocReader(archive);
@@ -90,9 +91,8 @@ public class HybridFileProvider : AbstractVfsFileProvider
                         manifest.Files.First(subFile => subFile.FileName.Equals(name)).GetStream()));
             }
 
-            if (extension is "uondemandtoc")
+            if (extension is "uondemandtoc" && LoadOnDemandTocs)
             {
-                
                 var targetPath = Path.Combine(targetCacheDirectory, file.FileName.SubstringAfterLast("/"));
                 if (!File.Exists(targetPath))
                 {
