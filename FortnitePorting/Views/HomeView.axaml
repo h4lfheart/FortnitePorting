@@ -24,7 +24,8 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="{ext:Space 1}" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="{ext:Space 1.5}" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
@@ -39,8 +40,22 @@
                        VerticalAlignment="Center" HorizontalAlignment="Center" Margin="{ext:Space 0, 1}"
                        FontSize="14" FontFamily="{StaticResource SFTextMedium}" Classes="TextFillColorSecondaryBrush"
                        IsVisible="{Binding !UEParse.FinishedLoading}"/>
+            
+            <ProgressBar Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center" Height="8"
+                         IsVisible="{Binding !UEParse.FinishedLoading}"
+                         Margin="{ext:Space 0, 1, 0, 0}"
+                         MinWidth="500"
+                         Value="{Binding UEParse.Progress}"
+                         Minimum="0"
+                         Maximum="100">
+                <ProgressBar.Transitions>
+                    <Transitions>
+                        <DoubleTransition Property="Value" Duration="0:0:5" Easing="CubicEaseOut" />
+                    </Transitions>
+                </ProgressBar.Transitions>
+            </ProgressBar>
 
-            <StackPanel Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
+            <StackPanel Grid.Row="4" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
                 <StackPanel.Styles>
                     <Style Selector="Button">
                         <Setter Property="HorizontalAlignment" Value="Stretch" />

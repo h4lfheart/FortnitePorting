@@ -48,6 +48,7 @@ public partial class CUE4ParseService : ObservableObject, IService
 {
     [ObservableProperty] private string _status = "Loading Files";
     [ObservableProperty] private bool _finishedLoading;
+    [ObservableProperty] private float _progress = 0.0f;
 
     public HybridFileProvider Provider;
 
@@ -109,6 +110,53 @@ public partial class CUE4ParseService : ObservableObject, IService
             return;
         }
         
+        var stages = GetType()
+            .GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+            .Select(m => (Method: m, Attr: m.GetCustomAttribute<LoadingStageAttribute>()))
+            .Where(x => x.Attr is not null)
+            .OrderBy(x => x.Attr!.Stage)
+            .Select(x => new LoadingStage(x.Method, x.Attr!))
+            .ToList();
+        
+        var totalWeight = stages.Sum(x => x.Attr.Weight);
+        var completedWeight = 0.0f;
+
+        foreach (var stage in stages)
+        {
+            UpdateStatus(stage.Attr.Name);
+            
+            completedWeight += stage.Attr.Weight;
+            Progress = (completedWeight / totalWeight) * 100.0f;
+            
+            if (stage.Method.Invoke(this, null) is not Task stageTask)
+                continue;
+
+            await stageTask;
+        }
+
+        UpdateStatus(string.Empty);
+        FinishedLoading = true;
+    }
+
+    public void UpdateStatus(string status)
+    {
+        Status = status;
+        if (!string.IsNullOrEmpty(status))
+            Log.Information("[STATUS] {status}", status);
+    }
+
+    private bool HasValidArchivePath()
+    {
+        return AppSettings.Installation.CurrentProfile.FortniteVersion switch
+        {
+            EFortniteVersion.LatestInstalled or EFortniteVersion.Custom => Directory.Exists(AppSettings.Installation.CurrentProfile.ArchiveDirectory),
+            _ => true
+        };
+    }
+
+    [LoadingStage("Initializing CUE4Parse", stage: 0, weight: 5)]
+    private async Task InitializeProviderSetup()
+    {
         Provider = AppSettings.Installation.CurrentProfile.FortniteVersion switch
         {
             EFortniteVersion.LatestOnDemand => new HybridFileProvider(new VersionContainer(LATEST_GAME_VERSION)),
@@ -133,11 +181,6 @@ public partial class CUE4ParseService : ObservableObject, IService
             Authorization = new AuthenticationHeaderValue("Bearer", AppSettings.Application.EpicAuth?.Token),
             Timeout = TimeSpan.FromSeconds(AppSettings.Developer.RequestTimeoutSeconds)
         };
-        
-        await CheckBlackHole();
-        
-        UpdateStatus($"Removing Outdated Cache Files");
-        await CleanupCache();
 
         Provider.VfsMounted += (sender, _) =>
         {
@@ -147,61 +190,9 @@ public partial class CUE4ParseService : ObservableObject, IService
                 ? $"Loading GameFeature {reader.Path.SubstringBeforeLast("\\").SubstringAfterLast("\\")}"
                 : $"Loading {reader.Name}");
         };
-        
-        UpdateStatus("Loading Native Libraries");
-        await InitializeOodle();
-        await InitializeZlib();
-        await InitializeDetex();
-        
-        UpdateStatus("Loading Game Files");
-        await InitializeProvider();
-        
-        UpdateStatus("Loading Texture Streaming");
-        await InitializeTextureStreaming();
-        
-        UpdateStatus("Submitting Keys");
-        await LoadKeys();
-        
-        UpdateStatus(AppSettings.Installation.CurrentProfile.FortniteVersion is EFortniteVersion.LatestOnDemand 
-            ? "Loading Virtual Paths (This may take a while)" 
-            : "Loading Virtual Paths");
-        
-        Provider.LoadVirtualPaths();
-        Provider.PostMount();
-        
-        if (!Provider.TryChangeCulture(Provider.GetLanguageCode(AppSettings.Installation.CurrentProfile.GameLanguage)))
-        {
-            Info.Message("Internationalization", $"Failed to load language \"{AppSettings.Installation.CurrentProfile.GameLanguage.Description}\"");
-        }
-        
-        await LoadMappings();
-        
-        await LoadAssetRegistries();
-
-        UpdateStatus("Loading Required Assets");
-        await LoadApplicationAssets();
-        
-        UpdateStatus(string.Empty);
-
-        FinishedLoading = true;
     }
 
-    public void UpdateStatus(string status)
-    {
-        Status = status;
-        if (!string.IsNullOrEmpty(status))
-            Log.Information("[STATUS] {status}", status);
-    }
-
-    private bool HasValidArchivePath()
-    {
-        return AppSettings.Installation.CurrentProfile.FortniteVersion switch
-        {
-            EFortniteVersion.LatestInstalled or EFortniteVersion.Custom => Directory.Exists(AppSettings.Installation.CurrentProfile.ArchiveDirectory),
-            _ => true
-        };
-    }
-
+    [LoadingStage("Checking for Valid Keys", stage: 1, weight: 1)]
     private async Task CheckBlackHole()
     {
         if (AppSettings.Installation.CurrentProfile.FortniteVersion is not EFortniteVersion.LatestInstalled) return;
@@ -223,6 +214,7 @@ public partial class CUE4ParseService : ObservableObject, IService
         BlackHole.Open(isMinigame: false);
     }
     
+    [LoadingStage("Removing Outdated Cache Files", stage: 2, weight: 1)]
     private async Task CleanupCache()
     {
         var files = CacheFolder.GetFiles();
@@ -236,6 +228,7 @@ public partial class CUE4ParseService : ObservableObject, IService
         }
     }
     
+    [LoadingStage("Loading Oodle", stage: 3, weight: 1)]
     private async Task InitializeOodle()
     {
         if (!File.Exists(Dependencies.NoodleFile.FullName))
@@ -247,6 +240,7 @@ public partial class CUE4ParseService : ObservableObject, IService
         await OodleHelper.InitializeAsync(Dependencies.NoodleFile.FullName);
     }
     
+    [LoadingStage("Loading Zlib", stage: 4, weight: 1)]
     private async Task InitializeZlib()
     {
         var zlibPath = Path.Combine(App.DataFolder.FullName, ZlibHelper.DLL_NAME);
@@ -255,6 +249,7 @@ public partial class CUE4ParseService : ObservableObject, IService
         await ZlibHelper.InitializeAsync(zlibPath);
     }
     
+    [LoadingStage("Loading Detex", stage: 5, weight: 1)]
     private async Task InitializeDetex()
     {
         var detexPath = Path.Combine(App.DataFolder.FullName, DetexHelper.DLL_NAME);
@@ -262,6 +257,7 @@ public partial class CUE4ParseService : ObservableObject, IService
         DetexHelper.Initialize(detexPath);
     }
     
+    [LoadingStage("Initializing Provider", stage: 6, weight: 10)]
     private async Task InitializeProvider()
     {
         if (AppSettings.Installation.CurrentProfile.FortniteVersion is EFortniteVersion.LatestInstalled or EFortniteVersion.LatestOnDemand)
@@ -301,6 +297,7 @@ public partial class CUE4ParseService : ObservableObject, IService
         }
     }
 
+    [LoadingStage("Loading Texture Streaming", stage: 7, weight: 5)]
     private async Task InitializeTextureStreaming()
     {
         if (AppSettings.Installation.CurrentProfile.FortniteVersion is not (EFortniteVersion.LatestInstalled or EFortniteVersion.LatestOnDemand)) return;
@@ -330,35 +327,7 @@ public partial class CUE4ParseService : ObservableObject, IService
         }
     }
     
-    private async Task<string> GetTocPath(EFortniteVersion loadingType)
-    {
-        var onDemandText = string.Empty;
-        switch (loadingType)
-        {
-            case EFortniteVersion.LatestInstalled:
-            {
-                var onDemandPath = Path.Combine(AppSettings.Installation.CurrentProfile.ArchiveDirectory, @"..\..\..\Cloud\IoStoreOnDemand.ini");
-                if (File.Exists(onDemandPath)) onDemandText = await File.ReadAllTextAsync(onDemandPath);
-                break;
-            }
-            case EFortniteVersion.LatestOnDemand:
-            {
-                var onDemandFile = LiveManifest?.Files.FirstOrDefault(x => x.FileName.Equals("Cloud/IoStoreOnDemand.ini", StringComparison.OrdinalIgnoreCase));
-                if (onDemandFile is not null) onDemandText = onDemandFile.GetStream().ReadToEnd().BytesToString();
-                break;
-            }
-        }
-
-        if (string.IsNullOrEmpty(onDemandText)) return string.Empty;
-
-        var onDemandIni = new ConfigIni();
-        onDemandIni.Read(new StringReader(onDemandText));
-        return onDemandIni
-            .Sections.FirstOrDefault(section => section.Name?.Equals("Endpoint") ?? false)?
-            .Tokens.OfType<InstructionToken>().FirstOrDefault(token => token.Key.Equals("TocPath"))?
-            .Value.Replace("\"", string.Empty) ?? string.Empty;
-    }
-
+    [LoadingStage("Submitting Keys", stage: 8, weight: 20)]
     private async Task LoadKeys()
     {
         switch (AppSettings.Installation.CurrentProfile.FortniteVersion)
@@ -366,7 +335,7 @@ public partial class CUE4ParseService : ObservableObject, IService
             case EFortniteVersion.LatestInstalled:
             case EFortniteVersion.LatestOnDemand:
             {
-                var aes =  await Api.FortnitePorting.Aes();
+                var aes = await Api.FortnitePorting.Aes();
                 if (aes is null)
                 {
                     await LoadLocalKeys();
@@ -394,33 +363,23 @@ public partial class CUE4ParseService : ObservableObject, IService
         }
     }
     
-    private async Task LoadLocalKeys()
+    [LoadingStage("Loading Virtual Paths", stage: 9, weight: 15)]
+    private async Task LoadVirtualPaths()
     {
-        var mainKey = AppSettings.Installation.CurrentProfile.MainKey;
-        if (mainKey.IsEmpty) mainKey = FileEncryptionKey.Empty;
-                
+        UpdateStatus(AppSettings.Installation.CurrentProfile.FortniteVersion is EFortniteVersion.LatestOnDemand 
+            ? "Loading Virtual Paths (This may take a while)" 
+            : "Loading Virtual Paths");
         
-        Log.Information("Submitting Local Main Key {Key}", mainKey.KeyString);
-        await Provider.SubmitKeyAsync(Globals.ZERO_GUID, mainKey.EncryptionKey);
-
-        await LoadLocalExtraKeys();
-    }
-    
-    private async Task LoadLocalExtraKeys()
-    {
-        foreach (var vfs in Provider.UnloadedVfs.ToArray())
+        Provider.LoadVirtualPaths();
+        Provider.PostMount();
+        
+        if (!Provider.TryChangeCulture(Provider.GetLanguageCode(AppSettings.Installation.CurrentProfile.GameLanguage)))
         {
-            foreach (var extraKey in AppSettings.Installation.CurrentProfile.ExtraKeys)
-            {
-                if (extraKey.IsEmpty) continue;
-                if (!vfs.TestAesKey(extraKey.EncryptionKey)) continue;
-                        
-                Log.Information("Submitting Local Extra Key {Key} with GUID {Guid} for {FileName}", extraKey.EncryptionKey, vfs.EncryptionKeyGuid, vfs.Name);
-                await Provider.SubmitKeyAsync(vfs.EncryptionKeyGuid, extraKey.EncryptionKey);
-            }
+            Info.Message("Internationalization", $"Failed to load language \"{AppSettings.Installation.CurrentProfile.GameLanguage.Description}\"");
         }
     }
-    
+
+    [LoadingStage("Loading Mappings", stage: 10, weight: 1)]
     private async Task LoadMappings()
     {
         var mappingsPath = AppSettings.Installation.CurrentProfile.FortniteVersion switch
@@ -440,61 +399,7 @@ public partial class CUE4ParseService : ObservableObject, IService
         Log.Information("Loaded Mappings: {Path}", mappingsPath);
     }
     
-    private async Task<string?> GetEndpointMappings()
-    {
-        var mappings = await Api.FortnitePorting.Mappings(string.Empty);
-        if (mappings?.Url is null) return null;
-
-        var mappingsFilePath = Path.Combine(App.DataFolder.FullName, mappings.Url.SubstringAfterLast("/"));
-        if (File.Exists(mappingsFilePath) && new FileInfo(mappingsFilePath).GetFileHashMD5().Equals(mappings.HashMD5)) return mappingsFilePath;
-            
-        var createdFile = await Api.DownloadFileAsync(mappings.Url, mappingsFilePath);
-        if (!createdFile.Exists) return null;
-            
-        File.SetCreationTime(mappingsFilePath, mappings.GetCreationTime());
-
-        return mappingsFilePath;
-    }
-
-
-    private string? GetLocalMappings()
-    {
-        var usmapFiles = App.DataFolder.GetFiles("*.usmap");
-        if (usmapFiles.Length <= 0) return null;
-
-        var latestUsmap = usmapFiles.MaxBy(x => x.CreationTime);
-        return latestUsmap?.FullName;
-    }
-    
-    private async Task LoadAssetRegistries()
-    {
-        var assetRegistries = Provider.Files
-            .Where(x => x.Key.Contains("AssetRegistry", StringComparison.OrdinalIgnoreCase))
-            .ToArray();
-        
-        foreach (var (path, file) in assetRegistries)
-        {
-            if (!path.EndsWith(".bin")) continue;
-            if (path.Contains("Editor", StringComparison.OrdinalIgnoreCase)) continue;
-
-            UpdateStatus($"Loading {file.Path}");
-            var assetArchive = await file.SafeCreateReaderAsync();
-            if (assetArchive is null) continue;
-
-            try
-            {
-                var assetRegistry = new FAssetRegistryState(assetArchive);
-                AssetRegistry.AddRange(assetRegistry.PreallocatedAssetDataBuffers);
-                Log.Information("Loaded Asset Registry: {FilePath}", file.Path);
-            }
-            catch (Exception e)
-            {
-                Log.Warning("Failed to load asset registry: {FilePath}", file.Path);
-                Log.Error(e.ToString());
-            }
-        }
-    }
-    
+    [LoadingStage("Loading Required Assets", stage: 11, weight: 5)]
     private async Task LoadApplicationAssets()
     {
         if (await Provider.SafeLoadPackageObjectAsync("FortniteGame/Content/Balance/RarityData") is { } rarityData)
@@ -584,4 +489,131 @@ public partial class CUE4ParseService : ObservableObject, IService
             FemaleLobbyMontages.AddIfNotNull(await Provider.SafeLoadPackageObjectAsync<UAnimMontage>(path));
         }
     }
+    
+    
+    [LoadingStage("Loading Asset Registries", stage: 12, weight: 10)]
+    private async Task LoadAssetRegistries()
+    {
+        var assetRegistries = Provider.Files
+            .Where(x => x.Key.Contains("AssetRegistry", StringComparison.OrdinalIgnoreCase))
+            .ToArray();
+        
+        foreach (var (path, file) in assetRegistries)
+        {
+            if (!path.EndsWith(".bin")) continue;
+            if (path.Contains("Editor", StringComparison.OrdinalIgnoreCase)) continue;
+
+            UpdateStatus($"Loading {file.Path}");
+            var assetArchive = await file.SafeCreateReaderAsync();
+            if (assetArchive is null) continue;
+
+            try
+            {
+                var assetRegistry = new FAssetRegistryState(assetArchive);
+                AssetRegistry.AddRange(assetRegistry.PreallocatedAssetDataBuffers);
+                Log.Information("Loaded Asset Registry: {FilePath}", file.Path);
+            }
+            catch (Exception e)
+            {
+                Log.Warning("Failed to load asset registry: {FilePath}", file.Path);
+                Log.Error(e.ToString());
+            }
+        }
+    }
+
+    private async Task<string> GetTocPath(EFortniteVersion loadingType)
+    {
+        var onDemandText = string.Empty;
+        switch (loadingType)
+        {
+            case EFortniteVersion.LatestInstalled:
+            {
+                var onDemandPath = Path.Combine(AppSettings.Installation.CurrentProfile.ArchiveDirectory, @"..\..\..\Cloud\IoStoreOnDemand.ini");
+                if (File.Exists(onDemandPath)) onDemandText = await File.ReadAllTextAsync(onDemandPath);
+                break;
+            }
+            case EFortniteVersion.LatestOnDemand:
+            {
+                var onDemandFile = LiveManifest?.Files.FirstOrDefault(x => x.FileName.Equals("Cloud/IoStoreOnDemand.ini", StringComparison.OrdinalIgnoreCase));
+                if (onDemandFile is not null) onDemandText = onDemandFile.GetStream().ReadToEnd().BytesToString();
+                break;
+            }
+        }
+
+        if (string.IsNullOrEmpty(onDemandText)) return string.Empty;
+
+        var onDemandIni = new ConfigIni();
+        onDemandIni.Read(new StringReader(onDemandText));
+        return onDemandIni
+            .Sections.FirstOrDefault(section => section.Name?.Equals("Endpoint") ?? false)?
+            .Tokens.OfType<InstructionToken>().FirstOrDefault(token => token.Key.Equals("TocPath"))?
+            .Value.Replace("\"", string.Empty) ?? string.Empty;
+    }
+    
+    private async Task LoadLocalKeys()
+    {
+        var mainKey = AppSettings.Installation.CurrentProfile.MainKey;
+        if (mainKey.IsEmpty) mainKey = FileEncryptionKey.Empty;
+                
+        
+        Log.Information("Submitting Local Main Key {Key}", mainKey.KeyString);
+        await Provider.SubmitKeyAsync(Globals.ZERO_GUID, mainKey.EncryptionKey);
+
+        await LoadLocalExtraKeys();
+    }
+    
+    private async Task LoadLocalExtraKeys()
+    {
+        foreach (var vfs in Provider.UnloadedVfs.ToArray())
+        {
+            foreach (var extraKey in AppSettings.Installation.CurrentProfile.ExtraKeys)
+            {
+                if (extraKey.IsEmpty) continue;
+                if (!vfs.TestAesKey(extraKey.EncryptionKey)) continue;
+                        
+                Log.Information("Submitting Local Extra Key {Key} with GUID {Guid} for {FileName}", extraKey.EncryptionKey, vfs.EncryptionKeyGuid, vfs.Name);
+                await Provider.SubmitKeyAsync(vfs.EncryptionKeyGuid, extraKey.EncryptionKey);
+            }
+        }
+    }
+    
+    private async Task<string?> GetEndpointMappings()
+    {
+        var mappings = await Api.FortnitePorting.Mappings(string.Empty);
+        if (mappings?.Url is null) return null;
+
+        var mappingsFilePath = Path.Combine(App.DataFolder.FullName, mappings.Url.SubstringAfterLast("/"));
+        if (File.Exists(mappingsFilePath) && new FileInfo(mappingsFilePath).GetFileHashMD5().Equals(mappings.HashMD5)) return mappingsFilePath;
+            
+        var createdFile = await Api.DownloadFileAsync(mappings.Url, mappingsFilePath);
+        if (!createdFile.Exists) return null;
+            
+        File.SetCreationTime(mappingsFilePath, mappings.GetCreationTime());
+
+        return mappingsFilePath;
+    }
+
+    private string? GetLocalMappings()
+    {
+        var usmapFiles = App.DataFolder.GetFiles("*.usmap");
+        if (usmapFiles.Length <= 0) return null;
+
+        var latestUsmap = usmapFiles.MaxBy(x => x.CreationTime);
+        return latestUsmap?.FullName;
+    }
 }
+
+public class LoadingStageAttribute : Attribute
+{
+    public string Name { get; }
+    public int Stage { get; }
+    public float Weight { get; }
+
+    public LoadingStageAttribute(string name, int stage, float weight)
+    {
+        Name = name;
+        Stage = stage;
+        Weight = weight;
+    }
+}
+record LoadingStage(MethodInfo Method, LoadingStageAttribute Attr);
