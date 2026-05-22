@@ -83,6 +83,7 @@ public enum EAssetCategory
 public enum EExportType
 {
     [Description("None")]
+    [NonAsset]
     None,
     
     // COSMETIC
@@ -91,6 +92,7 @@ public enum EExportType
     Outfit,
     
     [Description("Character Parts"), Export(EPrimitiveExportType.Mesh)]
+    [NonAsset]
     CharacterPart,
 
     [Description("Backpacks"), Export(EPrimitiveExportType.Mesh)]
@@ -128,7 +130,6 @@ public enum EExportType
     
     [Description("Kicks"), Export(EPrimitiveExportType.Mesh)]
     Kicks,
-
     
     // CREATIVE
 
@@ -178,15 +179,19 @@ public enum EExportType
     // LEGO
     
     [Description("Outfits"), Export(EPrimitiveExportType.Mesh)]
+    [Disabled]
     LegoOutfit,
     
     [Description("Emotes"), Export(EPrimitiveExportType.Animation)]
+    [Disabled]
     LegoEmote,
     
     [Description("Props"), Export(EPrimitiveExportType.Mesh)]
+    [Disabled]
     LegoProp,
     
     [Description("Wildlife"), Export(EPrimitiveExportType.Mesh)]
+    [Disabled]
     LegoWildlife,
     
     // FALL GUYS
@@ -197,34 +202,44 @@ public enum EExportType
     // GENERIC
 
     [Description("Mesh"), Export(EPrimitiveExportType.Mesh)]
+    [NonAsset]
     Mesh,
     
     [Description("World"), Export(EPrimitiveExportType.Mesh)]
+    [NonAsset]
     World,
     
     [Description("Texture"), Export(EPrimitiveExportType.Texture)]
+    [NonAsset]
     Texture,
     
     [Description("Animation"), Export(EPrimitiveExportType.Animation)]
+    [NonAsset]
     Animation,
     
     [Description("Sound"), Export(EPrimitiveExportType.Sound)]
+    [NonAsset]
     Sound,
     
     [Description("Font"), Export(EPrimitiveExportType.Font)]
+    [NonAsset]
     Font,
     
     [Description("Pose Asset"), Export(EPrimitiveExportType.PoseAsset)]
+    [NonAsset]
     PoseAsset,
     
     [Description("Material"), Export(EPrimitiveExportType.Material)]
+    [NonAsset]
     Material,
     
     [Description("MaterialInstance"), Export(EPrimitiveExportType.Material)]
+    [NonAsset]
     MaterialInstance,
     
     // UTILITY
     [Description("Tasty Rig"), Export(EPrimitiveExportType.TastyRig)]
+    [NonAsset]
     TastyRig
 }
 

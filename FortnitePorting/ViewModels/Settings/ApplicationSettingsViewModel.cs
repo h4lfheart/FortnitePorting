@@ -10,6 +10,7 @@ using Avalonia.Markup.Xaml;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FluentAvalonia.UI.Media.Animation;
 using FortnitePorting.Controls;
+using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Models;
 using FortnitePorting.Models.API.Responses;
@@ -53,7 +54,9 @@ public partial class ApplicationSettingsViewModel : SettingsViewModelBase
     [ObservableProperty] private bool _dontAskAboutKofi;
     [ObservableProperty] private DateTime _nextKofiAskDate = DateTime.Today;
     [ObservableProperty] private bool _showAssetNames;
-        
+    
+    [ObservableProperty] private bool _useDefaultExportLoadType = false;
+    [ObservableProperty] private EExportType _defaultExportLoadType = EExportType.Outfit;
     [ObservableProperty] private EpicAuthResponse? _epicAuth;
     
     [ObservableProperty, NotifyPropertyChangedFor(nameof(TransparencyHints))] private EThemeType _theme = EThemeType.Dark;
@@ -65,6 +68,9 @@ public partial class ApplicationSettingsViewModel : SettingsViewModelBase
     
     [JsonIgnore]
     public DirectSoundDeviceInfo[] AudioDevices => DirectSoundOut.Devices.ToArray()[1..];
+
+    [JsonIgnore]
+    public EExportType[] AssetTypes => Enum.GetValues<EExportType>().Where(type => !type.IsDisabled && type.IsAssetType).ToArray();
 
     public async Task BrowseAppDataPath()
     {

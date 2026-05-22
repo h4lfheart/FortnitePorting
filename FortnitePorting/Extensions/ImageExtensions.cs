@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Concurrent;
+using System.Globalization;
 using Avalonia;
+using Avalonia.Data.Converters;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;

@@ -498,21 +498,16 @@ public partial class AssetLoaderService : ObservableObject, IService
     
     public async Task Load(EExportType type)
     {
+        if (type is EExportType.None) return;
+        
         Set(type);
         await ActiveLoader.Load();
     }
     
     public AssetLoader Get(EExportType type)
     {
-        foreach (var category in Categories)
-        {
-            if (category.Loaders.FirstOrDefault(loader => loader.Type == type) is { } assetLoader)
-            {
-                return assetLoader;
-            }
-        }
-
-        return null!; // if this happens it's bc im stupid
+        return Categories.SelectMany(cat => cat.Loaders).FirstOrDefault(loader => loader.Type == type) 
+               ?? throw new ArgumentOutOfRangeException(nameof(type), $"Asset type {type.Description} does not have an implemented loader.");
     }
     
     public void Set(EExportType type)

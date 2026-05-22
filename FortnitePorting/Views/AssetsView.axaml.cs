@@ -1,8 +1,10 @@
 using System;
 using System.Linq;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.LogicalTree;
 using FortnitePorting.Controls.Navigation.Sidebar;
 using FortnitePorting.Controls.WrapPanel;
 using FortnitePorting.Framework;
@@ -17,6 +19,8 @@ namespace FortnitePorting.Views;
 
 public partial class AssetsView : ViewBase<AssetsViewModel>
 {
+    private bool _finishedFirstLoad = false;
+    
     public AssetsView()
     {
         InitializeComponent();
@@ -42,6 +46,17 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
                 args.Handled = true;
             }
         }, handledEventsToo: true);
+    }
+
+    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnAttachedToVisualTree(e);
+
+        if (!_finishedFirstLoad)
+        {
+            Navigation.Assets.Open(AppSettings.Application.UseDefaultExportLoadType ? AppSettings.Application.DefaultExportLoadType : EExportType.Outfit);
+            _finishedFirstLoad = true;
+        }
     }
 
     private void ChangeTab(EExportType assetType)

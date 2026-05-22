@@ -7,6 +7,7 @@
              xmlns:fortnitePorting="clr-namespace:FortnitePorting"
              xmlns:setup="clr-namespace:FortnitePorting.ViewModels.Setup"
              xmlns:controls="clr-namespace:FortnitePorting.Controls.Settings"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              d:DesignHeight="770" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.Setup.InstallationSetupView"
              x:DataType="setup:InstallationSetupViewModel">
@@ -65,7 +66,7 @@
                         <StackPanel Orientation="Horizontal">
                             <TextBox Text="{Binding Profile.ArchiveDirectory}" Watermark="Ex. C:/Program Files/Epic Games/Fortnite/FortniteGame/Content/Paks"/>
                             <Button Margin="4 0 0 0" Command="{Binding Profile.BrowseArchivePath}">
-                                <ui:SymbolIcon Symbol="Folder"/>
+                                <avalonia:MaterialIcon Kind="Folder"/>
                             </Button>
                         </StackPanel>
                     </controls:SettingsItem.Footer>
@@ -104,7 +105,7 @@
                                      IsEnabled="{Binding Profile.UseMappingsFile}"
                                      MaxWidth="500"/>
                             <Button Margin="4 0 0 0" Command="{Binding Profile.BrowseMappingsFile}" IsEnabled="{Binding Profile.UseMappingsFile}">
-                                <ui:SymbolIcon Symbol="Folder"/>
+                                <avalonia:MaterialIcon Kind="Folder"/>
                             </Button>
                         </StackPanel>
                     </controls:SettingsItem.Footer>

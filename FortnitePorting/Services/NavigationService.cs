@@ -114,13 +114,16 @@ public class NavigatorContext(string name, NavigationTransitionInfo? transitionI
         TaskService.RunDispatcher(() =>
         {
             if (obj is null) return;
-            if (ContentFrame is null) return;
 
             if (_behaviorResolvers.TryGetValue(obj.GetType(), out var behaviorResolver))
             {
                 behaviorResolver.Invoke(obj);
-                return;
             }
+            
+            Sidebar?.SelectButton(
+                Sidebar.FlattenedItems.OfType<SidebarItemButton>().FirstOrDefault(item => item.Tag?.Equals(obj) ?? false),
+                raiseEvent: false
+            );
 
             var viewType = obj switch
             {
@@ -132,11 +135,9 @@ public class NavigatorContext(string name, NavigationTransitionInfo? transitionI
         
             if (IsTabOpen(viewType)) return;
         
-            ContentFrame.Navigate(viewType, null, AppSettings.Application.UseTabTransitions
+            ContentFrame?.Navigate(viewType, null, AppSettings.Application.UseTabTransitions
                 ? TransitionInfo
                 : new SuppressNavigationTransitionInfo());
-
-            Sidebar?.SelectButton(Sidebar.FlattenedItems.OfType<SidebarItemButton>().FirstOrDefault(item => item.Tag?.Equals(obj) ?? false));
         });
     }
 

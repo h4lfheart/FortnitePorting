@@ -31,7 +31,7 @@
             </ItemsControl>
         </controls:DynamicFadeScrollViewer>
     
-        <ContentControl Grid.Row="2" 
+        <ContentControl Grid.Row="2" HorizontalAlignment="Stretch"
                         Content="{Binding Footer, RelativeSource={RelativeSource AncestorType=sidebar:Sidebar}}"
                         IsVisible="{Binding Footer, RelativeSource={RelativeSource AncestorType=sidebar:Sidebar}, Converter={x:Static ObjectConverters.IsNotNull}}"
                         Margin="{ext:Space 0, 2, 0, 0}"/>

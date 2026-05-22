@@ -31,6 +31,7 @@
             <converters:StringToUppercaseConverter x:Key="StringToUppercase" />
             <converters:BoolToOpacityConverter x:Key="BoolToOpacity" />
             <converters:ScaleConverter x:Key="Scale" />
+            <converters:ExportTypeIconConverter x:Key="ExportTypeIcon"/>
 
             <Brush x:Key="ToggleSwitchKnobFillOn">#FFFFFFFF</Brush>
             <Brush x:Key="ToggleSwitchKnobFillOnPointerOver">#FFFFFFFF</Brush>
@@ -1175,9 +1176,12 @@
             </Setter>
         </Style>
 
-
         <Style Selector="TextBlock[IsVisible=True]">
             <Setter Property="Foreground" Value="{DynamicResource TextFillPrimaryBrush}" />
+            
+            <Style Selector="^:disabled">
+                <Setter Property="Opacity" Value="0.5"/>
+            </Style>
         </Style>
 
         <Style Selector="TextBlock.CaptionTextBlockStyle">

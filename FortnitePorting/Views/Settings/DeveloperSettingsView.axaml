@@ -6,6 +6,7 @@
              xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
              xmlns:settings="clr-namespace:FortnitePorting.ViewModels.Settings"
              xmlns:controls="clr-namespace:FortnitePorting.Controls.Settings"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FortnitePorting.Views.Settings.DeveloperSettingsView"
              x:DataType="settings:DeveloperSettingsViewModel">
@@ -18,7 +19,7 @@
                         <CheckBox IsChecked="{Binding UsePortlePath}"/>
                         <TextBox Text="{Binding PortleExecutablePath}" Watermark="Ex. D:/Art/FortnitePorting/Portle.exe" IsEnabled="{Binding UsePortlePath}"/>
                         <Button Margin="4 0 0 0" Command="{Binding BrowsePortlePath}" IsEnabled="{Binding UsePortlePath}">
-                            <ui:SymbolIcon Symbol="Folder"/>
+                            <avalonia:MaterialIcon Kind="Folder"/>
                         </Button>
                     </StackPanel>
                 </controls:SettingsItem.Footer>

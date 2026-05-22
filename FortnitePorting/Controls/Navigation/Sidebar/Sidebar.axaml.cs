@@ -38,6 +38,7 @@ public partial class Sidebar : UserControl
     [AvaDirectProperty] private Control _header;
     [AvaDirectProperty] private Control _footer;
     [AvaDirectProperty] private ObservableCollection<ISidebarItem> _items = [];
+    [AvaDirectProperty] private bool _autoSelectDefault = true;
 
     public static readonly StyledProperty<ObservableCollection<ISidebarItem>> FlattenedItemsProperty =
         AvaloniaProperty.Register<Sidebar, ObservableCollection<ISidebarItem>>(nameof(FlattenedItems), new ObservableCollection<ISidebarItem>());
@@ -105,7 +106,8 @@ public partial class Sidebar : UserControl
 
                 if (firstValidButton is not null)
                 {
-                    SelectButton(firstValidButton);
+                    if (AutoSelectDefault)
+                        SelectButton(firstValidButton);
                     _hasSelectedFirstButton = true;
                 }
             }, DispatcherPriority.Background);
@@ -278,17 +280,17 @@ public partial class Sidebar : UserControl
         }
     }
 
-    public void SelectButton(SidebarItemButton? button)
+    public void SelectButton(SidebarItemButton? button, bool raiseEvent = true)
     {
         if (button is null) return;
 
         _isUpdatingSelection = true;
-        SelectButtonInternal(button);
+        SelectButtonInternal(button, raiseEvent);
         SelectedItem = button.Tag;
         _isUpdatingSelection = false;
     }
 
-    private void SelectButtonInternal(SidebarItemButton? button)
+    private void SelectButtonInternal(SidebarItemButton? button, bool raiseEvent = true)
     {
         if (button is null) return;
 
@@ -296,13 +298,16 @@ public partial class Sidebar : UserControl
 
         _selectedButton = button;
         _selectedButton.IsSelected = true;
-        
-        var args = new SidebarItemSelectedArgs(button.Tag)
+    
+        if (raiseEvent)
         {
-            RoutedEvent = ItemSelectedEvent,
-            Source = this
-        };
+            var args = new SidebarItemSelectedArgs(button.Tag)
+            {
+                RoutedEvent = ItemSelectedEvent,
+                Source = this
+            };
         
-        RaiseEvent(args);
+            RaiseEvent(args);
+        }
     }
 }

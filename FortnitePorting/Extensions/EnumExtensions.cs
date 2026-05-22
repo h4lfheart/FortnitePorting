@@ -8,6 +8,7 @@ using Material.Icons;
 
 namespace FortnitePorting.Extensions;
 
+public class NonAssetAttribute : Attribute;
 
 public static class EnumExtensions
 {
@@ -31,6 +32,13 @@ public static class EnumExtensions
         {
             return new EnumRecord(value.GetType(), value, value.Description, value.IsDisabled, value.Icon);
         }
+    }
+    
+    extension(EExportType exportType)
+    {
+        public bool IsAssetType =>
+            exportType.GetType().GetField(exportType.ToString())?.GetCustomAttributes(typeof(NonAssetAttribute), false).SingleOrDefault() is null;
+        
     }
 }
 

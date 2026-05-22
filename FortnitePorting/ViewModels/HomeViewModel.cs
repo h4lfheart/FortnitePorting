@@ -36,6 +36,10 @@ public partial class HomeViewModel() : ViewModelBase
             FeaturedArt = [..(await Api.FortnitePorting.FeaturedArt()).Random(3)];
             
             await UEParse.Initialize();
+
+            if (AppSettings.Application.UseDefaultExportLoadType)
+                await AssetLoading.Load(AppSettings.Application.DefaultExportLoadType);
+            
             await FilesVM.Initialize();
         });
 

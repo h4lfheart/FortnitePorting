@@ -8,6 +8,7 @@
              xmlns:setup="clr-namespace:FortnitePorting.ViewModels.Setup"
              xmlns:controls="clr-namespace:FortnitePorting.Controls.Settings"
              xmlns:controls1="clr-namespace:FortnitePorting.Controls"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              d:DesignHeight="770" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.Setup.ApplicationSetupView"
              x:DataType="setup:ApplicationSetupViewModel">
@@ -73,7 +74,7 @@
                             <CheckBox IsChecked="{Binding Settings.Application.UseAppDataPath}"/>
                             <TextBox Text="{Binding Settings.Application.AppDataPath}" Watermark="Ex. D:/Apps/FortnitePorting" IsEnabled="{Binding Settings.Application.UseAppDataPath}"/>
                             <Button Margin="4 0 0 0" Command="{Binding Settings.Application.BrowseAppDataPath}" IsEnabled="{Binding Settings.Application.UseAppDataPath}">
-                                <ui:SymbolIcon Symbol="Folder"/>
+                                <avalonia:MaterialIcon Kind="Folder"/>
                             </Button>
                         </StackPanel>
                     </controls:SettingsItem.Footer>
@@ -85,7 +86,7 @@
                             <CheckBox IsChecked="{Binding Settings.Application.UseAssetsPath}"/>
                             <TextBox Text="{Binding Settings.Application.AssetsPath}" Watermark="Ex. D:/Apps/FortnitePorting/Assets" IsEnabled="{Binding Settings.Application.UseAssetsPath}"/>
                             <Button Margin="4 0 0 0" Command="{Binding Settings.Application.BrowseAssetsPath}" IsEnabled="{Binding Settings.Application.UseAssetsPath}">
-                                <ui:SymbolIcon Symbol="Folder"/>
+                                <avalonia:MaterialIcon Kind="Folder"/>
                             </Button>
                         </StackPanel>
                     </controls:SettingsItem.Footer>
