@@ -79,7 +79,7 @@
                             <TextBox Text="{Binding ArchiveDirectory}"
                                      Watermark="Ex. C:/Fortnite/FortniteGame/Content/Paks" />
                             <Button Margin="4 0 0 0" Command="{Binding BrowseArchivePath}">
-                                <ui:SymbolIcon Symbol="Folder" />
+                                <material:MaterialIcon Kind="Folder"/>
                             </Button>
                         </StackPanel>
                     </controls:SettingsItem.Footer>
@@ -159,7 +159,7 @@
                                      MaxWidth="500" />
                             <Button Margin="4 0 0 0" Command="{Binding BrowseMappingsFile}"
                                     IsEnabled="{Binding UseMappingsFile}">
-                                <ui:SymbolIcon Symbol="Folder" />
+                                <material:MaterialIcon Kind="Folder"/>
                             </Button>
                         </StackPanel>
                     </controls:SettingsItem.Footer>

@@ -44,7 +44,7 @@ public class MeshExport : BaseExport
         {
             foreach (var objectStyle in objectStyles)
             {
-                Export(objectStyle.StyleData, exportType);
+                Export(objectStyle.StyleData, objectStyle.AssociatedExportType is not EExportType.None ? objectStyle.AssociatedExportType : exportType);
             }
             
             return;

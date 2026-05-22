@@ -8,6 +8,7 @@ using Avalonia.LogicalTree;
 using FortnitePorting.Controls.Navigation.Sidebar;
 using FortnitePorting.Controls.WrapPanel;
 using FortnitePorting.Framework;
+using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.Assets.Asset;
 using FortnitePorting.Models.Assets.Custom;
 using FortnitePorting.Models.Assets.Filters;
@@ -157,5 +158,15 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
         if (item.IconDisplayImage is not null) return;
         
         item.LoadBitmap();
+    }
+
+    private void OnStyleBoxPointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (sender is not Control control) return;
+        if (control.DataContext is not AssetStyleInfo assetStyleInfo) return;
+        if (assetStyleInfo.RequiredSelection) return;
+        
+        assetStyleInfo.SelectedStyleIndex = -1;
+        assetStyleInfo.SelectedItems.Clear();
     }
 }

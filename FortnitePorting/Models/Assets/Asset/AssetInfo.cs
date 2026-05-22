@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CUE4Parse_Conversion.Textures;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Animation;
+using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.UObject;
@@ -95,6 +97,36 @@ public partial class AssetInfo : Base.BaseAssetInfo
             
                 StyleInfos.Add(new AssetStyleInfo("Animation Type", sizedStyleDatas));
             }
+        }
+        
+        if (Asset.CreationData.ExportType is EExportType.Prefab)
+        {
+            var playsetProps = Asset.CreationData.Object.GetOrDefault<FSoftObjectPath[]>("AssociatedPlaysetProps"); 
+            
+            var styleDatas = new List<ObjectStyleData>();
+            foreach (var playsetPropPath in playsetProps)
+            {
+                if (!playsetPropPath.TryLoad(out var prop))
+                    continue;
+                
+                var propIcon = prop.GetAnyOrDefault<UTexture2D>("SmallPreviewImage", "LargePreviewImage", "Icon", "LargeIcon");
+                propIcon ??= prop.GetDataListItem<UTexture2D>("SmallPreviewImage", "LargePreviewImage", "Icon", "LargeIcon");
+        
+                if (propIcon?.Decode()?.ToWriteableBitmap() is not { } propBitmap)
+                    continue;
+                
+                styleDatas.Add(new ObjectStyleData(prop.Name, prop, propBitmap)
+                {
+                    AssociatedExportType = EExportType.Prop
+                });
+            }
+            
+            StyleInfos.Add(new AssetStyleInfo("Individual Props", styleDatas)
+            {
+                RequiredSelection = false,
+                MultiSelect = true,
+                SelectedStyleIndex = -1
+            });
         }
     }
     

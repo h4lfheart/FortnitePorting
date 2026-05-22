@@ -2,12 +2,17 @@ using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CUE4Parse_Conversion.Textures;
 using CUE4Parse.UE4.Assets.Exports;
+using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.Core.Math;
+using CUE4Parse.Utils;
 using FortnitePorting.Extensions;
+using FortnitePorting.Framework;
 using FortnitePorting.Models.Clipboard;
+using FortnitePorting.Views;
 
 namespace FortnitePorting.Models.Assets;
 
@@ -23,6 +28,17 @@ public abstract partial class BaseStyleData : ObservableObject
         await AvaloniaClipboard.SetImageAsync(StyleDisplayImage);
     }
     
+    [RelayCommand]
+    public virtual async Task CopyPath()
+    {
+        Info.Message("Unsupported Asset", "Cannot copy the path of this type of asset.");
+    }
+    
+    [RelayCommand]
+    public virtual async Task NavigateTo()
+    {
+        Info.Message("Unsupported Asset", "Cannot navigate to this type of asset.");
+    }
 }
 
 public partial class AssetStyleData : BaseStyleData
@@ -63,25 +79,39 @@ public partial class AssetColorStyleData : AssetStyleData
 public partial class ObjectStyleData : BaseStyleData
 {
     [ObservableProperty] private UObject _styleData;
+    [ObservableProperty] private EExportType _associatedExportType = EExportType.None;
     
-    public ObjectStyleData(string name, UObject styleData, Bitmap previewImage)
+    public ObjectStyleData(string name, UObject styleData, Bitmap? previewImage)
     {
         ShowName = false;
         StyleData = styleData;
         StyleName = name;
         StyleDisplayImage = previewImage;
     }
+    
+    public override async Task CopyPath()
+    {
+        await App.Clipboard.SetTextAsync(StyleData.GetPathName());
+    }
+
+    public override async Task NavigateTo()
+    {
+        Navigation.App.Open<FilesView>();
+
+        var assetPath = UEParse.Provider.FixPath(StyleData.GetPathName().SubstringBefore("."));
+        if (FilesVM.UseFlatView)
+            FilesVM.FlatViewJumpTo(assetPath);
+        else
+            FilesVM.FileViewJumpTo(assetPath);
+        
+        AppWM.Window.BringToTop();
+    }
 }
 
-public partial class AnimStyleData : BaseStyleData
+public class AnimStyleData : ObjectStyleData
 {
-    [ObservableProperty] private UObject _styleData;
-    
-    public AnimStyleData(string name, UObject styleData)
+    public AnimStyleData(string name, UObject styleData) : base(name, styleData, null)
     {
         ShowName = true;
-        StyleData = styleData;
-        StyleName = name;
-        StyleDisplayImage = null;
     }
 }

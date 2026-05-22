@@ -35,6 +35,7 @@ public partial class AssetStyleInfo : ObservableObject
 
     public BaseStyleData SelectedStyle => StyleDatas[SelectedStyleIndex];
     
+    [ObservableProperty] private bool _requiredSelection = true;
     
     public AssetStyleInfo(string channelName, FStructFallback[] styles, Bitmap fallbackPreviewImage, bool addDefault = false)
     {

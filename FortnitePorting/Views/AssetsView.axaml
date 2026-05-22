@@ -344,7 +344,8 @@
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate DataType="assets:AssetStyleInfo">
                                                 <controls:ContentCard Margin="{ext:Space 0, 0, 0, 1}"
-                                                                      IsVisible="{Binding IsVisible}">
+                                                                      IsVisible="{Binding IsVisible}"
+                                                                      PointerPressed="OnStyleBoxPointerPressed">
                                                     <Grid Margin="{ext:Space 0, 1, 0, 1}">
                                                         <Grid.RowDefinitions>
                                                             <RowDefinition Height="*" />
@@ -498,6 +499,16 @@
                                                                                     TextTrimming="CharacterEllipsis"
                                                                                     IsVisible="{Binding ShowName}" />
                                                                         </Grid>
+                                                                        <ContentControl.ContextMenu>
+                                                                            <ContextMenu>
+                                                                                <MenuItem Header="Copy Path" 
+                                                                                    Icon="{material:MaterialIconExt Clipboard}"
+                                                                                    Command="{Binding CopyPathCommand}"/>
+                                                                                <MenuItem Header="Navigate To" 
+                                                                                    Icon="{material:MaterialIconExt ChevronRight}"
+                                                                                    Command="{Binding NavigateToCommand}" />
+                                                                            </ContextMenu>
+                                                                        </ContentControl.ContextMenu>
                                                                     </ContentControl>
                                                                 </DataTemplate>
                                                             </ListBox.ItemTemplate>
