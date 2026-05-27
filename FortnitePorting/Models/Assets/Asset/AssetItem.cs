@@ -120,10 +120,7 @@ public class AssetItem : Base.BaseAssetItem
         Navigation.App.Open<FilesView>();
 
         var assetPath = UEParse.Provider.FixPath(CreationData.Object.GetPathName().SubstringBefore("."));
-        if (FilesVM.UseFlatView)
-            FilesVM.FlatViewJumpTo(assetPath);
-        else
-            FilesVM.FileViewJumpTo(assetPath);
+        FilesVM.JumpTo(assetPath);
         
         AppWM.Window.BringToTop();
     }

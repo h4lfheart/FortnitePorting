@@ -54,10 +54,7 @@ public partial class SoundCuePreviewWindowModel(SettingsService settings) : Wind
         if (asset is null) return;
         
         var assetPath = UEParse.Provider.FixPath(UEParse.Provider.FixPath(asset.GetPathName().SubstringBefore(".")));
-        if (FilesVM.UseFlatView)
-            FilesVM.FlatViewJumpTo(assetPath);
-        else
-            FilesVM.FileViewJumpTo(assetPath);
+        FilesVM.JumpTo(assetPath);
         
         Navigation.App.Open<FilesView>();
         AppWM.Window.BringToTop();
@@ -70,10 +67,7 @@ public partial class SoundCuePreviewWindowModel(SettingsService settings) : Wind
         if (asset is null) return;
 
         var assetPath = UEParse.Provider.FixPath(UEParse.Provider.FixPath(asset.GetPathName().SubstringBefore(".")));
-        if (FilesVM.UseFlatView)
-            FilesVM.FlatViewJumpTo(assetPath);
-        else
-            FilesVM.FileViewJumpTo(assetPath);
+        FilesVM.JumpTo(assetPath);
         
         Navigation.App.Open<FilesView>();
         AppWM.Window.BringToTop();

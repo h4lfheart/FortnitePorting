@@ -22,17 +22,17 @@ public partial class FilesView : ViewBase<FilesViewModel>
     
     private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
     {
-        if (ViewModel.UseFlatView) return;
+        if (ViewModel.Context.UseFlatView) return;
 
         var point = e.GetCurrentPoint(this);
-        if (point.Properties.IsXButton1Pressed && ViewModel.CanGoBack)
+        if (point.Properties.IsXButton1Pressed && ViewModel.Context.CanGoBack)
         {
-            ViewModel.GoBack();
+            ViewModel.Context.GoBack();
             e.Handled = true;
         }
-        else if (point.Properties.IsXButton2Pressed && ViewModel.CanGoForward)
+        else if (point.Properties.IsXButton2Pressed && ViewModel.Context.CanGoForward)
         {
-            ViewModel.GoForward();
+            ViewModel.Context.GoForward();
             e.Handled = true;
         }
     }
@@ -42,10 +42,10 @@ public partial class FilesView : ViewBase<FilesViewModel>
         if (e.Key != Key.Enter) return;
         if (sender is not TextBox textBox) return;
 
-        if (ViewModel.UseFlatView)
-            ViewModel.FlatSearchFilter = textBox.Text ?? string.Empty;
+        if (ViewModel.Context.UseFlatView)
+            ViewModel.Context.FlatSearchFilter = textBox.Text ?? string.Empty;
         else
-            ViewModel.FileSearchFilter = textBox.Text ?? string.Empty;
+            ViewModel.Context.FileSearchFilter = textBox.Text ?? string.Empty;
     }
 
     private void OnFileItemDoubleTapped(object? sender, TappedEventArgs e)
@@ -58,7 +58,7 @@ public partial class FilesView : ViewBase<FilesViewModel>
             return;
         }
         
-        ViewModel.LoadFileItems(item);
+        ViewModel.Context.LoadFileItems(item);
         item.Expanded = true;
     }
     
@@ -66,8 +66,8 @@ public partial class FilesView : ViewBase<FilesViewModel>
     {
         if (args.Item is not TreeItem treeItem) return;
         
-        ViewModel.ClearSearchFilter();
-        ViewModel.LoadFileItems(treeItem);
+        ViewModel.Context.ClearSearchFilter();
+        ViewModel.Context.LoadFileItems(treeItem);
     }
 
     private void OnTreeItemTapped(object? sender, TappedEventArgs e)
@@ -76,7 +76,7 @@ public partial class FilesView : ViewBase<FilesViewModel>
         if (treeView.SelectedItem is not TreeItem item) return;
         if (item.Type == ENodeType.File) return;
         
-        ViewModel.LoadFileItems(item);
+        ViewModel.Context.LoadFileItems(item);
     }
     
     private void OnTreeItemDoubleTapped(object? sender, TappedEventArgs e)
@@ -89,8 +89,8 @@ public partial class FilesView : ViewBase<FilesViewModel>
             return;
         }
         
-        ViewModel.ClearSearchFilter();
-        ViewModel.FlatViewJumpTo(item.FilePath);
+        ViewModel.Context.ClearSearchFilter();
+        ViewModel.Context.FlatViewJumpTo(item.FilePath);
     }
     
     private void OnFlatItemDoubleTapped(object? sender, TappedEventArgs e)
@@ -98,7 +98,7 @@ public partial class FilesView : ViewBase<FilesViewModel>
         if (sender is not ListBox listBox) return;
         if (listBox.SelectedItem is not FlatItem item) return;
         
-        ViewModel.FileViewJumpTo(item.Path);
+        ViewModel.Context.FileViewJumpTo(item.Path);
     }
 
     private void OnItemRealized(object? sender, ItemRealizedEventArgs e)
@@ -106,18 +106,18 @@ public partial class FilesView : ViewBase<FilesViewModel>
         if (e.Item is not TreeItem item) return;
         if (item.FileBitmap is not null) return;
         
-        ViewModel.RealizeFileData(item);
+        ViewModel.Context.RealizeFileData(item);
     }
 
     private void OnFlatViewHyperlinkPressed(object? sender, PointerPressedEventArgs e)
     {
-        var searchTerm = ViewModel.FileSearchFilter;
+        var searchTerm = ViewModel.Context.FileSearchFilter;
         
-        ViewModel.FileSearchFilter = string.Empty;
-        ViewModel.FileSearchText = string.Empty;
+        ViewModel.Context.FileSearchFilter = string.Empty;
+        ViewModel.Context.FileSearchText = string.Empty;
         
-        ViewModel.UseFlatView = true;
-        ViewModel.FlatSearchFilter = searchTerm;
-        ViewModel.FlatSearchText = searchTerm;
+        ViewModel.Context.UseFlatView = true;
+        ViewModel.Context.FlatSearchFilter = searchTerm;
+        ViewModel.Context.FlatSearchText = searchTerm;
     }
 }

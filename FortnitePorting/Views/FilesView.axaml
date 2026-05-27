@@ -28,7 +28,7 @@
             </Grid.ColumnDefinitions>
 
             <controls:ContentCard Grid.Row="0" Grid.Column="0">
-                <TreeView ItemsSource="{Binding TreeViewCollection}" AutoScrollToSelectedItem="True"
+                <TreeView ItemsSource="{Binding Context.TreeViewCollection}" AutoScrollToSelectedItem="True"
                           Tapped="OnTreeItemTapped" DoubleTapped="OnTreeItemDoubleTapped" Margin="{ext:Space 1}">
                     <TreeView.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -79,15 +79,15 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <ToggleButton Grid.Column="0" ToolTip.Tip="{Binding FlatViewToggleToolTip}" 
-                            IsChecked="{Binding UseFlatView}">
-                        <material:MaterialIcon Kind="{Binding FlatViewToggleIcon}"/>
+                    <ToggleButton Grid.Column="0" ToolTip.Tip="{Binding Context.FlatViewToggleToolTip}" 
+                            IsChecked="{Binding Context.UseFlatView}">
+                        <material:MaterialIcon Kind="{Binding Context.FlatViewToggleIcon}"/>
                     </ToggleButton>
 
                     <ComboBox Grid.Column="2" HorizontalAlignment="Stretch" Margin="{ext:Space 0, 0, 1, 0}"
-                              IsVisible="{Binding !UseFlatView}"
+                              IsVisible="{Binding !Context.UseFlatView}"
                               ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EFileFilterType}}"
-                              SelectedItem="{Binding FileTypeFilter, Converter={StaticResource EnumToRecord}}">
+                              SelectedItem="{Binding Context.FileTypeFilter, Converter={StaticResource EnumToRecord}}">
 
                         <ComboBox.Styles>
                             <Style Selector="ComboBox[IsVisible=true] /template/ ContentPresenter#ContentPresenter">
@@ -100,15 +100,15 @@
                         </ComboBox.Styles>
                     </ComboBox>
 
-                    <TextBox Grid.Column="3" Text="{Binding SearchText, Mode=TwoWay}" Watermark="Search"
+                    <TextBox Grid.Column="3" Text="{Binding Context.SearchText, Mode=TwoWay}" Watermark="Search"
                              KeyDown="OnSearchKeyDown" />
 
                     <ToggleButton Grid.Column="5" ToolTip.Tip="Regex" HorizontalAlignment="Right"
-                                  Content="{material:MaterialIconExt Regex}" IsChecked="{Binding UseRegex}" />
+                                  Content="{material:MaterialIconExt Regex}" IsChecked="{Binding Context.UseRegex}" />
                 </Grid>
 
                 <Grid Grid.Row="2" RowDefinitions="Auto *">
-                     <Grid Grid.Row="0" Margin="{ext:Space 0, 0, 1, 1}" IsVisible="{Binding !UseFlatView}">
+                     <Grid Grid.Row="0" Margin="{ext:Space 0, 0, 1, 1}" IsVisible="{Binding !Context.UseFlatView}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="{ext:Space 0.5}" />
@@ -121,22 +121,22 @@
 
                         <Button Grid.Column="0" Content="{material:MaterialIconExt ArrowLeft}"
                                 ToolTip.Tip="Back" 
-                                Command="{Binding GoBackCommand}"
-                                IsEnabled="{Binding CanGoBack}"/>
+                                Command="{Binding Context.GoBackCommand}"
+                                IsEnabled="{Binding Context.CanGoBack}"/>
                         
 
                         <Button Grid.Column="2" Content="{material:MaterialIconExt ArrowRight}"
                                 ToolTip.Tip="Forward" 
-                                Command="{Binding GoForwardCommand}"
-                                IsEnabled="{Binding CanGoForward}"/>
+                                Command="{Binding Context.GoForwardCommand}"
+                                IsEnabled="{Binding Context.CanGoForward}"/>
 
                         <Button Grid.Column="4" Content="{material:MaterialIconExt ArrowUp}"
                                 ToolTip.Tip="Go to Parent Folder" 
-                                Command="{Binding GoToParentCommand}"
-                                IsEnabled="{Binding CanGoToParent}"/>
+                                Command="{Binding Context.GoToParentCommand}"
+                                IsEnabled="{Binding Context.CanGoToParent}"/>
 
                         <ui:BreadcrumbBar Grid.Column="6"
-                                          ItemsSource="{Binding FileViewStack}"
+                                          ItemsSource="{Binding Context.FileViewStack}"
                                           ItemClicked="OnBreadcrumbItemPressed">
                             <ui:BreadcrumbBar.ItemTemplate>
                                 <DataTemplate DataType="files:TreeItem">
@@ -149,10 +149,10 @@
                     <controls:ContentCard Grid.Row="1">
                         <Grid Margin="{ext:Space 1}">
                             <controls:DynamicFadeScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
-                                          IsVisible="{Binding !UseFlatView}">
+                                          IsVisible="{Binding !Context.UseFlatView}">
                                 <Grid>
-                                    <ListBox ItemsSource="{Binding FileViewCollection}" SelectionMode="Multiple"
-                                             SelectedItems="{Binding SelectedFileViewItems, Mode=TwoWay}"
+                                    <ListBox ItemsSource="{Binding Context.FileViewCollection}" SelectionMode="Multiple"
+                                             SelectedItems="{Binding Context.SelectedFileViewItems, Mode=TwoWay}"
                                              AutoScrollToSelectedItem="True" DoubleTapped="OnFileItemDoubleTapped">
                                         <ListBox.Styles>
                                             <Style Selector="ListBoxItem">
@@ -252,7 +252,7 @@
                                         </ListBox.ItemsPanel>
                                     </ListBox>
 
-                                    <StackPanel IsVisible="{Binding !FileViewCollection.Count}" Spacing="{ext:Space 1}"
+                                    <StackPanel IsVisible="{Binding !Context.FileViewCollection.Count}" Spacing="{ext:Space 1}"
                                                 HorizontalAlignment="Center" VerticalAlignment="Center">
                                         
                                         <TextBlock Text="No Files Found"
@@ -297,10 +297,10 @@
                             </controls:DynamicFadeScrollViewer>
 
                             <controls:DynamicFadeScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
-                                                     IsVisible="{Binding UseFlatView}">
+                                                     IsVisible="{Binding Context.UseFlatView}">
                                 <Grid>
-                                    <ListBox ItemsSource="{Binding FlatViewCollection}" SelectionMode="Multiple"
-                                             SelectedItems="{Binding SelectedFlatViewItems, Mode=TwoWay}"
+                                    <ListBox ItemsSource="{Binding Context.FlatViewCollection}" SelectionMode="Multiple"
+                                             SelectedItems="{Binding Context.SelectedFlatViewItems, Mode=TwoWay}"
                                              AutoScrollToSelectedItem="True" DoubleTapped="OnFlatItemDoubleTapped">
                                         <ListBox.KeyBindings>
                                             <KeyBinding Gesture="P" Command="{Binding PreviewCommand}" />
@@ -324,8 +324,8 @@
                                                         HighlightBackground="#A9953BF8"
                                                         HighlightForeground="White"
                                                         TextToHighlight="{Binding Path}"
-                                                        HighlightText="{Binding $parent[views:FilesView].((viewModels:FilesViewModel)DataContext).FlatSearchFilter}"
-                                                        UseRegex="{Binding $parent[views:FilesView].((viewModels:FilesViewModel)DataContext).UseRegex}" />
+                                                        HighlightText="{Binding $parent[views:FilesView].((viewModels:FilesViewModel)DataContext).Context.FlatSearchFilter}"
+                                                        UseRegex="{Binding $parent[views:FilesView].((viewModels:FilesViewModel)DataContext).Context.UseRegex}" />
                                                 </ContentControl>
                                             </DataTemplate>
                                         </ListBox.ItemTemplate>
@@ -336,7 +336,7 @@
                                         </ListBox.ItemsPanel>
                                     </ListBox>
 
-                                    <TextBlock IsVisible="{Binding !FlatViewCollection.Count}" Text="No Files Found"
+                                    <TextBlock IsVisible="{Binding !Context.FlatViewCollection.Count}" Text="No Files Found"
                                                Classes="BodyTextBlockStyle TextFillColorTertiaryBrush"
                                                HorizontalAlignment="Center" VerticalAlignment="Center" />
                                 </Grid>

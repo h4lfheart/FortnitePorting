@@ -99,10 +99,7 @@ public partial class ObjectStyleData : BaseStyleData
         Navigation.App.Open<FilesView>();
 
         var assetPath = UEParse.Provider.FixPath(StyleData.GetPathName().SubstringBefore("."));
-        if (FilesVM.UseFlatView)
-            FilesVM.FlatViewJumpTo(assetPath);
-        else
-            FilesVM.FileViewJumpTo(assetPath);
+        FilesVM.JumpTo(assetPath);
         
         AppWM.Window.BringToTop();
     }
