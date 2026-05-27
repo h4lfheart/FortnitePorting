@@ -72,13 +72,6 @@ public partial class MapInfo() : ObservableObject
             isValid &= UEParse.Provider.Files.ContainsKey(
                 UEParse.Provider.FixPath(MinimapPath + ".uasset")
             );
-
-            if (UseMask)
-            {
-                isValid &= UEParse.Provider.Files.ContainsKey(
-                    UEParse.Provider.FixPath(MaskPath + ".uasset")
-                );
-            }
         }
         
         return isValid;

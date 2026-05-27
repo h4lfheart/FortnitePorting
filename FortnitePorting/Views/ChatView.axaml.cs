@@ -147,7 +147,7 @@ public partial class ChatView : ViewBase<ChatViewModel>
         }
 
         var query = text.Substring(_mentionStart + 1, caret - _mentionStart - 1).ToLowerInvariant();
-        var isStaff = ViewModel.Chat.SupaBase.UserInfo?.Role >= ESupabaseRole.Staff;
+        var isStaff = SupaBase.UserInfo?.Role >= ESupabaseRole.Staff;
 
         List<string> matchList;
         if (string.IsNullOrEmpty(query))

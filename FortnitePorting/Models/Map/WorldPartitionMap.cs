@@ -74,6 +74,7 @@ public partial class WorldPartitionMap : ObservableObject
         if (!MapInfo.IsNonDisplay)
         {
             var maskTexture = await UEParse.Provider.SafeLoadPackageObjectAsync<UTexture2D>(MapInfo.UseMask ? MapInfo.MaskPath : "FortniteGame/Content/Global/Textures/Default/Blanks/T_White");
+            maskTexture ??= await UEParse.Provider.SafeLoadPackageObjectAsync<UTexture2D>("FortniteGame/Content/Global/Textures/Default/Blanks/T_White");
             MaskBitmap = maskTexture?.Decode()?.ToSkBitmap().ToOpacityMask().ToWriteableBitmap();
         
             var mapTexture = await UEParse.Provider.SafeLoadPackageObjectAsync<UTexture2D>(MapInfo.MinimapPath);

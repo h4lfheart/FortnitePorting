@@ -381,7 +381,7 @@ public partial class ChatService : ObservableObject, IService
             _messageCache.AddOrUpdate(message);
         }
 
-        if (message.Text.Contains($"<@{SupaBase.UserInfo?.UserId}>") || message.Text.Contains("<@everyone>"))
+        if (message.Text.Contains($"<@{SupaBase.UserInfo?.UserId}>") || (message.Text.Contains("<@everyone>") && message.User?.Role >= ESupabaseRole.Staff))
             message.IsPing = true;
 
         if (!isInit)
