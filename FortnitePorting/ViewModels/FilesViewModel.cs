@@ -135,6 +135,8 @@ public partial class FilesViewModel : ViewModelBase
         Expanded = true,
         Selected = true
     };
+    
+    private readonly FileNode _rootFileNode = new("Files", string.Empty, ENodeType.Folder);
 
     private readonly SourceCache<FlatItem, string> FlatViewAssetCache = new(item => item.Path);
     
@@ -156,6 +158,12 @@ public partial class FilesViewModel : ViewModelBase
             .Subscribe();
 
         FlatViewCollection = flatCollection;
+        
+        RealizeTreeChildren(_parentTreeItem);
+        
+        _parentTreeItem.Expanded = true;
+        _parentTreeItem.Selected = true;
+        
         TreeViewCollection = [_parentTreeItem];
         LoadFileItems(_parentTreeItem, addToStackHistory: false);
 
@@ -163,36 +171,63 @@ public partial class FilesViewModel : ViewModelBase
             
         IsLoading = false;
     }
-
+    
     private void BuildFileList()
     {
         TotalFiles = UEParse.Provider.Files.Count;
         foreach (var (_, file) in UEParse.Provider.Files)
         {
             LoadedFiles++;
-            
+
             var path = file.Path;
             if (!IsValidFilePath(path)) continue;
-                
+
             FlatViewAssetCache.AddOrUpdate(new FlatItem(path));
 
-            var folderNames = path.Split("/", StringSplitOptions.RemoveEmptyEntries);
-            
-            var parent = _parentTreeItem;
-            for (var i = 0; i < folderNames.Length; i++)
+            var parts = path.Split("/", StringSplitOptions.RemoveEmptyEntries);
+
+            var parentNode = _rootFileNode;
+            for (var i = 0; i < parts.Length; i++)
             {
-                var folderName = folderNames[i];
-                if (!parent.TryGetChild(folderName, out var foundNode))
+                var part = parts[i];
+                if (!parentNode.TryGetChild(part, out var childNode))
                 {
-                    var isFile = i == folderNames.Length - 1;
-                    var nodePath = isFile ? path : path.SubstringBefore(folderName) + folderName;
-                        
-                    foundNode = new TreeItem(folderName, isFile ? ENodeType.File : ENodeType.Folder, nodePath, parent);
-                    parent.AddChild(folderName, foundNode);
+                    var isFile = i == parts.Length - 1;
+                    var nodePath = isFile ? path : string.Concat(path.AsSpan(0, path.IndexOf(part, StringComparison.Ordinal)), part);
+                    childNode = new FileNode(part, nodePath, isFile ? ENodeType.File : ENodeType.Folder);
+                    parentNode.AddChild(part, childNode);
                 }
 
-                parent = foundNode;
+                parentNode = childNode;
             }
+        }
+    }
+    
+    private void RealizeTreeChildren(TreeItem treeItem)
+    {
+        if (treeItem.SourceNode is null && treeItem != _parentTreeItem) return;
+
+        var sourceNode = treeItem == _parentTreeItem ? _rootFileNode : treeItem.SourceNode!;
+
+        var folderNodes = sourceNode.Children.Values
+            .Where(n => n.Type == ENodeType.Folder)
+            .OrderBy(n => n.Name, new CustomComparer<string>(ComparisonExtensions.CompareNatural));
+
+        foreach (var node in folderNodes)
+        {
+            if (treeItem.TryGetFolderChild(node.Name, out _)) continue;
+
+            var child = new TreeItem(
+                node.Name,
+                ENodeType.Folder,
+                node.Path,
+                treeItem,
+                sourceNode: node,
+                onExpand: RealizeTreeChildren);
+
+            treeItem.AddFolderChild(child);
+            
+            Log.Information("Realizing {path}", node.Path);
         }
     }
 
@@ -223,9 +258,26 @@ public partial class FilesViewModel : ViewModelBase
         
         CurrentFolder = item;
 
-        var allChildren = item.GetAllChildren();
+        var sourceNode = item == _parentTreeItem ? _rootFileNode : item.SourceNode;
+        if (sourceNode is null)
+        {
+            FileViewCollection = [];
+            FileViewStack = [];
+            return;
+        }
         
-        FileViewCollection = new ObservableCollection<TreeItem>(allChildren);
+        var children = sourceNode.Children.Values
+            .OrderByDescending(n => n.Type == ENodeType.Folder)
+            .ThenBy(n => n.Name, new CustomComparer<string>(ComparisonExtensions.CompareNatural))
+            .Select(n =>
+            {
+                if (n.Type == ENodeType.Folder && item.TryGetFolderChild(n.Name, out var existing))
+                    return existing;
+
+                return new TreeItem(n.Name, n.Type, n.Path, item, sourceNode: n, onExpand: RealizeTreeChildren);
+            });
+
+        FileViewCollection = new ObservableCollection<TreeItem>(children);
         
         var newStack = new List<TreeItem>();
         var parent = item;
@@ -239,18 +291,33 @@ public partial class FilesViewModel : ViewModelBase
         FileSearchText = string.Empty;
         FileTypeFilter = EFileFilterType.All;
     }
-
-    public void RealizeFileData(ref TreeItem item)
+    
+    private IEnumerable<TreeItem> GetAllFileDescendants(FileNode node, TreeItem parent)
     {
-        if (item.Type == ENodeType.Folder)
+        foreach (var child in node.Children.Values)
         {
-            item.GetAllChildren()
-                .Where(item => item.Type is ENodeType.File)
-                .ForEach(item => RealizeFileData(ref item));    
-            return;
+            if (child.Type == ENodeType.File)
+            {
+                yield return new TreeItem(child.Name, ENodeType.File, child.Path, parent,
+                    sourceNode: child, onExpand: RealizeTreeChildren);
+            }
+            else
+            {
+                parent.TryGetFolderChild(child.Name, out var folderItem);
+                folderItem ??= new TreeItem(child.Name, ENodeType.Folder, child.Path, parent,
+                    sourceNode: child, onExpand: RealizeTreeChildren);
+
+                foreach (var descendant in GetAllFileDescendants(child, folderItem))
+                    yield return descendant;
+            }
         }
-        
+    }
+
+
+    public void RealizeFileData(TreeItem item)
+    {
         if (item.FileBitmap is not null) return;
+        if (item.Type == ENodeType.Folder) return;
                     
         if (UEParse.Provider.TryLoadPackage(item.FilePath, out var package))
         {
@@ -332,17 +399,19 @@ public partial class FilesViewModel : ViewModelBase
     
     public TreeItem? TreeViewJumpTo(string directory)
     {
-        var folders = directory.Split('/', StringSplitOptions.RemoveEmptyEntries);
-        
+        var parts = directory.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
         var current = _parentTreeItem;
-        foreach (var folder in folders)
+        foreach (var part in parts)
         {
-            if (!current.TryGetChild(folder, out var foundChild))
+            RealizeTreeChildren(current);
+
+            if (!current.TryGetFolderChild(part, out var foundChild))
                 return null;
-                
+
             if (foundChild.Type == ENodeType.Folder)
                 foundChild.Expanded = true;
-                
+
             current = foundChild;
         }
 
@@ -362,34 +431,39 @@ public partial class FilesViewModel : ViewModelBase
     private void FilterFiles()
     {
         if (UseFlatView) return;
+        
+        var sourceNode = CurrentFolder == _parentTreeItem ? _rootFileNode : CurrentFolder.SourceNode;
+        if (sourceNode is null) return;
+        
+        var items = sourceNode.Children.Values
+            .Select(n =>
+            {
+                if (n.Type == ENodeType.Folder && CurrentFolder.TryGetFolderChild(n.Name, out var existing))
+                    return existing;
 
-        var currentFolder = CurrentFolder;
-        RealizeFileData(ref currentFolder);
-
-        var items = CurrentFolder.GetAllChildren()
+                return new TreeItem(n.Name, n.Type, n.Path, CurrentFolder,
+                    sourceNode: n, onExpand: RealizeTreeChildren);
+            })
             .Where(item =>
             {
-                if (string.IsNullOrWhiteSpace(FileSearchFilter))
-                    return true;
-                
+                if (string.IsNullOrWhiteSpace(FileSearchFilter)) return true;
+
                 return UseRegex
                     ? Regex.IsMatch(item.FilePath, FileSearchFilter)
                     : MiscExtensions.Filter(item.FilePath, FileSearchFilter);
             })
             .Where(item =>
             {
-                if (FileTypeFilter is EFileFilterType.All)
-                    return true;
-                
-                if (item.Type is ENodeType.Folder) 
-                    return false;
-                
-                return _searchTermsByFilter[FileTypeFilter].Any(filter => (item.ExportType?.Contains(filter, StringComparison.OrdinalIgnoreCase) ?? false) 
-                                                                          || item.Extension.Contains(filter, StringComparison.OrdinalIgnoreCase));
+                if (FileTypeFilter is EFileFilterType.All) return true;
+                if (item.Type is ENodeType.Folder) return false;
+
+                return _searchTermsByFilter[FileTypeFilter].Any(filter =>
+                    (item.ExportType?.Contains(filter, StringComparison.OrdinalIgnoreCase) ?? false)
+                    || item.Extension.Contains(filter, StringComparison.OrdinalIgnoreCase));
             })
             .OrderByDescending(item => item.Type == ENodeType.Folder)
             .ThenBy(item => item.Name, new CustomComparer<string>(ComparisonExtensions.CompareNatural));
-        
+
         FileViewCollection = new ObservableCollection<TreeItem>(items);
     }
     
@@ -648,9 +722,12 @@ public partial class FilesViewModel : ViewModelBase
         var folders = UseFlatView ? [] : SelectedFileViewItems.Where(x => x.Type == ENodeType.Folder);
         foreach (var folder in folders)
         {
-            var children = folder.GetAllChildren();
-            paths.AddRange(children.Where(x => x.Type == ENodeType.File).Select(x => x.FilePath));
+            if (folder.SourceNode is null) continue;
+            paths.AddRange(GetAllFileDescendants(folder.SourceNode, folder)
+                .Where(x => x.Type == ENodeType.File)
+                .Select(x => x.FilePath));
         }
+
         
         foreach (var path in paths)
         {
@@ -733,8 +810,10 @@ public partial class FilesViewModel : ViewModelBase
         var folders = UseFlatView ? [] : SelectedFileViewItems.Where(x => x.Type == ENodeType.Folder);
         foreach (var folder in folders)
         {
-            var children = folder.GetAllChildren();
-            paths.AddRange(children.Where(x => x.Type == ENodeType.File).Select(x => x.FilePath));
+            if (folder.SourceNode is null) continue;
+            paths.AddRange(GetAllFileDescendants(folder.SourceNode, folder)
+                .Where(x => x.Type == ENodeType.File)
+                .Select(x => x.FilePath));
         }
 
         if (paths.Count == 0)
@@ -775,10 +854,11 @@ public partial class FilesViewModel : ViewModelBase
         var folders = UseFlatView ? [] : SelectedFileViewItems.Where(x => x.Type == ENodeType.Folder);
         foreach (var folder in folders)
         {
-            var children = folder.GetAllChildren();
-            paths.AddRange(children.Where(x => x.Type == ENodeType.File).Select(x => x.FilePath));
+            if (folder.SourceNode is null) continue;
+            paths.AddRange(GetAllFileDescendants(folder.SourceNode, folder)
+                .Where(x => x.Type == ENodeType.File)
+                .Select(x => x.FilePath));
         }
-        
         if (paths.Count == 0)
         {
             Info.Message("Exporter", "Failed to load any assets for export.", InfoBarSeverity.Warning);

@@ -106,8 +106,7 @@ public partial class FilesView : ViewBase<FilesViewModel>
         if (e.Item is not TreeItem item) return;
         if (item.FileBitmap is not null) return;
         
-        item.EnsureChildrenSorted();
-        ViewModel.RealizeFileData(ref item);
+        ViewModel.RealizeFileData(item);
     }
 
     private void OnFlatViewHyperlinkPressed(object? sender, PointerPressedEventArgs e)
