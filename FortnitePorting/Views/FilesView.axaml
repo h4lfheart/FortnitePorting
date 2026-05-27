@@ -14,7 +14,7 @@
              x:Class="FortnitePorting.Views.FilesView"
              x:DataType="viewModels:FilesViewModel">
     <Grid>
-        <Grid Margin="{ext:Space 1}" IsVisible="{Binding !IsLoading}">
+        <Grid Margin="{ext:Space 1}" IsVisible="{Binding !Files.IsLoading}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
                 <RowDefinition Height="{ext:Space 1}" />
@@ -451,7 +451,7 @@
 
             </Grid>
         </Grid>
-        <Grid IsVisible="{Binding IsLoading}">
+        <Grid IsVisible="{Binding Files.IsLoading}">
             <Ellipse Width="600" Height="600" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Ellipse.Styles>
                     <Style Selector="Ellipse">
@@ -483,15 +483,15 @@
                            FontFamily="{StaticResource SFDisplaySemibold}"
                            FontSize="20" />
 
-                <TextBlock Text="{Binding LoadingPercentageText}"
+                <TextBlock Text="{Binding Files.LoadingPercentageText}"
                            HorizontalAlignment="Center" VerticalAlignment="Center"
                            Classes="BodyTextBlockStyle TextFillColorSecondaryBrush" Margin="{ext:Space 0, 0, 0, 1}" />
 
                 <ProgressBar HorizontalAlignment="Center" VerticalAlignment="Center" Height="8"
                              MinWidth="400"
-                             Value="{Binding LoadedFiles}"
+                             Value="{Binding Files.LoadedFiles}"
                              Minimum="0"
-                             Maximum="{Binding TotalFiles}" />
+                             Maximum="{Binding Files.TotalFiles}" />
             </StackPanel>
         </Grid>
     </Grid>

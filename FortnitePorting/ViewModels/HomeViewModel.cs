@@ -40,6 +40,7 @@ public partial class HomeViewModel() : ViewModelBase
             if (AppSettings.Application.UseDefaultExportLoadType)
                 await AssetLoading.Load(AppSettings.Application.DefaultExportLoadType);
             
+            Files.Initialize();
             await FilesVM.Initialize();
         });
 
