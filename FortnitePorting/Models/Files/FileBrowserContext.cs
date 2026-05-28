@@ -61,7 +61,7 @@ public partial class FileBrowserContext : ObservableObject
     };
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(SearchText), nameof(FlatViewToggleIcon), nameof(FlatViewToggleToolTip))]
+    [NotifyPropertyChangedFor(nameof(SearchText), nameof(FlatViewToggleIcon), nameof(FlatViewToggleToolTip), nameof(HasSelectedFiles))]
     private bool _useFlatView = false;
 
     public MaterialIconKind FlatViewToggleIcon =>
@@ -70,10 +70,10 @@ public partial class FileBrowserContext : ObservableObject
 
     [ObservableProperty] private bool _useRegex = false;
 
-    [ObservableProperty] private List<FlatItem> _selectedFlatViewItems = [];
+    [ObservableProperty] private ObservableCollection<FlatItem> _selectedFlatViewItems = [];
     [ObservableProperty] private ReadOnlyObservableCollection<FlatItem> _flatViewCollection = new([]);
 
-    [ObservableProperty] private List<TreeItem> _selectedFileViewItems = [];
+    [ObservableProperty] private ObservableCollection<TreeItem> _selectedFileViewItems = [];
     [ObservableProperty] private ObservableCollection<TreeItem> _fileViewCollection = [];
     [ObservableProperty] private ObservableCollection<TreeItem> _fileViewStack = [];
     [ObservableProperty] private ObservableCollection<TreeItem> _treeViewCollection = new([]);
@@ -81,6 +81,10 @@ public partial class FileBrowserContext : ObservableObject
     [ObservableProperty, NotifyPropertyChangedFor(nameof(CanGoToParent))] private TreeItem _currentFolder;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(CanGoBack))] private int _backStackCount = 0;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(CanGoForward))] private int _forwardStackCount = 0;
+    
+    public bool HasSelectedFiles => UseFlatView
+        ? SelectedFlatViewItems.Count > 0
+        : SelectedFileViewItems.Any(x => x.Type == ENodeType.File);
 
     public bool CanGoBack => BackStackCount > 0;
     public bool CanGoForward => ForwardStackCount > 0;
@@ -118,7 +122,19 @@ public partial class FileBrowserContext : ObservableObject
         TreeViewCollection = [_parentTreeItem];
         LoadFileItems(_parentTreeItem, addToStackHistory: false);
         CurrentFolder = _parentTreeItem;
+
+        SelectedFileViewItems.CollectionChanged += (sender, args) => OnPropertyChanged(nameof(HasSelectedFiles));
+        SelectedFlatViewItems.CollectionChanged += (sender, args) => OnPropertyChanged(nameof(HasSelectedFiles));
     }
+    
+    public string[] GetSelectedFilePaths() => UseFlatView
+        ? SelectedFlatViewItems
+            .Select(x => x.Path)
+            .ToArray()
+        : SelectedFileViewItems
+            .Where(x => x.Type == ENodeType.File)
+            .Select(x => x.FilePath)
+            .ToArray();
 
     public void JumpTo(string path)
     {
@@ -336,6 +352,7 @@ public partial class FileBrowserContext : ObservableObject
         _forwardStack.Push(CurrentFolder);
         ForwardStackCount = _forwardStack.Count;
         LoadFileItems(prev, addToStackHistory: false);
+        SelectedFileViewItems.Clear();
     }
 
     [RelayCommand]
@@ -347,6 +364,7 @@ public partial class FileBrowserContext : ObservableObject
         _backStack.Push(CurrentFolder);
         BackStackCount = _backStack.Count;
         LoadFileItems(next, addToStackHistory: false);
+        SelectedFileViewItems.Clear();
     }
 
     [RelayCommand]
@@ -354,6 +372,7 @@ public partial class FileBrowserContext : ObservableObject
     {
         if (CurrentFolder.Parent is null) return;
         LoadFileItems(CurrentFolder.Parent);
+        SelectedFileViewItems.Clear();
     }
 
     private void DeselectTree(TreeItem item)

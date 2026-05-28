@@ -17,7 +17,7 @@ public partial class FileBrowser : UserControl
 {
     [AvaDirectProperty] private FileBrowserContext _context;
     
-    public event Action<TreeItem>? FileItemTapped;
+    public event Action<TreeItem>? FileItemDoubleTapped;
     
     public FileBrowser()
     {
@@ -59,7 +59,7 @@ public partial class FileBrowser : UserControl
         if (sender is not ListBox listBox) return;
         if (listBox.SelectedItem is not TreeItem item) return;
         
-        FileItemTapped?.Invoke(item);
+        FileItemDoubleTapped?.Invoke(item);
         if (item.Type == ENodeType.Folder)
         {
             Context.LoadFileItems(item);

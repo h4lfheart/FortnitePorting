@@ -24,7 +24,7 @@
 
             <files1:FileBrowser Grid.Row="0" 
                                 Context="{Binding Context}"
-                                FileItemTapped="OnFileItemTapped"/>
+                                FileItemDoubleTapped="OnFileItemTapped"/>
 
             <Grid Grid.Row="2" HorizontalAlignment="Stretch">
                 <Grid.ColumnDefinitions>
