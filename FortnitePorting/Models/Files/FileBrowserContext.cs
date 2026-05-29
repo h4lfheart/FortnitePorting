@@ -99,7 +99,7 @@ public partial class FileBrowserContext : ObservableObject
         Selected = true
     };
 
-    public void Initialize()
+    public void Initialize(string? startPath = null)
     {
         var assetFilter = this
             .WhenAnyValue(ctx => ctx.FlatSearchFilter, ctx => ctx.UseRegex)
@@ -120,7 +120,12 @@ public partial class FileBrowserContext : ObservableObject
         _parentTreeItem.Selected = true;
 
         TreeViewCollection = [_parentTreeItem];
-        LoadFileItems(_parentTreeItem, addToStackHistory: false);
+        
+        if (!string.IsNullOrEmpty(startPath))
+            JumpTo(startPath);
+        else
+            LoadFileItems(_parentTreeItem, addToStackHistory: false);
+        
         CurrentFolder = _parentTreeItem;
 
         SelectedFileViewItems.CollectionChanged += (sender, args) => OnPropertyChanged(nameof(HasSelectedFiles));

@@ -5,6 +5,7 @@
         xmlns:windowModels="clr-namespace:FortnitePorting.WindowModels"
         xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
         xmlns:files1="clr-namespace:FortnitePorting.Controls.Files"
+        xmlns:controls="clr-namespace:FortnitePorting.Controls"
         x:Class="FortnitePorting.Windows.FilePickerWindow"
         x:DataType="windowModels:FilePickerWindowModel"
         Width="1100" Height="700"
@@ -73,15 +74,16 @@
                                 Context="{Binding Context}"
                                 FileItemDoubleTapped="OnFileItemDoubleTapped" />
 
-            <Button Grid.Row="2"
-                    HorizontalAlignment="Right"
-                    IsEnabled="{Binding Context.HasSelectedFiles}"
-                    Click="OnSelectPressed">
-                <StackPanel Orientation="Horizontal">
-                    <avalonia:MaterialIcon Kind="Check" Margin="{ext:Space 0, 0, 1, 0}" />
-                    <TextBlock Text="Select" />
-                </StackPanel>
-            </Button>
+            <StackPanel Grid.Row="2" HorizontalAlignment="Right" Orientation="Horizontal" Spacing="{ext:Space 1}">
+                <Button IsEnabled="{Binding Context.HasSelectedFiles}"
+                        Click="OnSelectPressed">
+                    <controls:IconText Text="Select" Icon="Check"/>
+                </Button>
+                <Button Click="OnCancelPressed">
+                    <controls:IconText Text="Cancel" Icon="Cancel"/>
+                </Button>
+            </StackPanel>
+         
         </Grid>
     </Grid>
 </Window>

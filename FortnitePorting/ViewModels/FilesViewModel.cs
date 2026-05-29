@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.UE4.Assets.Exports;
+using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Sound;
@@ -18,6 +19,8 @@ using FluentAvalonia.UI.Controls;
 using FortnitePorting.Exporting;
 using FortnitePorting.Exporting.Context;
 using FortnitePorting.Exporting.Models;
+using FortnitePorting.Exporting.Models.Files;
+using FortnitePorting.Exporting.Models.Files.Meta;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Models;
@@ -235,7 +238,6 @@ public partial class FilesViewModel(FilesService filesService) : ViewModelBase
 
     private async Task ExportAssets()
     {
-        var exports = new List<KeyValuePair<UObject, EExportType>>();
         var unsupportedExportTypes = new HashSet<string>();
 
         var paths = Context.UseFlatView
@@ -251,10 +253,10 @@ public partial class FilesViewModel(FilesService filesService) : ViewModelBase
                 .Select(x => x.FilePath));
         }
 
+        var exports = new List<ExportFileEntry>();
         foreach (var path in paths)
         {
             var basePath = Exporter.FixPath(path);
-
             UObject? asset = null;
             if (path.EndsWith(".umap"))
             {
@@ -274,6 +276,11 @@ public partial class FilesViewModel(FilesService filesService) : ViewModelBase
 
             if (asset is null) continue;
 
+            var fileEntry = new ExportFileEntry
+            {
+                Object = asset
+            };
+
             switch (asset)
             {
                 case UVirtualTextureBuilder vtb:
@@ -281,6 +288,24 @@ public partial class FilesViewModel(FilesService filesService) : ViewModelBase
                     break;
                 case UPaperSprite sprite:
                     asset = sprite.BakedSourceTexture.Load<UTexture2D>();
+                    break;
+                case UAnimSequence sequence:
+                    if (sequence.AdditiveAnimType is not EAdditiveAnimationType.AAT_None && sequence.RefPoseSeq is null)
+                    {
+                        if (await FilePickerWindow.OpenBrowserAsync(windowName: "Select Additive Base Sequence", startPath: UEParse.Provider.FixPath(sequence.GetPathName())) is { Length: > 0 } selectedPaths
+                            && selectedPaths.FirstOrDefault() is { } selectedPath
+                            && UEParse.Provider.TryLoadPackageObject<UAnimSequence>(Exporter.FixPath(selectedPath), out var baseSequence))
+                        {
+                            fileEntry.Meta = new ExportAdditiveAnimFileMeta
+                            {
+                                BaseSequence = baseSequence
+                            };
+                        }
+                        else
+                        {
+                            Info.Message("Additive Animation", "A valid base pose was not selected, animation export result may be inaccurate.");
+                        }
+                    }
                     break;
             }
 
@@ -290,8 +315,10 @@ public partial class FilesViewModel(FilesService filesService) : ViewModelBase
                 unsupportedExportTypes.Add(asset.ExportType);
                 continue;
             }
+            
+            fileEntry.Type = exportType;
 
-            exports.Add(new KeyValuePair<UObject, EExportType>(asset, exportType));
+            exports.Add(fileEntry);
         }
 
         if (exports.Count == 0)
@@ -311,7 +338,7 @@ public partial class FilesViewModel(FilesService filesService) : ViewModelBase
 
         var exportedProperly = await Exporter.Export(exports, meta);
         if (exportedProperly && SupaBase.IsLoggedIn)
-            await SupaBase.PostExports(exports.Select(e => e.Key.GetPathName()));
+            await SupaBase.PostExports(exports.Select(e => e.Object.GetPathName()));
     }
 
     private async Task ExportProperties()

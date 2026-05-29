@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Sound;
 using FortnitePorting.Exporting.Models;
+using FortnitePorting.Exporting.Models.Files.Meta;
 using FortnitePorting.Extensions;
 
 namespace FortnitePorting.Exporting.Types;
@@ -10,7 +11,7 @@ public class SoundExport : BaseExport
 {
     public List<ExportSound> Sounds = [];
     
-    public SoundExport(string name, UObject asset, EExportType exportType, ExportDataMeta metaData) : base(name, exportType, metaData)
+    public SoundExport(string name, UObject asset, EExportType exportType, ExportDataMeta metaData, IExportFileMeta? fileMeta) : base(name, exportType, metaData)
     {
         var exportSounds = new List<USoundWave>();
         switch (asset)

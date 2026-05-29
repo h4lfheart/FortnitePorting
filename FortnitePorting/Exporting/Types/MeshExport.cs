@@ -18,6 +18,7 @@ using CUE4Parse.UE4.Objects.GameplayTags;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using FortnitePorting.Exporting.Models;
+using FortnitePorting.Exporting.Models.Files.Meta;
 using FortnitePorting.Extensions;
 using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.Assets.Custom;
@@ -37,7 +38,7 @@ public class MeshExport : BaseExport
     public ExportLightCollection Lights = new();
     public AnimExport? Animation;
     
-    public MeshExport(string name, UObject asset, BaseStyleData[] styles, EExportType exportType, ExportDataMeta metaData) : base(name, exportType, metaData)
+    public MeshExport(string name, UObject asset, BaseStyleData[] styles, EExportType exportType, ExportDataMeta metaData, IExportFileMeta? fileMeta) : base(name, exportType, metaData)
     {
         var objectStyles = styles.OfType<ObjectStyleData>().ToArray();
         if (objectStyles.Length > 0)
@@ -134,7 +135,7 @@ public class MeshExport : BaseExport
                 
                 if (Exporter.Meta.Settings.ImportLobbyPoses && montage is not null)
                 {
-                    Animation = new AnimExport(montage.Name, montage, [], EExportType.Animation, Exporter.Meta);
+                    Animation = new AnimExport(montage.Name, montage, [], EExportType.Animation, Exporter.Meta, null);
                 }
                 
                 break;

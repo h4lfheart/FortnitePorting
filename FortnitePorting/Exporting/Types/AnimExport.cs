@@ -10,6 +10,7 @@ using CUE4Parse.UE4.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.UObject;
 using FortnitePorting.Exporting.Models;
+using FortnitePorting.Exporting.Models.Files.Meta;
 using FortnitePorting.Extensions;
 using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.Fortnite;
@@ -26,7 +27,7 @@ public class AnimExport : BaseExport
     public List<ExportCurveMapping> LegacyToMetahumanMappings = [];
     public List<ExportCurveMapping> MetahumanToLegacyMappings = [];
     
-    public AnimExport(string name, UObject asset, BaseStyleData[] styles, EExportType exportType, ExportDataMeta metaData) : base(name, exportType, metaData)
+    public AnimExport(string name, UObject asset, BaseStyleData[] styles, EExportType exportType, ExportDataMeta metaData, IExportFileMeta? fileMeta) : base(name, exportType, metaData)
     {
         switch (exportType)
         {
@@ -39,14 +40,22 @@ public class AnimExport : BaseExport
                         AnimMontage(animMontage);
                         break;
                     }
-                    case UAnimSequenceBase animSequence:
+                    case UAnimSequenceBase animSequenceBase:
                     {
-                        if (animSequence.Skeleton.Load<USkeleton>() is { } skeleton)
+                        if (animSequenceBase.Skeleton.Load<USkeleton>() is { } skeleton)
                         {
                             Skeleton = Exporter.Skeleton(skeleton);
                         }
                         
-                        Sections.AddIfNotNull(Exporter.AnimSequence(animSequence));
+                        if (fileMeta is ExportAdditiveAnimFileMeta additiveAnimFileMeta
+                            && animSequenceBase is UAnimSequence animSequence)
+                        {
+                            Sections.AddIfNotNull(Exporter.AnimSequence(animSequence, additiveAnimFileMeta.BaseSequence));
+                        }
+                        else
+                        {
+                            Sections.AddIfNotNull(Exporter.AnimSequence(animSequenceBase));
+                        }
                         break;
                     }
                 }

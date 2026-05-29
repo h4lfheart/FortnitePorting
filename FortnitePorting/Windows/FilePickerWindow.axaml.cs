@@ -13,7 +13,7 @@ public partial class FilePickerWindow : WindowBase<FilePickerWindowModel>
 {
     private readonly TaskCompletionSource<string[]> _returnTask;
 
-    private FilePickerWindow(TaskCompletionSource<string[]> returnTask, string windowName)
+    private FilePickerWindow(TaskCompletionSource<string[]> returnTask, string windowName, string? startPath = null) : base(initializeWindowModel: false)
     {
         InitializeComponent();
         
@@ -21,17 +21,20 @@ public partial class FilePickerWindow : WindowBase<FilePickerWindowModel>
         Owner = App.Lifetime.MainWindow;
         
         WindowModel.WindowName = windowName;
+        WindowModel.StartPath = startPath;
+        
+        TaskService.Run(WindowModel.Initialize);
             
         _returnTask = returnTask;
     }
 
-    public static async Task<string[]?> OpenBrowserAsync(string windowName = "File Picker")
+    public static async Task<string[]?> OpenBrowserAsync(string windowName = "File Picker", string? startPath = null)
     {
         var taskSource = new TaskCompletionSource<string[]>();
         
         await TaskService.RunDispatcherAsync(() =>
         {
-            var window = new FilePickerWindow(taskSource, windowName);
+            var window = new FilePickerWindow(taskSource, windowName, startPath);
             window.Show();
         });
         
@@ -41,6 +44,12 @@ public partial class FilePickerWindow : WindowBase<FilePickerWindowModel>
     private void OnSelectPressed(object? sender, RoutedEventArgs e)
     {
         _returnTask.TrySetResult(WindowModel.Context.GetSelectedFilePaths());
+        Close();
+    }
+    
+    
+    private void OnCancelPressed(object? sender, RoutedEventArgs e)
+    {
         Close();
     }
 

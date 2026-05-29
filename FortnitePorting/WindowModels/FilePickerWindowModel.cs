@@ -17,9 +17,10 @@ public partial class FilePickerWindowModel(SettingsService settings) : WindowMod
     
     [ObservableProperty] private FileBrowserContext _context = new();
     [ObservableProperty] private string _windowName = "File Picker";
+    [ObservableProperty] private string? _startPath;
 
     public override async Task Initialize()
     {
-        Context.Initialize();
+        Context.Initialize(startPath: StartPath);
     }
 }

@@ -107,6 +107,7 @@ public partial class ExportContext
         var shouldExport = asset switch
         {
             UTexture texture => IsTextureHigherResolutionThanExisting(texture, path),
+            UAnimSequence animSequence when animSequence.IsValidAdditive() => true,
             ALandscapeProxy => true,
             _ => !File.Exists(path)
         };
