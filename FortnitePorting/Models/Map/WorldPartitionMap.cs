@@ -28,7 +28,6 @@ using FortnitePorting.Models.Unreal.Landscape;
 using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
 using FluentAvalonia.UI.Controls;
-using Newtonsoft.Json;
 using Serilog;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing.Processing;
@@ -58,9 +57,7 @@ public partial class WorldPartitionMap : ObservableObject
     public int[] GeometryHeightmapResolutions => GeometryHeightmapGenerationOptions.ExportResolutions;
     [ObservableProperty] private int _geometryHeightmapResolution = 2048;
     [ObservableProperty] private bool _geometryHeightmapSaveTerrainSeparately = true;
-    [ObservableProperty] private bool _geometryHeightmapUseTerrainBounds = true;
     [ObservableProperty] private bool _geometryHeightmapIncludeSpawnIsland;
-    [ObservableProperty] private bool _geometryHeightmapWriteReport = true;
     [ObservableProperty] private bool _geometryHeightmapIsGenerating;
     [ObservableProperty] private string _geometryHeightmapStatus = "Ready";
     [ObservableProperty] private double _geometryHeightmapProgress;
@@ -289,7 +286,6 @@ public partial class WorldPartitionMap : ObservableObject
         if (GeometryHeightmapIsGenerating) return;
 
         var selectedMaps = GetGeometryHeightmapMaps(GeometryHeightmapIncludeSpawnIsland);
-        var selectedMapNames = selectedMaps.Select(map => map.Name).ToArray();
         var includeMainLevel = IncludeMainLevel;
         if (selectedMaps.Length == 0 && !includeMainLevel)
         {
@@ -323,23 +319,20 @@ public partial class WorldPartitionMap : ObservableObject
 
         var outputPath = Path.Combine(ExportPath, "GeometryHeightmap");
         var messageId = $"geometry-heightmap:{WorldName}";
-        var useTerrainBounds = GeometryHeightmapUseTerrainBounds;
         var includeSpawnIsland = GeometryHeightmapIncludeSpawnIsland;
-        var writeReport = GeometryHeightmapWriteReport;
         var options = new GeometryHeightmapGenerationOptions(
             GeometryHeightmapResolution,
             GeometryHeightmapSaveTerrainSeparately,
             new GeometryHeightmapTrimSettings(),
-            useTerrainBounds,
             includeSpawnIsland,
             true,
             !includeSpawnIsland);
 
-        if (useTerrainBounds && !worldFlags.HasFlag(EWorldFlags.Landscape))
+        if (!worldFlags.HasFlag(EWorldFlags.Landscape))
         {
             Info.Message(
                 "Geometry Heightmap",
-                "Landscape is disabled, so terrain bounds and terrainmap.png may not be available.",
+                "Landscape is disabled, so terrain bounds and terrainmap.png will not be available.",
                 InfoBarSeverity.Warning,
                 closeTime: 6);
         }
@@ -380,7 +373,7 @@ public partial class WorldPartitionMap : ObservableObject
                 Info.UpdateMessage(messageId, message);
             });
 
-            var (exportData, reportSaved) = await Task.Run(async () =>
+            var exportData = await Task.Run(async () =>
             {
                 var worlds = new List<UWorld>();
                 for (var index = 0; index < selectedMaps.Length; index++)
@@ -426,30 +419,7 @@ public partial class WorldPartitionMap : ObservableObject
                 if (worldFlags.HasFlag(EWorldFlags.HLODs))
                     exportData.Warnings.Add("HLODs were enabled; proxy meshes may duplicate or simplify terrain features.");
 
-                var reportSaved = false;
-                if (writeReport)
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-                    progress.Report(new GeometryHeightmapProgress("Writing heightmap report"));
-
-                    var report = GeometryHeightmapExportReport.Create(
-                        MapInfo.Name,
-                        WorldName,
-                        selectedMapNames,
-                        includeMainLevel,
-                        worldFlags,
-                        options,
-                        exportData,
-                        collector.SkippedMeshes,
-                        collector.FilterSummary);
-
-                    File.WriteAllText(
-                        Path.Combine(outputPath, "heightmap-report.json"),
-                        JsonConvert.SerializeObject(report, Formatting.Indented));
-                    reportSaved = true;
-                }
-
-                return (exportData, reportSaved);
+                return exportData;
             }, cancellationToken);
 
             GeometryHeightmapProgress = 100.0;
@@ -461,8 +431,6 @@ public partial class WorldPartitionMap : ObservableObject
                 files.Add("terrainmap.png");
 
             files.Add("mapdata.json");
-            if (reportSaved)
-                files.Add("heightmap-report.json");
 
             var warningMessage = exportData.Warnings.Count > 0
                 ? $"{Environment.NewLine}{string.Join(Environment.NewLine, exportData.Warnings)}"

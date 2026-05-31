@@ -123,15 +123,9 @@
                                         Orientation="Horizontal"
                                         Spacing="{ext:Space 1}"
                                         Margin="{ext:Space 0, 1, 0, 0}">
-                                <CheckBox ToolTip.Tip="Clip actors to the terrain bounds"
-                                          Content="Bounds"
-                                          IsChecked="{Binding SelectedMap.GeometryHeightmapUseTerrainBounds, Mode=TwoWay}" />
                                 <CheckBox ToolTip.Tip="Include Spawn Island"
                                           Content="Spawn"
                                           IsChecked="{Binding SelectedMap.GeometryHeightmapIncludeSpawnIsland, Mode=TwoWay}" />
-                                <CheckBox ToolTip.Tip="Write heightmap-report.json"
-                                          Content="Report"
-                                          IsChecked="{Binding SelectedMap.GeometryHeightmapWriteReport, Mode=TwoWay}" />
                             </StackPanel>
                         </Grid>
 

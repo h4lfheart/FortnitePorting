@@ -4,7 +4,6 @@ public sealed record GeometryHeightmapGenerationOptions(
     int Resolution,
     bool SaveTerrainSeparately,
     GeometryHeightmapTrimSettings TrimSettings,
-    bool UseTerrainBounds = true,
     bool IncludeSpawnIsland = false,
     bool FillResolution = true,
     bool CropToMainComponent = true)

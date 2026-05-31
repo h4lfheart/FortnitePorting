@@ -38,9 +38,9 @@ public sealed class GeometryHeightmapGenerator
         var terrainInstances = sourceInstances.Where(instance => instance.IsTerrain).ToArray();
         var warnings = new List<string>();
 
-        var useTerrainBounds = options.UseTerrainBounds && terrainInstances.Length > 0;
+        var useTerrainBounds = terrainInstances.Length > 0;
         var boundsInstances = useTerrainBounds ? terrainInstances : sourceInstances;
-        if (options.UseTerrainBounds && terrainInstances.Length == 0)
+        if (terrainInstances.Length == 0)
             warnings.Add("Terrain bounds were not used because no terrain geometry was found.");
 
         progress?.Report(new GeometryHeightmapProgress("Measuring map bounds", 0, boundsInstances.Length));
