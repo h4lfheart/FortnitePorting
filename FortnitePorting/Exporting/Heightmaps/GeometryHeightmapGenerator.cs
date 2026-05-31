@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CUE4Parse.UE4.Objects.Core.Math;
-using Newtonsoft.Json;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
@@ -16,7 +15,7 @@ public sealed class GeometryHeightmapGenerator
     private const float EdgeEpsilon = 1e-7f;
     private const float AreaEpsilon = 1e-12f;
 
-    public GeometryHeightmapExportData Generate(
+    public GeometryHeightmapGenerationResult Generate(
         IReadOnlyCollection<GeometryHeightmapMeshInstance> instances,
         string outputDirectory,
         GeometryHeightmapGenerationOptions options,
@@ -34,35 +33,30 @@ public sealed class GeometryHeightmapGenerator
         if (instances.Count == 0)
             throw new InvalidOperationException("No supported mesh geometry was found for geometry heightmap generation.");
 
-        var sourceInstances = instances as GeometryHeightmapMeshInstance[] ?? instances.ToArray();
-        var terrainInstances = sourceInstances.Where(instance => instance.IsTerrain).ToArray();
-        var warnings = new List<string>();
+        var allInstances = instances as GeometryHeightmapMeshInstance[] ?? instances.ToArray();
+        var terrainInstances = allInstances.Where(instance => instance.IsTerrain).ToArray();
+        var sourceInstances = options.IncludeActors ? allInstances : terrainInstances;
+
+        if (!options.IncludeActors && terrainInstances.Length == 0)
+            throw new InvalidOperationException("No terrain geometry was found for terrain heightmap generation.");
 
         var useTerrainBounds = terrainInstances.Length > 0;
         var boundsInstances = useTerrainBounds ? terrainInstances : sourceInstances;
-        if (terrainInstances.Length == 0)
-            warnings.Add("Terrain bounds were not used because no terrain geometry was found.");
 
         progress?.Report(new GeometryHeightmapProgress("Measuring map bounds", 0, boundsInstances.Length));
         var bounds = MeasureBounds(boundsInstances, progress, cancellationToken);
 
         var rasterInstances = sourceInstances;
-        var croppedToMainComponent = false;
-        var clippedCount = 0;
         if (useTerrainBounds)
         {
             progress?.Report(new GeometryHeightmapProgress("Clipping geometry to terrain bounds", 0, sourceInstances.Length));
             rasterInstances = ClipInstancesToBounds(sourceInstances, bounds, progress, cancellationToken);
-
-            clippedCount = sourceInstances.Length - rasterInstances.Length;
-            if (clippedCount > 0)
-                warnings.Add($"Clipped {clippedCount:N0} meshes outside the terrain bounds.");
         }
 
-        progress?.Report(new GeometryHeightmapProgress("Rasterizing heightmap", 0, rasterInstances.Length));
-        var heightmap = Rasterize(rasterInstances, bounds, options, "Rasterizing heightmap", progress, cancellationToken);
+        var rasterStage = options.IncludeActors ? "Rasterizing heightmap" : "Rasterizing terrain heightmap";
+        progress?.Report(new GeometryHeightmapProgress(rasterStage, 0, rasterInstances.Length));
+        var heightmap = Rasterize(rasterInstances, bounds, options, rasterStage, progress, cancellationToken);
 
-        var terrainRasterInstances = terrainInstances;
         if (options.CropToMainComponent && !options.IncludeSpawnIsland)
         {
             var componentBounds = FindPrimaryComponentBounds(heightmap, cancellationToken);
@@ -71,90 +65,36 @@ public sealed class GeometryHeightmapGenerator
                 componentBounds.AreaXY < heightmap.Bounds.AreaXY)
             {
                 progress?.Report(new GeometryHeightmapProgress("Cropping to main island"));
-                var beforeCropCount = rasterInstances.Length;
                 bounds = componentBounds;
                 rasterInstances = ClipInstancesToBounds(rasterInstances, bounds, null, cancellationToken);
-                terrainRasterInstances = terrainInstances.Length == 0
-                    ? terrainInstances
-                    : ClipInstancesToBounds(terrainInstances, bounds, null, cancellationToken);
 
-                clippedCount += beforeCropCount - rasterInstances.Length;
-                croppedToMainComponent = true;
-                warnings.Add("Cropped detached geometry outside the main terrain island.");
-
-                progress?.Report(new GeometryHeightmapProgress("Rasterizing cropped heightmap", 0, rasterInstances.Length));
-                heightmap = Rasterize(rasterInstances, bounds, options, "Rasterizing cropped heightmap", progress, cancellationToken);
+                var croppedRasterStage = options.IncludeActors ? "Rasterizing cropped heightmap" : "Rasterizing cropped terrain heightmap";
+                progress?.Report(new GeometryHeightmapProgress(croppedRasterStage, 0, rasterInstances.Length));
+                heightmap = Rasterize(rasterInstances, bounds, options, croppedRasterStage, progress, cancellationToken);
             }
         }
 
-        var (greyPerUnit, greyBase, rasterMinZ, rasterMaxZ) = CalculateLumaScale(heightmap.Data);
+        var (greyPerUnit, greyBase, _, _) = CalculateLumaScale(heightmap.Data);
 
         cancellationToken.ThrowIfCancellationRequested();
-        progress?.Report(new GeometryHeightmapProgress("Saving heightmap image"));
+        progress?.Report(new GeometryHeightmapProgress(options.IncludeActors ? "Saving heightmap image" : "Saving terrain heightmap image"));
+        var outputFileName = options.IncludeActors ? "heightmap.png" : "terrainmap.png";
         SaveHeightmapPng(
-            Path.Combine(outputDirectory, "heightmap.png"),
+            Path.Combine(outputDirectory, outputFileName),
             heightmap.Data,
             heightmap.Width,
             heightmap.Height,
             greyPerUnit,
             greyBase);
 
-        var terrainMapSaved = false;
-        if (options.SaveTerrainSeparately)
+        return new GeometryHeightmapGenerationResult
         {
-            if (terrainInstances.Length == 0)
-            {
-                warnings.Add("Terrain-only heightmap skipped because no terrain geometry was found.");
-            }
-            else
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                progress?.Report(new GeometryHeightmapProgress("Rasterizing terrain heightmap", 0, terrainRasterInstances.Length));
-                var terrainHeightmap = Rasterize(terrainRasterInstances, bounds, options, "Rasterizing terrain heightmap", progress, cancellationToken);
-
-                cancellationToken.ThrowIfCancellationRequested();
-                progress?.Report(new GeometryHeightmapProgress("Saving terrain heightmap image"));
-                SaveHeightmapPng(
-                    Path.Combine(outputDirectory, "terrainmap.png"),
-                    terrainHeightmap.Data,
-                    terrainHeightmap.Width,
-                    terrainHeightmap.Height,
-                    greyPerUnit,
-                    greyBase);
-
-                terrainMapSaved = true;
-            }
-        }
-
-        var exportData = new GeometryHeightmapExportData
-        {
-            MinX = heightmap.Bounds.MinX,
-            MaxX = heightmap.Bounds.MaxX,
-            MinY = heightmap.Bounds.MinY,
-            MaxY = heightmap.Bounds.MaxY,
-            MinZ = rasterMinZ,
-            MaxZ = rasterMaxZ,
-            Metre16Bit = (ushort) Math.Clamp(MathF.Round(greyPerUnit * 100.0f), 0.0f, ushort.MaxValue),
-            MetrePx = heightmap.Scale * 100.0f,
+            OutputFileName = outputFileName,
             TotalMeshes = sourceInstances.Length,
             OutputWidth = heightmap.Width,
             OutputHeight = heightmap.Height,
-            TerrainMapSaved = terrainMapSaved,
-            UsedTerrainBounds = useTerrainBounds,
-            RasterizedMeshes = rasterInstances.Length,
-            TerrainMeshes = terrainInstances.Length,
-            ClippedMeshes = clippedCount,
-            CroppedToMainComponent = croppedToMainComponent,
-            Warnings = warnings
+            RasterizedMeshes = rasterInstances.Length
         };
-
-        cancellationToken.ThrowIfCancellationRequested();
-        progress?.Report(new GeometryHeightmapProgress("Writing map metadata"));
-        File.WriteAllText(
-            Path.Combine(outputDirectory, "mapdata.json"),
-            JsonConvert.SerializeObject(exportData, Formatting.Indented));
-
-        return exportData;
     }
 
     private static GeometryHeightmapBounds MeasureBounds(

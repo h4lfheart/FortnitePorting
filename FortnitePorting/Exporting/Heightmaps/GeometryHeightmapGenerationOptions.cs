@@ -2,7 +2,7 @@ namespace FortnitePorting.Exporting.Heightmaps;
 
 public sealed record GeometryHeightmapGenerationOptions(
     int Resolution,
-    bool SaveTerrainSeparately,
+    bool IncludeActors,
     GeometryHeightmapTrimSettings TrimSettings,
     bool IncludeSpawnIsland = false,
     bool FillResolution = true,

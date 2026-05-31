@@ -4,17 +4,16 @@ This exporter rasterizes Fortnite world geometry inside FortnitePorting. It coll
 
 ## Export Usage
 
-- Select the intended grid cells for the export.
-- Enable `Inlude Main Level` AFTER selecing the grid cells.
-- Keep `Actors`, `Instanced & Foliage Actors`, and `Landscape` enabled, with `HLODs` disabled.
-- Configure `Spawn` and `Terrain`, then hit Generate.
-- The resultant image will be generated, saved, and revealed in the your file explorer.
+- Configure `Include Actors`, `Include Spawn`, and the resolution, then hit Generate.
+- The exporter automatically includes the main level and all map chunks. Manual grid selection is not required.
+- Terrain is always included for heightmap bounds. Enable `HLODs` only if proxy meshes are needed.
+- The exported image will be generated, saved, and revealed in your file explorer.
 
 ## Options
 
 - Geometry is automatically clipped to terrain bounds when landscape geometry is available, preventing far away meshes from drastically zooming out the heightmap.
-- `Spawn` includes detected Spawn Island packages and disables any crop-to-main-island functions. Enabled = include spawn island, Disabled = no spawn island
-- `Terrain` writes `terrainmap.png` alongside the heightmap to the export folder. The terrainmap doesent get populated with buildings,trees,etc - so only represents terrain.
+- `Include Actors` includes buildings, trees, props, and other placed objects in `heightmap.png`. Turn it off to export only the terrain as `terrainmap.png`.
+- `Include Spawn` includes detected Spawn Island packages and disables any crop-to-main-island functions. Enabled = include spawn island, Disabled = no spawn island
 
 ## Filtering
 
