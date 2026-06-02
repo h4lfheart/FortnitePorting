@@ -179,6 +179,16 @@ internal static class GeometryHeightmapMeshFilter
     private static readonly GeometryHeightmapMeshFilterRule[] Rules =
     [
         new(
+            "decal_visual_mesh",
+            nameKeywords:
+            [
+                "decal"
+            ],
+            pathFragments:
+            [
+                "decal"
+            ]),
+        new(
             "foliage_detail_mesh",
             nameKeywords:
             [
