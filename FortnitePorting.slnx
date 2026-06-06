@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/Dependencies/">
+    <Project Path="Dependencies/CUE4Parse/CUE4Parse-Conversion/CUE4Parse-Conversion.csproj" />
+    <Project Path="Dependencies/CUE4Parse/CUE4Parse/CUE4Parse.csproj" />
+    <Project Path="Dependencies/FluentAvalonia.BreadcrumbBar/FluentAvalonia.BreadcrumbBar/FluentAvalonia.BreadcrumbBar.csproj" />
+  </Folder>
+  <Folder Name="/Libraries/">
+    <Project Path="FortnitePorting.RenderingX/FortnitePorting.RenderingX.csproj" />
+    <Project Path="FortnitePorting.Shared/FortnitePorting.Shared.csproj" />
+  </Folder>
+  <Project Path="FortnitePorting.Plugins/FortnitePorting.Plugins.csproj" />
+  <Project Path="FortnitePorting/FortnitePorting.csproj" />
+</Solution>
