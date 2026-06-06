@@ -24,7 +24,13 @@
 
             <files1:FileBrowser Grid.Row="0" 
                                 Context="{Binding Context}"
-                                FileItemDoubleTapped="OnFileItemTapped"/>
+                                FileItemDoubleTapped="OnFileItemTapped">
+                <files1:FileBrowser.KeyBindings>
+                    <KeyBinding Gesture="Ctrl+P" Command="{Binding PreviewCommand}" />
+                    <KeyBinding Gesture="Ctrl+E" Command="{Binding ExportCommand}" />
+                    <KeyBinding Gesture="Ctrl+O" Command="{Binding PropertiesCommand}" />
+                </files1:FileBrowser.KeyBindings>
+            </files1:FileBrowser>
 
             <Grid Grid.Row="2" HorizontalAlignment="Stretch">
                 <Grid.ColumnDefinitions>
