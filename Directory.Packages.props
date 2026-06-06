@@ -1,7 +1,7 @@
 
 <Project>
-    <PropertyGroup>
-        <ManagePackageVersionsCentrally Condition="$(MSBuildProjectFullPath.Contains('Dependencies'))">false</ManagePackageVersionsCentrally>
+    <PropertyGroup Condition="!$(MSBuildProjectFullPath.Contains('Dependencies'))">
+        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     </PropertyGroup>
     <ItemGroup>
         <PackageVersion Include="Avalonia" Version="11.3.2" />
