@@ -1,7 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Platform;
-using FortnitePorting.RenderingX;
+using FortnitePorting.Rendering;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace FortnitePorting.Models.Rendering;
