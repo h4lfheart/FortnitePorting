@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -76,11 +77,13 @@ public partial class FileBrowserContext : ObservableObject
     [ObservableProperty] private ObservableCollection<TreeItem> _selectedFileViewItems = [];
     [ObservableProperty] private ObservableCollection<TreeItem> _fileViewCollection = [];
     [ObservableProperty] private ObservableCollection<TreeItem> _fileViewStack = [];
-    [ObservableProperty] private ObservableCollection<TreeItem> _treeViewCollection = new([]);
+    [ObservableProperty] private ObservableCollection<TreeItem> _treeViewCollection = [];
 
     [ObservableProperty, NotifyPropertyChangedFor(nameof(CanGoToParent))] private TreeItem _currentFolder;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(CanGoBack))] private int _backStackCount = 0;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(CanGoForward))] private int _forwardStackCount = 0;
+    
+    [ObservableProperty] private ObservableCollection<VfsFilterItem> _vfsFilterCollection = [];
     
     public bool HasSelectedFiles => UseFlatView
         ? SelectedFlatViewItems.Count > 0
@@ -88,7 +91,7 @@ public partial class FileBrowserContext : ObservableObject
 
     public bool CanGoBack => BackStackCount > 0;
     public bool CanGoForward => ForwardStackCount > 0;
-    public bool CanGoToParent => CurrentFolder?.Parent is not null;
+    public bool CanGoToParent => CurrentFolder.Parent is not null;
 
     private readonly Stack<TreeItem> _backStack = new();
     private readonly Stack<TreeItem> _forwardStack = new();
@@ -101,9 +104,25 @@ public partial class FileBrowserContext : ObservableObject
 
     public void Initialize(string? startPath = null)
     {
+        VfsFilterCollection = [..UEParse.Provider.MountedVfs
+            .Where(vfs => vfs.FileCount > 0)
+            .Select(vfs => new VfsFilterItem(vfs.Name))
+            .Where(vfs => !vfs.VfsName.Contains("plugin.utoc", StringComparison.OrdinalIgnoreCase))
+            .OrderBy(vfs => vfs.Title)
+        ];
+       
+        var vfsCheckedChanges = VfsFilterCollection
+            .Select(item => item
+                .WhenAnyValue(x => x.IsChecked)
+                .Select(_ => Unit.Default))
+            .Merge();
+
         var assetFilter = this
-            .WhenAnyValue(ctx => ctx.FlatSearchFilter, ctx => ctx.UseRegex)
-            .Select(CreateAssetFilter);
+            .WhenAnyValue(
+                ctx => ctx.FlatSearchFilter,
+                ctx => ctx.UseRegex)
+            .CombineLatest(vfsCheckedChanges.StartWith(Unit.Default))
+            .Select(_ => CreateAssetFilter(FlatSearchFilter, UseRegex, VfsFilterCollection));
 
         AppServices.Files.FlatViewAssetCache.Connect()
             .ObserveOn(RxApp.TaskpoolScheduler)
@@ -407,13 +426,25 @@ public partial class FileBrowserContext : ObservableObject
             }
         }
     }
-
-    private Func<FlatItem, bool> CreateAssetFilter((string, bool) items)
+    
+    private Func<FlatItem, bool> CreateAssetFilter(string filter, bool useRegex, IEnumerable<VfsFilterItem> vfsItems)
     {
-        var (filter, useRegex) = items;
-        return useRegex
-            ? asset => Regex.IsMatch(asset.Path, filter)
-            : asset => MiscExtensions.Filter(asset.Path, filter);
+        var activeVfs = vfsItems
+            .Where(x => x.IsChecked)
+            .Select(x => x.VfsName)
+            .ToHashSet();
+
+        return asset =>
+        {
+            var pathMatch = useRegex
+                ? Regex.IsMatch(asset.Path, filter)
+                : MiscExtensions.Filter(asset.Path, filter);
+
+            var vfsMatch = activeVfs.Count == 0
+                           || activeVfs.Contains(asset.VfsName);
+
+            return pathMatch && vfsMatch;
+        };
     }
 
     partial void OnFileSearchFilterChanged(string value) => FilterFiles();

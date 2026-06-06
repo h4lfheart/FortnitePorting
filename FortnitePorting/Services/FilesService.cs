@@ -15,6 +15,7 @@ using FortnitePorting.Framework;
 using FortnitePorting.Models.Files;
 using FortnitePorting.Shared.Extensions;
 using Avalonia.Platform;
+using CUE4Parse.UE4.VirtualFileSystem;
 using Serilog;
 
 namespace FortnitePorting.Services;
@@ -48,9 +49,15 @@ public partial class FilesService : ObservableObject, IService
             LoadedFiles++;
 
             var path = file.Path;
-            if (!IsValidFilePath(path)) continue;
+            if (!IsValidFilePath(path)) 
+                continue;
 
-            FlatViewAssetCache.AddOrUpdate(new FlatItem(path));
+            
+            var sourceVfsName = string.Empty;
+            if (file is VfsEntry vfsEntry)
+                sourceVfsName = vfsEntry.Vfs.Name;
+            
+            FlatViewAssetCache.AddOrUpdate(new FlatItem(path, sourceVfsName));
 
             var parts = path.Split("/", StringSplitOptions.RemoveEmptyEntries);
 
@@ -64,7 +71,7 @@ public partial class FilesService : ObservableObject, IService
                     var nodePath = isFile
                         ? path
                         : string.Concat(path.AsSpan(0, path.IndexOf(part, StringComparison.Ordinal)), part);
-                    childNode = new FileNode(part, nodePath, isFile ? ENodeType.File : ENodeType.Folder);
+                    childNode = new FileNode(part, nodePath, isFile ? ENodeType.File : ENodeType.Folder, sourceVfsName);
                     parentNode.AddChild(part, childNode);
                 }
 
