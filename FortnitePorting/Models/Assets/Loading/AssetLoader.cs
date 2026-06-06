@@ -187,9 +187,14 @@ public partial class AssetLoader : ObservableObject
         Type = exportType;
         
         AssetFilter = this
-            .WhenAnyValue(loader => loader.SearchFilter, loader => loader.ActiveFilters, loader => loader.UseRegex)
+            .WhenAnyValue(
+                loader => loader.SearchFilter, 
+                loader => loader.ActiveFilters, 
+                loader => loader.UseRegex,
+                loader => loader.SortType
+                )
             .Select(CreateAssetFilter)
-            .Merge(_filterRefresh.Select(_ => CreateAssetFilter((SearchFilter, ActiveFilters, UseRegex))));
+            .Merge(_filterRefresh.Select(_ => CreateAssetFilter((SearchFilter, ActiveFilters, UseRegex, SortType))));
         
         AssetSort = this
             .WhenAnyValue(loader => loader.SortType, loader => loader.DescendingSort)
@@ -411,15 +416,22 @@ public partial class AssetLoader : ObservableObject
         }
     }
     
-    private static Func<BaseAssetItem, bool> CreateAssetFilter((string, ObservableCollection<FilterItem>, bool) values)
+    private static Func<BaseAssetItem, bool> CreateAssetFilter((string, ObservableCollection<FilterItem>, bool, EAssetSortType) values)
     {
-        var (searchFilter, filters, useRegex) = values;
+        var (searchFilter, filters, useRegex, sortType) = values;
         return asset =>
         {
             if (asset is AssetItem assetItem)
             {
-                return assetItem.Match(searchFilter, useRegex) && filters.All(x => x.Predicate.Invoke(assetItem)) 
-                                                     && assetItem.CreationData.IsHidden == filters.Any(filter => filter.Title.Equals("Hidden Items"));
+                if (sortType is EAssetSortType.Series && assetItem.Series is null)
+                    return false;
+                
+                if (sortType is EAssetSortType.Season && assetItem.Season == AssetItem.INVALID_SEASON)
+                    return false;
+
+                return assetItem.Match(searchFilter, useRegex)
+                       && filters.All(x => x.Predicate.Invoke(assetItem))
+                       && assetItem.CreationData.IsHidden == filters.Any(f => f.Title.Equals("Hidden Items"));
             }
 
             return asset.Match(searchFilter, useRegex);
@@ -442,6 +454,11 @@ public partial class AssetLoader : ObservableObject
             EAssetSortType.Rarity => asset =>
                 asset is AssetItem assetItem
                     ? (assetItem.Rarity, assetItem.CreationData.DisplayName)
+                    : (0, asset.CreationData.ID),
+            
+            EAssetSortType.Series => asset =>
+                asset is AssetItem assetItem
+                    ? (assetItem.Series?.DisplayName.Text ?? string.Empty, assetItem.CreationData.DisplayName)
                     : (0, asset.CreationData.ID),
 
             _ => asset => asset.CreationData.ID

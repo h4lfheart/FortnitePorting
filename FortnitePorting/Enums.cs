@@ -283,7 +283,10 @@ public enum EAssetSortType
     Season,
 
     [Description("Rarity")]
-    Rarity
+    Rarity,
+    
+    [Description("Series")]
+    Series
 }
 
 public enum EImageFormat

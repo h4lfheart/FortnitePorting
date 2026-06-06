@@ -221,6 +221,7 @@ public partial class ExportContext
                     Log.Error("Failed to convert DNA asset {0}", dnaAsset.DnaFileName);
                     return;
                 }
+                
                 File.WriteAllBytes(path, poseAsset.FileData);
                 
                 break;
