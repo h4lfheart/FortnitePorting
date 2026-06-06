@@ -9,6 +9,7 @@ using Material.Icons;
 namespace FortnitePorting.Extensions;
 
 public class NonAssetAttribute : Attribute;
+public class CosmeticAssetAttribute : Attribute;
 
 public static class EnumExtensions
 {
@@ -21,7 +22,12 @@ public static class EnumExtensions
 
         public bool IsDisabled =>
             value.GetType()
-                .GetField(value.ToString())?.GetCustomAttributes(typeof(DisabledAttribute), false).SingleOrDefault() is not null;
+                .GetField(value.ToString())?.GetCustomAttributes(typeof(DisabledAttribute), false)
+                .SingleOrDefault() is not null;
+        
+        public bool IsCosmetic =>
+            value.GetType()
+                .GetField(value.ToString())?.GetCustomAttributes(typeof(CosmeticAssetAttribute), false).SingleOrDefault() is not null;
         
         public MaterialIconKind? Icon =>
             value.GetType()

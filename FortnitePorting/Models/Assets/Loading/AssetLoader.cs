@@ -73,7 +73,9 @@ public partial class AssetLoader : ObservableObject
     
     
     public readonly IObservable<SortExpressionComparer<BaseAssetItem>> AssetSort;
-    [ObservableProperty] private EAssetSortType _sortType = EAssetSortType.Season;
+
+    [ObservableProperty] private EAssetSortType _sortType = EAssetSortType.None;
+    
     [ObservableProperty, NotifyPropertyChangedFor(nameof(SortIcon))] private bool _descendingSort = false;
     public MaterialIconKind SortIcon => DescendingSort ? MaterialIconKind.SortDescending : MaterialIconKind.SortAscending;
     
@@ -185,6 +187,9 @@ public partial class AssetLoader : ObservableObject
     public AssetLoader(EExportType exportType)
     {
         Type = exportType;
+
+        if (Type.IsCosmetic)
+            SortType = EAssetSortType.Season;
         
         AssetFilter = this
             .WhenAnyValue(

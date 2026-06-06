@@ -89,6 +89,7 @@ public enum EExportType
     // COSMETIC
     
     [Description("Outfits"), Export(EPrimitiveExportType.Mesh)]
+    [CosmeticAsset]
     Outfit,
     
     [Description("Character Parts"), Export(EPrimitiveExportType.Mesh)]
@@ -96,39 +97,51 @@ public enum EExportType
     CharacterPart,
 
     [Description("Backpacks"), Export(EPrimitiveExportType.Mesh)]
+    [CosmeticAsset]
     Backpack,
 
     [Description("Pickaxes"), Export(EPrimitiveExportType.Mesh)]
+    [CosmeticAsset]
     Pickaxe,
 
     [Description("Gliders"), Export(EPrimitiveExportType.Mesh)]
+    [CosmeticAsset]
     Glider,
 
     [Description("Pets"), Export(EPrimitiveExportType.Mesh)]
+    [CosmeticAsset]
     Pet,
 
     [Description("Toys"), Export(EPrimitiveExportType.Mesh)]
+    [CosmeticAsset]
     Toy,
 
     [Description("Emoticons"), Export(EPrimitiveExportType.Texture)]
+    [CosmeticAsset]
     Emoticon,
 
     [Description("Sprays"), Export(EPrimitiveExportType.Texture)]
+    [CosmeticAsset]
     Spray,
 
     [Description("Banners"), Export(EPrimitiveExportType.Texture)]
+    [CosmeticAsset]
     Banner,
 
     [Description("Loading Screens"), Export(EPrimitiveExportType.Texture)]
+    [CosmeticAsset]
     LoadingScreen,
 
     [Description("Emotes"), Export(EPrimitiveExportType.Animation)]
+    [CosmeticAsset]
     Emote,
     
     [Description("Sidekicks"), Export(EPrimitiveExportType.Mesh)]
+    [CosmeticAsset]
     SideKick,
     
     [Description("Kicks"), Export(EPrimitiveExportType.Mesh)]
+    [CosmeticAsset]
     Kicks,
     
     // CREATIVE
@@ -162,18 +175,23 @@ public enum EExportType
     // FESTIVAL
     
     [Description("Guitars"), Export(EPrimitiveExportType.Mesh)]
+    [CosmeticAsset]
     FestivalGuitar,
     
     [Description("Basses"), Export(EPrimitiveExportType.Mesh)]
+    [CosmeticAsset]
     FestivalBass,
     
     [Description("Keytars"), Export(EPrimitiveExportType.Mesh)]
+    [CosmeticAsset]
     FestivalKeytar,
     
     [Description("Drums"), Export(EPrimitiveExportType.Mesh)]
+    [CosmeticAsset]
     FestivalDrum,
     
     [Description("Microphones"), Export(EPrimitiveExportType.Mesh)]
+    [CosmeticAsset]
     FestivalMic,
     
     // LEGO
@@ -197,6 +215,7 @@ public enum EExportType
     // FALL GUYS
     
     [Description("Outfits"), Export(EPrimitiveExportType.Mesh)]
+    [CosmeticAsset]
     FallGuysOutfit,
     
     // GENERIC
