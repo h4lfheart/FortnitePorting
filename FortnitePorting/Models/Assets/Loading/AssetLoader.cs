@@ -428,11 +428,15 @@ public partial class AssetLoader : ObservableObject
         {
             if (asset is AssetItem assetItem)
             {
-                if (sortType is EAssetSortType.Series && assetItem.Series is null)
-                    return false;
+                // only use sort "filters" if we arent using any real filters
+                if (string.IsNullOrWhiteSpace(searchFilter) && filters.Count == 0 && !useRegex)
+                {
+                    if (sortType is EAssetSortType.Series && assetItem.Series is null)
+                        return false;
                 
-                if (sortType is EAssetSortType.Season && assetItem.Season == AssetItem.INVALID_SEASON)
-                    return false;
+                    if (sortType is EAssetSortType.Season && assetItem.Season == AssetItem.INVALID_SEASON)
+                        return false;
+                }
 
                 return assetItem.Match(searchFilter, useRegex)
                        && filters.All(x => x.Predicate.Invoke(assetItem))
