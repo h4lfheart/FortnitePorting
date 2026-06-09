@@ -60,6 +60,13 @@ public partial class BlenderInstallation(string blenderExecutablePath) : Observa
 
     public bool SyncExtensionVersion()
     {
+        if (!File.Exists(BlenderPath))
+        {
+            Info.Message("Blender Extension", $"Blender installation does not exist at path {BlenderPath}.");
+            Status = EPluginStatusType.Failed;
+            return false;
+        }
+        
         if (!File.Exists(ManifestPath))
         {
             Info.Message("Blender Extension", $"Plugin manifest does not exist at path {ManifestPath}, installation may have gone wrong.\nPlease remove the installation from Fortnite Porting and try again.");

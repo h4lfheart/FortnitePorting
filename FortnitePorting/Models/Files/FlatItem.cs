@@ -12,10 +12,12 @@ namespace FortnitePorting.Models.Files;
 public partial class FlatItem : ObservableObject
 {
     [ObservableProperty] private string _path;
+    [ObservableProperty] private string _vfsName;
 
-    public FlatItem(string path)
+    public FlatItem(string path, string vfsName = "")
     {
         Path = path;
+        VfsName = vfsName;
     }
 
     [RelayCommand]

@@ -76,6 +76,9 @@ public partial class ExportContext
                             {
                                 if (!userData.TryLoad<UDNAAsset>(out var dna)) continue;
                                 
+                                if (dna.Layers is null)
+                                    break;
+                                
                                 meta.PoseAsset = Export(dna);
                                 foundDNA = meta.PoseAsset is not null; //TODO: how do we know this succeeded? Or should we just assume it did?
                                 break;

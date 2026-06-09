@@ -33,7 +33,8 @@ public class AssetItem : Base.BaseAssetItem
     public int Season { get; set; }
     public UFortItemSeriesDefinition? Series { get; set; }
     public string? SetName { get; set; }
-    
+
+    public const int INVALID_SEASON = int.MaxValue;
 
     private static SKColor InnerBackgroundColor = SKColor.Parse("#2bb5f3");
     private static SKColor OuterBackgroundColor = SKColor.Parse("#174a89");
@@ -61,7 +62,7 @@ public class AssetItem : Base.BaseAssetItem
         }
         
         var seasonTag = CreationData.GameplayTags.GetValueOrDefault("Cosmetics.Filter.Season.")?.Text;
-        Season = int.TryParse(seasonTag?.SubstringAfterLast("."), out var seasonNumber) ? seasonNumber : int.MaxValue;
+        Season = int.TryParse(seasonTag?.SubstringAfterLast("."), out var seasonNumber) ? seasonNumber : INVALID_SEASON;
 
         if (CreationData.Object.GetDataListItem<FPackageIndex>("Series") is { } seriesPackage)
         {

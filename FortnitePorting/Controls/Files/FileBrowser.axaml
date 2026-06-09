@@ -94,6 +94,33 @@
                         </Style>
                     </ComboBox.Styles>
                 </ComboBox>
+                
+                <DropDownButton Grid.Column="2" HorizontalAlignment="Stretch" Margin="{ext:Space 0, 0, 1, 0}"
+                                IsVisible="{Binding UseFlatView}">
+                    <DropDownButton.Flyout>
+                        <Flyout VerticalOffset="4">
+                            <ItemsControl ItemsSource="{Binding VfsFilterCollection}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="files:VfsFilterItem">
+                                        <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                                                  Content="{Binding Title}" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel VerticalAlignment="Stretch"
+                                                    HorizontalAlignment="Stretch" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
+                        </Flyout>
+                    </DropDownButton.Flyout>
+
+                    <StackPanel Orientation="Horizontal">
+                        <material:MaterialIcon Kind="PackageVariant" Margin="{ext:Space 0, 0, 1, 0}" />
+                        <TextBlock Text="Container Filters" />
+                    </StackPanel>
+                </DropDownButton>
 
                 <TextBox Grid.Column="3" Text="{Binding SearchText, Mode=TwoWay}" Watermark="Search"
                          KeyDown="OnSearchKeyDown" />
@@ -289,7 +316,7 @@
                                          AutoScrollToSelectedItem="True" DoubleTapped="OnFlatItemDoubleTapped">
                                     <ListBox.ItemTemplate>
                                         <DataTemplate DataType="files:FlatItem">
-                                            <ContentControl>
+                                            <ContentControl ToolTip.Tip="{Binding VfsName, StringFormat='Vfs: {0}'}">
                                                 <ContentControl.ContextMenu>
                                                     <ContextMenu>
                                                         <MenuItem Header="Copy Path With Extension"

@@ -101,7 +101,7 @@ public partial class AssetInfo : Base.BaseAssetInfo
         
         if (Asset.CreationData.ExportType is EExportType.Prefab)
         {
-            var playsetProps = Asset.CreationData.Object.GetOrDefault<FSoftObjectPath[]>("AssociatedPlaysetProps"); 
+            var playsetProps = Asset.CreationData.Object.GetOrDefault<FSoftObjectPath[]>("AssociatedPlaysetProps", []); 
             
             var styleDatas = new List<ObjectStyleData>();
             foreach (var playsetPropPath in playsetProps)

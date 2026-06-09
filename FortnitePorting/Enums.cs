@@ -89,6 +89,7 @@ public enum EExportType
     // COSMETIC
     
     [Description("Outfits"), Export(EPrimitiveExportType.Mesh)]
+    [CosmeticAsset]
     Outfit,
     
     [Description("Character Parts"), Export(EPrimitiveExportType.Mesh)]
@@ -96,39 +97,51 @@ public enum EExportType
     CharacterPart,
 
     [Description("Backpacks"), Export(EPrimitiveExportType.Mesh)]
+    [CosmeticAsset]
     Backpack,
 
     [Description("Pickaxes"), Export(EPrimitiveExportType.Mesh)]
+    [CosmeticAsset]
     Pickaxe,
 
     [Description("Gliders"), Export(EPrimitiveExportType.Mesh)]
+    [CosmeticAsset]
     Glider,
 
     [Description("Pets"), Export(EPrimitiveExportType.Mesh)]
+    [CosmeticAsset]
     Pet,
 
     [Description("Toys"), Export(EPrimitiveExportType.Mesh)]
+    [CosmeticAsset]
     Toy,
 
     [Description("Emoticons"), Export(EPrimitiveExportType.Texture)]
+    [CosmeticAsset]
     Emoticon,
 
     [Description("Sprays"), Export(EPrimitiveExportType.Texture)]
+    [CosmeticAsset]
     Spray,
 
     [Description("Banners"), Export(EPrimitiveExportType.Texture)]
+    [CosmeticAsset]
     Banner,
 
     [Description("Loading Screens"), Export(EPrimitiveExportType.Texture)]
+    [CosmeticAsset]
     LoadingScreen,
 
     [Description("Emotes"), Export(EPrimitiveExportType.Animation)]
+    [CosmeticAsset]
     Emote,
     
     [Description("Sidekicks"), Export(EPrimitiveExportType.Mesh)]
+    [CosmeticAsset]
     SideKick,
     
     [Description("Kicks"), Export(EPrimitiveExportType.Mesh)]
+    [CosmeticAsset]
     Kicks,
     
     // CREATIVE
@@ -283,7 +296,10 @@ public enum EAssetSortType
     Season,
 
     [Description("Rarity")]
-    Rarity
+    Rarity,
+    
+    [Description("Series")]
+    Series
 }
 
 public enum EImageFormat
