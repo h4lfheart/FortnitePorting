@@ -8,4 +8,6 @@ public class BroadcastResponse
     [JsonProperty("title")] public string Title { get; set; }
     [JsonProperty("description")] public string Description { get; set; }
     [JsonProperty("timestamp")] public DateTime Timestamp { get; set; }
+    [JsonProperty("min_version")] public FPVersion? MinVersion { get; set; }
+    [JsonProperty("max_version")] public FPVersion? MaxVersion { get; set; }
 }

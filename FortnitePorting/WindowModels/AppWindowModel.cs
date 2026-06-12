@@ -60,7 +60,11 @@ public partial class AppWindowModel(
 
         foreach (var broadcast in await Api.FortnitePorting.Broadcasts())
         {
-            Info.Broadcast(broadcast);
+            var satisfiesMaxVersion = broadcast.MaxVersion is null || Globals.Version <= broadcast.MaxVersion;
+            var satisfiesMinVersion = broadcast.MinVersion is null || Globals.Version >= broadcast.MinVersion;
+            
+            if (satisfiesMaxVersion && satisfiesMinVersion) 
+                Info.Broadcast(broadcast);
         }
 
         await CheckForUpdate();
