@@ -529,6 +529,9 @@ public partial class AssetLoaderService : ObservableObject, IService
     
     public AssetLoader Get(EExportType type)
     {
+        if (!Enum.IsDefined(type))
+            type = EExportType.Outfit;
+        
         return Categories.SelectMany(cat => cat.Loaders).FirstOrDefault(loader => loader.Type == type) 
                ?? throw new ArgumentOutOfRangeException(nameof(type), $"Asset type {type.Description} does not have an implemented loader.");
     }
