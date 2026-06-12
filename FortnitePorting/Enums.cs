@@ -172,6 +172,9 @@ public enum EExportType
     [Description("Weapon Mods"), Export(EPrimitiveExportType.Mesh)]
     WeaponMod,
     
+    [Description("Sprites"), Export(EPrimitiveExportType.Mesh)]
+    Sprite,
+    
     // FESTIVAL
     
     [Description("Guitars"), Export(EPrimitiveExportType.Mesh)]

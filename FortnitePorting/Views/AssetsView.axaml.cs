@@ -107,11 +107,13 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
         {
             if (asset is AssetItem assetItem)
             {
+                var stylePaths = 
+                    ViewModel.AssetLoader.ActiveLoader.StyleDictionary.GetValueOrDefault(asset.CreationData.DisplayName) ??
+                    ViewModel.AssetLoader.ActiveLoader.StyleDictionary.GetValueOrDefault(asset.CreationData.ID);
                 
                 ViewModel.AssetLoader.ActiveLoader.SelectedAssetInfos.Add(
-                    ViewModel.AssetLoader.ActiveLoader.StyleDictionary.TryGetValue(asset.CreationData.DisplayName,
-                        out var stylePaths)
-                        ? new AssetInfo(assetItem, stylePaths.OrderBy(x => x))
+                    stylePaths is not null
+                        ? new AssetInfo(assetItem, stylePaths.OrderBy(x => x.EndsWith(asset.CreationData.ID, StringComparison.OrdinalIgnoreCase) ? 0 : 1))
                         : new AssetInfo(assetItem));
             }
             else if (asset is CustomAssetItem customAsset)

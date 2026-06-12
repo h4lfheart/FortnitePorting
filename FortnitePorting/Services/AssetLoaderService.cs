@@ -12,6 +12,7 @@ using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.GameplayTags;
 using CUE4Parse.UE4.Objects.UObject;
+using CUE4Parse.Utils;
 using FortnitePorting.Application;
 using FortnitePorting.Exporting.Custom;
 using FortnitePorting.Extensions;
@@ -399,7 +400,29 @@ public partial class AssetLoaderService : ObservableObject, IService
                         }
                     ]),
                     HideRarity = true
-                }
+                },
+                new AssetLoader(EExportType.Sprite)
+                {
+                    ClassNames = ["ExtractableItemDefinition"],
+                    LoadHiddenAssets = true,
+                    HidePredicate = (loader, asset, name) =>
+                    {
+                        var parentDef = asset.GetOrDefault<FSoftObjectPath?>("ParentExtractableDefinition");
+                        return parentDef is not null;
+                    },
+                    AddStyleHandler = (loader, asset, name) =>
+                    {
+                        var parentDefPath = asset.GetOrDefault<FSoftObjectPath>("ParentExtractableDefinition");
+
+                        var key = asset.Name;
+                        if (parentDefPath.TryLoad(out var parentDef))
+                            key = parentDef.Name;
+
+                        var path = asset.GetPathName();
+                        loader.StyleDictionary.TryAdd(key, []);
+                        loader.StyleDictionary[key].Add(path);
+                    }
+                },
             ]
         },
         new(EAssetCategory.Festival)

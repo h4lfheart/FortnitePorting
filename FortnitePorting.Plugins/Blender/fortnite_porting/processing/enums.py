@@ -34,6 +34,7 @@ class EExportType(IntEnum):
     EMOTE = auto()
     SIDEKICK = auto()
     KICKS = auto()
+    SPRITE = auto()
     
     # CREATIVE
     PROP = auto()
