@@ -45,7 +45,6 @@ class EExportType(IntEnum):
     EMOTE = ExportCategory.COSMETIC + 12
     SIDEKICK = ExportCategory.COSMETIC + 13
     KICKS = ExportCategory.COSMETIC + 14
-    SPRITE = ExportCategory.COSMETIC + 15
 
     # CREATIVE
     PROP = ExportCategory.CREATIVE + 1
@@ -58,6 +57,7 @@ class EExportType(IntEnum):
     VEHICLE = ExportCategory.GAMEPLAY + 4
     WILDLIFE = ExportCategory.GAMEPLAY + 5
     WEAPON_MOD = ExportCategory.GAMEPLAY + 6
+    SPRITE = ExportCategory.GAMEPLAY + 7
 
     # FESTIVAL
     FESTIVAL_GUITAR = ExportCategory.FESTIVAL + 1
