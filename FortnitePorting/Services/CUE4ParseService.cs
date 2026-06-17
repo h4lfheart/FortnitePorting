@@ -368,10 +368,6 @@ public partial class CUE4ParseService : ObservableObject, IService
     [LoadingStage("Loading Virtual Paths", stage: 9, weight: 15)]
     private async Task LoadVirtualPaths()
     {
-        UpdateStatus(AppSettings.Installation.CurrentProfile.FortniteVersion is EFortniteVersion.LatestOnDemand 
-            ? "Loading Virtual Paths (This may take a while)" 
-            : "Loading Virtual Paths");
-        
         Provider.LoadVirtualPaths();
         Provider.PostMount();
         

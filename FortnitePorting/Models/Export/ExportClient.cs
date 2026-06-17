@@ -7,9 +7,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using CUE4Parse.UE4.Readers;
 using CUE4Parse.UE4.Writers;
+using FortnitePorting.Exporting;
 using FortnitePorting.Extensions;
 using FortnitePorting.Services;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Serilog;
 
 namespace FortnitePorting.Models.Export;
@@ -17,7 +19,8 @@ namespace FortnitePorting.Models.Export;
 public enum EExportCommandType : byte
 {
     Message = 0,
-    Data = 1
+    Data = 1,
+    DragDropRequest = 2
 }
 
 public class ExportClient(EExportServerType serverType) : IDisposable
@@ -195,13 +198,15 @@ public class ExportClient(EExportServerType serverType) : IDisposable
                     continue;
                 
                 var commandType = (EExportCommandType) Read<byte>(stream);
+                if (!Enum.IsDefined(commandType)) 
+                    continue;
 
                 var length = Read<int>(stream);
 
                 var dataBytes = ReadExact(stream, length);
                 var jsonData = Encoding.UTF8.GetString(dataBytes);
                 
-                HandleReceivedMessage(jsonData);
+                HandleReceivedMessage(jsonData, commandType);
             }
             catch (Exception ex)
             {
@@ -233,10 +238,30 @@ public class ExportClient(EExportServerType serverType) : IDisposable
     }
 
 
-    private void HandleReceivedMessage(string jsonData)
+    private void HandleReceivedMessage(string jsonData, EExportCommandType commandType)
     {
-        var message = JsonConvert.DeserializeObject<string>(jsonData) ?? string.Empty;
-        Info.Message($"{serverType.Description} Server", message);
+        switch (commandType)
+        {
+            case EExportCommandType.Message:
+                var message = JsonConvert.DeserializeObject<string>(jsonData) ?? string.Empty;
+                Info.Message($"{serverType.Description} Server", message);
+                break;
+            case EExportCommandType.DragDropRequest:
+                if (JObject.Parse(jsonData).TryGetValue("paths", out var token) 
+                    && token.ToArray() is { } paths)
+                {
+                    TaskService.Run(async () =>
+                    {
+                        var loadedObjects = paths
+                            .Select(path => UEParse.Provider.SafeLoadPackageObject(path.Value<string>()))
+                            .Where(asset => asset is not null);
+                        await Exporter.Export(loadedObjects!, AppSettings.ExportSettings.CreateExportMeta(serverType.LocationType));
+                    });
+                }
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(commandType), commandType, null);
+        }
     }
 
     private void CloseConnection()

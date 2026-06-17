@@ -14,6 +14,7 @@ using FortnitePorting.Models.Assets.Custom;
 using FortnitePorting.Models.Assets.Filters;
 using FortnitePorting.Services;
 using FortnitePorting.ViewModels;
+using Newtonsoft.Json;
 using BaseAssetItem = FortnitePorting.Models.Assets.Base.BaseAssetItem;
 
 namespace FortnitePorting.Views;
@@ -47,6 +48,10 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
                 args.Handled = true;
             }
         }, handledEventsToo: true);
+        
+        AssetsListBox.AddHandler(PointerPressedEvent, OnAssetItemPressed, RoutingStrategies.Tunnel);
+        AssetsListBox.AddHandler(PointerMovedEvent, OnAssetItemPointerMoved, RoutingStrategies.Tunnel);
+        AssetsListBox.AddHandler(PointerReleasedEvent, OnAssetItemPointerReleased, RoutingStrategies.Tunnel);
     }
 
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
@@ -170,5 +175,77 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
         
         assetStyleInfo.SelectedStyleIndex = -1;
         assetStyleInfo.SelectedItems.Clear();
+    }
+
+    private PointerPressedEventArgs? _assetDragArgs;
+    private Point _dragStartPosition;
+
+    private void OnAssetItemPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (e.Source is not Control source) return;
+    
+        var item = GetAssetItemFromSource(source);
+        if (item is null) return;
+    
+        _assetDragArgs = e;
+        _dragStartPosition = e.GetPosition(AssetsListBox);
+    }
+
+    private void OnAssetItemPointerMoved(object? sender, PointerEventArgs e)
+    {
+        if (_assetDragArgs is null) return;
+
+        var pos = e.GetPosition(AssetsListBox);
+        if (Math.Abs(pos.X - _dragStartPosition.X) < 8 &&
+            Math.Abs(pos.Y - _dragStartPosition.Y) < 8) return;
+
+        var args = _assetDragArgs;
+        _assetDragArgs = null;
+
+        TaskService.RunDispatcher(async () => await StartDragAsync(args));
+    }
+
+    private void OnAssetItemPointerReleased(object? sender, PointerReleasedEventArgs e)
+    {
+        _assetDragArgs = null;
+    }
+
+    private AssetItem? GetAssetItemFromSource(Control source)
+    {
+        var control = source;
+        while (control is not null)
+        {
+            if (control.DataContext is AssetItem assetItem)
+                return assetItem;
+            control = control.Parent as Control;
+        }
+        return null;
+    }
+    
+    private async Task StartDragAsync(PointerEventArgs e)
+    {
+        var dragDropInfoFile = Path.Combine(App.DataFolder.FullName, "info.fp_drag_drop");
+
+        await File.WriteAllTextAsync(dragDropInfoFile, JsonConvert.SerializeObject(new
+        {
+            Paths = ViewModel.AssetLoader.ActiveLoader!.SelectedAssetInfos
+                .OfType<AssetInfo>()
+                .Select(asset => asset.Asset.CreationData.Object.GetPathName())
+                .ToList()
+        }));
+
+        TaskService.Run(ExportClient.DiscoverAsync);
+
+        var storageFile = await TopLevel.GetTopLevel(this)!
+            .StorageProvider
+            .TryGetFileFromPathAsync(new Uri(dragDropInfoFile));
+        
+        if (storageFile is null) return;
+        
+        var data = new DataObject();
+        data.Set(DataFormats.Files, new[] { storageFile });
+
+        await DragDrop.DoDragDrop(e, data, DragDropEffects.Copy | DragDropEffects.Move);
+         
     }
 }

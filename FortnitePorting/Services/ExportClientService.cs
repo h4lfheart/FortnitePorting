@@ -25,6 +25,11 @@ public class ExportClientService : IService
             _clients[serverType] = new ExportClient(serverType);
         }
     }
+    
+    public async Task DiscoverAsync()
+    {
+        await Task.WhenAll(_clients.Values.Select(client => client.IsRunning()));
+    }
 
     public async Task<bool> IsRunning(EExportServerType serverType)
     {
@@ -73,6 +78,17 @@ public static class EExportServerTypeExtensions
             EExportLocation.Unreal => EExportServerType.Unreal,
             EExportLocation.Unity => EExportServerType.Unity,
             _ => EExportServerType.None
+        };
+    }
+    
+    extension(EExportServerType serverType)
+    {
+        public EExportLocation LocationType => serverType switch
+        {
+            EExportServerType.Blender => EExportLocation.Blender,
+            EExportServerType.Unreal => EExportLocation.Unreal,
+            EExportServerType.Unity => EExportLocation.Unity,
+            _ => EExportLocation.AssetsFolder
         };
     }
 }
