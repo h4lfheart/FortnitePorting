@@ -4,7 +4,8 @@ using System.IO;
 using System.Linq;
 using CUE4Parse.FileProvider.Vfs;
 using CUE4Parse.UE4.IO;
-using CUE4Parse.UE4.IO.OnDemand;
+using CUE4Parse.Utils;
+
 using CUE4Parse.UE4.Readers;
 using CUE4Parse.UE4.Versions;
 using CUE4Parse.Utils;
@@ -64,7 +65,7 @@ public class HybridFileProvider : AbstractVfsFileProvider
             if (extension is "uondemandtoc")
             {
                 var archive = new FByteArchive(file.FullName, File.ReadAllBytes(file.FullName), Versions);
-                var ioChunkToc = new FOnDemandTocReader(archive);
+                var ioChunkToc = new IoChunkToc(archive);
                 RegisterVfs(ioChunkToc);
             }
         }
