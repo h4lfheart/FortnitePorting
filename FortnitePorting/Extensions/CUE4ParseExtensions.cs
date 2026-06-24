@@ -336,6 +336,13 @@ public static class CUE4ParseExtensions
         {
             return propertyHolder.TryGetValue(out FInstancedStruct[] dataList, "DataList") ? dataList.GetItems<T>(names) : [];
         }
+
+        public T? GetByteEnum<T>(string propertyName) where T : unmanaged
+        {
+            return propertyHolder.TryGetValue(out sbyte byteData, propertyName) 
+                ? (T) Enum.ToObject(typeof(T), byteData)
+                : default;
+        }
     }
 
     extension(FColor color)
