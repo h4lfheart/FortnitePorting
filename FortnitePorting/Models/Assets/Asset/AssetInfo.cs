@@ -82,13 +82,11 @@ public partial class AssetInfo : Base.BaseAssetInfo
 
             foreach (var animationOverride in animationOverrides)
             {
-                var gender = animationOverride.GetByteEnum<EFortCustomGender>("Gender")?.ToString() ??
-                             animationOverride.GetOrDefault<FName?>("Gender")?.Text.SubstringAfter("::");
-                var bodyType = animationOverride.GetByteEnum<EFortCustomBodyType>("BodyType")?.ToString() ??
-                               animationOverride.Get<FName?>("BodyType")?.Text.SubstringAfter("::");
                 var montage = animationOverride.GetOrDefault<UAnimMontage?>("EmoteMontage");
-                if (gender is null || bodyType is null || montage is null) continue;
+                if (montage is null) continue;
                 
+                var gender = animationOverride.GetEnumOrDefault<EFortCustomGender>("Gender").ToString();
+                var bodyType = animationOverride.GetEnumOrDefault<EFortCustomBodyType>("BodyType").ToString();
                 sizedAnimations.Add($"{gender} {bodyType} ({montage.Name})", montage);
             }
 
