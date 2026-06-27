@@ -73,8 +73,8 @@ public class AssetItem : Base.BaseAssetItem
 
     public void LoadBitmap()
     {
-        if (CreationData.Icon.Decode()?.ToSkBitmap() is not { } iconBitmap)
-            return;
+        using var iconBitmap = CreationData.Icon.Decode()?.ToSkBitmap();
+        if (iconBitmap is null) return;
         
         IconDisplayImage = iconBitmap.ToWriteableBitmap();
         BackgroundImage = CreateBackgroundImage();

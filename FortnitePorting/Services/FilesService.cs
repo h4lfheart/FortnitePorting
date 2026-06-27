@@ -51,7 +51,6 @@ public partial class FilesService : ObservableObject, IService
             var path = file.Path;
             if (!IsValidFilePath(path)) 
                 continue;
-
             
             var sourceVfsName = string.Empty;
             if (file is VfsEntry vfsEntry)

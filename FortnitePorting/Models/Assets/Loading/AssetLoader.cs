@@ -55,7 +55,7 @@ public partial class AssetLoader : ObservableObject
     public readonly ConcurrentBag<string> FilteredAssetBag = [];
     public readonly ConcurrentDictionary<string, ConcurrentBag<string>> StyleDictionary = [];
 
-    private List<FAssetData> Assets;
+    private List<FPartialAssetData> AssetDatas;
 
     private bool BeganLoading;
     
@@ -219,28 +219,28 @@ public partial class AssetLoader : ObservableObject
         if (BeganLoading) return;
         BeganLoading = true;
         
-        Assets = UEParse.AssetRegistry
+        AssetDatas = UEParse.AssetRegistry
             .Where(data => ClassNames.Contains(data.AssetClass.Text))
             .ToList();
-        Assets.RemoveAll(data => data.AssetName.Text.EndsWith("Random", StringComparison.OrdinalIgnoreCase));
+        AssetDatas.RemoveAll(data => data.AssetName.Text.EndsWith("Random", StringComparison.OrdinalIgnoreCase));
 
-        Assets.RemoveAll(asset => DisallowedNames.Any(name => asset.PackageName.Text.Contains(name, StringComparison.OrdinalIgnoreCase)));
+        AssetDatas.RemoveAll(asset => DisallowedNames.Any(name => asset.PackageName.Text.Contains(name, StringComparison.OrdinalIgnoreCase)));
         
         if (AllowNames.Length > 0)
         {
-            Assets.RemoveAll(asset => !AllowNames.Any(name => asset.PackageName.Text.Contains(name, StringComparison.OrdinalIgnoreCase)));
+            AssetDatas.RemoveAll(asset => !AllowNames.Any(name => asset.PackageName.Text.Contains(name, StringComparison.OrdinalIgnoreCase)));
         }
 
         if (!LoadHiddenAssets)
         {
-            Assets.RemoveAll(asset => HideNames.Any(name => asset.PackageName.Text.Contains(name, StringComparison.OrdinalIgnoreCase)) || asset.PackageName.Text.Contains("Placeholder", StringComparison.OrdinalIgnoreCase));
+            AssetDatas.RemoveAll(asset => HideNames.Any(name => asset.PackageName.Text.Contains(name, StringComparison.OrdinalIgnoreCase)) || asset.PackageName.Text.Contains("Placeholder", StringComparison.OrdinalIgnoreCase));
         }
 
 
         var manuallyDefinedAssets = ManuallyDefinedAssets.Value;
-        TotalAssets = Assets.Count + manuallyDefinedAssets.Length + CustomAssets.Length;
+        TotalAssets = AssetDatas.Count + manuallyDefinedAssets.Length + CustomAssets.Length;
         
-        await Parallel.ForEachAsync(Assets, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, 
+        await Parallel.ForEachAsync(AssetDatas, new ParallelOptions { MaxDegreeOfParallelism = Math.Min(2, Environment.ProcessorCount / 2) }, 
             async (asset, ct) =>
             {
                 await WaitIfPausedAsync();
@@ -291,15 +291,14 @@ public partial class AssetLoader : ObservableObject
         AssetBag.Clear();
         LoadedAssets = TotalAssets;
         FinishedLoading = true;
+        
+        AssetDatas.Clear();
     }
 
-    private async Task LoadAsset(FAssetData data)
+    private async Task LoadAsset(FPartialAssetData data)
     {
         var asset = await UEParse.Provider.SafeLoadPackageObjectAsync(data.ObjectPath);
         if (asset is null) return;
-
-        /*data.TagsAndValues.TryGetValue("DisplayName", out var displayName);
-        displayName ??= data.AssetName.Text;*/
         
         await LoadAsset(asset);
     }

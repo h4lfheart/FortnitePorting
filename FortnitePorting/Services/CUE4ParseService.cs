@@ -54,7 +54,7 @@ public partial class CUE4ParseService : ObservableObject, IService
 
     public FBuildPatchAppManifest? LiveManifest;
     
-    public readonly List<FAssetData> AssetRegistry = [];
+    public readonly List<FPartialAssetData> AssetRegistry = [];
     public readonly List<FRarityCollection> RarityColors = [];
     public readonly Dictionary<int, FColor> BeanstalkColors = [];
     public readonly Dictionary<int, FLinearColor> BeanstalkMaterialProps = [];
@@ -508,7 +508,7 @@ public partial class CUE4ParseService : ObservableObject, IService
 
             try
             {
-                var assetRegistry = new FAssetRegistryState(assetArchive);
+                var assetRegistry = new FPartialAssetRegistryState(assetArchive);
                 AssetRegistry.AddRange(assetRegistry.PreallocatedAssetDataBuffers);
                 Log.Information("Loaded Asset Registry: {FilePath}", file.Path);
             }

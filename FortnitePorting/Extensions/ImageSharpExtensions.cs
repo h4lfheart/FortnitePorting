@@ -23,7 +23,7 @@ public static class ImageSharpExtensions
             var mip = texture.GetFirstMip();
             if (mip is null) return null;
         
-            var bitmap = texture.Decode(mip)?.ToSkBitmap();
+            using var bitmap = texture.Decode(mip)?.ToSkBitmap();
             if (bitmap is null) return null;
         
             Image returnImage = bitmap.ColorType switch
