@@ -9,12 +9,15 @@ namespace FortnitePorting;
 public enum EFortniteVersion
 {
     [Description("Latest (Installed)")]
+    [Icon(MaterialIconKind.Folder)]
     LatestInstalled,
     
     [Description("Latest (On-Demand)")]
+    [Icon(MaterialIconKind.Download)]
     LatestOnDemand,
     
     [Description("Custom")]
+    [Icon(MaterialIconKind.Edit)]
     Custom
     
 }

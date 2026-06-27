@@ -35,5 +35,11 @@ public partial class SettingsViewModel(SettingsService settings, SupabaseService
     {
         App.RestartWithMessage("A restart is required", "To reset all settings, FortnitePorting must be restarted.", AppSettings.Reset);
     }
+
+    [RelayCommand]
+    public void RestartApplication()
+    {
+        App.RestartWithMessage("Restart Application", "Are you sure you would like to restart?");
+    }
     
 }
