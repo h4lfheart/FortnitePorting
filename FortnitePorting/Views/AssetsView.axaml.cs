@@ -22,20 +22,20 @@ namespace FortnitePorting.Views;
 public partial class AssetsView : ViewBase<AssetsViewModel>
 {
     private bool _finishedFirstLoad = false;
-    
+
     public AssetsView()
     {
         InitializeComponent();
-        
+
         Navigation.Assets.Initialize(Sidebar);
         Navigation.Assets.AddBehaviorResolver<EExportType>(ChangeTab);
         Navigation.Assets.AddBehaviorResolver<string>(type =>
         {
             if (!Enum.TryParse(type, true, out EExportType enumType)) return;
-            
+
             ChangeTab(enumType);
         });
-        
+
         PointerWheelChangedEvent.AddClassHandler<TopLevel>((sender, args) =>
         {
             if ((args.KeyModifiers & KeyModifiers.Control) != 0)
@@ -44,11 +44,11 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
 
                 AppSettings.Application.AssetScale =
                     float.Clamp(AppSettings.Application.AssetScale + (delta > 0 ? 0.25f : -0.25f), 0.5f, 4.0f);
-            
+
                 args.Handled = true;
             }
         }, handledEventsToo: true);
-        
+
         AssetsListBox.AddHandler(PointerPressedEvent, OnAssetItemPressed, RoutingStrategies.Tunnel);
         AssetsListBox.AddHandler(PointerMovedEvent, OnAssetItemPointerMoved, RoutingStrategies.Tunnel);
         AssetsListBox.AddHandler(PointerReleasedEvent, OnAssetItemPointerReleased, RoutingStrategies.Tunnel);
@@ -68,9 +68,9 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
     private void ChangeTab(EExportType assetType)
     {
         if (ViewModel.AssetLoader.ActiveLoader?.Type == assetType) return;
-        
+
         AssetsListBox.SelectedItems?.Clear();
-        
+
         Discord.Update(assetType);
         var loaders = ViewModel.AssetLoader.Categories.SelectMany(category => category.Loaders);
         foreach (var loader in loaders)
@@ -84,7 +84,7 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
                 loader.Pause();
             }
         }
-        
+
         TaskService.Run(async () =>
         {
             await ViewModel.AssetLoader.Load(assetType);
@@ -94,7 +94,7 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
     private void OnRandomButtonPressed(object? sender, RoutedEventArgs routedEventArgs)
     {
         AssetsListBox.SelectedIndex = Random.Shared.Next(0, AssetsListBox.Items.Count);
-        
+
         if (AssetsListBox.SelectedItem is not AssetItem item) return;
         if (item.IconDisplayImage is not null) return;
 
@@ -106,16 +106,16 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
         if (sender is not ListBox listBox) return;
         if (listBox.SelectedItems is null) return;
         if (listBox.SelectedItems.Count == 0) return;
-        
+
         ViewModel.AssetLoader.ActiveLoader.SelectedAssetInfos = [];
         foreach (var asset in listBox.SelectedItems.Cast<BaseAssetItem>())
         {
             if (asset is AssetItem assetItem)
             {
-                var stylePaths = 
+                var stylePaths =
                     ViewModel.AssetLoader.ActiveLoader.StyleDictionary.GetValueOrDefault(asset.CreationData.DisplayName) ??
                     ViewModel.AssetLoader.ActiveLoader.StyleDictionary.GetValueOrDefault(asset.CreationData.ID);
-                
+
                 ViewModel.AssetLoader.ActiveLoader.SelectedAssetInfos.Add(
                     stylePaths is not null
                         ? new AssetInfo(assetItem, stylePaths.OrderBy(x => x.EndsWith(asset.CreationData.ID, StringComparison.OrdinalIgnoreCase) ? 0 : 1))
@@ -127,7 +127,7 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
             }
         }
     }
-    
+
     private void OnScrollAssets(object? sender, PointerWheelEventArgs e)
     {
         if (sender is not ScrollViewer scrollViewer) return;
@@ -155,7 +155,7 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
     private void OnItemSelected(object? sender, SidebarItemSelectedArgs e)
     {
         if (e.Tag is not EExportType assetType) return;
-        
+
         ChangeTab(assetType);
     }
 
@@ -163,7 +163,7 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
     {
         if (e.Item is not AssetItem item) return;
         if (item.IconDisplayImage is not null) return;
-        
+
         item.LoadBitmap();
     }
 
@@ -172,21 +172,28 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
         if (sender is not Control control) return;
         if (control.DataContext is not AssetStyleInfo assetStyleInfo) return;
         if (assetStyleInfo.RequiredSelection) return;
-        
+
         assetStyleInfo.SelectedStyleIndex = -1;
         assetStyleInfo.SelectedItems.Clear();
     }
 
+    private bool _suppressSelectionChange = false;
     private PointerPressedEventArgs? _assetDragArgs;
     private Point _dragStartPosition;
 
     private void OnAssetItemPressed(object? sender, PointerPressedEventArgs e)
     {
         if (e.Source is not Control source) return;
-    
+
         var item = GetAssetItemFromSource(source);
         if (item is null) return;
-    
+
+        if (AssetsListBox.SelectedItems?.Contains(item) ?? false)
+        {
+            e.Handled = true;
+            _suppressSelectionChange = true;
+        }
+
         _assetDragArgs = e;
         _dragStartPosition = e.GetPosition(AssetsListBox);
     }
@@ -201,13 +208,37 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
 
         var args = _assetDragArgs;
         _assetDragArgs = null;
+        _suppressSelectionChange = false;
 
         TaskService.RunDispatcher(async () => await StartDragAsync(args));
     }
 
     private void OnAssetItemPointerReleased(object? sender, PointerReleasedEventArgs e)
     {
+        var suppress = _suppressSelectionChange;
+        var dragArgs = _assetDragArgs;
+        _suppressSelectionChange = false;
         _assetDragArgs = null;
+
+        if (!suppress || dragArgs is null) return;
+        if (e.Source is not Control source) return;
+
+        var item = GetAssetItemFromSource(source);
+        if (item is null) return;
+
+        var modifiers = e.KeyModifiers;
+        if ((modifiers & KeyModifiers.Control) != 0 || (modifiers & KeyModifiers.Shift) != 0)
+        {
+            if (AssetsListBox.SelectedItems?.Contains(item) == true)
+                AssetsListBox.SelectedItems.Remove(item);
+            else
+                AssetsListBox.SelectedItems?.Add(item);
+        }
+        else
+        {
+            AssetsListBox.SelectedItems?.Clear();
+            AssetsListBox.SelectedItems?.Add(item);
+        }
     }
 
     private AssetItem? GetAssetItemFromSource(Control source)
@@ -221,7 +252,7 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
         }
         return null;
     }
-    
+
     private async Task StartDragAsync(PointerEventArgs e)
     {
         var dragDropInfoFile = Path.Combine(App.DataFolder.FullName, "info.fp_drag_drop");
@@ -239,13 +270,12 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
         var storageFile = await TopLevel.GetTopLevel(this)!
             .StorageProvider
             .TryGetFileFromPathAsync(new Uri(dragDropInfoFile));
-        
+
         if (storageFile is null) return;
-        
+
         var data = new DataObject();
         data.Set(DataFormats.Files, new[] { storageFile });
 
         await DragDrop.DoDragDrop(e, data, DragDropEffects.Copy | DragDropEffects.Move);
-         
     }
 }
