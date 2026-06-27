@@ -1,0 +1,36 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:sidebar="clr-namespace:FortnitePorting.Controls.Navigation.Sidebar"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions"
+             xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             x:Class="FortnitePorting.Controls.Navigation.Sidebar.SidebarItemGroup" ClipToBounds="False">
+    <StackPanel Spacing="{ext:Space 1.5}" ClipToBounds="False">
+        <Button Classes="EmptyButton" Padding="0"
+                HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                Command="{Binding ToggleCommand, RelativeSource={RelativeSource AncestorType=sidebar:SidebarItemGroup}}">
+            <Grid ColumnDefinitions="* Auto" Margin="{ext:Space 0, 0.5}">
+                <TextBlock Grid.Column="0"
+                           Text="{Binding Title, RelativeSource={RelativeSource AncestorType=sidebar:SidebarItemGroup}}"
+                           FontSize="13"
+                           FontFamily="{StaticResource SFTextMedium}"
+                           Classes="TextFillColorTertiaryBrush"
+                           VerticalAlignment="Center" />
+                
+                <material:MaterialIcon Grid.Column="1"
+                                       Kind="{Binding ChevronIcon, RelativeSource={RelativeSource AncestorType=sidebar:SidebarItemGroup}}"
+                                       Width="16" Height="16"
+                                       Foreground="{DynamicResource TextFillTertiaryBrush}" />
+            </Grid>
+        </Button>
+
+        <ItemsControl ItemsSource="{Binding Items, RelativeSource={RelativeSource AncestorType=sidebar:SidebarItemGroup}}"
+                      IsVisible="{Binding IsExpanded, RelativeSource={RelativeSource AncestorType=sidebar:SidebarItemGroup}}"
+                      ClipToBounds="False">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Vertical" Spacing="{ext:Space 1.5}" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
+    </StackPanel>
+</UserControl>

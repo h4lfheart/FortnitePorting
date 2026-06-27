@@ -121,7 +121,7 @@ public class NavigatorContext(string name, NavigationTransitionInfo? transitionI
             }
             
             Sidebar?.SelectButton(
-                Sidebar.FlattenedItems.OfType<SidebarItemButton>().FirstOrDefault(item => item.Tag?.Equals(obj) ?? false),
+                Sidebar.GetAllButtons().FirstOrDefault(item => item.Tag?.Equals(obj) ?? false),
                 raiseEvent: false
             );
 
