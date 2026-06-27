@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CUE4Parse.UE4.Readers;
 using CUE4Parse.UE4.Writers;
+using CUE4Parse.Utils;
 using FortnitePorting.Exporting;
 using FortnitePorting.Extensions;
 using FortnitePorting.Services;
@@ -253,7 +254,7 @@ public class ExportClient(EExportServerType serverType) : IDisposable
                     TaskService.Run(async () =>
                     {
                         var loadedObjects = paths
-                            .Select(path => UEParse.Provider.SafeLoadPackageObject(path.Value<string>()))
+                            .Select(path => UEParse.Provider.SafeLoadPackageObject(path.Value<string>()!.SubstringBeforeLast(".")))
                             .Where(asset => asset is not null);
                         await Exporter.Export(loadedObjects!, AppSettings.ExportSettings.CreateExportMeta(serverType.LocationType));
                     });

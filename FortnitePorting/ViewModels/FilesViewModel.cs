@@ -39,8 +39,11 @@ namespace FortnitePorting.ViewModels;
 public partial class FilesViewModel(FilesService filesService) : ViewModelBase
 {
     [ObservableProperty] private FilesService _files = filesService;
-    
-    [ObservableProperty] private FileBrowserContext _context = new();
+
+    [ObservableProperty] private FileBrowserContext _context = new()
+    {
+        IsDragDropEnabled = true
+    };
 
     [ObservableProperty] private EExportLocation _assetExportLocation = EExportLocation.Blender;
     [ObservableProperty] private EExportLocation _dataExportLocation = EExportLocation.AssetsFolder;

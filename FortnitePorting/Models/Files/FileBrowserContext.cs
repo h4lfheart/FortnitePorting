@@ -45,6 +45,8 @@ public partial class FileBrowserContext : ObservableObject
 
     [ObservableProperty] private string _flatSearchFilter = string.Empty;
     [ObservableProperty] private string _fileSearchFilter = string.Empty;
+    
+    [ObservableProperty] private bool _isDragDropEnabled = false;
 
     [ObservableProperty] private EFileFilterType _fileTypeFilter = EFileFilterType.All;
     private readonly Dictionary<EFileFilterType, string[]> _searchTermsByFilter = new()
