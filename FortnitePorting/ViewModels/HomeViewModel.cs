@@ -35,13 +35,7 @@ public partial class HomeViewModel() : ViewModelBase
             News = [..(await Api.FortnitePorting.News()).Take(3)];
             FeaturedArt = [..(await Api.FortnitePorting.FeaturedArt()).Random(3)];
             
-            await UEParse.Initialize();
-
-            if (AppSettings.Application.UseDefaultExportLoadType)
-                await AssetLoading.Load(AppSettings.Application.DefaultExportLoadType);
-            
-            Files.Initialize();
-            await FilesVM.Initialize();
+            await UEParse.LoadCoreSessionAsync();
         });
 
         if (!AppSettings.Application.DontAskAboutKofi &&

@@ -15,7 +15,7 @@ using PropertiesContainer = FortnitePorting.Models.Viewers.PropertiesContainer;
 
 namespace FortnitePorting.Windows;
 
-public partial class PropertiesPreviewWindow : WindowBase<PropertiesPreviewWindowModel>
+public partial class PropertiesPreviewWindow : WindowBase<PropertiesPreviewWindowModel>, IPreviewWindow
 {
     public static PropertiesPreviewWindow? Instance;
     private FoldingManager _foldingManager;

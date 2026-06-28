@@ -51,6 +51,11 @@
                             Content="{controls1:IconText 'Remove Profile', Minus}"
                             IsEnabled="{Binding CanRemoveProfiles}"
                             Command="{Binding RemoveProfile}" />
+
+                    <Button ToolTip.Tip="Reload Installation" HorizontalAlignment="Stretch"
+                            Content="{controls1:IconText 'Reload', Refresh}"
+                            IsEnabled="{Binding !UEParse.IsLoading}"
+                            Command="{Binding ReloadInstallationCommand}" />
                 </StackPanel>
             </sidebar:Sidebar.Footer>
         </sidebar:Sidebar>

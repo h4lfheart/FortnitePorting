@@ -30,6 +30,7 @@ using CUE4Parse.Utils;
 using EpicManifestParser;
 using EpicManifestParser.UE;
 using FortnitePorting.Extensions;
+using FortnitePorting.Framework;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.CUE4Parse;
 using FortnitePorting.Models.Fortnite;
@@ -37,20 +38,19 @@ using FortnitePorting.Models.Information;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Views;
 using FortnitePorting.Views.Settings;
-using FortnitePorting.Windows;
 using Serilog;
 using UE4Config.Parsing;
 using FGuid = CUE4Parse.UE4.Objects.Core.Misc.FGuid;
 
 namespace FortnitePorting.Services;
 
-public partial class CUE4ParseService : ObservableObject, IService
+public partial class CUE4ParseService : ObservableObject, IService, IResettable
 {
     [ObservableProperty] private string _status = "Loading Files";
     [ObservableProperty] private bool _finishedLoading;
     [ObservableProperty] private float _progress = 0.0f;
-
-    public HybridFileProvider Provider;
+    [ObservableProperty] private bool _isLoading;
+    public HybridFileProvider? Provider;
 
     public FBuildPatchAppManifest? LiveManifest;
     
@@ -139,6 +139,42 @@ public partial class CUE4ParseService : ObservableObject, IService
 
         UpdateStatus(string.Empty);
         FinishedLoading = true;
+        Progress = 0;
+    }
+
+    public void Reset()
+    {
+        FinishedLoading = false;
+        Progress = 0;
+        Status = "Loading Files";
+
+        Provider?.Dispose();
+        Provider = null;
+        LiveManifest = null;
+
+        AssetRegistry.Clear();
+        RarityColors.Clear();
+        BeanstalkColors.Clear();
+        BeanstalkMaterialProps.Clear();
+        BeanstalkAtlasTextureUVs.Clear();
+        MaleLobbyMontages.Clear();
+        FemaleLobbyMontages.Clear();
+        SetNames.Clear();
+    }
+
+    public async Task LoadCoreSessionAsync()
+    {
+        IsLoading = true;
+        await Initialize();
+        IsLoading = false;
+
+        if (!FinishedLoading) return;
+
+        if (AppSettings.Application.UseDefaultExportLoadType)
+            await AssetLoading.Load(AppSettings.Application.DefaultExportLoadType);
+
+        Files.Initialize();
+        await FilesVM.Initialize();
     }
 
     public void UpdateStatus(string status)

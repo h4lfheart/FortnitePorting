@@ -13,7 +13,7 @@ using FortnitePorting.WindowModels;
 
 namespace FortnitePorting.Windows;
 
-public partial class MaterialPreviewWindow : WindowBase<MaterialPreviewWindowModel>
+public partial class MaterialPreviewWindow : WindowBase<MaterialPreviewWindowModel>, IPreviewWindow
 {
     public static MaterialPreviewWindow? Instance;
     

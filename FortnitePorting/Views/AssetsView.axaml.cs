@@ -4,7 +4,6 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.LogicalTree;
 using FortnitePorting.Controls.Navigation.Sidebar;
 using FortnitePorting.Controls.WrapPanel;
 using FortnitePorting.Framework;
@@ -21,8 +20,6 @@ namespace FortnitePorting.Views;
 
 public partial class AssetsView : ViewBase<AssetsViewModel>
 {
-    private bool _finishedFirstLoad;
-
     private bool _suppressSelectionChange;
     private PointerPressedEventArgs? _assetDragArgs;
     private Point _dragStartPosition;
@@ -53,18 +50,6 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
         AssetsListBox.AddHandler(PointerPressedEvent, OnAssetItemPressed, RoutingStrategies.Tunnel);
         AssetsListBox.AddHandler(PointerMovedEvent, OnAssetItemPointerMoved, RoutingStrategies.Tunnel);
         AssetsListBox.AddHandler(PointerReleasedEvent, OnAssetItemPointerReleased, RoutingStrategies.Tunnel);
-    }
-
-    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
-    {
-        base.OnAttachedToVisualTree(e);
-
-        if (_finishedFirstLoad) return;
-
-        Navigation.Assets.Open(AppSettings.Application.UseDefaultExportLoadType
-            ? AppSettings.Application.DefaultExportLoadType
-            : EExportType.Outfit);
-        _finishedFirstLoad = true;
     }
 
     private void ChangeTab(EExportType assetType)

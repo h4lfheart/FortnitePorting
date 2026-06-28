@@ -24,7 +24,7 @@ using Serilog;
 
 namespace FortnitePorting.ViewModels;
 
-public partial class MapViewModel : ViewModelBase
+public partial class MapViewModel : ViewModelBase, IResettable
 {
     [ObservableProperty] private SettingsService _appSettings;
     [ObservableProperty] private SupabaseService _supaBase;
@@ -71,7 +71,23 @@ public partial class MapViewModel : ViewModelBase
         "FeralCorgi_2Bombsite_Map"
     ];
 
+    public void Reset()
+    {
+        Maps.Clear();
+        SelectedMap = null;
+        LoadedMaps = 0;
+        TotalMaps = int.MaxValue;
+        IsLoading = true;
+        CurrentlyLoadingMap = null;
+        InvalidateInitialization();
+    }
+
     public override async Task Initialize()
+    {
+        await LoadMapsAsync();
+    }
+
+    private async Task LoadMapsAsync()
     {
         await TaskService.RunDispatcherAsync(async () =>
         {
@@ -236,9 +252,8 @@ public partial class MapViewModel : ViewModelBase
     
     public override async Task OnViewOpened()
     {
-        if (SelectedMap is null) return;
-        
-        Discord.Update($"Browsing Map: \"{SelectedMap.MapInfo.Name}\"");
+        if (SelectedMap is not null)
+            Discord.Update($"Browsing Map: \"{SelectedMap.MapInfo.Name}\"");
     }
 
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)

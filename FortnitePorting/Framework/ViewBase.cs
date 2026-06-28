@@ -10,20 +10,21 @@ public abstract class ViewBase<T> : UserControl where T : ViewModelBase
 {
     protected readonly T ViewModel;
 
-    public ViewBase(T? templateViewModel = null, bool initializeViewModel = true)
+    public ViewBase(T? templateViewModel = null)
     {
         ViewModel = templateViewModel ?? AppServices.Services.GetRequiredService<T>();
         DataContext = ViewModel;
-
-        if (initializeViewModel)
-        {
-            TaskService.Run(ViewModel.Initialize);
-        }
     }
 
     protected override async void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);
+
+        if (!ViewModel.IsInitialized)
+        {
+            ViewModel.IsInitialized = true;
+            TaskService.Run(ViewModel.Initialize);
+        }
 
         await ViewModel.OnViewOpened();
     }

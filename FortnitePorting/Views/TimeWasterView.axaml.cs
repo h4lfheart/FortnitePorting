@@ -12,12 +12,13 @@ namespace FortnitePorting.Views;
 
 public partial class TimeWasterView : ViewBase<TimeWasterViewModel>
 {
-    public TimeWasterView(bool game = true) : base(initializeViewModel: false)
+    public TimeWasterView(bool game = true) : base()
     {
         InitializeComponent();
 
         KeyDownEvent.AddClassHandler<TopLevel>(OnKeyDown, handledEventsToo: true);
         ViewModel.IsGame = game;
+        ViewModel.IsInitialized = true;
         TaskService.RunDispatcher(ViewModel.Initialize);
     }
     

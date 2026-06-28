@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input.Platform;
@@ -11,8 +12,10 @@ using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.Utils;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
+using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Information;
+using FortnitePorting.Models.Leaderboard;
 using FortnitePorting.ViewModels;
 using FortnitePorting.Views;
 using FortnitePorting.Windows;
@@ -26,6 +29,39 @@ public class AppService : IService
     public IClassicDesktopStyleApplicationLifetime Lifetime;
     public IStorageProvider StorageProvider => Lifetime.MainWindow!.StorageProvider;
     public IClipboard Clipboard => Lifetime.MainWindow!.Clipboard!;
+
+    private readonly SemaphoreSlim _reloadSemaphore = new(1, 1);
+
+    public async Task ReloadInstallationAsync()
+    {
+        if (!await _reloadSemaphore.WaitAsync(0)) 
+            return;
+        
+        try
+        {
+            // TODO add caching service to handle this information
+            LeaderboardExport.ClearCache();
+            ImageExtensions.ClearCachedBitmaps();
+            
+            WindowManager.CloseAllPreviews();
+
+            var resettableTypes = Assembly.GetAssembly(typeof(IResettable))?
+                .GetTypes()
+                .Where(t => !t.IsAbstract && t.IsAssignableTo(typeof(IResettable))) ?? [];
+
+            foreach (var type in resettableTypes)
+            {
+                if (AppServices.Services.GetService(type) is IResettable resettable)
+                    resettable.Reset();
+            }
+
+            await UEParse.LoadCoreSessionAsync();
+        }
+        finally
+        {
+            _reloadSemaphore.Release();
+        }
+    }
 
     public DirectoryInfo ApplicationDataFolder => AppSettings.Application.UseAppDataPath && Directory.Exists(AppSettings.Application.AppDataPath)
         ? new DirectoryInfo(AppSettings.Application.AppDataPath) 

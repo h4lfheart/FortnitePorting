@@ -41,6 +41,12 @@ public class AssetItem : Base.BaseAssetItem
 
     private static ConcurrentDictionary<string, UFortItemSeriesDefinition> SeriesCache = [];
     private static ConcurrentDictionary<string, WriteableBitmap> BackgroundCache = [];
+
+    public static void ResetCaches()
+    {
+        SeriesCache.Clear();
+        BackgroundCache.Clear();
+    }
     
     public AssetItem(AssetItemCreationArgs args)
     {

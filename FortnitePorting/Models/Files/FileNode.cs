@@ -33,4 +33,11 @@ public class FileNode
 
     public bool TryGetChild(string name, out FileNode child)
         => Children.TryGetValue(name, out child!);
+
+    public void Clear()
+    {
+        Children.Clear();
+        FileChildCount = 0;
+        FolderChildCount = 0;
+    }
 }

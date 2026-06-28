@@ -12,7 +12,7 @@ using FortnitePorting.WindowModels;
 
 namespace FortnitePorting.Windows;
 
-public partial class SoundCuePreviewWindow : WindowBase<SoundCuePreviewWindowModel>
+public partial class SoundCuePreviewWindow : WindowBase<SoundCuePreviewWindowModel>, IPreviewWindow
 {
     public static SoundCuePreviewWindow? Instance;
     

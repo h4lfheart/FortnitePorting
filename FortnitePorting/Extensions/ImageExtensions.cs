@@ -94,6 +94,8 @@ public static class ImageExtensions
     
     public static ConcurrentDictionary<string, Bitmap> CachedBitmaps = [];
 
+    public static void ClearCachedBitmaps() => CachedBitmaps.Clear();
+
     public static Bitmap AvaresBitmap(string path)
     {
         if (CachedBitmaps.TryGetValue(path, out var existingBitmap))

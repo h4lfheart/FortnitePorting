@@ -8,7 +8,7 @@ using FortnitePorting.WindowModels;
 
 namespace FortnitePorting.Windows;
 
-public partial class TexturePreviewWindow : WindowBase<TexturePreviewWindowModel>
+public partial class TexturePreviewWindow : WindowBase<TexturePreviewWindowModel>, IPreviewWindow
 {
     public static TexturePreviewWindow? Instance;
     

@@ -20,7 +20,7 @@ using Serilog;
 
 namespace FortnitePorting.Services;
 
-public partial class FilesService : ObservableObject, IService
+public partial class FilesService : ObservableObject, IService, IResettable
 {
     public FileNode RootFileNode { get; } = new("Files", string.Empty, ENodeType.Folder);
 
@@ -32,11 +32,21 @@ public partial class FilesService : ObservableObject, IService
 
     public string LoadingPercentageText => $"{(LoadedFiles == 0 && TotalFiles == 0 ? 0 : LoadedFiles * 100f / TotalFiles):N0}%";
 
+    public void Reset()
+    {
+        RootFileNode.Clear();
+        FlatViewAssetCache.Clear();
+        LoadedFiles = 0;
+        TotalFiles = int.MaxValue;
+        IsLoading = true;
+    }
+
     public void Initialize()
     {
         if (UEParse.Provider is null) return;
 
         IsLoading = true;
+        LoadedFiles = 0;
         BuildFileList();
         IsLoading = false;
     }
