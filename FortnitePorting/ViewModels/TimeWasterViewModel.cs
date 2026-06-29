@@ -51,6 +51,8 @@ public partial class TimeWasterViewModel : ViewModelBase
     private float TimeSinceLastProjectile;
     private int NextBossScore = BOSS_SCORE_DISTANCE;
     
+    private static bool LoadedResources = false;
+    
     private readonly WaveOutEvent AmbientOutput = new();
     private readonly WaveOutEvent GameOutput = new();
     private static LoopStream AmbientBackground;
@@ -72,8 +74,10 @@ public partial class TimeWasterViewModel : ViewModelBase
     private const int BOSS_SCORE = 5000;
     private const float DELTA_TIME = 1.0f / 60f;
 
-    public static void LoadResources()
+    public void LoadResources()
     { 
+        if (LoadedResources) return;
+        
         AmbientBackground = new LoopStream(new VorbisWaveReader(AssetLoader.Open(new Uri("avares://FortnitePorting/Assets/TimeWaster/Music/Ambient_Music.ogg"))));
         GameBackground = new LoopStream(new VorbisWaveReader(AssetLoader.Open(new Uri("avares://FortnitePorting/Assets/TimeWaster/Music/Game_Music.ogg"))));
         Spawn = new CachedSound("avares://FortnitePorting/Assets/TimeWaster/SFX/PMB_Spawn_01.ogg");
@@ -88,6 +92,8 @@ public partial class TimeWasterViewModel : ViewModelBase
         {
             PianoSnippets.Add(new CachedSound($"avares://FortnitePorting/Assets/TimeWaster/Music/PianoSnippets/NightNight_Music_PianoSnip_{index:D2}.ogg"));
         }
+
+        LoadedResources = true;
     }
     
     public override async Task Initialize()

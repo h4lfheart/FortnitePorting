@@ -73,6 +73,7 @@ public partial class AssetLoader : ObservableObject
         Source.Clear();
         FilteredAssetBag.Clear();
         StyleDictionary.Clear();
+        SelectedAssetInfos.Clear();
     }
     
     [ObservableProperty, NotifyPropertyChangedFor(nameof(PauseIcon))] private bool _isPaused = false;

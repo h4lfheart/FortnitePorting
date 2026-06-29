@@ -7,6 +7,7 @@ using System.Runtime;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Threading;
 using Avalonia.Input.Platform;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.Input;
@@ -76,21 +77,26 @@ public class AppService : IService
         
         try
         {
-            // TODO add caching service to handle this information
-            LeaderboardExport.ClearCache();
-            ImageExtensions.ClearCachedBitmaps();
-            
-            WindowManager.CloseAllPreviews();
-
-            var resettableTypes = Assembly.GetAssembly(typeof(IResettable))?
-                .GetTypes()
-                .Where(t => !t.IsAbstract && t.IsAssignableTo(typeof(IResettable))) ?? [];
-
-            foreach (var type in resettableTypes)
+            await TaskService.RunDispatcherAsync(() =>
             {
-                if (AppServices.Services.GetService(type) is IResettable resettable)
-                    resettable.Reset();
-            }
+                // TODO add caching service to handle this information
+                LeaderboardExport.ClearCache();
+                ImageExtensions.ClearCachedBitmaps();
+            
+                WindowManager.CloseAllPreviews();
+
+                var resettableTypes = Assembly.GetAssembly(typeof(IResettable))?
+                    .GetTypes()
+                    .Where(t => !t.IsAbstract && t.IsAssignableTo(typeof(IResettable))) ?? [];
+
+                foreach (var type in resettableTypes)
+                {
+                    if (AppServices.Services.GetService(type) is IResettable resettable)
+                        resettable.Reset();
+                }
+            });
+
+           await Dispatcher.UIThread.InvokeAsync(() => { }, DispatcherPriority.Background);
 
             // get outta here memory!!
             GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
@@ -133,8 +139,6 @@ public class AppService : IService
 
     private void OnAppStart(object? sender, ControlledApplicationLifetimeStartupEventArgs e)
     {
-        TimeWasterViewModel.LoadResources();
-
         if (AppSettings.Account.UseDiscordRichPresence)
             Discord.Initialize();
 

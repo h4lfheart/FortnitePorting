@@ -24,7 +24,7 @@ public partial class FilesService : ObservableObject, IService, IResettable
 {
     public FileNode RootFileNode { get; } = new("Files", string.Empty, ENodeType.Folder);
 
-    public readonly SourceCache<FlatItem, string> FlatViewAssetCache = new(item => item.Path);
+    public SourceCache<FlatItem, string> FlatViewAssetCache = new(item => item.Path);
 
     [ObservableProperty, NotifyPropertyChangedFor(nameof(LoadingPercentageText))] private int _loadedFiles;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(LoadingPercentageText))] private int _totalFiles = int.MaxValue;
@@ -35,7 +35,8 @@ public partial class FilesService : ObservableObject, IService, IResettable
     public void Reset()
     {
         RootFileNode.Clear();
-        FlatViewAssetCache.Clear();
+        FlatViewAssetCache.Dispose();
+        FlatViewAssetCache = new SourceCache<FlatItem, string>(item => item.Path);
         LoadedFiles = 0;
         TotalFiles = int.MaxValue;
         IsLoading = true;

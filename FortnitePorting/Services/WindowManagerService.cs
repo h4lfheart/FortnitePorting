@@ -14,7 +14,9 @@ public class WindowManagerService : IService
 
     public void CloseAllPreviews()
     {
-        foreach (var window in _openWindows.OfType<IPreviewWindow>().ToArray())
-            ((Window)window).Close();
+        foreach (var window in _openWindows.OfType<IPreviewWindow>().OfType<Window>().ToArray())
+        {
+            window.Close();
+        }
     }
 }

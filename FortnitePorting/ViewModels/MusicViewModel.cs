@@ -46,6 +46,8 @@ public partial class MusicViewModel : ViewModelBase, IResettable
 
     public void Reset()
     {
+        foreach (var item in Source.Items)
+            item.Detach();
         Source.Clear();
         Playlists.Clear();
         Playlists.Add(RadioPlaylist.Default);

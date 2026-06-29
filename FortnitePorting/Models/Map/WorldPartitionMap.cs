@@ -56,9 +56,19 @@ public partial class WorldPartitionMap : ObservableObject
     public DirectoryInfo MapsFolder => new(Path.Combine(App.ApplicationDataFolder.FullName, "Maps"));
     private string ExportPath => Path.Combine(MapsFolder.FullName, WorldName);
     
-    private UWorld _world;
-    private ULevel _level;
-    
+    private UWorld? _world;
+    private ULevel? _level;
+
+    public void Detach()
+    {
+        _world = null;
+        _level = null;
+        MapBitmap?.Dispose();
+        MaskBitmap?.Dispose();
+        MapBitmap = null;
+        MaskBitmap = null;
+    }
+
     private static readonly Color HeightBaseColor = Color.FromRgb(0x79, 0x79, 0x79);
     private static readonly Color NormalBaseColor = Color.FromRgb(0x7f, 0x7f, 0xFF);
 

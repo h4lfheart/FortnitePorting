@@ -73,6 +73,8 @@ public partial class MapViewModel : ViewModelBase, IResettable
 
     public void Reset()
     {
+        foreach (var map in Maps)
+            map.Detach();
         Maps.Clear();
         SelectedMap = null;
         LoadedMaps = 0;
@@ -262,7 +264,7 @@ public partial class MapViewModel : ViewModelBase, IResettable
 
         switch (e.PropertyName)
         {
-            case nameof(SelectedMap):
+            case nameof(SelectedMap) when SelectedMap is not null:
             {
                 GridsControl?.InvalidateVisual();
                 
