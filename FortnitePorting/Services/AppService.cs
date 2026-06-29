@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -31,37 +32,6 @@ public class AppService : IService
     public IClipboard Clipboard => Lifetime.MainWindow!.Clipboard!;
 
     private readonly SemaphoreSlim _reloadSemaphore = new(1, 1);
-
-    public async Task ReloadInstallationAsync()
-    {
-        if (!await _reloadSemaphore.WaitAsync(0)) 
-            return;
-        
-        try
-        {
-            // TODO add caching service to handle this information
-            LeaderboardExport.ClearCache();
-            ImageExtensions.ClearCachedBitmaps();
-            
-            WindowManager.CloseAllPreviews();
-
-            var resettableTypes = Assembly.GetAssembly(typeof(IResettable))?
-                .GetTypes()
-                .Where(t => !t.IsAbstract && t.IsAssignableTo(typeof(IResettable))) ?? [];
-
-            foreach (var type in resettableTypes)
-            {
-                if (AppServices.Services.GetService(type) is IResettable resettable)
-                    resettable.Reset();
-            }
-
-            await UEParse.LoadCoreSessionAsync();
-        }
-        finally
-        {
-            _reloadSemaphore.Release();
-        }
-    }
 
     public DirectoryInfo ApplicationDataFolder => AppSettings.Application.UseAppDataPath && Directory.Exists(AppSettings.Application.AppDataPath)
         ? new DirectoryInfo(AppSettings.Application.AppDataPath) 
@@ -96,6 +66,44 @@ public class AppService : IService
         Lifetime.Startup += OnAppStart;
         Lifetime.Exit += OnAppExit;
         Lifetime.MainWindow = new AppWindow();
+    }
+    
+    
+    public async Task ReloadInstallationAsync()
+    {
+        if (!await _reloadSemaphore.WaitAsync(0)) 
+            return;
+        
+        try
+        {
+            // TODO add caching service to handle this information
+            LeaderboardExport.ClearCache();
+            ImageExtensions.ClearCachedBitmaps();
+            
+            WindowManager.CloseAllPreviews();
+
+            var resettableTypes = Assembly.GetAssembly(typeof(IResettable))?
+                .GetTypes()
+                .Where(t => !t.IsAbstract && t.IsAssignableTo(typeof(IResettable))) ?? [];
+
+            foreach (var type in resettableTypes)
+            {
+                if (AppServices.Services.GetService(type) is IResettable resettable)
+                    resettable.Reset();
+            }
+
+            // get outta here memory!!
+            GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, blocking: true, compacting: true);
+            GC.WaitForPendingFinalizers();
+            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, blocking: true, compacting: true);
+
+            await UEParse.LoadCoreSessionAsync();
+        }
+        finally
+        {
+            _reloadSemaphore.Release();
+        }
     }
 
     public void HandleUrlScheme(string url)

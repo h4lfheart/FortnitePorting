@@ -23,6 +23,7 @@ using FortnitePorting.Exporting.Models.Files;
 using FortnitePorting.Exporting.Models.Files.Meta;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
+using FortnitePorting.Services;
 using FortnitePorting.Models;
 using FortnitePorting.Models.Files;
 using FortnitePorting.Models.Information;
@@ -36,7 +37,7 @@ using Serilog;
 
 namespace FortnitePorting.ViewModels;
 
-public partial class FilesViewModel(FilesService filesService) : ViewModelBase
+public partial class FilesViewModel(FilesService filesService) : ViewModelBase, IResettable
 {
     [ObservableProperty] private FilesService _files = filesService;
 
@@ -58,6 +59,13 @@ public partial class FilesViewModel(FilesService filesService) : ViewModelBase
             .Where(val => val.IsFolder)
             .Select(val => val.ToEnumRecord())
             .ToArray();
+
+    public void Reset()
+    {
+        Context.Reset();
+        Context = new FileBrowserContext { IsDragDropEnabled = true };
+        InvalidateInitialization();
+    }
 
     public override async Task Initialize()
     {

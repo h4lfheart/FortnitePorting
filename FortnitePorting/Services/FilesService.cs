@@ -54,19 +54,22 @@ public partial class FilesService : ObservableObject, IService, IResettable
     private void BuildFileList()
     {
         TotalFiles = UEParse.Provider.Files.Count;
+
+        var flatItems = new List<FlatItem>(TotalFiles);
+
         foreach (var (_, file) in UEParse.Provider.Files)
         {
             LoadedFiles++;
 
             var path = file.Path;
-            if (!IsValidFilePath(path)) 
+            if (!IsValidFilePath(path))
                 continue;
-            
+
             var sourceVfsName = string.Empty;
             if (file is VfsEntry vfsEntry)
                 sourceVfsName = vfsEntry.Vfs.Name;
-            
-            FlatViewAssetCache.AddOrUpdate(new FlatItem(path, sourceVfsName));
+
+            flatItems.Add(new FlatItem(path, sourceVfsName));
 
             var parts = path.Split("/", StringSplitOptions.RemoveEmptyEntries);
 
@@ -87,6 +90,8 @@ public partial class FilesService : ObservableObject, IService, IResettable
                 parentNode = childNode;
             }
         }
+
+        FlatViewAssetCache.Edit(updater => updater.AddOrUpdate(flatItems));
     }
 
     private bool IsValidFilePath(string path)

@@ -45,6 +45,9 @@ public class AssetItem : Base.BaseAssetItem
     public static void ResetCaches()
     {
         SeriesCache.Clear();
+        
+        foreach (var bitmap in BackgroundCache.Values)
+            bitmap.Dispose();
         BackgroundCache.Clear();
     }
     
