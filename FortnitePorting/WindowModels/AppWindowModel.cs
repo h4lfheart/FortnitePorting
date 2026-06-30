@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -31,7 +32,12 @@ public partial class AppWindowModel(
     [ObservableProperty] private BlackHoleService _blackHole = blackHole;
     [ObservableProperty] private ChatService _chat = chat;
     
-    [ObservableProperty] private string _versionString = Globals.IsDevBuild ? "dev-build" : Globals.VersionString;
+    [ObservableProperty] private string _versionString = Globals.Version.Identifier switch
+    {
+        "dev" => "dev-build",
+        var hash when CommitShaMatch().IsMatch(hash) => hash,
+        _ => Globals.VersionString
+    };
     [ObservableProperty] private int _unreadNewsCount = 0;
 
     [ObservableProperty] private int _chatNotifications;
@@ -128,4 +134,6 @@ public partial class AppWindowModel(
         }
     }
 
+    [GeneratedRegex(@"^[0-9a-f]{7}$")]
+    private static partial Regex CommitShaMatch();
 }
