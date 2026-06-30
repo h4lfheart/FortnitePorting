@@ -70,6 +70,13 @@ public partial class AssetLoader : ObservableObject
         FinishedLoading = false;
         LoadedAssets = 0;
         TotalAssets = int.MaxValue;
+        
+        foreach (var item in Source.Items)
+        {
+            item.IconDisplayImage = null;
+            item.BackgroundImage = null;
+        }
+        
         Source.Clear();
         FilteredAssetBag.Clear();
         StyleDictionary.Clear();

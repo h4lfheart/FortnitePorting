@@ -96,8 +96,6 @@ public static class ImageExtensions
 
     public static void ClearCachedBitmaps()
     {
-        foreach (var bitmap in CachedBitmaps.Values)
-            bitmap.Dispose();
         CachedBitmaps.Clear();
     }
 

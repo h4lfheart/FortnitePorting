@@ -76,10 +76,16 @@ public partial class AssetsViewModel() : ViewModelBase
                     SidebarItems.Add(new SidebarItemSeparator());
             }
         });
+    }
 
-        Navigation.Assets.Open(AppSettings.Application.UseDefaultExportLoadType
-            ? AppSettings.Application.DefaultExportLoadType
-            : EExportType.Outfit);
+    public override async Task OnViewOpened()
+    {
+        if (AssetLoader.ActiveLoader is null)
+        {
+            Navigation.Assets.Open(AppSettings.Application.UseDefaultExportLoadType
+                ? AppSettings.Application.DefaultExportLoadType
+                : EExportType.Outfit);
+        }
     }
 
     public override async Task OnViewExited()
