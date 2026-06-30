@@ -1,5 +1,6 @@
 global using static FortnitePorting.Application.AppServices;
 
+using System.Reflection;
 using Avalonia.Platform.Storage;
 using CUE4Parse.UE4.Objects.Core.Misc;
 using FortnitePorting.Models;
@@ -8,8 +9,14 @@ namespace FortnitePorting;
 
 public static class Globals
 {
+    public static readonly FPVersion Version = new(
+        Assembly.GetEntryAssembly()!
+            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()!
+            .InformationalVersion
+            .Split('+')[0]);
+
     public static string VersionString => Version.GetDisplayString();
-    public static readonly FPVersion Version = new(4, 1, 9);
+    public static bool IsDevBuild => !string.IsNullOrEmpty(Version.Identifier);
     public const string ApplicationTag = "FortnitePorting";
     
     public static readonly FilePickerFileType MappingsFileType = new("Unreal Mappings") { Patterns = [ "*.usmap" ] };

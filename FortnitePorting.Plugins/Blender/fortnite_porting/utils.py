@@ -1,4 +1,5 @@
 import bpy
+import json
 import os
 import sys
 from math import radians
@@ -7,6 +8,19 @@ from mathutils import Matrix, Vector, Euler, Quaternion
 from .logger import Log
 
 blend_files = ["fortnite_porting_data.blend", "fortnite_porting_materials.blend"]
+
+def _read_meta_version() -> tuple:
+    meta_path = os.path.join(os.path.dirname(__file__), "fortnite_porting_meta.json")
+    if not os.path.exists(meta_path):
+        return tuple(sys.modules["fortnite_porting"].bl_info["version"])
+    try:
+        with open(meta_path, "r") as f:
+            meta = json.load(f)
+        version_str = meta.get("Version", "").lstrip("v")
+        parts = version_str.split("-")[0].split(".")
+        return tuple(int(p) for p in parts if p.isdigit())
+    except Exception:
+        return tuple(sys.modules["fortnite_porting"].bl_info["version"])
 
 loaded_versions: dict[str, tuple] = {}
 
@@ -68,7 +82,7 @@ def is_current_version_group(node_group):
     return True
 
 def addon_version():
-    return tuple(sys.modules["fortnite_porting"].bl_info["version"])
+    return _read_meta_version()
 
 def version_string():
     return '.'.join(str(x) for x in addon_version())

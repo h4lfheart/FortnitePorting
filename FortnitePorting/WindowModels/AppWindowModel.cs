@@ -31,7 +31,7 @@ public partial class AppWindowModel(
     [ObservableProperty] private BlackHoleService _blackHole = blackHole;
     [ObservableProperty] private ChatService _chat = chat;
     
-    [ObservableProperty] private string _versionString = Globals.VersionString;
+    [ObservableProperty] private string _versionString = Globals.IsDevBuild ? "dev-build" : Globals.VersionString;
     [ObservableProperty] private int _unreadNewsCount = 0;
 
     [ObservableProperty] private int _chatNotifications;
@@ -107,6 +107,8 @@ public partial class AppWindowModel(
 
     public async Task CheckForUpdate()
     {
+        if (Globals.IsDevBuild) return;
+
         var repositoryInfo = await Api.FortnitePorting.Repository();
         var newestVersion = repositoryInfo?.Versions.MaxBy(version => version.UploadTime);
         if (newestVersion is null || newestVersion.Version <= Globals.Version) return;

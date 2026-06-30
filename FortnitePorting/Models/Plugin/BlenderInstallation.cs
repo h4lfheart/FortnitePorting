@@ -8,7 +8,6 @@ using CommunityToolkit.Mvvm.Input;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.ViewModels;
 using Newtonsoft.Json;
-using Tomlyn;
 
 namespace FortnitePorting.Models.Plugin;
 
@@ -48,9 +47,9 @@ public partial class BlenderInstallation(string blenderExecutablePath) : Observa
         "scripts",
         "startup");
 
-    private string? ManifestPath => StartupPath is null ? null : Path.Combine(StartupPath,
+    private string? MetaPath => StartupPath is null ? null : Path.Combine(StartupPath,
         "fortnite_porting",
-        "blender_manifest.toml");
+        "fortnite_porting_meta.json");
 
     public static readonly DirectoryInfo PluginWorkingDirectory = new(Path.Combine(App.PluginsFolder.FullName, "Blender"));
     public static readonly Version MinimumVersion = new(5, 0);
@@ -84,21 +83,24 @@ public partial class BlenderInstallation(string blenderExecutablePath) : Observa
             return false;
         }
 
-        if (ManifestPath is null || !File.Exists(ManifestPath))
+        if (MetaPath is null || !File.Exists(MetaPath))
         {
-            Info.Message("Blender Extension", $"Plugin manifest does not exist at path {ManifestPath ?? "(unknown)"}, installation may have gone wrong.\nPlease remove the installation from Fortnite Porting and try again.");
-            Status = EPluginStatusType.Failed;
-            return false;
+            Status = EPluginStatusType.UpdateAvailable;
+            return true;
         }
 
-        var manifestContents = File.ReadAllText(ManifestPath);
-        var manifestToml = Toml.ToModel(manifestContents);
-        ExtensionVersion = new Version((string) manifestToml["version"]);
+        var meta = JsonConvert.DeserializeObject<FPPluginMeta>(File.ReadAllText(MetaPath));
+        if (meta is null || string.IsNullOrWhiteSpace(meta.Version))
+        {
+            Status = EPluginStatusType.UpdateAvailable;
+            return true;
+        }
 
-        var fpExtensionVersion = new FPVersion(ExtensionVersion.Major, ExtensionVersion.Minor, ExtensionVersion.Build);
-        Status = fpExtensionVersion.Equals(Globals.Version)
-            ? EPluginStatusType.Newest
-            : EPluginStatusType.UpdateAvailable;
+        var metaVersion = new FPVersion(meta.Version);
+        ExtensionVersion = new Version(metaVersion.Release, metaVersion.Major, metaVersion.Minor);
+        Status = !Globals.IsDevBuild && !metaVersion.Equals(Globals.Version)
+            ? EPluginStatusType.UpdateAvailable
+            : EPluginStatusType.Newest;
 
         return true;
     }
@@ -117,6 +119,9 @@ public partial class BlenderInstallation(string blenderExecutablePath) : Observa
         Status = EPluginStatusType.Modifying;
 
         MiscExtensions.Copy(Path.Combine(PluginWorkingDirectory.FullName, "fortnite_porting"), Path.Combine(StartupPath, "fortnite_porting"));
+
+        if (MetaPath is not null)
+            File.WriteAllText(MetaPath, JsonConvert.SerializeObject(new FPPluginMeta { Version = Globals.VersionString }));
 
         var didSyncProperly = SyncExtensionVersion();
         if (verbose && !didSyncProperly)
