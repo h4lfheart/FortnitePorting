@@ -4,6 +4,7 @@ from .server import Server
 from .logger import Log
 from .processing.importer import Importer
 from .operator.tasty_op import TASTY_PT_RigSettings
+from .operator import drag_drop_op
 
 from .ueformat import register as ueformat_register, unregister as ueformat_unregister
 
@@ -19,7 +20,7 @@ bl_info = {
     "description": "Import Server for Fortnite Porting",
     "author": "Half",
     "blender": (5, 0, 0),
-    "version": (4, 1, 4),
+    "version": (4, 0, 0),
     "category": "Import-Export",
 }
 
@@ -62,14 +63,15 @@ def register():
     bpy.app.handlers.load_post.append(scene_load_handler)
 
     bpy.utils.register_class(TASTY_PT_RigSettings)
+    drag_drop_op.register()
     ueformat_register()
-    
 
 
 def unregister():
     server.shutdown()
 
     bpy.app.handlers.load_post.remove(scene_load_handler)
-    
+
     bpy.utils.unregister_class(TASTY_PT_RigSettings)
+    drag_drop_op.unregister()
     ueformat_unregister()

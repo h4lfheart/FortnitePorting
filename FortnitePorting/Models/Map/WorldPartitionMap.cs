@@ -69,10 +69,20 @@ public partial class WorldPartitionMap : ObservableObject
     public DirectoryInfo MapsFolder => new(Path.Combine(App.ApplicationDataFolder.FullName, "Maps"));
     private string ExportPath => Path.Combine(MapsFolder.FullName, WorldName);
     
-    private UWorld _world;
-    private ULevel _level;
+    private UWorld? _world;
+    private ULevel? _level;
     private CancellationTokenSource? _geometryHeightmapCancellationTokenSource;
-    
+
+    public void Detach()
+    {
+        _world = null;
+        _level = null;
+        MapBitmap?.Dispose();
+        MaskBitmap?.Dispose();
+        MapBitmap = null;
+        MaskBitmap = null;
+    }
+
     private static readonly Color HeightBaseColor = Color.FromRgb(0x79, 0x79, 0x79);
     private static readonly Color NormalBaseColor = Color.FromRgb(0x7f, 0x7f, 0xFF);
 
@@ -98,7 +108,10 @@ public partial class WorldPartitionMap : ObservableObject
         WorldName = MapInfo.MapPath.SubstringAfterLast("/");
         
         _world = await UEParse.Provider.SafeLoadPackageObjectAsync<UWorld>(MapInfo.MapPath);
+        if (_world is null) return;
+
         _level = await _world.PersistentLevel.LoadAsync<ULevel>();
+        if (_level is null) return;
 
         async Task RuntimeHash(UObject runtimeHash)
         {
@@ -284,6 +297,11 @@ public partial class WorldPartitionMap : ObservableObject
     public async Task GenerateGeometryHeightmap()
     {
         if (GeometryHeightmapIsGenerating) return;
+        if (_world is not { } mainWorld)
+        {
+            Info.Message("Heightmap", "Map data is not loaded.", InfoBarSeverity.Error);
+            return;
+        }
 
         var worldFlags = GetSelectedWorldFlags();
         var includeActors = GeometryHeightmapIncludeActors;
@@ -383,7 +401,7 @@ public partial class WorldPartitionMap : ObservableObject
                 if (includeMainLevel)
                 {
                     ReportCollectingPackage("main level");
-                    instances.AddRange(collector.Collect(new[] { _world }, includeStreamingLevels: false));
+                    instances.AddRange(collector.Collect(new[] { mainWorld }, includeStreamingLevels: false));
                     ReportChunkComplete();
                 }
 
@@ -502,6 +520,8 @@ public partial class WorldPartitionMap : ObservableObject
 
     private async Task ExportLandscapeMaps(EMapTextureExportType exportType)
     {
+        if (_level is not { } loadedLevel) return;
+
         var heightTileInfos = new List<MapTextureTileInfo>();
         var weightmapTileInfos = new Dictionary<string, List<MapTextureTileInfo>>();
         
@@ -555,11 +575,11 @@ public partial class WorldPartitionMap : ObservableObject
             return proxyDetectedCount;
         }
 
-        var proxyCount = await CollectTileInfos(_level);
+        var proxyCount = await CollectTileInfos(loadedLevel);
 
         if (proxyCount == 0)
         {
-            var worldSettings = _level.Get<UObject>("WorldSettings");
+            var worldSettings = loadedLevel.Get<UObject>("WorldSettings");
             var worldPartition = worldSettings.Get<UObject>("WorldPartition");
             var runtimeHash = worldPartition.Get<UObject>("RuntimeHash");
             foreach (var streamingGrid in runtimeHash.GetOrDefault("StreamingGrids", Array.Empty<FStructFallback>()))

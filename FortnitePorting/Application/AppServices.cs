@@ -37,6 +37,7 @@ public static class AppServices
     public static AssetLoaderService AssetLoading => Services.GetRequiredService<AssetLoaderService>();
     public static FilesService Files => Services.GetRequiredService<FilesService>();
     public static ExportClientService ExportClient => Services.GetRequiredService<ExportClientService>();
+    public static WindowManagerService WindowManager => Services.GetRequiredService<WindowManagerService>();
    
     // ViewModels
     public static AppWindowModel AppWM => Services.GetRequiredService<AppWindowModel>();

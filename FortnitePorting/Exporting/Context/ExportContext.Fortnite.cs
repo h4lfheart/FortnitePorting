@@ -10,6 +10,7 @@ using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
+using CUE4Parse.UE4.Assets.Objects.Properties;
 using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Objects.Engine.Animation;
@@ -31,8 +32,9 @@ public partial class ExportContext
         var exportPart = Mesh<ExportPart>(skeletalMesh);
         if (exportPart is null) return null;
         
-        exportPart.Type = part.GetOrDefault("CharacterPartType", EFortCustomPartType.Head);
-        exportPart.GenderPermitted = part.GetOrDefault("GenderPermitted", EFortCustomGender.Male);
+        exportPart.Type = part.GetEnumOrDefault("CharacterPartType", EFortCustomPartType.Head);
+
+        exportPart.GenderPermitted = part.GetEnumOrDefault("GenderPermitted", EFortCustomGender.Male);
 
         if (part.TryGetValue(out FStructFallback[] materialOverrides, "MaterialOverrides"))
         {
@@ -276,11 +278,14 @@ public partial class ExportContext
                 {
                     if (!property.Name.Text.Equals("TextureData"))
                         continue;
+
+                    var textureData = property.Tag?.GetValue<FPackageIndex>()?.Load<UBuildingTextureData>();
+                    if (property.Tag?.GetValue<string>() is { } textureDataAssetPath)
+                        textureData ??= UEParse.Provider!.SafeLoadPackageObject<UBuildingTextureData>(textureDataAssetPath);
                     
-                    if (property.Tag?.GetValue<FPackageIndex>()?.Load<UBuildingTextureData>() is not { } textureData)
-                        continue;
+                    if (textureData is not null)
+                        textureDatas.Add(property.ArrayIndex, textureData);
                     
-                    textureDatas.Add(property.ArrayIndex, textureData);
                 }
             }
             

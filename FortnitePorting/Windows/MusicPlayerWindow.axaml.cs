@@ -7,7 +7,7 @@ using FortnitePorting.WindowModels;
 
 namespace FortnitePorting.Windows;
 
-public partial class MusicPlayerWindow : WindowBase<MusicPlayerWindowModel>
+public partial class MusicPlayerWindow : WindowBase<MusicPlayerWindowModel>, IPreviewWindow
 {
     public static MusicPlayerWindow? Instance;
 

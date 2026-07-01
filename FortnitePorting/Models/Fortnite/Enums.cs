@@ -12,6 +12,18 @@ public enum EFortCustomPartType : byte
     NumTypes = 7
 }
 
+public enum EFortCustomBodyType : byte
+{
+    None = 0,
+    Small = 1,
+    Medium = 2,
+    MediumAndSmall = 3,
+    Large = 4,
+    LargeAndSmall = 5,
+    LargeAndMedium = 6,
+    All = 7
+}
+
 
 public enum ECustomHatType : byte
 {
@@ -23,7 +35,7 @@ public enum ECustomHatType : byte
     None
 }
 
-public enum EFortCustomGender  : byte
+public enum EFortCustomGender : byte
 {
     Invalid,
     Male,

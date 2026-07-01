@@ -37,7 +37,7 @@ public partial class AssetLoader : ObservableObject
     public string[] AllowNames = [];
     public string[] HideNames = [];
     public string[] DisallowedNames = [];
-    public Lazy<ManuallyDefinedAsset[]> ManuallyDefinedAssets = new([]);
+    public Func<ManuallyDefinedAsset[]>? ManuallyDefinedAssetsFactory;
     public CustomAsset[] CustomAssets = [];
     public bool LoadHiddenAssets;
     public bool HideRarity;
@@ -46,7 +46,7 @@ public partial class AssetLoader : ObservableObject
     public string PlaceholderIconPath = "FortniteGame/Content/Athena/Prototype/Textures/T_Placeholder_Generic";
     public Func<UObject, UTexture2D?> IconHandler = GetIcon;
     public Func<UObject, string?> DisplayNameHandler = asset => asset.GetAnyOrDefault<FText?>("DisplayName", "ItemName")?.Text;
-    public Func<UObject, string?> DescriptionHandler = asset => asset.GetAnyOrDefault<FText?>("Description", "ItemDescription")?.Text;
+    public Func<UObject, string?> DescriptionHandler = asset => asset.GetAnyOrDefault<FText?>("Description", "ItemDescription")?.Text.TrimEnd();
     public Func<UObject, FGameplayTagContainer?> GameplayTagHandler = GetGameplayTags;
     
     public readonly ConcurrentBag<BaseAssetItem> AssetBag = [];
@@ -55,9 +55,33 @@ public partial class AssetLoader : ObservableObject
     public readonly ConcurrentBag<string> FilteredAssetBag = [];
     public readonly ConcurrentDictionary<string, ConcurrentBag<string>> StyleDictionary = [];
 
-    private List<FAssetData> Assets;
+    private List<FPartialAssetData> AssetDatas;
 
     private bool BeganLoading;
+    private CancellationTokenSource _loadCts = new();
+
+    public void Reset()
+    {
+        _loadCts.Cancel();
+        _loadCts.Dispose();
+        _loadCts = new CancellationTokenSource();
+
+        BeganLoading = false;
+        FinishedLoading = false;
+        LoadedAssets = 0;
+        TotalAssets = int.MaxValue;
+        
+        foreach (var item in Source.Items)
+        {
+            item.IconDisplayImage = null;
+            item.BackgroundImage = null;
+        }
+        
+        Source.Clear();
+        FilteredAssetBag.Clear();
+        StyleDictionary.Clear();
+        SelectedAssetInfos.Clear();
+    }
     
     [ObservableProperty, NotifyPropertyChangedFor(nameof(PauseIcon))] private bool _isPaused = false;
     public MaterialIconKind PauseIcon => IsPaused ? MaterialIconKind.Play : MaterialIconKind.Pause;
@@ -218,31 +242,33 @@ public partial class AssetLoader : ObservableObject
     {
         if (BeganLoading) return;
         BeganLoading = true;
-        
-        Assets = UEParse.AssetRegistry
+
+        var token = _loadCts.Token;
+
+        AssetDatas = UEParse.AssetRegistry
             .Where(data => ClassNames.Contains(data.AssetClass.Text))
             .ToList();
-        Assets.RemoveAll(data => data.AssetName.Text.EndsWith("Random", StringComparison.OrdinalIgnoreCase));
+        AssetDatas.RemoveAll(data => data.AssetName.Text.EndsWith("Random", StringComparison.OrdinalIgnoreCase));
 
-        Assets.RemoveAll(asset => DisallowedNames.Any(name => asset.PackageName.Text.Contains(name, StringComparison.OrdinalIgnoreCase)));
+        AssetDatas.RemoveAll(asset => DisallowedNames.Any(name => asset.PackageName.Text.Contains(name, StringComparison.OrdinalIgnoreCase)));
         
         if (AllowNames.Length > 0)
         {
-            Assets.RemoveAll(asset => !AllowNames.Any(name => asset.PackageName.Text.Contains(name, StringComparison.OrdinalIgnoreCase)));
+            AssetDatas.RemoveAll(asset => !AllowNames.Any(name => asset.PackageName.Text.Contains(name, StringComparison.OrdinalIgnoreCase)));
         }
 
         if (!LoadHiddenAssets)
         {
-            Assets.RemoveAll(asset => HideNames.Any(name => asset.PackageName.Text.Contains(name, StringComparison.OrdinalIgnoreCase)) || asset.PackageName.Text.Contains("Placeholder", StringComparison.OrdinalIgnoreCase));
+            AssetDatas.RemoveAll(asset => HideNames.Any(name => asset.PackageName.Text.Contains(name, StringComparison.OrdinalIgnoreCase)) || asset.PackageName.Text.Contains("Placeholder", StringComparison.OrdinalIgnoreCase));
         }
 
+        var manuallyDefinedAssets = ManuallyDefinedAssetsFactory?.Invoke() ?? [];
+        TotalAssets = AssetDatas.Count + manuallyDefinedAssets.Length + CustomAssets.Length;
 
-        var manuallyDefinedAssets = ManuallyDefinedAssets.Value;
-        TotalAssets = Assets.Count + manuallyDefinedAssets.Length + CustomAssets.Length;
-        
-        await Parallel.ForEachAsync(Assets, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, 
+        await Parallel.ForEachAsync(AssetDatas, new ParallelOptions { MaxDegreeOfParallelism = Math.Min(2, Environment.ProcessorCount / 2) },
             async (asset, ct) =>
             {
+                if (token.IsCancellationRequested) return;
                 await WaitIfPausedAsync();
                 try
                 {
@@ -255,10 +281,10 @@ public partial class AssetLoader : ObservableObject
 
                 LoadedAssets++;
             });
-      
 
         foreach (var manualAsset in manuallyDefinedAssets)
         {
+            if (token.IsCancellationRequested) break;
             await WaitIfPausedAsync();
             try
             {
@@ -271,9 +297,10 @@ public partial class AssetLoader : ObservableObject
 
             LoadedAssets++;
         }
-        
+
         foreach (var customAsset in CustomAssets)
         {
+            if (token.IsCancellationRequested) break;
             await WaitIfPausedAsync();
             try
             {
@@ -286,21 +313,22 @@ public partial class AssetLoader : ObservableObject
 
             LoadedAssets++;
         }
-        
+
+        if (token.IsCancellationRequested) return;
+
         Source.AddOrUpdate(AssetBag);
         AssetBag.Clear();
         LoadedAssets = TotalAssets;
         FinishedLoading = true;
+
+        AssetDatas.Clear();
     }
 
-    private async Task LoadAsset(FAssetData data)
+    private async Task LoadAsset(FPartialAssetData data)
     {
         var asset = await UEParse.Provider.SafeLoadPackageObjectAsync(data.ObjectPath);
         if (asset is null) return;
 
-        /*data.TagsAndValues.TryGetValue("DisplayName", out var displayName);
-        displayName ??= data.AssetName.Text;*/
-        
         await LoadAsset(asset);
     }
     
@@ -313,7 +341,7 @@ public partial class AssetLoader : ObservableObject
         
         var isHidden = HideNames.Any(name => asset.Name.Contains(name, StringComparison.OrdinalIgnoreCase)) || HidePredicate(this, asset, displayName);
         if (isHidden && !LoadHiddenAssets) return;
-        
+
         var icon = IconHandler(asset) ?? await UEParse.Provider.SafeLoadPackageObjectAsync<UTexture2D>(PlaceholderIconPath);
         if (icon is null) return;
         
@@ -339,7 +367,6 @@ public partial class AssetLoader : ObservableObject
         if (asset is null) return;
 
         var displayName = manualAsset.Name;
-            
         var icon = await UEParse.Provider.SafeLoadPackageObjectAsync<UTexture2D>(manualAsset.IconPath) ?? await UEParse.Provider.SafeLoadPackageObjectAsync<UTexture2D>(PlaceholderIconPath);
         if (icon is null) return;
         

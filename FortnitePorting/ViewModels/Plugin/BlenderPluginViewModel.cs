@@ -27,37 +27,42 @@ public partial class BlenderPluginViewModel : ViewModelBase
         foreach (var installation in Installations.ToArray())
         {
             if (installation.SyncExtensionVersion()) continue;
-            
+
             installation.Uninstall();
             Installations.Remove(installation);
         }
     }
 
-
     public async Task AddInstallation()
     {
         if (await App.BrowseFileDialog(fileTypes: Globals.BlenderFileType) is not { } blenderPath) return;
 
-        var blenderVersion = BlenderInstallation.GetVersion(blenderPath);
+        var blenderVersion = BlenderInstallation.TryGetVersion(blenderPath);
+        if (blenderVersion is null)
+        {
+            Info.Message("Blender Extension", "Could not determine the Blender version from the selected file. Please check your Blender installation.", InfoBarSeverity.Error, autoClose: false);
+            return;
+        }
+
         if (Installations.Any(existing => existing.BlenderVersion == blenderVersion))
         {
             Info.Message("Blender Extension", $"The plugin for Blender {blenderVersion} has already been installed.", InfoBarSeverity.Warning);
             return;
         }
-        
+
         if (blenderVersion < BlenderInstallation.MinimumVersion)
         {
-            Info.Message("Blender Plugin", 
-                $"Blender {blenderVersion} is too low of a version. Only Blender versions {BlenderInstallation.MinimumVersion} and higher are supported.", 
+            Info.Message("Blender Plugin",
+                $"Blender {blenderVersion} is too low of a version. Only Blender versions {BlenderInstallation.MinimumVersion} and higher are supported.",
                 InfoBarSeverity.Error, autoClose: false);
             return;
         }
-        
+
         if (TryGetBlenderProcess(blenderPath, out var blenderProcess))
         {
-            Info.Message("Failed to Add Blender Installation", 
-                $"This version of blender is currently open. Please close it and re-add the installation.", 
-                InfoBarSeverity.Error, autoClose: false, 
+            Info.Message("Failed to Add Blender Installation",
+                $"This version of Blender is currently open. Please close it and re-add the installation.",
+                InfoBarSeverity.Error, autoClose: false,
                 useButton: true, buttonTitle: "Kill Blender Process", buttonCommand: () =>
                 {
                     blenderProcess.Kill(entireProcessTree: true);
@@ -66,7 +71,7 @@ public partial class BlenderPluginViewModel : ViewModelBase
         }
 
         var installation = new BlenderInstallation(blenderPath);
-        
+
         Installations.Add(installation);
 
         await TaskService.RunAsync(() =>
@@ -95,22 +100,35 @@ public partial class BlenderPluginViewModel : ViewModelBase
     {
         await SyncInstallations(true);
     }
-    
+
     public async Task SyncInstallations(bool verbose)
     {
         var currentVersion = Globals.Version.ToVersion();
         foreach (var installation in Installations)
         {
             installation.SyncExtensionVersion();
+
+            if (installation.BlenderVersion is null)
+            {
+                if (verbose)
+                {
+                    Info.Message("Blender Extension",
+                        $"Could not determine Blender version for installation at {installation.BlenderPath}. Skipping.",
+                        InfoBarSeverity.Error, autoClose: false);
+                }
+
+                continue;
+            }
+
             if (TryGetBlenderProcess(installation.BlenderPath, out var blenderProcess))
             {
                 if (verbose)
                 {
-                    Info.Message("Blender Extension", 
-                        $"Blender {installation.BlenderVersion} is currently open. Please close it and re-sync the installation.\nPath: {installation.BlenderPath}\nPID: {blenderProcess.Id}", 
+                    Info.Message("Blender Extension",
+                        $"Blender {installation.BlenderVersion} is currently open. Please close it and re-sync the installation.\nPath: {installation.BlenderPath}\nPID: {blenderProcess.Id}",
                         InfoBarSeverity.Error, autoClose: false);
                 }
-                
+
                 continue;
             }
 
@@ -120,9 +138,9 @@ public partial class BlenderPluginViewModel : ViewModelBase
                 {
                     Info.Message("Blender Extension", $"Blender {installation.BlenderVersion} is already up to date, syncing anyways.");
                 }
-                
+
                 installation.Install(verbose);
-                
+
                 continue;
             }
 

@@ -141,7 +141,7 @@ public static class Exporter
         })!, metaData);
     }
     
-    public static async Task<bool> Export(List<ExportFileEntry> assets, ExportDataMeta metaData)
+    public static async Task<bool> Export(IEnumerable<ExportFileEntry> assets, ExportDataMeta metaData)
     {
         return await Export(() => assets.Select(entry => CreateExport(entry.Object.Name, entry.Object, entry.Type, [], metaData, entry.Meta)), metaData);
     }
@@ -154,6 +154,22 @@ public static class Exporter
     public static async Task<bool> Export(UObject asset, EExportType type, ExportDataMeta metaData)
     {
         return await Export(() => [CreateExport(asset.Outer?.Name.Text.SubstringAfterLast("/") ?? asset.Name, asset, type, [], metaData)], metaData);
+    }
+    
+    public static async Task<bool> Export(UObject asset, ExportDataMeta metaData)
+    {
+        return await Export(asset, DetermineExportType(asset), metaData);
+    }
+    
+    public static async Task<bool> Export(IEnumerable<UObject> assets, ExportDataMeta metaData)
+    {
+        var fileEntries = assets.Select(asset => new ExportFileEntry
+        {
+            Object = asset,
+            Type = DetermineExportType(asset)
+        });
+        
+        return await Export(fileEntries, metaData);
     }
 
     public static EExportType DetermineExportType(UObject asset) 

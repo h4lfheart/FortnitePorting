@@ -315,7 +315,7 @@
                                         <RowDefinition Height="Auto" />
                                     </Grid.RowDefinitions>
 
-                                    <controls:ContentCard Grid.Row="0" ClipToBounds="True">
+                                    <controls:ContentCard Grid.Row="0" ClipToBounds="True" Padding="{ext:Space 1}">
                                         <Grid RowDefinitions="* 2*">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*" />
@@ -323,7 +323,7 @@
                                                 <ColumnDefinition Width="2.5*" />
                                             </Grid.ColumnDefinitions>
                                             <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" CornerRadius="8"
-                                                    ClipToBounds="True" Margin="{ext:Space 1}">
+                                                    ClipToBounds="True">
                                                 <Image Source="{Binding Asset.IconDisplayImage}" />
                                             </Border>
 
@@ -335,8 +335,7 @@
                                                        Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"
                                                        VerticalAlignment="Top"
                                                        Text="{Binding Asset.CreationData.Description}"
-                                                       Margin="{ext:Space 0, 0, 1, 0}"
-                                                       TextAlignment="Left" TextWrapping="Wrap" Opacity="0.75" />
+                                                       TextAlignment="Left" TextWrapping="Wrap"/>
                                         </Grid>
                                     </controls:ContentCard>
 
@@ -359,7 +358,6 @@
 
                                                         <DropDownButton Grid.Row="2" Margin="{ext:Space 1, 0}"
                                                                         HorizontalAlignment="Stretch"
-                                                                        Background="#222326"
                                                                         CornerRadius="12"
                                                                         IsVisible="{Binding !MultiSelect}">
                                                             <DropDownButton.Flyout>

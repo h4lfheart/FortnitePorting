@@ -63,7 +63,7 @@ public partial class Sidebar : UserControl
     private bool _isUpdatingSelection;
     private readonly Dictionary<SidebarItemsSource, EventHandler> _itemsSourceSubscriptions = new();
     private readonly Dictionary<SidebarItemButton, (SidebarItemsSource itemsSource, object dataItem)> _buttonToDataMap = new();
-    
+
     public readonly RoutedEvent<SidebarItemSelectedArgs> ItemSelectedEvent =
         RoutedEvent.Register<Sidebar, SidebarItemSelectedArgs>(
             nameof(ItemSelected),
@@ -85,7 +85,7 @@ public partial class Sidebar : UserControl
         add => AddHandler(ItemDragDropEvent, value);
         remove => RemoveHandler(ItemDragDropEvent, value);
     }
-    
+
     public Sidebar()
     {
         InitializeComponent();
@@ -96,14 +96,11 @@ public partial class Sidebar : UserControl
 
         AttachedToVisualTree += async (sender, args) =>
         {
-            if (_hasSelectedFirstButton) return;
-            
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
-                var firstValidButton = FlattenedItems
-                    .OfType<SidebarItemButton>()
-                    .FirstOrDefault(b => b.Tag is not null);
+                if (_hasSelectedFirstButton) return;
 
+                var firstValidButton = GetAllButtons().FirstOrDefault(b => b.Tag is not null);
                 if (firstValidButton is not null)
                 {
                     if (AutoSelectDefault)
@@ -116,6 +113,28 @@ public partial class Sidebar : UserControl
         RebuildFlattenedItems();
     }
 
+   
+
+    public IEnumerable<SidebarItemButton> GetAllButtons()
+    {
+        foreach (var item in FlattenedItems)
+        {
+            switch (item)
+            {
+                case SidebarItemButton button:
+                    yield return button;
+                    break;
+                
+                case SidebarItemGroup group:
+                {
+                    foreach (var child in group.Items.OfType<SidebarItemButton>())
+                        yield return child;
+                    break;
+                }
+            }
+        }
+    }
+
     private void OnItemDragDropInternal(object? sender, SidebarItemDragDropEventArgs e)
     {
         var sourceButton = e.SourceButton;
@@ -123,7 +142,7 @@ public partial class Sidebar : UserControl
 
         if (!_buttonToDataMap.TryGetValue(sourceButton, out var sourceInfo))
             return;
-        
+
         if (!_buttonToDataMap.TryGetValue(targetButton, out var targetInfo))
             return;
 
@@ -140,9 +159,7 @@ public partial class Sidebar : UserControl
             var targetIndex = observableCollection.IndexOf(targetInfo.dataItem);
 
             if (sourceIndex != -1 && targetIndex != -1)
-            {
                 observableCollection.Move(sourceIndex, targetIndex);
-            }
         }
         else if (itemsSource is IList list)
         {
@@ -160,13 +177,11 @@ public partial class Sidebar : UserControl
     private void OnSelectedItemChanged(object? newValue)
     {
         if (_isUpdatingSelection) return;
-        
-        var button = FlattenedItems
-            .OfType<SidebarItemButton>()
-            .FirstOrDefault(b => b.Tag?.Equals(newValue) == true);
+
+        var button = GetAllButtons().FirstOrDefault(b => b.Tag?.Equals(newValue) == true);
 
         if (button is null) return;
-        
+
         _isUpdatingSelection = true;
         SelectButtonInternal(button);
         _isUpdatingSelection = false;
@@ -181,77 +196,73 @@ public partial class Sidebar : UserControl
     {
         var flattened = new ObservableCollection<ISidebarItem>();
         SidebarItemButton? newSelectedButton = null;
-        
+
         _buttonToDataMap.Clear();
 
         foreach (var item in Items)
         {
-            if (item is SidebarItemsSource itemsSource)
+            if (item is not SidebarItemsSource itemsSource)
             {
-                SubscribeToItemsSource(itemsSource);
-                
-                if (itemsSource.ItemsSource != null)
+                if (item is SidebarItemGroup group)
                 {
-                    if (itemsSource.ItemTemplate != null)
+                    foreach (var child in group.Items.OfType<SidebarItemButton>())
                     {
-                        foreach (var dataItem in itemsSource.ItemsSource)
-                        {
-                            var control = itemsSource.ItemTemplate.Build(dataItem);
-                            if (control is not ISidebarItem sidebarItem) continue;
-                            
-                            control.DataContext = dataItem;
-                            
-                            if (control is SidebarItemButton button)
-                            {
-                                button.CanReorder = itemsSource.CanReorder;
-                                
-                                _buttonToDataMap[button] = (itemsSource, dataItem);
-                                
-                                if (button.Tag is not null && button.Tag.Equals(SelectedItem))
-                                {
-                                    newSelectedButton = button;
-                                }
-                            }
-                                
-                            flattened.Add(sidebarItem);
-                        }
-                    }
-                    else
-                    {
-                        foreach (var dataItem in itemsSource.ItemsSource)
-                        {
-                            if (dataItem is ISidebarItem sidebarItem)
-                            {
-                                if (dataItem is SidebarItemButton button)
-                                {
-                                    button.CanReorder = itemsSource.CanReorder;
-                                    
-                                    _buttonToDataMap[button] = (itemsSource, dataItem);
-                                    
-                                    if (button.Tag is not null && button.Tag.Equals(SelectedItem))
-                                    {
-                                        newSelectedButton = button;
-                                    }
-                                }
-                                
-                                flattened.Add(sidebarItem);
-                            }
-                        }
+                        if (child.Tag is not null && child.Tag.Equals(SelectedItem))
+                            newSelectedButton = child;
                     }
                 }
-            }
-            else
-            {
+
                 flattened.Add(item);
+                continue;
+            }
+
+            SubscribeToItemsSource(itemsSource);
+
+            if (itemsSource.ItemsSource is null)
+                continue;
+
+            foreach (var (sidebarItem, button) in ResolveItems(itemsSource))
+            {
+                if (button is not null)
+                {
+                    button.CanReorder = itemsSource.CanReorder;
+                    _buttonToDataMap[button] = (itemsSource, button.DataContext!);
+
+                    if (button.Tag is not null && button.Tag.Equals(SelectedItem))
+                        newSelectedButton = button;
+                }
+
+                flattened.Add(sidebarItem);
             }
         }
 
         FlattenedItems = flattened;
 
-        if (newSelectedButton is null) return;
-        
-        _selectedButton = newSelectedButton;
-        _selectedButton.IsSelected = true;
+        if (newSelectedButton is not null)
+        {
+            _selectedButton = newSelectedButton;
+            _selectedButton.IsSelected = true;
+        }
+    }
+
+    private IEnumerable<(ISidebarItem SidebarItem, SidebarItemButton? Button)> ResolveItems(SidebarItemsSource source)
+    {
+        foreach (var dataItem in source.ItemsSource!)
+        {
+            if (source.ItemTemplate is not null)
+            {
+                var control = source.ItemTemplate.Build(dataItem);
+                if (control is not ISidebarItem sidebarItem) continue;
+
+                control.DataContext = dataItem;
+                yield return (sidebarItem, control as SidebarItemButton);
+            }
+            else
+            {
+                if (dataItem is not ISidebarItem sidebarItem) continue;
+                yield return (sidebarItem, dataItem as SidebarItemButton);
+            }
+        }
     }
 
     private void SubscribeToItemsSource(SidebarItemsSource itemsSource)
@@ -260,7 +271,7 @@ public partial class Sidebar : UserControl
             return;
 
         EventHandler handler = (sender, args) => RebuildFlattenedItems();
-        
+
         itemsSource.ItemsChanged += handler;
         _itemsSourceSubscriptions[itemsSource] = handler;
     }
@@ -271,13 +282,9 @@ public partial class Sidebar : UserControl
         if (control.FindAncestorOfType<SidebarItemButton>() is not { } button) return;
 
         if (!button.IsSelectable)
-        {
             button.RaiseSelected();
-        }
         else
-        {
             SelectButton(button);
-        }
     }
 
     public void SelectButton(SidebarItemButton? button, bool raiseEvent = true)
@@ -298,7 +305,7 @@ public partial class Sidebar : UserControl
 
         _selectedButton = button;
         _selectedButton.IsSelected = true;
-    
+
         if (raiseEvent)
         {
             var args = new SidebarItemSelectedArgs(button.Tag)
@@ -306,7 +313,7 @@ public partial class Sidebar : UserControl
                 RoutedEvent = ItemSelectedEvent,
                 Source = this
             };
-        
+
             RaiseEvent(args);
         }
     }

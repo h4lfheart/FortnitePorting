@@ -27,6 +27,12 @@ public partial class LeaderboardExport : ObservableObject
     private static Dictionary<string, Bitmap> CachedBitmaps = [];
     private static Dictionary<string, UObject> CachedObjects = [];
 
+    public static void ClearCache()
+    {
+        CachedBitmaps.Clear();
+        CachedObjects.Clear();
+    }
+
     // returns if is a valid export
     public async Task<bool> Load()
     {

@@ -51,6 +51,11 @@
                             Content="{controls1:IconText 'Remove Profile', Minus}"
                             IsEnabled="{Binding CanRemoveProfiles}"
                             Command="{Binding RemoveProfile}" />
+
+                    <Button ToolTip.Tip="Reload Installation" HorizontalAlignment="Stretch"
+                            Content="{controls1:IconText 'Reload', Refresh}"
+                            IsEnabled="{Binding !UEParse.IsLoading}"
+                            Command="{Binding ReloadInstallationCommand}" />
                 </StackPanel>
             </sidebar:Sidebar.Footer>
         </sidebar:Sidebar>
@@ -68,7 +73,14 @@
                                        Description="The version of Fortnite that Fortnite Porting will be loading.">
                     <controls:SettingsItem.Footer>
                         <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EFortniteVersion}}"
-                                  SelectedItem="{Binding FortniteVersion, Converter={StaticResource EnumToRecord}}" />
+                                  SelectedItem="{Binding FortniteVersion, Converter={StaticResource EnumToRecord}}" >
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate DataType="ext:EnumRecord">
+                                    <controls1:IconText Text="{Binding Description}"
+                                                        Icon="{Binding Icon}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
                     </controls:SettingsItem.Footer>
                 </controls:SettingsItem>
                 <controls:SettingsItem Title="Archive Directory"

@@ -12,9 +12,12 @@ using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.GameplayTags;
 using CUE4Parse.UE4.Objects.UObject;
+using CUE4Parse.Utils;
 using FortnitePorting.Application;
 using FortnitePorting.Exporting.Custom;
 using FortnitePorting.Extensions;
+using FortnitePorting.Framework;
+using FortnitePorting.Models.Assets.Asset;
 using FortnitePorting.Models.Assets.Base;
 using FortnitePorting.Models.Assets.Custom;
 using FortnitePorting.Models.Assets.Loading;
@@ -22,10 +25,10 @@ using SkiaSharp;
 
 namespace FortnitePorting.Services;
 
-public partial class AssetLoaderService : ObservableObject, IService
+public partial class AssetLoaderService : ObservableObject, IService, IResettable
 {
     [ObservableProperty] private AssetLoader? _activeLoader;
-    [ObservableProperty] private ReadOnlyObservableCollection<BaseAssetItem> _activeCollection;
+    [ObservableProperty] private ReadOnlyObservableCollection<BaseAssetItem> _activeCollection = new([]);
     
     public List<AssetLoaderCategory> Categories { get; set; } =
     [
@@ -231,7 +234,7 @@ public partial class AssetLoaderService : ObservableObject, IService
                 },
                 new AssetLoader(EExportType.WeaponMod)
                 {
-                    ManuallyDefinedAssets = new Lazy<ManuallyDefinedAsset[]>(() =>
+                    ManuallyDefinedAssetsFactory = () =>
                     {
                         string[] weaponModClasses = ["FortWeaponModItemDefinition", "FortWeaponModItemDefinitionMagazine", "FortWeaponModItemDefinitionOptic"];
                         var weaponModTable = UEParse.Provider.LoadPackageObject<UDataTable>("WeaponMods/DataTables/WeaponModOverrideData");
@@ -245,7 +248,7 @@ public partial class AssetLoaderService : ObservableObject, IService
 
                             var icon = AssetLoader.GetIcon(asset);
                             if (icon is null) continue;
-                            
+
                             var tag = asset.GetOrDefault<FGameplayTag>("PluginTuningTag").ToString();
 
                             var defaultModData = asset.GetOrDefault<FStructFallback?>("DefaultModData");
@@ -288,7 +291,7 @@ public partial class AssetLoaderService : ObservableObject, IService
                         }
 
                         return weaponModAssets.ToArray();
-                    })
+                    }
                 },
                 new AssetLoader(EExportType.Resource)
                 {
@@ -317,7 +320,7 @@ public partial class AssetLoaderService : ObservableObject, IService
                 },
                 new AssetLoader(EExportType.Wildlife)
                 {
-                    ManuallyDefinedAssets = new Lazy<ManuallyDefinedAsset[]>(
+                    ManuallyDefinedAssetsFactory = () =>
                     [
                         new ManuallyDefinedAsset
                         {
@@ -397,9 +400,31 @@ public partial class AssetLoaderService : ObservableObject, IService
                             AssetPath = "/TidalCrane_Swarm_Boss/Assets/Meshes/TidalCrane_Boss_Creature",
                             IconPath = "/TidalCrane_Swarm_Boss/Gameplay/Icon/T_Icon_BR_BugQueen"
                         }
-                    ]),
+                    ],
                     HideRarity = true
-                }
+                },
+                new AssetLoader(EExportType.Sprite)
+                {
+                    ClassNames = ["ExtractableItemDefinition"],
+                    LoadHiddenAssets = true,
+                    HidePredicate = (loader, asset, name) =>
+                    {
+                        var parentDef = asset.GetOrDefault<FSoftObjectPath?>("ParentExtractableDefinition");
+                        return parentDef is not null;
+                    },
+                    AddStyleHandler = (loader, asset, name) =>
+                    {
+                        var parentDefPath = asset.GetOrDefault<FSoftObjectPath>("ParentExtractableDefinition");
+
+                        var key = asset.Name;
+                        if (parentDefPath.TryLoad(out var parentDef))
+                            key = parentDef.Name;
+
+                        var path = asset.GetPathName();
+                        loader.StyleDictionary.TryAdd(key, []);
+                        loader.StyleDictionary[key].Add(path);
+                    }
+                },
             ]
         },
         new(EAssetCategory.Festival)
@@ -496,6 +521,17 @@ public partial class AssetLoaderService : ObservableObject, IService
         }
     ];
     
+    public void Reset()
+    {
+        foreach (var loader in Categories.SelectMany(category => category.Loaders))
+            loader.Reset();
+
+        AssetItem.ResetCaches();
+
+        ActiveLoader = null;
+        ActiveCollection = new ReadOnlyObservableCollection<BaseAssetItem>([]);
+    }
+
     public async Task Load(EExportType type)
     {
         if (type is EExportType.None) return;
@@ -503,9 +539,12 @@ public partial class AssetLoaderService : ObservableObject, IService
         Set(type);
         await ActiveLoader.Load();
     }
-    
+
     public AssetLoader Get(EExportType type)
     {
+        if (!Enum.IsDefined(type))
+            type = EExportType.Outfit;
+        
         return Categories.SelectMany(cat => cat.Loaders).FirstOrDefault(loader => loader.Type == type) 
                ?? throw new ArgumentOutOfRangeException(nameof(type), $"Asset type {type.Description} does not have an implemented loader.");
     }

@@ -41,7 +41,7 @@ public partial class TreeItem : ObservableObject
 
     public bool HasFolders => FolderChildCount > 0;
 
-    public FileNode? SourceNode { get; }
+    public FileNode? SourceNode { get; private set; }
 
     private readonly Action<TreeItem>? _onExpand;
 
@@ -68,6 +68,13 @@ public partial class TreeItem : ObservableObject
     {
         child = FolderChildren.FirstOrDefault(x => x.Name == name)!;
         return child is not null;
+    }
+
+    public void DetachSourceNodes()
+    {
+        SourceNode = null;
+        foreach (var child in FolderChildren)
+            child.DetachSourceNodes();
     }
 
     partial void OnExpandedChanged(bool value)

@@ -54,23 +54,38 @@ public partial class AssetsViewModel() : ViewModelBase
     {
         await TaskService.RunDispatcherAsync(() =>
         {
-            foreach (var (index, category) in AssetLoader.Categories.Enumerate())
+            foreach (var (index, category) in AssetLoader.Categories.Index())
             {
-                SidebarItems.Add(new SidebarItemText(category.Category.Description.ToUpper()));
+                var group = new SidebarItemGroup(category.Category.Description.ToUpper())
+                {
+                    IsExpanded = index == 0
+                };
 
                 foreach (var loader in category.Loaders)
                 {
-                    SidebarItems.Add(new SidebarItemButton(
-                        text: loader.Type.Description, 
+                    group.Items.Add(new SidebarItemButton(
+                        text: loader.Type.Description,
                         iconBitmap: ImageExtensions.AvaresBitmap($"avares://FortnitePorting/Assets/FN/{loader.Type.ToString()}.png"),
                         tag: loader.Type
                     ));
                 }
-                
+
+                SidebarItems.Add(group);
+
                 if (index < AssetLoader.Categories.Count - 1)
                     SidebarItems.Add(new SidebarItemSeparator());
             }
         });
+    }
+
+    public override async Task OnViewOpened()
+    {
+        if (AssetLoader.ActiveLoader is null)
+        {
+            Navigation.Assets.Open(AppSettings.Application.UseDefaultExportLoadType
+                ? AppSettings.Application.DefaultExportLoadType
+                : EExportType.Outfit);
+        }
     }
 
     public override async Task OnViewExited()

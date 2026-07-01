@@ -38,17 +38,17 @@ public static class CUE4ParseExtensions
             {
                 // ignored
             }
-        
+
             editorData = null;
             return false;
         }
-        
+
         public string GetCleanedExportPath()
         {
             var path = asset.Owner != null ? asset.Owner.Name : string.Empty;
             path = path.SubstringBeforeLast('.');
             if (path.StartsWith('/')) path = path[1..];
-        
+
             return path;
         }
 
@@ -60,7 +60,7 @@ public static class CUE4ParseExtensions
 
             return default;
         }
-        
+
         public FTransform GetAbsoluteTransformFromRootComponent()
         {
             var rootComponentLazy = asset.GetOrDefault<FPackageIndex?>("RootComponent");
@@ -68,18 +68,18 @@ public static class CUE4ParseExtensions
 
             var rootComponent = rootComponentLazy.Load();
             if (rootComponent is null) return FTransform.Identity;
-        
+
             if (rootComponent is USceneComponent sceneComponent)
             {
                 return sceneComponent.GetAbsoluteTransform();
             }
-        
+
             var location = rootComponent.GetOrDefault("RelativeLocation", FVector.ZeroVector);
             var rotation = rootComponent.GetOrDefault("RelativeRotation", FRotator.ZeroRotator);
             var scale = rootComponent.GetOrDefault("RelativeScale3D", FVector.OneVector);
             return new FTransform(rotation, location, scale);
         }
-        
+
         public T? GetVehicleMetadata<T>(params string[] names) where T : class
         {
             FStructFallback? GetMarkerDisplay(UBlueprintGeneratedClass? blueprint)
@@ -99,7 +99,7 @@ public static class CUE4ParseExtensions
             output = GetMarkerDisplay(vehicleSuper)?.GetAnyOrDefault<T?>(names);
             return output;
         }
-        
+
         public Bitmap? GetEditorIconBitmap()
         {
             var typeName = asset switch
@@ -109,13 +109,12 @@ public static class CUE4ParseExtensions
             };
 
             typeName = typeName.Replace("EditorOnlyData", string.Empty);
-        
+
             var filePath = $"avares://FortnitePorting/Assets/Unreal/{typeName}_64x.png";
             return !AssetLoader.Exists(new Uri(filePath)) ? null : ImageExtensions.AvaresBitmap(filePath);
         }
-        
     }
-    
+
     extension<T>(T obj) where T : UObject
     {
         public void GatherTemplateProperties()
@@ -129,21 +128,21 @@ public static class CUE4ParseExtensions
                 foreach (var property in current.Properties)
                 {
                     if (obj.Properties.Any(prop => prop.Name.Text.Equals(property.Name.Text))) continue;
-                
+
                     obj.Properties.Add(property);
                 }
-            
+
                 if (current.Template is null) break;
             }
-        
+
             var fields = obj.GetType().GetFields();
             foreach (var field in fields)
             {
                 if (field.DeclaringType == typeof(UObject)) continue;
-            
+
                 var targetProperty = obj.Properties.FirstOrDefault(prop => prop.Name.Text.Equals(field.Name));
                 if (targetProperty is null) continue;
-            
+
                 field.SetValue(obj, targetProperty.Tag?.GetValue(field.FieldType));
             }
         }
@@ -175,10 +174,11 @@ public static class CUE4ParseExtensions
 
         public bool ContainsAny(string check)
         {
-            return tags is not null && tags.Value.Any(x => x.TagName.Text.Contains(check, StringComparison.OrdinalIgnoreCase));
+            return tags is not null &&
+                   tags.Value.Any(x => x.TagName.Text.Contains(check, StringComparison.OrdinalIgnoreCase));
         }
     }
-    
+
 
     extension(TIntVector3<float> vec)
     {
@@ -187,7 +187,7 @@ public static class CUE4ParseExtensions
             return new FVector(vec.X, vec.Y, vec.Z);
         }
     }
-    
+
     extension(FStaticComponentMaskParameter componentMask)
     {
         public FLinearColor ToLinearColor()
@@ -201,7 +201,7 @@ public static class CUE4ParseExtensions
             };
         }
     }
-    
+
     extension(AbstractFileProvider provider)
     {
         public bool TryLoadObjectExports(string path, out IEnumerable<UObject> exports)
@@ -287,11 +287,11 @@ public static class CUE4ParseExtensions
 
             return default;
         }
-        
+
         public List<T> GetItems<T>(params string[] names)
         {
             var returnList = new List<T>();
-            
+
             foreach (var data in structList)
             {
                 if (data.NonConstStruct is not null && data.NonConstStruct.TryGetValue(out T obj, names))
@@ -299,7 +299,7 @@ public static class CUE4ParseExtensions
                     returnList.Add(obj);
                 }
             }
-            
+
             return returnList;
         }
     }
@@ -320,21 +320,47 @@ public static class CUE4ParseExtensions
             var values = new List<KeyValuePair<T, int>>();
             foreach (var property in propertyTags)
             {
-                var propertyValue = (T) property.Tag.GetValue(typeof(T));
+                var propertyValue = (T)property.Tag.GetValue(typeof(T));
                 values.Add(new KeyValuePair<T, int>(propertyValue, property.ArrayIndex));
             }
 
             return values;
         }
-        
+
         public T? GetDataListItem<T>(params string[] names)
         {
-            return propertyHolder.TryGetValue(out FInstancedStruct[] dataList, "DataList") ? dataList.GetItemOrDefault<T>(names) : default;
+            return propertyHolder.TryGetValue(out FInstancedStruct[] dataList, "DataList")
+                ? dataList.GetItemOrDefault<T>(names)
+                : default;
         }
 
         public List<T> GetDataListItems<T>(params string[] names)
         {
-            return propertyHolder.TryGetValue(out FInstancedStruct[] dataList, "DataList") ? dataList.GetItems<T>(names) : [];
+            return propertyHolder.TryGetValue(out FInstancedStruct[] dataList, "DataList")
+                ? dataList.GetItems<T>(names)
+                : [];
+        }
+
+        public T? GetByteEnum<T>(string propertyName) where T : unmanaged
+        {
+            return propertyHolder.TryGetValue(out sbyte byteData, propertyName)
+                ? (T)Enum.ToObject(typeof(T), byteData)
+                : null;
+        }
+
+        public T? GetFNameEnum<T>(string propertyName) where T : unmanaged
+        {
+            return propertyHolder.TryGetValue(out FName nameData, propertyName) &&
+                   Enum.TryParse<T>(nameData.Text.SubstringAfter("::"), out var enumType)
+                ? enumType
+                : null;
+        }
+
+        public T GetEnumOrDefault<T>(string propertyName, T def = default) where T : unmanaged
+        {
+            return propertyHolder.GetByteEnum<T>(propertyName)
+                   ?? propertyHolder.GetFNameEnum<T>(propertyName)
+                   ?? propertyHolder.GetOrDefault(propertyName, def);
         }
     }
 
@@ -343,22 +369,27 @@ public static class CUE4ParseExtensions
         public FLinearColor ToLinearColor()
         {
             return new FLinearColor(
-                MathF.Pow((float) color.R / byte.MaxValue, 2.2f), 
-                MathF.Pow((float) color.G / byte.MaxValue, 2.2f), 
-                MathF.Pow((float) color.B / byte.MaxValue, 2.2f), 
-                MathF.Pow((float) color.A / byte.MaxValue, 2.2f));
+                MathF.Pow((float)color.R / byte.MaxValue, 2.2f),
+                MathF.Pow((float)color.G / byte.MaxValue, 2.2f),
+                MathF.Pow((float)color.B / byte.MaxValue, 2.2f),
+                MathF.Pow((float)color.A / byte.MaxValue, 2.2f));
         }
     }
-    
+
     extension(USceneComponent component)
     {
         public FTransform GetAbsoluteTransform()
         {
-            var result = new FTransform(component.RelativeRotation, component.RelativeLocation, component.RelativeScale3D);
-            for (var attachParent = GetAttachParent(component); attachParent != null; attachParent = attachParent.GetAttachParent())
+            var result = new FTransform(component.RelativeRotation, component.RelativeLocation,
+                component.RelativeScale3D);
+            for (var attachParent = GetAttachParent(component);
+                 attachParent != null;
+                 attachParent = attachParent.GetAttachParent())
             {
-                result *= new FTransform(attachParent.RelativeRotation, attachParent.RelativeLocation, attachParent.RelativeScale3D);
+                result *= new FTransform(attachParent.RelativeRotation, attachParent.RelativeLocation,
+                    attachParent.RelativeScale3D);
             }
+
             return result;
         }
 

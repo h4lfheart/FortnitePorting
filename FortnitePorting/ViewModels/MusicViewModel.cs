@@ -25,7 +25,7 @@ using MessageData = FortnitePorting.Models.Information.MessageData;
 
 namespace FortnitePorting.ViewModels;
 
-public partial class MusicViewModel : ViewModelBase
+public partial class MusicViewModel : ViewModelBase, IResettable
 {
     [ObservableProperty] private ReadOnlyObservableCollection<MusicPackItem> _activeCollection;
     [ObservableProperty] private string _searchFilter = string.Empty;
@@ -43,6 +43,17 @@ public partial class MusicViewModel : ViewModelBase
 
     private readonly string[] IgnoreFilters = ["Random", "TBD", "MusicPack_000_Default"];
     private const string CLASS_NAME = "AthenaMusicPackItemDefinition";
+
+    public void Reset()
+    {
+        foreach (var item in Source.Items)
+            item.Detach();
+        Source.Clear();
+        Playlists.Clear();
+        Playlists.Add(RadioPlaylist.Default);
+        ActivePlaylist = RadioPlaylist.Default;
+        InvalidateInitialization();
+    }
 
     public MusicViewModel()
     {
@@ -76,12 +87,20 @@ public partial class MusicViewModel : ViewModelBase
 
     public override async Task Initialize()
     {
-        await TaskService.RunDispatcherAsync(async () =>
+        if (Playlists.Count <= 1)
         {
-            foreach (var serializeData in AppSettings.Application.Playlists)
-                Playlists.Add(await RadioPlaylist.FromSerializeData(serializeData));
-        });
+            await TaskService.RunDispatcherAsync(async () =>
+            {
+                foreach (var serializeData in AppSettings.Application.Playlists)
+                    Playlists.Add(await RadioPlaylist.FromSerializeData(serializeData));
+            });
+        }
 
+        await LoadMusicPacksAsync();
+    }
+
+    private async Task LoadMusicPacksAsync()
+    {
         var assets = UEParse.AssetRegistry
             .Where(d => d.AssetClass.Text.Equals(CLASS_NAME))
             .Where(d => !IgnoreFilters.Any(f => d.AssetName.Text.Contains(f, StringComparison.OrdinalIgnoreCase)))

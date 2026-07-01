@@ -12,7 +12,7 @@ namespace FortnitePorting.Views;
 
 public partial class FilesView : ViewBase<FilesViewModel>
 {
-    public FilesView() : base(FilesVM, initializeViewModel: false)
+    public FilesView() : base(FilesVM)
     {
         InitializeComponent();
     }

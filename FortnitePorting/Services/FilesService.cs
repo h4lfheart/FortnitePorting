@@ -20,11 +20,11 @@ using Serilog;
 
 namespace FortnitePorting.Services;
 
-public partial class FilesService : ObservableObject, IService
+public partial class FilesService : ObservableObject, IService, IResettable
 {
     public FileNode RootFileNode { get; } = new("Files", string.Empty, ENodeType.Folder);
 
-    public readonly SourceCache<FlatItem, string> FlatViewAssetCache = new(item => item.Path);
+    public SourceCache<FlatItem, string> FlatViewAssetCache = new(item => item.Path);
 
     [ObservableProperty, NotifyPropertyChangedFor(nameof(LoadingPercentageText))] private int _loadedFiles;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(LoadingPercentageText))] private int _totalFiles = int.MaxValue;
@@ -32,11 +32,22 @@ public partial class FilesService : ObservableObject, IService
 
     public string LoadingPercentageText => $"{(LoadedFiles == 0 && TotalFiles == 0 ? 0 : LoadedFiles * 100f / TotalFiles):N0}%";
 
+    public void Reset()
+    {
+        RootFileNode.Clear();
+        FlatViewAssetCache.Dispose();
+        FlatViewAssetCache = new SourceCache<FlatItem, string>(item => item.Path);
+        LoadedFiles = 0;
+        TotalFiles = int.MaxValue;
+        IsLoading = true;
+    }
+
     public void Initialize()
     {
         if (UEParse.Provider is null) return;
 
         IsLoading = true;
+        LoadedFiles = 0;
         BuildFileList();
         IsLoading = false;
     }
@@ -44,20 +55,22 @@ public partial class FilesService : ObservableObject, IService
     private void BuildFileList()
     {
         TotalFiles = UEParse.Provider.Files.Count;
+
+        var flatItems = new List<FlatItem>(TotalFiles);
+
         foreach (var (_, file) in UEParse.Provider.Files)
         {
             LoadedFiles++;
 
             var path = file.Path;
-            if (!IsValidFilePath(path)) 
+            if (!IsValidFilePath(path))
                 continue;
 
-            
             var sourceVfsName = string.Empty;
             if (file is VfsEntry vfsEntry)
                 sourceVfsName = vfsEntry.Vfs.Name;
-            
-            FlatViewAssetCache.AddOrUpdate(new FlatItem(path, sourceVfsName));
+
+            flatItems.Add(new FlatItem(path, sourceVfsName));
 
             var parts = path.Split("/", StringSplitOptions.RemoveEmptyEntries);
 
@@ -78,6 +91,8 @@ public partial class FilesService : ObservableObject, IService
                 parentNode = childNode;
             }
         }
+
+        FlatViewAssetCache.Edit(updater => updater.AddOrUpdate(flatItems));
     }
 
     private bool IsValidFilePath(string path)

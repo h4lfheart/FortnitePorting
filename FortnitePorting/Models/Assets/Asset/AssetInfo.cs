@@ -10,6 +10,7 @@ using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using FortnitePorting.Extensions;
+using FortnitePorting.Models.Fortnite;
 using Serilog;
 
 namespace FortnitePorting.Models.Assets.Asset;
@@ -81,11 +82,11 @@ public partial class AssetInfo : Base.BaseAssetInfo
 
             foreach (var animationOverride in animationOverrides)
             {
-                var gender = animationOverride.Get<FName?>("Gender")?.Text.SubstringAfter("::");
-                var bodyType = animationOverride.Get<FName?>("BodyType")?.Text.SubstringAfter("::");
                 var montage = animationOverride.GetOrDefault<UAnimMontage?>("EmoteMontage");
-                if (gender is null || bodyType is null || montage is null) continue;
+                if (montage is null) continue;
                 
+                var gender = animationOverride.GetEnumOrDefault<EFortCustomGender>("Gender").ToString();
+                var bodyType = animationOverride.GetEnumOrDefault<EFortCustomBodyType>("BodyType").ToString();
                 sizedAnimations.Add($"{gender} {bodyType} ({montage.Name})", montage);
             }
 

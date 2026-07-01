@@ -53,9 +53,9 @@ public partial class UnrealInstallation : ObservableObject
     
     [JsonIgnore]
     public string UEFormatFolder => Path.Combine(PluginsFolder, "UEFormat");
-    
+
     [JsonIgnore]
-    public string PluginPath => Path.Combine(FortnitePortingFolder, "FortnitePorting.uplugin");
+    public string MetaPath => Path.Combine(FortnitePortingFolder, "fortnite_porting_meta.json");
 
     public static readonly DirectoryInfo PluginWorkingDirectory =
         new(Path.Combine(App.PluginsFolder.FullName, "Unreal"));
@@ -67,21 +67,24 @@ public partial class UnrealInstallation : ObservableObject
 
     public bool SyncVersion()
     {
-        if (!File.Exists(PluginPath))
+        if (!File.Exists(MetaPath))
         {
-            Info.Message("Unreal Plugin",
-                $"Plugin file does not exist at path {PluginPath}, installation may have gone wrong.\nPlease remove the project from Fortnite Porting and try again.");
-            Status = EPluginStatusType.Failed;
-            return false;
+            Status = EPluginStatusType.UpdateAvailable;
+            return true;
         }
 
-        var pluginInfo = JsonConvert.DeserializeObject<UPlugin>(File.ReadAllText(PluginPath));
-        Version = new Version(pluginInfo!.VersionName);
+        var meta = JsonConvert.DeserializeObject<FPPluginMeta>(File.ReadAllText(MetaPath));
+        if (meta is null || string.IsNullOrWhiteSpace(meta.Version))
+        {
+            Status = EPluginStatusType.UpdateAvailable;
+            return true;
+        }
 
-        var fpPluginVersion = new FPVersion(Version.Major, Version.Minor, Version.Build);
-        Status = fpPluginVersion.Equals(Globals.Version)
-            ? EPluginStatusType.Newest
-            : EPluginStatusType.UpdateAvailable;
+        var metaVersion = new FPVersion(meta.Version);
+        Version = new Version(metaVersion.Release, metaVersion.Major, metaVersion.Minor);
+        Status = !Globals.IsDevBuild && !metaVersion.Equals(Globals.Version)
+            ? EPluginStatusType.UpdateAvailable
+            : EPluginStatusType.Newest;
 
         return true;
     }
@@ -91,6 +94,8 @@ public partial class UnrealInstallation : ObservableObject
         Status = EPluginStatusType.Modifying;
 
         MiscExtensions.Copy(PluginWorkingDirectory.FullName, PluginsFolder);
+
+        File.WriteAllText(MetaPath, JsonConvert.SerializeObject(new FPPluginMeta { Version = Globals.VersionString }));
 
         var didSyncProperly = SyncVersion();
         if (verbose && !didSyncProperly)
@@ -132,9 +137,4 @@ public partial class UnrealInstallation : ObservableObject
     {
         App.Launch(ProjectFilePath);
     }
-}
-
-public class UPlugin
-{
-    public string VersionName;
 }

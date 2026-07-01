@@ -8,7 +8,7 @@ namespace FortnitePorting.Models.Assets.Asset;
 public class AssetItemCreationArgs : BaseAssetItemCreationArgs
 {
     public required UObject Object { get; set; }
-    public required UTexture2D Icon { get; set; }
+    public UTexture2D? Icon { get; set; }
     public FGameplayTagContainer? GameplayTags { get; set; }
     
     public bool HideRarity { get; set; } = false;

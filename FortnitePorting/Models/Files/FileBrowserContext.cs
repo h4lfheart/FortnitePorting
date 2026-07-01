@@ -45,6 +45,8 @@ public partial class FileBrowserContext : ObservableObject
 
     [ObservableProperty] private string _flatSearchFilter = string.Empty;
     [ObservableProperty] private string _fileSearchFilter = string.Empty;
+    
+    [ObservableProperty] private bool _isDragDropEnabled = false;
 
     [ObservableProperty] private EFileFilterType _fileTypeFilter = EFileFilterType.All;
     private readonly Dictionary<EFileFilterType, string[]> _searchTermsByFilter = new()
@@ -102,6 +104,32 @@ public partial class FileBrowserContext : ObservableObject
         Selected = true
     };
 
+    private IDisposable? _flatViewSubscription;
+
+    public void Reset()
+    {
+        _flatViewSubscription?.Dispose();
+        _flatViewSubscription = null;
+
+        _parentTreeItem.DetachSourceNodes();
+        _parentTreeItem.FolderChildren.Clear();
+        _parentTreeItem.FileChildCount = 0;
+        _parentTreeItem.FolderChildCount = 0;
+
+        CurrentFolder = _parentTreeItem;
+
+        TreeViewCollection = [];
+        FileViewCollection = [];
+        FileViewStack = [];
+        SelectedFlatViewItems = [];
+        SelectedFileViewItems = [];
+        VfsFilterCollection = [];
+        FlatViewCollection = new ReadOnlyObservableCollection<FlatItem>([]);
+
+        _backStack.Clear();
+        _forwardStack.Clear();
+    }
+
     public void Initialize(string? startPath = null)
     {
         VfsFilterCollection = [..UEParse.Provider.MountedVfs
@@ -124,7 +152,7 @@ public partial class FileBrowserContext : ObservableObject
             .CombineLatest(vfsCheckedChanges.StartWith(Unit.Default))
             .Select(_ => CreateAssetFilter(FlatSearchFilter, UseRegex, VfsFilterCollection));
 
-        AppServices.Files.FlatViewAssetCache.Connect()
+        _flatViewSubscription = AppServices.Files.FlatViewAssetCache.Connect()
             .ObserveOn(RxApp.TaskpoolScheduler)
             .Filter(assetFilter)
             .Sort(SortExpressionComparer<FlatItem>.Ascending(x => x.Path))

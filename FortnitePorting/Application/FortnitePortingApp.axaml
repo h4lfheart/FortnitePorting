@@ -187,6 +187,33 @@
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="CornerRadius" Value="8" />
         </Style>
+        
+        <Style Selector="Button.EmptyButton">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="CornerRadius" Value="16" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="ClipToBounds" Value="False" />
+
+            <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="ClipToBounds" Value="False" />
+                <Setter Property="BackgroundSizing" Value="CenterBorder" />
+                <Setter Property="BoxShadow" Value="none" />
+            </Style>
+
+            <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background" Value="Transparent" />
+            </Style>
+
+            <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background" Value="Transparent" />
+            </Style>
+
+            <Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="Opacity" Value="0.5" />
+            </Style>
+        </Style>
 
 
         <Style Selector="SplitButton[IsVisible=true]">
@@ -712,7 +739,7 @@
             </Style>
 
             <Style Selector="^ TextBlock">
-                <Setter Property="Foreground" Value="#aeafb3" />
+                <Setter Property="Foreground" Value="{DynamicResource TextFillSecondaryBrush}" />
             </Style>
         </Style>
 
@@ -787,7 +814,7 @@
             </Style>
 
             <Style Selector="^ TextBlock">
-                <Setter Property="Foreground" Value="#aeafb3" />
+                <Setter Property="Foreground" Value="{DynamicResource TextFillSecondaryBrush}" />
             </Style>
         </Style>
 
@@ -1084,7 +1111,7 @@
         </Style>
 
         <Style Selector="TextBlock:disabled">
-            <Setter Property="Foreground" Value="#5DFFFFFF" />
+            <Setter Property="Foreground" Value="{DynamicResource TextFillPrimaryDisabledBrush}" />
         </Style>
 
         <Style Selector="HyperlinkButton.HyperLink">

@@ -8,7 +8,7 @@ using FortnitePorting.WindowModels;
 
 namespace FortnitePorting.Windows;
 
-public partial class SoundPreviewWindow : WindowBase<SoundPreviewWindowModel>
+public partial class SoundPreviewWindow : WindowBase<SoundPreviewWindowModel>, IPreviewWindow
 {
     public static SoundPreviewWindow? Instance;
     

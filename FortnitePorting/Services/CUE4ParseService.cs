@@ -12,6 +12,7 @@ using CUE4Parse_Conversion.Textures.BC;
 using CUE4Parse.Compression;
 using CUE4Parse.Encryption.Aes;
 using CUE4Parse.MappingsProvider;
+using CUE4Parse.MappingsProvider.Usmap;
 using CUE4Parse.UE4.AssetRegistry;
 using CUE4Parse.UE4.AssetRegistry.Objects;
 using CUE4Parse.UE4.Assets;
@@ -29,6 +30,7 @@ using CUE4Parse.Utils;
 using EpicManifestParser;
 using EpicManifestParser.UE;
 using FortnitePorting.Extensions;
+using FortnitePorting.Framework;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.CUE4Parse;
 using FortnitePorting.Models.Fortnite;
@@ -36,24 +38,23 @@ using FortnitePorting.Models.Information;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Views;
 using FortnitePorting.Views.Settings;
-using FortnitePorting.Windows;
 using Serilog;
 using UE4Config.Parsing;
 using FGuid = CUE4Parse.UE4.Objects.Core.Misc.FGuid;
 
 namespace FortnitePorting.Services;
 
-public partial class CUE4ParseService : ObservableObject, IService
+public partial class CUE4ParseService : ObservableObject, IService, IResettable
 {
     [ObservableProperty] private string _status = "Loading Files";
     [ObservableProperty] private bool _finishedLoading;
     [ObservableProperty] private float _progress = 0.0f;
-
-    public HybridFileProvider Provider;
+    [ObservableProperty] private bool _isLoading;
+    public HybridFileProvider? Provider;
 
     public FBuildPatchAppManifest? LiveManifest;
     
-    public readonly List<FAssetData> AssetRegistry = [];
+    public readonly List<FPartialAssetData> AssetRegistry = [];
     public readonly List<FRarityCollection> RarityColors = [];
     public readonly Dictionary<int, FColor> BeanstalkColors = [];
     public readonly Dictionary<int, FLinearColor> BeanstalkMaterialProps = [];
@@ -138,6 +139,42 @@ public partial class CUE4ParseService : ObservableObject, IService
 
         UpdateStatus(string.Empty);
         FinishedLoading = true;
+        Progress = 0;
+    }
+
+    public void Reset()
+    {
+        FinishedLoading = false;
+        Progress = 0;
+        Status = "Loading Files";
+
+        Provider?.Dispose();
+        Provider = null;
+        LiveManifest = null;
+
+        AssetRegistry.Clear();
+        RarityColors.Clear();
+        BeanstalkColors.Clear();
+        BeanstalkMaterialProps.Clear();
+        BeanstalkAtlasTextureUVs.Clear();
+        MaleLobbyMontages.Clear();
+        FemaleLobbyMontages.Clear();
+        SetNames.Clear();
+    }
+
+    public async Task LoadCoreSessionAsync()
+    {
+        IsLoading = true;
+        await Initialize();
+        IsLoading = false;
+
+        if (!FinishedLoading) return;
+
+        if (AppSettings.Application.UseDefaultExportLoadType)
+            await AssetLoading.Load(AppSettings.Application.DefaultExportLoadType);
+
+        Files.Initialize();
+        await FilesVM.Initialize();
     }
 
     public void UpdateStatus(string status)
@@ -368,10 +405,6 @@ public partial class CUE4ParseService : ObservableObject, IService
     [LoadingStage("Loading Virtual Paths", stage: 9, weight: 15)]
     private async Task LoadVirtualPaths()
     {
-        UpdateStatus(AppSettings.Installation.CurrentProfile.FortniteVersion is EFortniteVersion.LatestOnDemand 
-            ? "Loading Virtual Paths (This may take a while)" 
-            : "Loading Virtual Paths");
-        
         Provider.LoadVirtualPaths();
         Provider.PostMount();
         
@@ -511,7 +544,7 @@ public partial class CUE4ParseService : ObservableObject, IService
 
             try
             {
-                var assetRegistry = new FAssetRegistryState(assetArchive);
+                var assetRegistry = new FPartialAssetRegistryState(assetArchive);
                 AssetRegistry.AddRange(assetRegistry.PreallocatedAssetDataBuffers);
                 Log.Information("Loaded Asset Registry: {FilePath}", file.Path);
             }

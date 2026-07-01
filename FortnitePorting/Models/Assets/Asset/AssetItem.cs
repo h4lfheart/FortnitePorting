@@ -41,6 +41,15 @@ public class AssetItem : Base.BaseAssetItem
 
     private static ConcurrentDictionary<string, UFortItemSeriesDefinition> SeriesCache = [];
     private static ConcurrentDictionary<string, WriteableBitmap> BackgroundCache = [];
+
+    public static void ResetCaches()
+    {
+        SeriesCache.Clear();
+        
+        foreach (var bitmap in BackgroundCache.Values)
+            bitmap.Dispose();
+        BackgroundCache.Clear();
+    }
     
     public AssetItem(AssetItemCreationArgs args)
     {
@@ -73,7 +82,10 @@ public class AssetItem : Base.BaseAssetItem
 
     public void LoadBitmap()
     {
-        var iconBitmap = CreationData.Icon.Decode()!.ToSkBitmap();
+        using var iconBitmap = CreationData.Icon?.Decode()?.ToSkBitmap();
+        CreationData.Icon = null;
+        if (iconBitmap is null) return;
+        
         IconDisplayImage = iconBitmap.ToWriteableBitmap();
         BackgroundImage = CreateBackgroundImage();
     }

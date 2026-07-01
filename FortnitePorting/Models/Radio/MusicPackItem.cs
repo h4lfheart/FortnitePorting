@@ -38,6 +38,14 @@ public partial class MusicPackItem : ObservableObject
     public MaterialIconKind PlayIconKind => IsPlaying ? MaterialIconKind.Pause : MaterialIconKind.Play;
     
     
+    public void Detach()
+    {
+        AlternateCoverTexture = null;
+        SoundWave = null;
+        CoverArtBitmap?.Dispose();
+        CoverArtBitmap = null!;
+    }
+
     public MusicPackItem(UObject asset)
     {
         Id = asset.Name;

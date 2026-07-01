@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using CUE4Parse_Conversion.Meshes;
 using CUE4Parse.GameTypes.FN.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Animation;
@@ -336,6 +337,19 @@ public class MeshExport : BaseExport
                     if (component.Name.Equals(staticMesh?.Name)) continue;
                     Meshes.AddIfNotNull(Exporter.MeshComponent(component));
                 }
+
+                break;
+            }
+            case EExportType.Sprite:
+            {
+                var mesh = asset.GetDataListItem<USkeletalMesh>("SkeletalMesh");
+                var exportMesh = Exporter.Mesh(mesh);
+
+                var material = asset.GetDataListItem<UMaterialInterface>("Material");
+                var exportMaterial = Exporter.Material(material, 0);
+                exportMesh?.OverrideMaterials.AddIfNotNull(exportMaterial);
+
+                Meshes.AddIfNotNull(exportMesh);
 
                 break;
             }
