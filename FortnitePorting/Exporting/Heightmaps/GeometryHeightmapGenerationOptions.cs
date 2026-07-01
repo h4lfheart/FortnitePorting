@@ -24,4 +24,3 @@ public sealed record GeometryHeightmapProgress(string Stage, int Current = 0, in
 {
     public double Percentage => Total <= 0 ? 0.0 : Current * 100.0 / Total;
 }
-

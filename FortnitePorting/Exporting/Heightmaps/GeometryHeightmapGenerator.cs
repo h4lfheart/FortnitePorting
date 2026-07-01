@@ -598,4 +598,3 @@ public sealed class GeometryHeightmapGenerator
         }
     }
 }
-

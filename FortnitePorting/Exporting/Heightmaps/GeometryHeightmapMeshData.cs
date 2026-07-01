@@ -213,7 +213,8 @@ internal static class GeometryHeightmapMeshFilter
             ],
             pathFragments:
             [
-                "/Engine/BasicShapes/Plane.Plane"
+                "/Engine/BasicShapes/Plane.Plane",
+                "/Game/Creative/Environments/Meshes/CP_Ground_Plane"
             ]),
         new(
             "background_landscape_mesh",
@@ -266,4 +267,3 @@ internal static class GeometryHeightmapMeshFilter
         public string[] PathFragments { get; } = pathFragments ?? [];
     }
 }
-
