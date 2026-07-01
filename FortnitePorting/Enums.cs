@@ -371,6 +371,15 @@ public enum EFileFilterType
 
 public enum EThemeType
 {
+    
+    [Description("Amethyst")]
+    [Icon(MaterialIconKind.DiamondStone)]
+    Amethyst,
+    
+    [Description("Rose")]
+    [Icon(MaterialIconKind.Flower)]
+    Rose,
+    
     [Description("Dark")]
     [Icon(MaterialIconKind.WeatherNight)]
     Dark,
@@ -382,10 +391,6 @@ public enum EThemeType
     [Description("Ocean")]
     [Icon(MaterialIconKind.WaterDrop)]
     OceanBlue,
-    
-    [Description("Rose")]
-    [Icon(MaterialIconKind.Flower)]
-    Rose,
     
     [Description("Mica")]
     [Icon(MaterialIconKind.CircleOpacity)]

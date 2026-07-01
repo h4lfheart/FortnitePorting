@@ -358,7 +358,6 @@
 
                                                         <DropDownButton Grid.Row="2" Margin="{ext:Space 1, 0}"
                                                                         HorizontalAlignment="Stretch"
-                                                                        Background="#222326"
                                                                         CornerRadius="12"
                                                                         IsVisible="{Binding !MultiSelect}">
                                                             <DropDownButton.Flyout>
