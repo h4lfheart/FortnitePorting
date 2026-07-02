@@ -94,9 +94,10 @@ public abstract partial class BaseAssetItem : ObservableObject
     }
     
     [RelayCommand]
-    public virtual async Task CopyIcon(bool withBackground = false)
+    public virtual async Task SaveIcon()
     {
-        await AvaloniaClipboard.SetImageAsync(IconDisplayImage);
+        if (await App.SaveFileDialog(suggestedFileName: CreationData.ID, Globals.PNGFileType) is not { } path) return;
+        IconDisplayImage?.Save(path);
     }
     
     [RelayCommand]
