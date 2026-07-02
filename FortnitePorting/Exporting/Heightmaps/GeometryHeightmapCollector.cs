@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using CUE4Parse_Conversion.Meshes;
+using CUE4Parse_Conversion.Meshes.PSK;
 using CUE4Parse.GameTypes.FN.Assets.Exports.DataAssets;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Actor;
@@ -9,6 +11,7 @@ using CUE4Parse.UE4.Assets.Exports.Component;
 using CUE4Parse.UE4.Assets.Exports.Component.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.Component.SplineMesh;
 using CUE4Parse.UE4.Assets.Exports.Component.StaticMesh;
+using CUE4Parse.UE4.Assets.Exports.Nanite;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Objects;
@@ -25,14 +28,25 @@ namespace FortnitePorting.Exporting.Heightmaps;
 
 public sealed class GeometryHeightmapCollector
 {
+    private static readonly string[] SpawnIslandKeywords =
+    [
+        "spawnisland",
+        "spawn_island",
+        "spawn-island",
+        "sourspawn",
+        "starterisland",
+        "starter_island",
+        "warmupisland",
+        "warmup_island",
+        "pregameisland",
+        "pregame_island"
+    ];
+
     private readonly EWorldFlags _worldFlags;
     private readonly bool _includeSpawnIsland;
     private readonly GeometryHeightmapMeshGeometryCache _geometryCache = new();
     private readonly IProgress<GeometryHeightmapProgress>? _progress;
     private readonly CancellationToken _cancellationToken;
-
-    public int SkippedMeshes { get; private set; }
-    public GeometryHeightmapFilterSummary FilterSummary { get; } = new();
 
     public GeometryHeightmapCollector(
         EWorldFlags worldFlags,
@@ -44,6 +58,13 @@ public sealed class GeometryHeightmapCollector
         _includeSpawnIsland = includeSpawnIsland;
         _progress = progress;
         _cancellationToken = cancellationToken;
+    }
+
+    public static bool IsSpawnIsland(string name, string path)
+    {
+        return SpawnIslandKeywords.Any(keyword =>
+            name.Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
+            path.Contains(keyword, StringComparison.OrdinalIgnoreCase));
     }
 
     public List<GeometryHeightmapMeshInstance> Collect(IEnumerable<UWorld> worlds, bool includeStreamingLevels = true)
@@ -58,7 +79,8 @@ public sealed class GeometryHeightmapCollector
         return instances;
     }
 
-    private void CollectWorld(UWorld world, List<GeometryHeightmapMeshInstance> instances, bool includeStreamingLevels = true)
+    private void CollectWorld(UWorld world, List<GeometryHeightmapMeshInstance> instances,
+        bool includeStreamingLevels = true)
     {
         if (world.PersistentLevel.Load() is ULevel level)
             CollectLevel(level, instances);
@@ -108,34 +130,25 @@ public sealed class GeometryHeightmapCollector
     {
         if (_worldFlags.HasFlag(EWorldFlags.Actors))
         {
-            if (_worldFlags.HasFlag(EWorldFlags.InstancedFoliage) &&
-                actor.TryGetValue(out FPackageIndex[] instanceComponents, "InstanceComponents"))
-            {
-                foreach (var instanceComponentLazy in instanceComponents)
-                {
-                    _cancellationToken.ThrowIfCancellationRequested();
-                    if (!instanceComponentLazy.TryLoad<UInstancedStaticMeshComponent>(out var instanceComponent))
-                        continue;
+            var hasMesh = false;
 
-                    if (instanceComponent.ExportType == "HLODInstancedStaticMeshComponent") continue;
-
-                    CollectMeshComponent(instanceComponent, instances);
-                }
-            }
-
-            if (actor.TryGetValue(out UStaticMeshComponent staticMeshComponent, "StaticMeshComponent", "StaticMesh", "Mesh", "LightMesh"))
+            if (actor.TryGetValue(out UStaticMeshComponent staticMeshComponent, "StaticMeshComponent", "StaticMesh",
+                    "Mesh", "LightMesh"))
             {
                 CollectMeshComponent(staticMeshComponent, instances, actor.Name);
-                CollectExtraActorMeshes(actor, instances);
                 CollectAdditionalWorlds(actor, instances);
-
-                if (loadTemplate)
-                    CollectActorTemplate(actor, instances);
+                hasMesh = true;
             }
 
-            if (actor.TryGetValue(out USkeletalMeshComponent skeletalMeshComponent, "SkeletalMeshComponent", "SkeletalMesh"))
+            if (actor.TryGetValue(out USkeletalMeshComponent skeletalMeshComponent, "SkeletalMeshComponent",
+                    "SkeletalMesh"))
             {
                 CollectMeshComponent(skeletalMeshComponent, instances, actor.Name);
+                hasMesh = true;
+            }
+
+            if (hasMesh)
+            {
                 CollectExtraActorMeshes(actor, instances);
 
                 if (loadTemplate)
@@ -178,7 +191,8 @@ public sealed class GeometryHeightmapCollector
         CollectBlueprintComponents(blueprintGeneratedClass, instances, actor.GetAbsoluteTransformFromRootComponent());
     }
 
-    private void CollectBlueprintComponents(UObject blueprint, List<GeometryHeightmapMeshInstance> instances, FTransform parentTransform)
+    private void CollectBlueprintComponents(UObject blueprint, List<GeometryHeightmapMeshInstance> instances,
+        FTransform parentTransform)
     {
         if (blueprint.TryGetValue(out UObject constructionScript, "SimpleConstructionScript"))
         {
@@ -199,7 +213,8 @@ public sealed class GeometryHeightmapCollector
         }
     }
 
-    private void CollectTemplateComponent(UObject? componentTemplate, List<GeometryHeightmapMeshInstance> instances, FTransform parentTransform)
+    private void CollectTemplateComponent(UObject? componentTemplate, List<GeometryHeightmapMeshInstance> instances,
+        FTransform parentTransform)
     {
         switch (componentTemplate)
         {
@@ -239,7 +254,8 @@ public sealed class GeometryHeightmapCollector
         }
     }
 
-    private void CollectMeshComponent(USceneComponent sceneComponent, List<GeometryHeightmapMeshInstance> instances, string? displayName = null, FTransform? parentTransform = null)
+    private void CollectMeshComponent(USceneComponent sceneComponent, List<GeometryHeightmapMeshInstance> instances,
+        string? displayName = null, FTransform? parentTransform = null)
     {
         switch (sceneComponent)
         {
@@ -258,7 +274,8 @@ public sealed class GeometryHeightmapCollector
         }
     }
 
-    private void CollectMeshComponent(UStaticMeshComponent meshComponent, List<GeometryHeightmapMeshInstance> instances, string? displayName = null, FTransform? parentTransform = null)
+    private void CollectMeshComponent(UStaticMeshComponent meshComponent, List<GeometryHeightmapMeshInstance> instances,
+        string? displayName = null, FTransform? parentTransform = null)
     {
         if (meshComponent is USplineMeshComponent splineMeshComponent)
         {
@@ -269,18 +286,22 @@ public sealed class GeometryHeightmapCollector
         var mesh = meshComponent.GetStaticMesh().Load<UStaticMesh>();
         if (mesh is null) return;
 
-        AddMeshInstance(displayName ?? mesh.Name, mesh, ApplyParent(meshComponent.GetAbsoluteTransform(), parentTransform), false, instances);
+        AddMeshInstance(displayName ?? mesh.Name, mesh,
+            ApplyParent(meshComponent.GetAbsoluteTransform(), parentTransform), false, instances);
     }
 
-    private void CollectMeshComponent(USkeletalMeshComponent meshComponent, List<GeometryHeightmapMeshInstance> instances, string? displayName = null, FTransform? parentTransform = null)
+    private void CollectMeshComponent(USkeletalMeshComponent meshComponent,
+        List<GeometryHeightmapMeshInstance> instances, string? displayName = null, FTransform? parentTransform = null)
     {
         var mesh = meshComponent.GetSkeletalMesh().Load<USkeletalMesh>();
         if (mesh is null) return;
 
-        AddMeshInstance(displayName ?? mesh.Name, mesh, ApplyParent(meshComponent.GetAbsoluteTransform(), parentTransform), false, instances);
+        AddMeshInstance(displayName ?? mesh.Name, mesh,
+            ApplyParent(meshComponent.GetAbsoluteTransform(), parentTransform), false, instances);
     }
 
-    private void CollectMeshComponent(UInstancedStaticMeshComponent instanceComponent, List<GeometryHeightmapMeshInstance> instances, string? displayName = null, FTransform? parentTransform = null)
+    private void CollectMeshComponent(UInstancedStaticMeshComponent instanceComponent,
+        List<GeometryHeightmapMeshInstance> instances, string? displayName = null, FTransform? parentTransform = null)
     {
         var mesh = instanceComponent.GetOrDefault<UStaticMesh?>("StaticMesh");
         if (mesh is null) return;
@@ -298,9 +319,11 @@ public sealed class GeometryHeightmapCollector
         }
     }
 
-    private void CollectSplineMeshComponent(USplineMeshComponent meshComponent, List<GeometryHeightmapMeshInstance> instances, string? displayName = null, FTransform? parentTransform = null)
+    private void CollectSplineMeshComponent(USplineMeshComponent meshComponent,
+        List<GeometryHeightmapMeshInstance> instances, string? displayName = null, FTransform? parentTransform = null)
     {
-        AddMeshInstance(displayName ?? meshComponent.Name, meshComponent, ApplyParent(meshComponent.GetAbsoluteTransform(), parentTransform), false, instances);
+        AddMeshInstance(displayName ?? meshComponent.Name, meshComponent,
+            ApplyParent(meshComponent.GetAbsoluteTransform(), parentTransform), false, instances);
     }
 
     private static FTransform ApplyParent(FTransform transform, FTransform? parentTransform)
@@ -318,25 +341,208 @@ public sealed class GeometryHeightmapCollector
         try
         {
             var path = source.GetPathName();
-            if (!_includeSpawnIsland && GeometryHeightmapSpawnIslandDetector.IsSpawnIsland(name, path))
-            {
-                FilterSummary.Add("spawn_island", name, path);
+            if (!_includeSpawnIsland && IsSpawnIsland(name, path))
                 return;
-            }
 
-            if (GeometryHeightmapMeshFilter.GetCullRule(name, path, isTerrain) is { } cullRule)
-            {
-                FilterSummary.Add(cullRule, name, path);
+            if (GeometryHeightmapMeshFilter.GetCullRule(name, path, isTerrain) is { } _)
                 return;
-            }
 
             var geometry = _geometryCache.GetOrCreate(source);
             instances.Add(new GeometryHeightmapMeshInstance(name, path, geometry, transform, isTerrain));
         }
         catch (Exception exception)
         {
-            SkippedMeshes++;
             Log.Warning(exception, "Skipping unsupported geometry heightmap mesh {MeshName}", name);
+        }
+    }
+
+    private sealed class GeometryHeightmapMeshGeometryCache
+    {
+        private readonly Dictionary<string, GeometryHeightmapMeshGeometry> _geometries = [];
+
+        public GeometryHeightmapMeshGeometry GetOrCreate(UObject source)
+        {
+            var key = source.GetPathName();
+            if (_geometries.TryGetValue(key, out var geometry))
+                return geometry;
+
+            geometry = CreateGeometry(source) ??
+                       throw new InvalidOperationException($"Failed to convert {source.Name} to mesh geometry.");
+            _geometries[key] = geometry;
+            return geometry;
+        }
+
+        private static GeometryHeightmapMeshGeometry? CreateGeometry(UObject source)
+        {
+            switch (source)
+            {
+                case UStaticMesh staticMesh:
+                {
+                    if (!staticMesh.TryConvert(out var convertedMesh, out _, ENaniteMeshFormat.OnlyNormalLODs))
+                        return null;
+
+                    try
+                    {
+                        return FromStaticMesh(convertedMesh);
+                    }
+                    finally
+                    {
+                        convertedMesh.Dispose();
+                    }
+                }
+                case USkeletalMesh skeletalMesh:
+                {
+                    if (!skeletalMesh.TryConvert(out var convertedMesh))
+                        return null;
+
+                    try
+                    {
+                        return FromSkeletalMesh(convertedMesh);
+                    }
+                    finally
+                    {
+                        convertedMesh.Dispose();
+                    }
+                }
+                case USplineMeshComponent splineMesh:
+                {
+                    if (!splineMesh.TryConvert(out var convertedMesh, out _, ENaniteMeshFormat.OnlyNormalLODs))
+                        return null;
+
+                    try
+                    {
+                        return FromStaticMesh(convertedMesh);
+                    }
+                    finally
+                    {
+                        convertedMesh.Dispose();
+                    }
+                }
+                case ALandscapeProxy landscapeProxy:
+                {
+                    var convertedMesh = new LandscapeProcessor(landscapeProxy).Process();
+                    try
+                    {
+                        return FromStaticMesh(convertedMesh);
+                    }
+                    finally
+                    {
+                        convertedMesh.Dispose();
+                    }
+                }
+                default:
+                    return null;
+            }
+        }
+
+        private static GeometryHeightmapMeshGeometry? FromStaticMesh(CStaticMesh mesh)
+        {
+            var lod = mesh.LODs.FirstOrDefault(lod => lod is { Verts: not null, Indices: not null } && !lod.SkipLod);
+            if (lod?.Verts is null || lod.Indices is null)
+                return null;
+
+            return new GeometryHeightmapMeshGeometry(
+                lod.Verts.Select(vertex => vertex.Position).ToArray(),
+                lod.Indices.Value.ToArray());
+        }
+
+        private static GeometryHeightmapMeshGeometry? FromSkeletalMesh(CSkeletalMesh mesh)
+        {
+            var lod = mesh.LODs.FirstOrDefault(lod => lod is { Verts: not null, Indices: not null } && !lod.SkipLod);
+            if (lod?.Verts is null || lod.Indices is null)
+                return null;
+
+            return new GeometryHeightmapMeshGeometry(
+                lod.Verts.Select(vertex => vertex.Position).ToArray(),
+                lod.Indices.Value.ToArray());
+        }
+    }
+
+    private static class GeometryHeightmapMeshFilter
+    {
+        private static readonly Rule[] Rules =
+        [
+            new(
+                "decal_visual_mesh",
+                nameKeywords:
+                [
+                    "decal"
+                ],
+                pathFragments:
+                [
+                    "decal"
+                ]),
+            new(
+                "foliage_detail_mesh",
+                nameKeywords:
+                [
+                    "bush",
+                    "plant",
+                    "wavygrass",
+                    "shrub",
+                    "flowers"
+                ]),
+            new(
+                "flat_visual_sheet",
+                nameKeywords:
+                [
+                    "projectioncube",
+                    "waterplane",
+                    "ocean_floor",
+                    "daisy_ocean",
+                    "icesheet",
+                    "groundfog",
+                    "fogsheet",
+                    "skullroomfog"
+                ],
+                pathFragments:
+                [
+                    "/Engine/BasicShapes/Plane.Plane",
+                    "/Game/Creative/Environments/Meshes/CP_Ground_Plane"
+                ]),
+            new(
+                "background_landscape_mesh",
+                pathFragments:
+                [
+                    "/Environments/Landscape/Meshes/Background"
+                ]),
+            new(
+                "flying_orb_visual_effect",
+                nameKeywords:
+                [
+                    "dragoncart_orb",
+                    "flyingorb"
+                ],
+                pathFragments:
+                [
+                    "/DragonCartNarrative/Assets/FlyingOrb/"
+                ])
+        ];
+
+        public static string? GetCullRule(string name, string path, bool isTerrain)
+        {
+            if (isTerrain)
+                return null;
+
+            var meshName = path.Split('/').LastOrDefault() ?? name;
+            return Rules
+                .FirstOrDefault(rule =>
+                    rule.NameKeywords.Any(keyword =>
+                        meshName.Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
+                        name.Contains(keyword, StringComparison.OrdinalIgnoreCase)) ||
+                    rule.PathFragments.Any(fragment =>
+                        path.Contains(fragment, StringComparison.OrdinalIgnoreCase)))
+                ?.Name;
+        }
+
+        private sealed class Rule(
+            string name,
+            string[]? nameKeywords = null,
+            string[]? pathFragments = null)
+        {
+            public string Name { get; } = name;
+            public string[] NameKeywords { get; } = nameKeywords ?? [];
+            public string[] PathFragments { get; } = pathFragments ?? [];
         }
     }
 }

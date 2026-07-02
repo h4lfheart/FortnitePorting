@@ -43,19 +43,18 @@ public sealed class GeometryHeightmapGenerator
         var useTerrainBounds = terrainInstances.Length > 0;
         var boundsInstances = useTerrainBounds ? terrainInstances : sourceInstances;
 
-        progress?.Report(new GeometryHeightmapProgress("Measuring map bounds", 0, boundsInstances.Length));
+        progress?.Report(new GeometryHeightmapProgress("Measuring Map Bounds", 0, boundsInstances.Length));
         var bounds = MeasureBounds(boundsInstances, progress, cancellationToken);
 
         var rasterInstances = sourceInstances;
         if (useTerrainBounds)
         {
-            progress?.Report(new GeometryHeightmapProgress("Clipping geometry to terrain bounds", 0, sourceInstances.Length));
+            progress?.Report(new GeometryHeightmapProgress("Clipping Geometry to Terrain Bounds", 0, sourceInstances.Length));
             rasterInstances = ClipInstancesToBounds(sourceInstances, bounds, progress, cancellationToken);
         }
 
-        var rasterStage = options.IncludeActors ? "Rasterizing heightmap" : "Rasterizing terrain heightmap";
-        progress?.Report(new GeometryHeightmapProgress(rasterStage, 0, rasterInstances.Length));
-        var heightmap = Rasterize(rasterInstances, bounds, options, rasterStage, progress, cancellationToken);
+        progress?.Report(new GeometryHeightmapProgress("Rasterizing Heightmap", 0, rasterInstances.Length));
+        var heightmap = Rasterize(rasterInstances, bounds, options, "Rasterizing Heightmap", progress, cancellationToken);
 
         if (options.CropToMainComponent && !options.IncludeSpawnIsland)
         {
@@ -64,23 +63,21 @@ public sealed class GeometryHeightmapGenerator
                 !componentBounds.ApproximatelyEquals(heightmap.Bounds) &&
                 componentBounds.AreaXY < heightmap.Bounds.AreaXY)
             {
-                progress?.Report(new GeometryHeightmapProgress("Cropping to main island"));
+                progress?.Report(new GeometryHeightmapProgress("Cropping to Main Island"));
                 bounds = componentBounds;
                 rasterInstances = ClipInstancesToBounds(rasterInstances, bounds, null, cancellationToken);
 
-                var croppedRasterStage = options.IncludeActors ? "Rasterizing cropped heightmap" : "Rasterizing cropped terrain heightmap";
-                progress?.Report(new GeometryHeightmapProgress(croppedRasterStage, 0, rasterInstances.Length));
-                heightmap = Rasterize(rasterInstances, bounds, options, croppedRasterStage, progress, cancellationToken);
+                progress?.Report(new GeometryHeightmapProgress("Rasterizing Cropped Heightmap", 0, rasterInstances.Length));
+                heightmap = Rasterize(rasterInstances, bounds, options, "Rasterizing Cropped Heightmap", progress, cancellationToken);
             }
         }
 
         var (greyPerUnit, greyBase, _, _) = CalculateLumaScale(heightmap.Data);
 
         cancellationToken.ThrowIfCancellationRequested();
-        progress?.Report(new GeometryHeightmapProgress(options.IncludeActors ? "Saving heightmap image" : "Saving terrain heightmap image"));
-        var outputFileName = options.IncludeActors ? "heightmap.png" : "terrainmap.png";
+        progress?.Report(new GeometryHeightmapProgress("Saving Heightmap Image"));
         SaveHeightmapPng(
-            Path.Combine(outputDirectory, outputFileName),
+            Path.Combine(outputDirectory, options.OutputFileName),
             heightmap.Data,
             heightmap.Width,
             heightmap.Height,
@@ -89,7 +86,7 @@ public sealed class GeometryHeightmapGenerator
 
         return new GeometryHeightmapGenerationResult
         {
-            OutputFileName = outputFileName,
+            OutputFileName = options.OutputFileName,
             TotalMeshes = sourceInstances.Length,
             OutputWidth = heightmap.Width,
             OutputHeight = heightmap.Height,
@@ -100,8 +97,7 @@ public sealed class GeometryHeightmapGenerator
     private static GeometryHeightmapBounds MeasureBounds(
         IReadOnlyCollection<GeometryHeightmapMeshInstance> instances,
         IProgress<GeometryHeightmapProgress>? progress,
-        CancellationToken cancellationToken,
-        string stage = "Measuring map bounds")
+        CancellationToken cancellationToken)
     {
         var bounds = GeometryHeightmapBounds.Empty;
         var current = 0;
@@ -117,7 +113,7 @@ public sealed class GeometryHeightmapGenerator
             }
 
             if (current % 25 == 0 || current == instances.Count)
-                progress?.Report(new GeometryHeightmapProgress(stage, current, instances.Count));
+                progress?.Report(new GeometryHeightmapProgress("Measuring Map Bounds", current, instances.Count));
         }
 
         if (!bounds.IsValid)
@@ -147,7 +143,7 @@ public sealed class GeometryHeightmapGenerator
                 clippedInstances.Add(instance);
 
             if (current % 100 == 0 || current == instances.Count)
-                progress?.Report(new GeometryHeightmapProgress("Clipping geometry to terrain bounds", current, instances.Count));
+                progress?.Report(new GeometryHeightmapProgress("Clipping Geometry to Terrain Bounds", current, instances.Count));
         }
 
         if (clippedInstances.Count == 0)
@@ -350,7 +346,7 @@ public sealed class GeometryHeightmapGenerator
             MaxZ = bounds.MaxZ
         };
 
-        return new GeometryHeightmapRasterResult(heightmap, outWidth, outHeight, scale, rasterBounds);
+        return new GeometryHeightmapRasterResult(heightmap, outWidth, outHeight, rasterBounds);
     }
 
     private static void RasterizeInstance(
@@ -526,7 +522,6 @@ public sealed class GeometryHeightmapGenerator
         float[] Data,
         int Width,
         int Height,
-        float Scale,
         GeometryHeightmapBounds Bounds);
 
     private readonly record struct GeometryHeightmapRasterComponent(

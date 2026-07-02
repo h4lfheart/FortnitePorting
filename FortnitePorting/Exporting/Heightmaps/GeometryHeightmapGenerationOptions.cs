@@ -4,6 +4,7 @@ public sealed record GeometryHeightmapGenerationOptions(
     int Resolution,
     bool IncludeActors,
     GeometryHeightmapTrimSettings TrimSettings,
+    string OutputFileName,
     bool IncludeSpawnIsland = false,
     bool FillResolution = true,
     bool CropToMainComponent = true)
@@ -20,7 +21,4 @@ public sealed record GeometryHeightmapTrimSettings(
     float Bottom = 0.0f,
     float Left = 0.0f);
 
-public sealed record GeometryHeightmapProgress(string Stage, int Current = 0, int Total = 0)
-{
-    public double Percentage => Total <= 0 ? 0.0 : Current * 100.0 / Total;
-}
+public sealed record GeometryHeightmapProgress(string Stage, int Current = 0, int Total = 0);
