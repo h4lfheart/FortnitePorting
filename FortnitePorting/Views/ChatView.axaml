@@ -213,13 +213,8 @@
                     Margin="{ext:Space 0, 0, 0, 2}"
                     Cursor="Hand"
                     ClipToBounds="False"
+                    BoxShadow="{DynamicResource FPCardShadow}"
                     PointerPressed="OnNewMessageIndicatorPressed">
-                <Border.BoxShadow>
-                    inset 0 1 2 -1 #50ffffff,
-                    inset 0 -1 2 -2 #50ffffff,
-                    0 4 8 #20000000,
-                    0 8 12 #10000000
-                </Border.BoxShadow>
 
                 <controls:IconText Icon="ArrowDown" Text="{Binding NewMessageCountText}" />
             </Border>

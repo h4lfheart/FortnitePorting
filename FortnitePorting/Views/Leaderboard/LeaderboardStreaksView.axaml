@@ -30,13 +30,8 @@
                                     <Border CornerRadius="8"
                                             HorizontalAlignment="Stretch"
                                             VerticalAlignment="Stretch"
-                                            Tag="{Binding Ranking}">
-                                        <Border.BoxShadow>
-                                            inset 0 1 2 -1 #50ffffff,
-                                            inset 0 -1 2 -2 #50ffffff,
-                                            0 4 8 #20000000,
-                                            0 8 12 #10000000
-                                        </Border.BoxShadow>
+                                            Tag="{Binding Ranking}"
+                                            BoxShadow="{DynamicResource FPCardShadow}">
                                         <Border.Styles>
                                             <Style Selector="Border" x:DataType="models:LeaderboardStreak">
                                                 <Setter Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}"/>

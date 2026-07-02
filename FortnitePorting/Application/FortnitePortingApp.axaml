@@ -67,7 +67,9 @@
             <FontFamily x:Key="SFDisplayHeavy">avares://FortnitePorting/Assets/Fonts/SF/SF-Pro-Display-Heavy.otf#SF Pro Display</FontFamily>
             <FontFamily x:Key="SFDisplayBold">avares://FortnitePorting/Assets/Fonts/SF/SF-Pro-Display-Bold.otf#SF Pro Display</FontFamily>
             <FontFamily x:Key="SFDisplayBlack">avares://FortnitePorting/Assets/Fonts/SF/SF-Pro-Display-Black.otf#SF Pro Display</FontFamily>
-
+            
+            <BoxShadows x:Key="FPCardShadow">inset 0 3 2 -2 #10ffffff, inset 0 10 25 #05ffffff, inset 0 0 0 1.5 #0affffff, 0 4 8 #20000000, 0 8 12 #10000000</BoxShadows>
+            
         </ResourceDictionary>
 
     </Application.Resources>
@@ -100,12 +102,7 @@
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="CornerRadius" Value="16" />
             <Setter Property="MinHeight" Value="32" />
-            <Setter Property="BoxShadow">
-                inset 0 1 2 -1 #50ffffff,
-                inset 0 -1 2 -2 #50ffffff,
-                0 4 8 #20000000,
-                0 8 12 #10000000
-            </Setter>
+            <Setter Property="BoxShadow" Value="{DynamicResource FPCardShadow}" />
             <Setter Property="Template">
                 <ControlTemplate>
                     <Border Background="{TemplateBinding Background}"
@@ -149,12 +146,7 @@
             <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
                 <Setter Property="ClipToBounds" Value="False" />
                 <Setter Property="BackgroundSizing" Value="CenterBorder" />
-                <Setter Property="BoxShadow">
-                    inset 0 1 2 -1 #50ffffff,
-                    inset 0 -1 2 -2 #50ffffff,
-                    0 4 8 #20000000,
-                    0 8 12 #10000000
-                </Setter>
+                <Setter Property="BoxShadow" Value="{DynamicResource FPCardShadow}" />
             </Style>
 
             <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
@@ -255,12 +247,7 @@
             <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
                 <Setter Property="ClipToBounds" Value="False" />
                 <Setter Property="BackgroundSizing" Value="CenterBorder" />
-                <Setter Property="BoxShadow">
-                    inset 0 1 2 -1 #50ffffff,
-                    inset 0 -1 2 -2 #50ffffff,
-                    0 4 8 #20000000,
-                    0 8 12 #10000000
-                </Setter>
+                <Setter Property="BoxShadow" Value="{DynamicResource FPCardShadow}" />
             </Style>
 
 
@@ -301,12 +288,7 @@
                 <Setter Property="Background" Value="{DynamicResource FPAccentBrush}" />
                 <Setter Property="ClipToBounds" Value="False" />
                 <Setter Property="BackgroundSizing" Value="CenterBorder" />
-                <Setter Property="BoxShadow">
-                    inset 0 1 2 -1 #50ffffff,
-                    inset 0 -1 2 -2 #50ffffff,
-                    0 4 8 #20000000,
-                    0 8 12 #10000000
-                </Setter>
+                <Setter Property="BoxShadow" Value="{DynamicResource FPCardShadow}" />
             </Style>
 
 
@@ -315,12 +297,7 @@
                 <Setter Property="BorderThickness" Value="0" />
                 <Setter Property="ClipToBounds" Value="False" />
                 <Setter Property="BackgroundSizing" Value="CenterBorder" />
-                <Setter Property="BoxShadow">
-                    inset 0 1 2 -1 #50ffffff,
-                    inset 0 -1 2 -2 #50ffffff,
-                    0 4 8 #20000000,
-                    0 8 12 #10000000
-                </Setter>
+                <Setter Property="BoxShadow" Value="{DynamicResource FPCardShadow}" />
             </Style>
 
         </Style>
@@ -332,12 +309,7 @@
                     <Setter Property="Background" Value="{DynamicResource FPAccentBrush}" />
                     <Setter Property="ClipToBounds" Value="False" />
                     <Setter Property="BackgroundSizing" Value="CenterBorder" />
-                    <Setter Property="BoxShadow">
-                        inset 0 1 2 -1 #50ffffff,
-                        inset 0 -1 2 -2 #50ffffff,
-                        0 4 8 #20000000,
-                        0 8 12 #10000000
-                    </Setter>
+                    <Setter Property="BoxShadow" Value="{DynamicResource FPCardShadow}" />
                 </Style>
             </Style>
 
@@ -345,12 +317,7 @@
                 <Style Selector="^ /template/ Border#TrackBackground">
                     <Setter Property="ClipToBounds" Value="False" />
                     <Setter Property="BackgroundSizing" Value="CenterBorder" />
-                    <Setter Property="BoxShadow">
-                        inset 0 1 2 -1 #50ffffff,
-                        inset 0 -1 2 -2 #50ffffff,
-                        0 4 8 #20000000,
-                        0 8 12 #10000000
-                    </Setter>
+                    <Setter Property="BoxShadow" Value="{DynamicResource FPCardShadow}" />
                 </Style>
             </Style>
 
@@ -360,12 +327,7 @@
                     <Setter Property="Background" Value="{DynamicResource FPButtonBackground}" />
                     <Setter Property="ClipToBounds" Value="False" />
                     <Setter Property="BackgroundSizing" Value="CenterBorder" />
-                    <Setter Property="BoxShadow">
-                        inset 0 1 2 -1 #50ffffff,
-                        inset 0 -1 2 -2 #50ffffff,
-                        0 4 8 #20000000,
-                        0 8 12 #10000000
-                    </Setter>
+                    <Setter Property="BoxShadow" Value="{DynamicResource FPCardShadow}" />
                 </Style>
 
                 <Style Selector="^ /template/ Ellipse#SliderInnerThumb">
@@ -398,12 +360,7 @@
             <Style Selector="^ /template/ Border#PART_BorderElement">
                 <Setter Property="ClipToBounds" Value="False" />
                 <Setter Property="BackgroundSizing" Value="CenterBorder" />
-                <Setter Property="BoxShadow">
-                    inset 0 1 2 -1 #50ffffff,
-                    inset 0 -1 2 -2 #50ffffff,
-                    0 4 8 #20000000,
-                    0 8 12 #10000000
-                </Setter>
+                <Setter Property="BoxShadow" Value="{DynamicResource FPCardShadow}" />
             </Style>
 
             <Style Selector="^:focus /template/ Border#PART_BorderElement">
@@ -451,12 +408,7 @@
                 <Setter Property="Background" Value="{DynamicResource FPButtonBackgroundSelected}" />
                 <Setter Property="ClipToBounds" Value="False" />
                 <Setter Property="BackgroundSizing" Value="CenterBorder" />
-                <Setter Property="BoxShadow">
-                    inset 0 1 2 -1 #50ffffff,
-                    inset 0 -1 2 -2 #50ffffff,
-                    0 4 8 #20000000,
-                    0 8 12 #10000000
-                </Setter>
+                <Setter Property="BoxShadow" Value="{DynamicResource FPCardShadow}" />
             </Style>
 
             <Style Selector="^:not(:selected)">
@@ -484,12 +436,7 @@
                 <Setter Property="Margin" Value="{ext:Space 1}" />
                 <Setter Property="ClipToBounds" Value="False" />
                 <Setter Property="BackgroundSizing" Value="CenterBorder" />
-                <Setter Property="BoxShadow">
-                    inset 0 1 2 -1 #50ffffff,
-                    inset 0 -1 2 -2 #50ffffff,
-                    0 4 8 #20000000,
-                    0 8 12 #10000000
-                </Setter>
+                <Setter Property="BoxShadow" Value="{DynamicResource FPCardShadow}" />
             </Style>
         </Style>
 
@@ -508,12 +455,7 @@
                 <Setter Property="Margin" Value="{ext:Space 1}" />
                 <Setter Property="ClipToBounds" Value="False" />
                 <Setter Property="BackgroundSizing" Value="CenterBorder" />
-                <Setter Property="BoxShadow">
-                    inset 0 1 2 -1 #50ffffff,
-                    inset 0 -1 2 -2 #50ffffff,
-                    0 4 8 #20000000,
-                    0 8 12 #10000000
-                </Setter>
+                <Setter Property="BoxShadow" Value="{DynamicResource FPCardShadow}" />
             </Style>
         </Style>
 
@@ -533,12 +475,7 @@
                 <Setter Property="Margin" Value="{ext:Space 1}" />
                 <Setter Property="ClipToBounds" Value="False" />
                 <Setter Property="BackgroundSizing" Value="CenterBorder" />
-                <Setter Property="BoxShadow">
-                    inset 0 1 2 -1 #50ffffff,
-                    inset 0 -1 2 -2 #50ffffff,
-                    0 4 8 #20000000,
-                    0 8 12 #10000000
-                </Setter>
+                <Setter Property="BoxShadow" Value="{DynamicResource FPCardShadow}" />
             </Style>
         </Style>
 
@@ -559,12 +496,7 @@
                 <Setter Property="Margin" Value="{ext:Space 1}" />
                 <Setter Property="ClipToBounds" Value="False" />
                 <Setter Property="BackgroundSizing" Value="CenterBorder" />
-                <Setter Property="BoxShadow">
-                    inset 0 1 2 -1 #50ffffff,
-                    inset 0 -1 2 -2 #50ffffff,
-                    0 4 8 #20000000,
-                    0 8 12 #10000000
-                </Setter>
+                <Setter Property="BoxShadow" Value="{DynamicResource FPCardShadow}" />
             </Style>
         </Style>
 
@@ -609,12 +541,7 @@
             <Style Selector="^ /template/ Border#Background">
                 <Setter Property="ClipToBounds" Value="False" />
                 <Setter Property="BackgroundSizing" Value="CenterBorder" />
-                <Setter Property="BoxShadow">
-                    inset 0 1 2 -1 #50ffffff,
-                    inset 0 -1 2 -2 #50ffffff,
-                    0 4 8 #20000000,
-                    0 8 12 #10000000
-                </Setter>
+                <Setter Property="BoxShadow" Value="{DynamicResource FPCardShadow}" />
             </Style>
 
             <Style Selector="^/template/ Border#PopupBorder">
@@ -657,12 +584,7 @@
                 <Setter Property="Background" Value="{DynamicResource FPButtonBackgroundSelected}" />
                 <Setter Property="ClipToBounds" Value="False" />
                 <Setter Property="BackgroundSizing" Value="CenterBorder" />
-                <Setter Property="BoxShadow">
-                    inset 0 1 2 -1 #50ffffff,
-                    inset 0 -1 2 -2 #50ffffff,
-                    0 4 8 #20000000,
-                    0 8 12 #10000000
-                </Setter>
+                <Setter Property="BoxShadow" Value="{DynamicResource FPCardShadow}" />
 
                 <Style Selector="^:pointerover">
                     <Setter Property="Background" Value="{DynamicResource FPButtonBackgroundSelectedPointerOver}" />
@@ -683,12 +605,7 @@
                 <Setter Property="Background" Value="{DynamicResource FPButtonBackgroundSelected}" />
                 <Setter Property="ClipToBounds" Value="False" />
                 <Setter Property="BackgroundSizing" Value="CenterBorder" />
-                <Setter Property="BoxShadow">
-                    inset 0 1 2 -1 #50ffffff,
-                    inset 0 -1 2 -2 #50ffffff,
-                    0 4 8 #20000000,
-                    0 8 12 #10000000
-                </Setter>
+                <Setter Property="BoxShadow" Value="{DynamicResource FPCardShadow}" />
 
                 <Style Selector="^:pointerover">
                     <Setter Property="Background" Value="{DynamicResource FPButtonBackgroundSelectedPointerOver}" />
@@ -718,12 +635,7 @@
                 <Setter Property="CornerRadius" Value="16" />
                 <Setter Property="ClipToBounds" Value="False" />
                 <Setter Property="BackgroundSizing" Value="CenterBorder" />
-                <Setter Property="BoxShadow">
-                    inset 0 1 2 -1 #50ffffff,
-                    inset 0 -1 2 -2 #50ffffff,
-                    0 4 8 #20000000,
-                    0 8 12 #10000000
-                </Setter>
+                <Setter Property="BoxShadow" Value="{DynamicResource FPCardShadow}" />
 
                 <Style Selector="^:pointerover">
                     <Setter Property="Background" Value="{DynamicResource FPButtonBackgroundSelectedPointerOver}" />
@@ -760,7 +672,7 @@
                                 BorderThickness="0"
                                 ClipToBounds="False"
                                 BackgroundSizing="CenterBorder"
-                                BoxShadow="inset 0 1 2 -1 #50ffffff, inset 0 -1 2 -2 #50ffffff, 0 4 8 #20000000, 0 8 12 #10000000">
+                                BoxShadow="{DynamicResource FPCardShadow}">
 
                             <Ellipse Name="CheckGlyph"
                                      Width="12"
@@ -837,12 +749,7 @@
             <Style Selector="^ /template/ Border#RootBorder">
                 <Setter Property="ClipToBounds" Value="False" />
                 <Setter Property="BackgroundSizing" Value="CenterBorder" />
-                <Setter Property="BoxShadow">
-                    inset 0 1 2 -1 #50ffffff,
-                    inset 0 -1 2 -2 #50ffffff,
-                    0 4 8 #20000000,
-                    0 8 12 #10000000
-                </Setter>
+                <Setter Property="BoxShadow" Value="{DynamicResource FPCardShadow}" />
             </Style>
         </Style>
 
@@ -867,12 +774,7 @@
                 <Setter Property="Height" Value="NaN" />
                 <Setter Property="CornerRadius" Value="16" />
 
-                <Setter Property="BoxShadow">
-                    inset 0 1 2 -1 #50ffffff,
-                    inset 0 -1 2 -2 #50ffffff,
-                    0 4 8 #20000000,
-                    0 8 12 #10000000
-                </Setter>
+                <Setter Property="BoxShadow" Value="{DynamicResource FPCardShadow}" />
             </Style>
 
             <Style Selector="^ Border#ProgressBarTrack">
@@ -880,12 +782,7 @@
                 <Setter Property="Height" Value="NaN" />
                 <Setter Property="CornerRadius" Value="16" />
 
-                <Setter Property="BoxShadow">
-                    inset 0 1 2 -1 #50ffffff,
-                    inset 0 -1 2 -2 #50ffffff,
-                    0 4 8 #20000000,
-                    0 8 12 #10000000
-                </Setter>
+                <Setter Property="BoxShadow" Value="{DynamicResource FPCardShadow}" />
             </Style>
         </Style>
 
@@ -900,12 +797,7 @@
                 <Setter Property="MinHeight" Value="32" />
                 <Setter Property="ClipToBounds" Value="False" />
                 <Setter Property="BackgroundSizing" Value="CenterBorder" />
-                <Setter Property="BoxShadow">
-                    inset 0 1 2 -1 #50ffffff,
-                    inset 0 -1 2 -2 #50ffffff,
-                    0 4 8 #20000000,
-                    0 8 12 #10000000
-                </Setter>
+                <Setter Property="BoxShadow" Value="{DynamicResource FPCardShadow}" />
 
                 <Style Selector="^:pointerover">
                     <Setter Property="Background" Value="{DynamicResource FPButtonBackgroundPointerOver}" />
@@ -1064,12 +956,7 @@
             <Setter Property="MinHeight" Value="32" />
             <Setter Property="ClipToBounds" Value="False" />
             <Setter Property="BackgroundSizing" Value="CenterBorder" />
-            <Setter Property="BoxShadow">
-                inset 0 1 2 -1 #50ffffff,
-                inset 0 -1 2 -2 #50ffffff,
-                0 4 8 #20000000,
-                0 8 12 #10000000
-            </Setter>
+            <Setter Property="BoxShadow" Value="{DynamicResource FPCardShadow}" />
         </Style>
 
         <Style Selector="ColorPicker[IsVisible=True]">

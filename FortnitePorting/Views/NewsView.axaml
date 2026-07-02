@@ -62,13 +62,8 @@
                         <Border Grid.Row="0"
                                 CornerRadius="12" 
                                 Padding="{ext:Space 1, 0.5}"
-                                HorizontalAlignment="Left" ClipToBounds="False">
-                            <Border.BoxShadow>
-                                inset 0 1 2 -1 #50ffffff,
-                                inset 0 -1 2 -2 #50ffffff,
-                                0 4 8 #20000000,
-                                0 8 12 #10000000
-                            </Border.BoxShadow>
+                                HorizontalAlignment="Left" ClipToBounds="False"
+                                BoxShadow="{DynamicResource FPCardShadow}">
                             
                             <Border.Background>
                                 <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
