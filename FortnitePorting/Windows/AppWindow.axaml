@@ -260,6 +260,7 @@
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="*" />
                                 <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
 
                             <Grid Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"
@@ -270,7 +271,6 @@
                                 <TextBlock Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center"
                                            Text="{Binding Title}" Classes="BodyStrongTextBlockStyle" />
                             </Grid>
-
 
                             <TextBlock Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left"
                                        VerticalAlignment="Center"
@@ -283,7 +283,15 @@
                                     Margin="{ext:Space -0.5}"
                                     Content="{material:MaterialIconExt Close}" Command="{Binding CloseCommand}" />
 
-                            <Button Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Margin="{ext:Space 0, 1, 0, 0}"
+                            <ProgressBar Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"
+                                         Height="8"
+                                         Margin="{ext:Space 0, 1, 0, 0}"
+                                         IsVisible="{Binding UseProgress}"
+                                         Minimum="0"
+                                         Maximum="{Binding ProgressTotal}"
+                                         Value="{Binding ProgressCurrent}" />
+
+                            <Button Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" Margin="{ext:Space 0, 1, 0, 0}"
                                     HorizontalAlignment="Stretch"
                                     IsVisible="{Binding UseButton}"
                                     Content="{Binding ButtonTitle}"

@@ -19,6 +19,10 @@ public partial class MessageData : ObservableObject
     [ObservableProperty] private string _buttonTitle;
     [ObservableProperty] private RelayCommand _buttonCommand;
 
+    [ObservableProperty] private bool _useProgress;
+    [ObservableProperty] private int _progressCurrent;
+    [ObservableProperty] private int _progressTotal;
+
     public MaterialIconKind SeverityIcon => Severity switch
     {
         InfoBarSeverity.Informational => MaterialIconKind.Information,
@@ -29,7 +33,8 @@ public partial class MessageData : ObservableObject
     };
 
     public MessageData(string title, string message, InfoBarSeverity severity = InfoBarSeverity.Informational, bool autoClose = true, string id = "", float closeTime = 2.0f,
-        bool useButton = false, string buttonTitle = "", Action? buttonCommand = null)
+        bool useButton = false, string buttonTitle = "", Action? buttonCommand = null,
+        bool useProgress = false, int progressCurrent = 0, int progressTotal = 0)
     {
         Title = title;
         Message = message;
@@ -40,6 +45,9 @@ public partial class MessageData : ObservableObject
         UseButton = useButton;
         ButtonTitle = buttonTitle;
         ButtonCommand = new RelayCommand(buttonCommand ?? (() => { }));
+        UseProgress = useProgress;
+        ProgressCurrent = progressCurrent;
+        ProgressTotal = progressTotal;
     }
 
     [RelayCommand]

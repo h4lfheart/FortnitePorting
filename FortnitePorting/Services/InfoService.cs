@@ -61,9 +61,9 @@ public partial class InfoService : ObservableObject, IService, ILogEventSink
             .CreateLogger();
     }
 
-    public void Message(string title, string message, InfoBarSeverity severity = InfoBarSeverity.Informational, bool autoClose = true, string id = "", float closeTime = 3f, bool useButton = false, string buttonTitle = "", Action? buttonCommand = null)
+    public void Message(string title, string message, InfoBarSeverity severity = InfoBarSeverity.Informational, bool autoClose = true, string id = "", float closeTime = 3f, bool useButton = false, string buttonTitle = "", Action? buttonCommand = null, bool useProgress = false, int progressCurrent = 0, int progressTotal = 0)
     {
-        Message(new MessageData(title, message, severity, autoClose, id, closeTime, useButton, buttonTitle, buttonCommand));
+        Message(new MessageData(title, message, severity, autoClose, id, closeTime, useButton, buttonTitle, buttonCommand, useProgress, progressCurrent, progressTotal));
     }
 
     public void Message(MessageData data)
@@ -97,6 +97,15 @@ public partial class InfoService : ObservableObject, IService, ILogEventSink
         foundInfoBar?.Title = title;
     }
     
+    public void UpdateMessageProgress(string id, int current, int total)
+    {
+        var foundInfoBar = Messages.FirstOrDefault(infoBar => infoBar.Id == id);
+        if (foundInfoBar is null) return;
+        foundInfoBar.UseProgress = true;
+        foundInfoBar.ProgressCurrent = current;
+        foundInfoBar.ProgressTotal = total;
+    }
+
     public void CloseMessage(string id)
     {
         lock (_messageLock)

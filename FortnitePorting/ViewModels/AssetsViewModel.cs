@@ -156,7 +156,8 @@ public partial class AssetsViewModel() : ViewModelBase
         var cts = new CancellationTokenSource();
 
         Info.Message("Exporting Icons", string.Empty, autoClose: false, id: ExportIconsMessageId,
-            useButton: true, buttonTitle: "Cancel", buttonCommand: cts.Cancel);
+            useButton: true, buttonTitle: "Cancel", buttonCommand: cts.Cancel,
+            useProgress: true, progressCurrent: 0, progressTotal: total);
 
         await TaskService.RunAsync(async () =>
         {
@@ -172,7 +173,8 @@ public partial class AssetsViewModel() : ViewModelBase
                 if (iconPath is null) continue;
 
                 var iconName = Path.GetFileNameWithoutExtension(iconPath);
-                Info.UpdateMessage(ExportIconsMessageId, $"{iconName}\n{i + 1} / {total}");
+                Info.UpdateMessage(ExportIconsMessageId, iconName);
+                Info.UpdateMessageProgress(ExportIconsMessageId, i + 1, total);
 
                 try
                 {

@@ -242,15 +242,13 @@ public static class Exporter
     private static BaseExport CreateExport(string displayName, UObject asset, EExportType exportType, BaseStyleData[] styles, ExportDataMeta metaData, IExportFileMeta? fileMeta = null)
     {
         var path = asset.GetPathName();
-        Info.Message($"Exporting", asset.Name, id: path, autoClose: false);
+        Info.Message(displayName, asset.Name, id: path, autoClose: false);
 
         ExportProgressUpdate updateDelegate = (name, current, total) =>
         {
-            var title = $"{displayName} - {current} / {total}";
-            var message = $"{name}";
-            Info.UpdateTitle(id: path, title);
-            Info.UpdateMessage(id: path, message);
-            Log.Information("{Title}: {Message}", title, message);
+            Info.UpdateMessage(path, name);
+            Info.UpdateMessageProgress(path, current, total);
+            Log.Information("{DisplayName} - {Current} / {Total}: {Name}", displayName, current, total, name);
         };
 
         metaData.UpdateProgress += updateDelegate;
