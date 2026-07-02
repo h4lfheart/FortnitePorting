@@ -197,9 +197,8 @@
                         </StackPanel>
                     </DropDownButton>
 
-                    <AutoCompleteBox Grid.Column="8" FilterMode="ContainsOrdinal" Watermark="Search"
-                                     ItemsSource="{Binding AssetLoader.ActiveLoader.SearchAutoComplete}"
-                                     Text="{Binding AssetLoader.ActiveLoader.SearchFilter, Mode=TwoWay}" />
+                    <controls:SearchBar Grid.Column="8" Watermark="Search"
+                                       Text="{Binding AssetLoader.ActiveLoader.SearchFilter, Mode=TwoWay}" />
 
                     <ToggleButton Grid.Column="10" ToolTip.Tip="Regex" HorizontalAlignment="Right"
                                   Content="{material:MaterialIconExt Regex}"

@@ -122,8 +122,8 @@
                     </StackPanel>
                 </DropDownButton>
 
-                <TextBox Grid.Column="3" Text="{Binding SearchText, Mode=TwoWay}" Watermark="Search"
-                         KeyDown="OnSearchKeyDown" />
+                <controls:SearchBar Grid.Column="3" Text="{Binding SearchText, Mode=TwoWay}" Watermark="Search"
+                                    KeyDown="OnSearchKeyDown" />
 
                 <ToggleButton Grid.Column="5" ToolTip.Tip="Regex" HorizontalAlignment="Right"
                               Content="{material:MaterialIconExt Regex}" IsChecked="{Binding UseRegex}" />

@@ -80,9 +80,9 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             
-            <TextBox Grid.Row="0"
-                     Watermark="Search"
-                     Text="{Binding SearchFilter}" />
+            <controls:SearchBar Grid.Row="0"
+                                Watermark="Search"
+                                Text="{Binding SearchFilter}" />
            
             <controls:DynamicFadeScrollViewer Grid.Row="2">
                 <ItemsControl ItemsSource="{Binding ActiveCollection}">

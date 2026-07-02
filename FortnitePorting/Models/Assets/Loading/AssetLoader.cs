@@ -107,7 +107,6 @@ public partial class AssetLoader : ObservableObject
     public readonly IObservable<Func<BaseAssetItem, bool>> AssetFilter;
     [ObservableProperty] private string _searchFilter = string.Empty;
     [ObservableProperty] private bool _useRegex = false;
-    [ObservableProperty] private ObservableCollection<string> _searchAutoComplete = [];
     
     private readonly SemaphoreSlim _pauseSemaphore = new(1, 1);
     
