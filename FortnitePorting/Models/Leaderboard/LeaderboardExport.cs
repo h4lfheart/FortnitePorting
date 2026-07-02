@@ -86,7 +86,8 @@ public partial class LeaderboardExport : ObservableObject
         }
         else
         {
-            ExportBitmap = assetLoader.IconHandler(asset)?.Decode()?.ToWriteableBitmap() ?? asset.GetEditorIconBitmap() ?? ImageExtensions.AvaresBitmap("avares://FortnitePorting/Assets/Unreal/DataAsset_64x.png");
+            var icon = assetLoader.LowResIconHandler(asset) ?? assetLoader.HighResIconHandler(asset);
+            ExportBitmap = icon?.Decode()?.ToWriteableBitmap() ?? asset.GetEditorIconBitmap() ?? ImageExtensions.AvaresBitmap("avares://FortnitePorting/Assets/Unreal/DataAsset_64x.png");
             CachedBitmaps[ObjectPath] = ExportBitmap;
         }
         

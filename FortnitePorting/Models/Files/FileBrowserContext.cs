@@ -308,7 +308,7 @@ public partial class FileBrowserContext : ObservableObject
                     .FirstOrDefault(loader => loader.ClassNames.Contains(obj.ExportType));
                 if (assetLoader is not null && pointer.TryLoad(out var assetObj))
                 {
-                    item.FileBitmap = assetLoader.IconHandler(assetObj)?.Decode(maxMipSize: 128)?.ToWriteableBitmap();
+                    item.FileBitmap = (assetLoader.LowResIconHandler(assetObj) ?? assetLoader.HighResIconHandler(assetObj))?.Decode(maxMipSize: 128)?.ToWriteableBitmap();
                     break;
                 }
 

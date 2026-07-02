@@ -8,6 +8,8 @@
     <Project Path="FortnitePorting.Rendering/FortnitePorting.Rendering.csproj" />
     <Project Path="FortnitePorting.Shared/FortnitePorting.Shared.csproj" />
   </Folder>
-  <Project Path="FortnitePorting.Plugins/FortnitePorting.Plugins.csproj" />
-  <Project Path="FortnitePorting/FortnitePorting.csproj" />
+  <Folder Name="/Application/">
+    <Project Path="FortnitePorting.Plugins/FortnitePorting.Plugins.csproj" />
+    <Project Path="FortnitePorting/FortnitePorting.csproj" />
+  </Folder>
 </Solution>

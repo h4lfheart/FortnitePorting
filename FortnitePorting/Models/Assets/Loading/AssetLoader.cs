@@ -44,7 +44,8 @@ public partial class AssetLoader : ObservableObject
     public Func<AssetLoader, UObject, string, bool> HidePredicate = (loader, asset, name) => false;
     public Action<AssetLoader, UObject, string> AddStyleHandler = (loader, asset, name) => {};
     public string PlaceholderIconPath = "FortniteGame/Content/Athena/Prototype/Textures/T_Placeholder_Generic";
-    public Func<UObject, UTexture2D?> IconHandler = GetIcon;
+    public Func<UObject, UTexture2D?> LowResIconHandler = GetLowResIcon;
+    public Func<UObject, UTexture2D?> HighResIconHandler = GetHighResIcon;
     public Func<UObject, string?> DisplayNameHandler = asset => asset.GetAnyOrDefault<FText?>("DisplayName", "ItemName")?.Text;
     public Func<UObject, string?> DescriptionHandler = asset => asset.GetAnyOrDefault<FText?>("Description", "ItemDescription")?.Text.TrimEnd();
     public Func<UObject, FGameplayTagContainer?> GameplayTagHandler = GetGameplayTags;
@@ -342,13 +343,16 @@ public partial class AssetLoader : ObservableObject
         var isHidden = HideNames.Any(name => asset.Name.Contains(name, StringComparison.OrdinalIgnoreCase)) || HidePredicate(this, asset, displayName);
         if (isHidden && !LoadHiddenAssets) return;
 
-        var icon = IconHandler(asset) ?? await UEParse.Provider.SafeLoadPackageObjectAsync<UTexture2D>(PlaceholderIconPath);
-        if (icon is null) return;
+        var lowResIconPath = LowResIconHandler(asset)?.GetPathName();
+        var highResIconPath = HighResIconHandler(asset)?.GetPathName();
+        if (lowResIconPath is null && highResIconPath is null)
+            lowResIconPath = PlaceholderIconPath;
         
         var args = new AssetItemCreationArgs
         {
             Object = asset,
-            Icon = icon,
+            LowResIconPath = lowResIconPath,
+            HighResIconPath = highResIconPath,
             ID = asset.Name,
             DisplayName = displayName,
             Description = DescriptionHandler(asset) ?? "No Description.",
@@ -366,16 +370,12 @@ public partial class AssetLoader : ObservableObject
         var asset = await UEParse.Provider.SafeLoadPackageObjectAsync(manualAsset.AssetPath);
         if (asset is null) return;
 
-        var displayName = manualAsset.Name;
-        var icon = await UEParse.Provider.SafeLoadPackageObjectAsync<UTexture2D>(manualAsset.IconPath) ?? await UEParse.Provider.SafeLoadPackageObjectAsync<UTexture2D>(PlaceholderIconPath);
-        if (icon is null) return;
-        
         var args = new AssetItemCreationArgs
         {
             Object = asset,
-            Icon = icon,
+            LowResIconPath = manualAsset.IconPath,
             ID = asset.Name,
-            DisplayName = displayName,
+            DisplayName = manualAsset.Name,
             Description = manualAsset.Description,
             ExportType = Type,
             HideRarity = HideRarity,
@@ -390,10 +390,21 @@ public partial class AssetLoader : ObservableObject
         AssetBag.Add(new CustomAssetItem(customAsset, Type));
     }
     
-    public static UTexture2D? GetIcon(UObject asset)
+    public static UTexture2D? GetLowResIcon(UObject asset)
     {
         return asset.GetDataListItem<UTexture2D?>("Icon", "LargeIcon")
-               ?? asset.GetAnyOrDefault<UTexture2D?>("Icon", "SmallPreviewImage", "LargeIcon", "LargePreviewImage");
+               ?? asset.GetAnyOrDefault<UTexture2D?>("Icon", "SmallPreviewImage", "LargeIcon");
+    }
+
+    public static UTexture2D? GetHighResIcon(UObject asset)
+    {
+        return asset.GetDataListItem<UTexture2D?>("LargeIcon", "Icon")
+               ?? asset.GetAnyOrDefault<UTexture2D?>("LargePreviewImage", "LargeIcon", "Icon");
+    }
+
+    public static UTexture2D? GetIcon(UObject asset)
+    {
+        return GetLowResIcon(asset) ?? GetHighResIcon(asset);
     }
     
     public static FGameplayTagContainer? GetGameplayTags(UObject asset)

@@ -78,7 +78,7 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
         if (AssetsListBox.SelectedItem is not AssetItem item) return;
         if (item.IconDisplayImage is not null) return;
 
-        TaskService.Run(item.LoadBitmap);
+        TaskService.Run(item.LoadBitmapAsync);
     }
 
     private void OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -136,7 +136,7 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
     {
         if (e.Item is not AssetItem { IconDisplayImage: null } item) return;
 
-        item.LoadBitmap();
+        TaskService.Run(item.LoadBitmapAsync);
     }
 
     private void OnStyleBoxPointerPressed(object? sender, PointerPressedEventArgs e)

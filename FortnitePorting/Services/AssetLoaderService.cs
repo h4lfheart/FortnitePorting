@@ -43,11 +43,19 @@ public partial class AssetLoaderService : ObservableObject, IService, IResettabl
                     DisallowedNames = ["Bean_", "BeanCharacter"],
                     PlaceholderIconPath = "FortniteGame/Content/Athena/Prototype/Textures/T_Placeholder_Item_Outfit",
                     LoadHiddenAssets = true,
-                    IconHandler = asset =>
+                    LowResIconHandler = asset =>
                     {
-                        var previewImage = AssetLoader.GetIcon(asset);
+                        var previewImage = AssetLoader.GetLowResIcon(asset);
                         if (previewImage is null && asset.TryGetValue(out UObject hero, "HeroDefinition"))
-                            previewImage = AssetLoader.GetIcon(hero);
+                            previewImage = AssetLoader.GetLowResIcon(hero);
+
+                        return previewImage;
+                    },
+                    HighResIconHandler = asset =>
+                    {
+                        var previewImage = AssetLoader.GetHighResIcon(asset);
+                        if (previewImage is null && asset.TryGetValue(out UObject hero, "HeroDefinition"))
+                            previewImage = AssetLoader.GetHighResIcon(hero);
 
                         return previewImage;
                     }
@@ -61,11 +69,19 @@ public partial class AssetLoaderService : ObservableObject, IService, IResettabl
                 {
                     ClassNames = ["AthenaPickaxeItemDefinition"],
                     HideNames = ["Dev_", "TBD_"],
-                    IconHandler = asset =>
+                    LowResIconHandler = asset =>
                     {
-                        var previewImage = AssetLoader.GetIcon(asset);
+                        var previewImage = AssetLoader.GetLowResIcon(asset);
                         if ((previewImage is null || previewImage.Name.Contains("Placeholder", StringComparison.OrdinalIgnoreCase)) && asset.TryGetValue(out UObject weapon, "WeaponDefinition"))
-                            previewImage = AssetLoader.GetIcon(weapon);
+                            previewImage = AssetLoader.GetLowResIcon(weapon);
+
+                        return previewImage;
+                    },
+                    HighResIconHandler = asset =>
+                    {
+                        var previewImage = AssetLoader.GetHighResIcon(asset);
+                        if ((previewImage is null || previewImage.Name.Contains("Placeholder", StringComparison.OrdinalIgnoreCase)) && asset.TryGetValue(out UObject weapon, "WeaponDefinition"))
+                            previewImage = AssetLoader.GetHighResIcon(weapon);
 
                         return previewImage;
                     }
@@ -313,7 +329,8 @@ public partial class AssetLoaderService : ObservableObject, IService, IResettabl
                 new AssetLoader(EExportType.Vehicle)
                 {
                     ClassNames = ["FortVehicleItemDefinition"],
-                    IconHandler = asset => asset.GetVehicleMetadata<UTexture2D>("Icon", "SmallPreviewImage", "LargePreviewImage"),
+                    LowResIconHandler = asset => asset.GetVehicleMetadata<UTexture2D>("Icon", "SmallPreviewImage"),
+                    HighResIconHandler = asset => asset.GetVehicleMetadata<UTexture2D>("Icon", "LargePreviewImage"),
                     DisplayNameHandler = asset => asset.GetVehicleMetadata<FText>("DisplayName", "ItemName")?.Text,
                     HideRarity = true,
                     

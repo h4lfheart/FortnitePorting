@@ -80,10 +80,12 @@ public class AssetItem : Base.BaseAssetItem
         }
     }
 
-    public void LoadBitmap()
+    public async Task LoadBitmapAsync()
     {
-        using var iconBitmap = CreationData.Icon?.Decode()?.ToSkBitmap();
-        CreationData.Icon = null;
+        if (CreationData.IconPath is not { } iconPath) return;
+        
+        var texture = await UEParse.Provider!.SafeLoadPackageObjectAsync<UTexture2D>(iconPath);
+        using var iconBitmap = texture?.Decode()?.ToSkBitmap();
         if (iconBitmap is null) return;
         
         IconDisplayImage = iconBitmap.ToWriteableBitmap();
