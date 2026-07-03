@@ -81,7 +81,7 @@
         <StyleInclude Source="avares://FluentAvalonia.BreadcrumbBar/Styling/Styles.axaml" />
         <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
         <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
-        <StyleInclude Source="avares://FortnitePorting/Assets/Themes/DarkTheme.axaml" />
+        <StyleInclude Source="avares://FortnitePorting/Assets/Themes/AmethystTheme.axaml" />
 
         <Style Selector="controls|DynamicFadeScrollViewer">
             <Setter Property="Template">

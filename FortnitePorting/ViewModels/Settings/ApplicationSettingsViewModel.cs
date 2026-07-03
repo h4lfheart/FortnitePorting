@@ -59,7 +59,7 @@ public partial class ApplicationSettingsViewModel : SettingsViewModelBase
     [ObservableProperty] private EExportType _defaultExportLoadType = EExportType.Outfit;
     [ObservableProperty] private EpicAuthResponse? _epicAuth;
     
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(TransparencyHints))] private EThemeType _theme = EThemeType.Dark;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(TransparencyHints))] private EThemeType _theme = EThemeType.Amethyst;
     
     [JsonIgnore]
     public ObservableCollection<WindowTransparencyLevel> TransparencyHints => Theme is EThemeType.Mica ? [WindowTransparencyLevel.Mica, WindowTransparencyLevel.AcrylicBlur] : [WindowTransparencyLevel.AcrylicBlur];

@@ -116,7 +116,15 @@
                                             CornerRadius="12" 
                                             Padding="{ext:Space 1, 0.5}"
                                             HorizontalAlignment="Left" ClipToBounds="False"
-                                            Background="{DynamicResource FPAccentBrush}">
+                                            BoxShadow="{DynamicResource FPCardShadow}">
+                                        <Border.Background>
+                                            <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
+                                                <GradientStops>
+                                                    <GradientStop Color="#8141db" Offset="0"/>
+                                                    <GradientStop Color="#953bf8" Offset="1"/>
+                                                </GradientStops>
+                                            </LinearGradientBrush>
+                                        </Border.Background>
                             
                                         <TextBlock Text="{Binding Tag, Converter={StaticResource StringToUppercase}}" 
                                                    FontFamily="{StaticResource SFTextSemiBold}"

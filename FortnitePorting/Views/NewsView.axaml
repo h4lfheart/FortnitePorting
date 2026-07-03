@@ -126,6 +126,7 @@
                                     <Border Grid.Column="0"
                                             CornerRadius="12" 
                                             Padding="{ext:Space 1, 0.5}"
+                                            BoxShadow="{DynamicResource FPCardShadow}"
                                             HorizontalAlignment="Left" ClipToBounds="False">
                             
                                         <Border.Background>
