@@ -100,7 +100,7 @@
             
             <ItemsControl Grid.Row="2" ItemsSource="{Binding News}">
                 <ItemsControl.DataTemplates>
-                    <DataTemplate DataType="responses:NewsResponse">
+                    <DataTemplate DataType="responses:NewsEntry">
                         <controls:ContentCard Margin="{ext:Space 1}"
                                               Width="380">
                             <Grid>

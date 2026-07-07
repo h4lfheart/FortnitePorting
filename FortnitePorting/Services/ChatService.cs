@@ -438,7 +438,7 @@ public partial class ChatService : ObservableObject, IService
         {
             if (UserCache.TryGetValue(id, out var existingUser)) return existingUser;
 
-            var userInfo = await Api.FortnitePorting.UserInfo(id);
+            var userInfo = await SupaBase.GetUserAsync(id);
             if (userInfo is null) return null;
 
             var user = userInfo.Adapt<ChatUser>();

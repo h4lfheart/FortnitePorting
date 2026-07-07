@@ -95,8 +95,8 @@ public partial class MapViewModel : ViewModelBase, IResettable
         {
             IsLoading = true;
         
-            var maps = await Api.FortnitePorting.Maps();
-            foreach (var map in maps)
+            var mapResponse = await Api.FortnitePorting.Maps();
+            foreach (var map in mapResponse.Entries)
             {
                 var mapInfo = map.Adapt<MapInfo>();
                 if (!mapInfo.IsValid()) continue;
@@ -111,7 +111,7 @@ public partial class MapViewModel : ViewModelBase, IResettable
                 if (!mapInfo.IsValid())
                 {
                     Info.Message("Local Map Info", $"Failed to load {mapInfo.Name} due to invalid file paths, removing from local registry.");
-                    AppSettings.Application.LocalMapInfos.RemoveAll(map => map.Id.Equals(mapInfo.Id));
+                    AppSettings.Application.LocalMapInfos.RemoveAll(map => ReferenceEquals(map, mapInfo));
                     continue;
                 }
 
@@ -189,9 +189,13 @@ public partial class MapViewModel : ViewModelBase, IResettable
                 Text = "Publish",
                 Action = () => TaskService.Run(async () =>
                 {
-                    await Api.FortnitePorting.PostMap(SelectedMap.MapInfo);
+                    if (SelectedMap.MapInfo.Id is null)
+                        SelectedMap.MapInfo.Id = await Api.FortnitePorting.CreateMap(SelectedMap.MapInfo); 
+                    else
+                        await Api.FortnitePorting.UpdateMap(SelectedMap.MapInfo);
+                    
                     SelectedMap.MapInfo.IsPublished = true;
-                    AppSettings.Application.LocalMapInfos.RemoveAll(map => map.Id.Equals(SelectedMap.MapInfo.Id));
+                    AppSettings.Application.LocalMapInfos.RemoveAll(map => ReferenceEquals(map, SelectedMap.MapInfo));
                     
                     Info.Message("Publish Map", $"Successfully published {SelectedMap.MapInfo.Name}!");
                 })
@@ -219,7 +223,7 @@ public partial class MapViewModel : ViewModelBase, IResettable
                         
                     Maps.Remove(SelectedMap);
                     SelectedMap = Maps.FirstOrDefault();
-                    AppSettings.Application.LocalMapInfos.RemoveAll(map => map.Id.Equals(targetMapInfo.Id));
+                    AppSettings.Application.LocalMapInfos.RemoveAll(map => ReferenceEquals(map, targetMapInfo));
                     
                     Info.Message("Delete Map", $"Successfully deleted {targetMapInfo.Name}!");
                 }

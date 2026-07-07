@@ -9,6 +9,7 @@ using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
+using FortnitePorting.Controls;
 using FortnitePorting.Controls.WrapPanel;
 using FortnitePorting.Models.Files;
 using FortnitePorting.Services;
@@ -240,9 +241,9 @@ public partial class FileBrowser : UserControl
     private void OnSearchKeyDown(object? sender, KeyEventArgs e)
     {
         if (e.Key != Key.Enter) return;
-        if (sender is not TextBox textBox) return;
+        if (sender is not SearchBar searchBar) return;
 
-        var text = textBox.Text ?? string.Empty;
+        var text = searchBar.Text;
 
         if (Context.UseFlatView)
             Context.FlatSearchFilter = text;

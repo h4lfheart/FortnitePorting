@@ -124,7 +124,7 @@ public partial class InfoService : ObservableObject, IService, ILogEventSink
         });
     }
     
-    public void Broadcast(BroadcastResponse broadcastResponse)
+    public void Broadcast(BroadcastResponseEntry broadcastResponse)
     {
         BroadcastQueue.Enqueue(new BroadcastData
         {

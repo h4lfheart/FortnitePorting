@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -80,6 +81,7 @@ public partial class SupabaseService : ObservableObject, IService
     
     private ProviderAuthState? _currentAuthState;
     private bool _postedLogin;
+    private readonly ConcurrentDictionary<string, UserInfoResponse> _userInfoCache = [];
     
     private static readonly SupabaseOptions DefaultOptions = new()
     {
@@ -203,6 +205,18 @@ public partial class SupabaseService : ObservableObject, IService
 
     private async Task LoadUserInfo()
     {
-        UserInfo = await AppServices.Api.FortnitePorting.UserInfo(Client.Auth.CurrentUser!.Id!);
+        UserInfo = await GetUserAsync(Client.Auth.CurrentUser!.Id!);
+    }
+
+    public async Task<UserInfoResponse?> GetUserAsync(string? id)
+    {
+        if (id is null) return null;
+        if (_userInfoCache.TryGetValue(id, out var cached)) return cached;
+
+        var userInfo = await Api.FortnitePorting.UserInfo(id);
+        if (userInfo is not null)
+            _userInfoCache[id] = userInfo;
+
+        return userInfo;
     }
 }

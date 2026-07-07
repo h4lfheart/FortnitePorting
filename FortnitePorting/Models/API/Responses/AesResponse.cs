@@ -5,11 +5,11 @@ namespace FortnitePorting.Models.API.Responses;
 public class AesResponse
 {
     public string Version;
-    public string MainKey;
-    public List<DynamicKey> DynamicKeys;
+    public AesKey MainKey;
+    public List<AesKey> DynamicKeys;
 }
 
-public class DynamicKey
+public class AesKey
 {
     public string Name;
     public string Key;

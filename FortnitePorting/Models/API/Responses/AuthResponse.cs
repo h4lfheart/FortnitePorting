@@ -4,6 +4,6 @@ namespace FortnitePorting.Models.API.Responses;
 
 public class AuthResponse
 {
-    [JsonProperty("supabase_url")] public string SupabaseURL;
-    [JsonProperty("supabase_anon_key")] public string SupabaseAnonKey;
+    [JsonProperty("supabaseUrl")] public string SupabaseURL;
+    [JsonProperty("supabaseAnonKey")] public string SupabaseAnonKey;
 }

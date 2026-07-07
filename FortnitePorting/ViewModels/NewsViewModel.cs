@@ -9,14 +9,15 @@ namespace FortnitePorting.ViewModels;
 
 public partial class NewsViewModel : ViewModelBase
 {
-    [ObservableProperty] private ObservableCollection<NewsResponse> _news = [];
+    [ObservableProperty] private ObservableCollection<NewsEntry> _news = [];
 
     public override async Task OnViewOpened()
     {
-        News = [..await Api.FortnitePorting.News()];
+        var newsResponse = await Api.FortnitePorting.News();
+        News = [..newsResponse.Entries];
     }
     
-    public void OpenNews(NewsResponse news)
+    public void OpenNews(NewsEntry news)
     {
         ChangelogWindow.Preview(news.Description);
     }

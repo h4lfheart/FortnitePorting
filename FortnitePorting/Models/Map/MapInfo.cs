@@ -7,7 +7,7 @@ namespace FortnitePorting.Models.Map;
 
 public partial class MapInfo() : ObservableObject
 {
-    [ObservableProperty] private string _id;
+    [ObservableProperty] private string? _id;
     [ObservableProperty] private string _name;
     [ObservableProperty] private int _priority = 1;
     [ObservableProperty] private string _mapPath;
@@ -36,7 +36,6 @@ public partial class MapInfo() : ObservableObject
         bool rotateGrid = true,
         bool isNonDisplay = false) : this()
     {
-        Id = Guid.NewGuid().ToString();
         Name = name;
         MapPath = mapPath;
         MinimapPath = minimapPath;

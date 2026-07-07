@@ -89,7 +89,7 @@
             
             <ItemsControl Grid.Row="2" ItemsSource="{Binding News}" HorizontalAlignment="Stretch" ClipToBounds="False">
                 <ItemsControl.DataTemplates>
-                    <DataTemplate DataType="responses:NewsResponse">
+                    <DataTemplate DataType="responses:NewsEntry">
                         <controls:ContentCard Margin="{ext:Space 1}"
                                               HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                             <Grid>
@@ -194,7 +194,7 @@
 
             <ItemsControl Grid.Row="2" ItemsSource="{Binding FeaturedArt}" HorizontalAlignment="Stretch" ClipToBounds="False">
                 <ItemsControl.DataTemplates>
-                    <DataTemplate DataType="responses:FeaturedArtResponse">
+                    <DataTemplate DataType="responses:FeaturedArtEntry">
                          <controls:ContentCard Margin="{ext:Space 1}"
                                               HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                             <Grid>

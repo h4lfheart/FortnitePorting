@@ -22,8 +22,8 @@
         <PackageVersion Include="Serilog.Sinks.Console" Version="6.1.1" />
         <PackageVersion Include="Serilog.Sinks.File" Version="5.0.1-dev-00972" />
 
-        <PackageVersion Include="RestSharp" Version="112.1.0" />
-        <PackageVersion Include="RestSharp.Serializers.NewtonsoftJson" Version="110.2.1-alpha.0.20" />
+        <PackageVersion Include="RestSharp" Version="114.0.0" />
+        <PackageVersion Include="RestSharp.Serializers.NewtonsoftJson" Version="114.0.0" />
 
         <PackageVersion Include="SixLabors.ImageSharp" Version="3.1.12" />
         <PackageVersion Include="SixLabors.ImageSharp.Drawing" Version="2.1.7" />

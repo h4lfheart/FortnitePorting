@@ -47,7 +47,6 @@ public partial class AppWindowModel(
     
     [ObservableProperty] private RepositoryVersion? _updateVersion;
 
-    [ObservableProperty] private OnlineResponse? _onlineStatus;
     [ObservableProperty] private BroadcastResponse[] _broadcasts = [];
 
     private const string PORTLE_URL = "https://cdn.fortniteporting.app/portle/Portle.exe";
@@ -61,11 +60,13 @@ public partial class AppWindowModel(
                 SetupViewContent = new SetupView();
             });
         }
-        
-        OnlineStatus = await Api.FortnitePorting.Online();
 
-        foreach (var broadcast in await Api.FortnitePorting.Broadcasts())
+        var broadcastResponse = await Api.FortnitePorting.Broadcasts();
+        foreach (var broadcast in broadcastResponse.Entries)
         {
+            if (!broadcast.IsEnabled)
+                continue;
+            
             var satisfiesMaxVersion = broadcast.MaxVersion is null || Globals.Version <= broadcast.MaxVersion;
             var satisfiesMinVersion = broadcast.MinVersion is null || Globals.Version >= broadcast.MinVersion;
             

@@ -7,7 +7,7 @@ public class MappingsResponse
 {
     public string Version;
     public DateTime? Updated;
-    [JsonProperty("hash-md5")] public string HashMD5;
+    public string HashMD5;
     public string Url;
 
     public DateTime GetCreationTime()

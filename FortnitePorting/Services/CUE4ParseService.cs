@@ -244,9 +244,9 @@ public partial class CUE4ParseService : ObservableObject, IService, IResettable
         if (!File.Exists(mainPakPath)) return;
 
         var mainPakReader = new PakFileReader(mainPakPath);
-        if (mainPakReader.TestAesKey(new FAesKey(aes.MainKey)))
+        if (mainPakReader.TestAesKey(new FAesKey(aes.MainKey.Key)))
         {
-            Log.Information("Main key {Key} succeeded on pak {PakName}", aes.MainKey, mainPakPath);
+            Log.Information("Main key {Key} succeeded on pak {PakName}", aes.MainKey.Key, mainPakPath);
             return;
         }
         
@@ -381,8 +381,8 @@ public partial class CUE4ParseService : ObservableObject, IService, IResettable
                     break;
                 }
 
-                Log.Information("Submitting Main Key {Key}", aes.MainKey);
-                await Provider.SubmitKeyAsync(Globals.ZERO_GUID, new FAesKey(aes.MainKey));
+                Log.Information("Submitting Main Key {Key}", aes.MainKey.Key);
+                await Provider.SubmitKeyAsync(Globals.ZERO_GUID, new FAesKey(aes.MainKey.Key));
                 
                 foreach (var key in aes.DynamicKeys)
                 {
@@ -614,14 +614,14 @@ public partial class CUE4ParseService : ObservableObject, IService, IResettable
     
     private async Task<string?> GetEndpointMappings()
     {
-        var mappings = await Api.FortnitePorting.Mappings(string.Empty);
+        var mappings = await Api.FortnitePorting.Mappings();
         if (mappings?.Url is null) return null;
 
         var mappingsFilePath = Path.Combine(App.DataFolder.FullName, mappings.Url.SubstringAfterLast("/"));
         if (File.Exists(mappingsFilePath) && new FileInfo(mappingsFilePath).GetFileHashMD5().Equals(mappings.HashMD5)) return mappingsFilePath;
             
         var createdFile = await Api.DownloadFileAsync(mappings.Url, mappingsFilePath);
-        if (!createdFile.Exists) return null;
+        if (createdFile is { Exists: false}) return null;
             
         File.SetCreationTime(mappingsFilePath, mappings.GetCreationTime());
 

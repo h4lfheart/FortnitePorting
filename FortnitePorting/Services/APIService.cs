@@ -20,10 +20,17 @@ public class APIService : IService
         _client = new RestClient(new RestClientOptions
         {
             UserAgent = $"FortnitePorting/{Globals.VersionString}",
-            MaxTimeout = 1000 * AppSettings.Developer.RequestTimeoutSeconds,
+            Timeout = TimeSpan.FromSeconds(AppSettings.Developer.RequestTimeoutSeconds),
+        }, configureSerialization: s => s.UseSerializer<JsonNetSerializer>());
+
+        var fpClient = new RestClient(new RestClientOptions
+        {
+            UserAgent = $"FortnitePorting/{Globals.VersionString}",
+            Timeout = TimeSpan.FromSeconds(AppSettings.Developer.RequestTimeoutSeconds),
+            Authenticator = new SupabaseAuthenticator(),
         }, configureSerialization: s => s.UseSerializer<JsonNetSerializer>());
         
-        FortnitePorting = new FortnitePortingAPI(_client);
+        FortnitePorting = new FortnitePortingAPI(fpClient);
         EpicGames = new EpicGamesAPI(_client);
     }
 
@@ -45,7 +52,7 @@ public class APIService : IService
         return GetBytesAsync(url).ConfigureAwait(false).GetAwaiter().GetResult();
     }
 
-    public async Task<FileInfo> DownloadFileAsync(string url, string destination)
+    public async Task<FileInfo?> DownloadFileAsync(string url, string destination)
     {
         Log.Information("Downloading {url} to {destination}", url, destination);
         var request = new RestRequest(url);

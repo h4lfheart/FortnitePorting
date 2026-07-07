@@ -25,15 +25,18 @@ public partial class HomeViewModel() : ViewModelBase
         UEParse = cue4Parse;
     }
     
-    [ObservableProperty] private ObservableCollection<NewsResponse> _news = [];
-    [ObservableProperty] private ObservableCollection<FeaturedArtResponse> _featuredArt = [];
+    [ObservableProperty] private ObservableCollection<NewsEntry> _news = [];
+    [ObservableProperty] private ObservableCollection<FeaturedArtEntry> _featuredArt = [];
 
     public override async Task Initialize()
     {
         TaskService.Run(async () =>
         {
-            News = [..(await Api.FortnitePorting.News()).Take(3)];
-            FeaturedArt = [..(await Api.FortnitePorting.FeaturedArt()).Random(3)];
+            var newsResponse = await Api.FortnitePorting.News();
+            News = [..newsResponse.Entries.Take(3)];
+            
+            var featuredArtResponse = await Api.FortnitePorting.FeaturedArt();
+            FeaturedArt = [..featuredArtResponse.Entries.Random(3)];
             
             await UEParse.LoadCoreSessionAsync();
         });
@@ -59,12 +62,12 @@ public partial class HomeViewModel() : ViewModelBase
         }
     }
 
-    public void OpenNews(NewsResponse news)
+    public void OpenNews(NewsEntry news)
     {
         ChangelogWindow.Preview(news.Description);
     }
 
-    public void OpenFeaturedArt(FeaturedArtResponse featured)
+    public void OpenFeaturedArt(FeaturedArtEntry featured)
     {
         App.Launch(featured.Social);
     }

@@ -31,6 +31,18 @@ public partial class SearchBar : UserControl
     public SearchBar()
     {
         InitializeComponent();
+        PART_TextBox.AddHandler(KeyDownEvent, OnTextBoxKeyDown, handledEventsToo: true);
+    }
+
+    private void OnTextBoxKeyDown(object? sender, KeyEventArgs e)
+    {
+        RaiseEvent(new KeyEventArgs
+        {
+            RoutedEvent = KeyDownEvent,
+            Source = this,
+            Key = e.Key,
+            KeyModifiers = e.KeyModifiers
+        });
     }
 
     private void OnClearPressed(object? sender, PointerPressedEventArgs e)

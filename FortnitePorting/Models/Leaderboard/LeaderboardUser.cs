@@ -32,6 +32,6 @@ public partial class LeaderboardUser : ObservableObject
 
     public async Task Load()
     {
-        UserInfo = await Api.FortnitePorting.UserInfo(UserId);
+        UserInfo = await SupaBase.GetUserAsync(UserId);
     }
 }

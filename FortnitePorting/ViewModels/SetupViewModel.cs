@@ -11,14 +11,18 @@ namespace FortnitePorting.ViewModels;
 
 public partial class SetupViewModel : ViewModelBase
 {
-    [ObservableProperty] 
-    private ObservableCollection<string> _imagePaths = [];
+    [ObservableProperty] private ObservableCollection<string> _imagePaths = [];
 
     public override async Task Initialize()
     {
-        var imagePaths = await Api.FortnitePorting.GalleryImages();
-        imagePaths.Shuffle();
+        var galleryResponse = await Api.FortnitePorting.Gallery();
 
-        ImagePaths = [..imagePaths];
+        ImagePaths =
+        [
+            ..galleryResponse.FileNames
+                .Select(fileName => Path.Combine(galleryResponse.BaseUrl, fileName))
+                .Shuffle()
+                .ToArray()
+        ];
     }
 }
