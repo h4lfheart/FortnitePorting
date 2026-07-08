@@ -31,7 +31,7 @@ public partial class SupabaseService : ObservableObject, IService
         
         TaskService.Run(async () =>
         {
-            var auth = await Api.FortnitePorting.Auth();
+            var auth = await Api.FortnitePorting.AuthInfo();
             if (auth is null)
             {
                 Info.Message("Online Services", "Failed to retrieve authentication information.", InfoBarSeverity.Error);
@@ -124,7 +124,7 @@ public partial class SupabaseService : ObservableObject, IService
         _currentAuthState = await Client.Auth.SignIn(Constants.Provider.Discord, new SignInOptions
         {
             FlowType = Constants.OAuthFlowType.PKCE,
-            RedirectTo = "https://api.fortniteporting.app/v1/auth/redirect",
+            RedirectTo = "https://api.fortniteporting.app/v2/auth/redirect",
         });
         
         App.Launch(_currentAuthState.Uri.AbsoluteUri);

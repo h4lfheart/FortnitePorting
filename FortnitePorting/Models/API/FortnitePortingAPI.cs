@@ -30,7 +30,7 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
     public async Task<MappingsResponse?> Mappings() => await ExecuteAsync<MappingsResponse>("fortnite/mappings");
     
     // Online
-    public async Task<AuthResponse?> Auth() => await ExecuteAsync<AuthResponse?>("online/auth");
+    public async Task<AuthResponse?> AuthInfo() => await ExecuteAsync<AuthResponse?>("auth/info");
     public async Task<RepositoryResponse?> Repository() => await ExecuteAsync<RepositoryResponse?>("online/repository");
     public async Task<UserInfoResponse?> UserInfo(string id) => await ExecuteAsync<UserInfoResponse>($"online/users/{id}", verbose: false);
     
