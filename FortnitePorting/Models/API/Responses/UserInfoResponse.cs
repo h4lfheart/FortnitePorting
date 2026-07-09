@@ -10,8 +10,9 @@ public class UserInfoResponse
     public string? DisplayName { get; set; }
     public string? AvatarUrl { get; set; }
     public ESupabaseRole Role { get; set; }
+    public bool IsMuted { get; set; }
     
-    public SolidColorBrush UserBrush => new(Role switch
+    public SolidColorBrush UserBrush => new(IsMuted ? Color.Parse("#d23940") : Role switch
     {
         ESupabaseRole.System => Color.Parse("#B040FF"),
         ESupabaseRole.Owner => Color.Parse("#83c4db"),
@@ -19,7 +20,6 @@ public class UserInfoResponse
         ESupabaseRole.Staff => Color.Parse("#9856a2"),
         ESupabaseRole.Verified => Color.Parse("#00ff97"),
         ESupabaseRole.User => Colors.White,
-        ESupabaseRole.Muted => Color.Parse("#d23940"),
         _ => Colors.White
     });
 }

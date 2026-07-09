@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using CUE4Parse.Utils;
 using FortnitePorting.Models.API.Base;
+using FortnitePorting.Models.API.Requests;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.Map;
 using Mapster;
@@ -12,7 +13,7 @@ namespace FortnitePorting.Models.API;
 
 public class FortnitePortingAPI(RestClient client) : APIBase(client)
 {
-    protected override string BaseURL => "https://api.fortniteporting.app/v2";
+    protected override string BaseURL => "http://localhost:7000/v2";
 
     // Content
     public async Task<NewsResponse> News() => await ExecuteAsync<NewsResponse>("content/news");
@@ -22,17 +23,21 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
     public async Task<BroadcastResponse> Broadcasts() => await ExecuteAsync<BroadcastResponse>("content/broadcasts");
 
     public async Task<GalleryResponse> Gallery() => await ExecuteAsync<GalleryResponse>("content/gallery");
-
-    public async Task<MapResponse> Maps() => await ExecuteAsync<MapResponse>("content/maps");
     
     // Fortnite
     public async Task<AesResponse?> Aes() => await ExecuteAsync<AesResponse>("fortnite/aes");
     public async Task<MappingsResponse?> Mappings() => await ExecuteAsync<MappingsResponse>("fortnite/mappings");
     
-    // Online
+    // Auth
     public async Task<AuthResponse?> AuthInfo() => await ExecuteAsync<AuthResponse?>("auth/info");
-    public async Task<RepositoryResponse?> Repository() => await ExecuteAsync<RepositoryResponse?>("online/repository");
-    public async Task<UserInfoResponse?> UserInfo(string id) => await ExecuteAsync<UserInfoResponse>($"online/users/{id}", verbose: false);
+    
+    // Repository
+    public async Task<RepositoryResponse?> Repository() => await ExecuteAsync<RepositoryResponse?>("repository");
+    
+    // Users
+    public async Task<UserInfoResponse?> UserInfo(string id) => await ExecuteAsync<UserInfoResponse>($"users/{id}", verbose: false);
+    
+    public async Task PatchUserPermissions(string id, UserPermissionPatchRequest req) => await ExecuteAsync($"users/{id}/permissions", Method.Patch, verbose: false, body: req);
     
     // Telemetry
     public async Task PostError(Exception exception) => await ExecuteAsync("telemetry/errors", Method.Post, verbose: false,
@@ -83,17 +88,18 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
         notifyRateLimit: true
     );
 
-    // Management
+    // Maps
+    public async Task<MapResponse> Maps() => await ExecuteAsync<MapResponse>("maps");
     
-    public async Task<string> CreateMap(MapInfo mapInfo) => await ExecuteAsync<string>($"management/maps", Method.Post, verbose: false,
+    public async Task<string?> CreateMap(MapInfo mapInfo) => await ExecuteAsync<string>($"maps", Method.Post, verbose: false,
         body: mapInfo.Adapt<MapResponseEntry>()
     );
     
-    public async Task UpdateMap(MapInfo mapInfo) => await ExecuteAsync($"management/maps/{mapInfo.Id}", Method.Put, verbose: false,
+    public async Task UpdateMap(MapInfo mapInfo) => await ExecuteAsync($"maps/{mapInfo.Id}", Method.Put, verbose: false,
         body: mapInfo.Adapt<MapResponseEntry>()
     );
 
-    public async Task DeleteMap(string id) => await ExecuteAsync($"management/maps/{id}", Method.Delete, verbose: false);
+    public async Task DeleteMap(string id) => await ExecuteAsync($"maps/{id}", Method.Delete, verbose: false);
 
     
 

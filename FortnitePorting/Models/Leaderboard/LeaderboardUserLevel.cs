@@ -27,7 +27,6 @@ public partial class LeaderboardUserLevel : ObservableObject
         ESupabaseRole.Staff => Color.Parse("#9856a2"),
         ESupabaseRole.Verified => Color.Parse("#00ff97"),
         ESupabaseRole.User => Colors.White,
-        ESupabaseRole.Muted => Color.Parse("#d23940"),
         _ => Colors.White
     });
 

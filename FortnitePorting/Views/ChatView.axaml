@@ -66,6 +66,9 @@
                                         <MenuItem Header="Copy User ID" Command="{Binding User.CopyIDCommand}" />
                                         <MenuItem Header="Set Role" Command="{Binding User.SetRoleCommand}"
                                                   IsVisible="{Binding User.CanChangeRole}" />
+                                        <MenuItem Header="{Binding User.MuteHeader}"
+                                                  Command="{Binding User.ToggleMuteCommand}"
+                                                  IsVisible="{Binding User.CanMute}" />
                                     </MenuFlyout>
                                 </FlyoutBase.AttachedFlyout>
                             </Image>
@@ -221,9 +224,7 @@
         </Grid>
 
         <Grid Grid.Row="2" Grid.Column="0" RowDefinitions="Auto Auto *" Margin="{ext:Space 1}"
-              IsVisible="{Binding SupaBase.Permissions.Role,
-                Converter={StaticResource EnumNotEquals},
-                ConverterParameter={x:Static tables:ESupabaseRole.Muted}}"
+              IsVisible="{Binding !SupaBase.Permissions.IsMuted}"
               ColumnDefinitions="Auto,*">
 
             <controls:ContentCard Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
@@ -356,6 +357,9 @@
                                                             <MenuItem Header="Set Role"
                                                                       Command="{Binding SetRoleCommand}"
                                                                       IsVisible="{Binding CanChangeRole}" />
+                                                            <MenuItem Header="{Binding MuteHeader}"
+                                                                      Command="{Binding ToggleMuteCommand}"
+                                                                      IsVisible="{Binding CanMute}" />
                                                         </MenuFlyout>
                                                     </FlyoutBase.AttachedFlyout>
                                                     <Grid HorizontalAlignment="Left" Margin="{ext:Space 1}">

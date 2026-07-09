@@ -353,8 +353,13 @@ public partial class ChatService : ObservableObject, IService
                 {
                     var userId = broadcast.Get<string>("user_id");
                     var role = broadcast.Get<ESupabaseRole>("role");
+                    var isMuted = broadcast.Get<bool>("is_muted");
 
-                    UserCache.UpdateIfContains(userId, user => user.Role = role);
+                    UserCache.UpdateIfContains(userId, user =>
+                    {
+                        user.Role = role;
+                        user.IsMuted = isMuted;
+                    });
                     OnPropertyChanged(nameof(UsersByGroup));
                     break;
                 }

@@ -8,6 +8,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Extensions;
+using FortnitePorting.Models.API.Requests;
 using FortnitePorting.Models.Information;
 using FortnitePorting.Models.Supabase.Tables;
 using Newtonsoft.Json;
@@ -22,22 +23,24 @@ public partial class ChatUser : ObservableObject
     [ObservableProperty] private string _displayName;
     [ObservableProperty] private string _avatarUrl;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(Brush))] private ESupabaseRole _role;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(Brush)), NotifyPropertyChangedFor(nameof(MuteHeader))] private bool _isMuted;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(OnlineVersion))] private string _version;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(OnlineVersion))] private string _tag;
 
     public string OnlineVersion => !string.IsNullOrWhiteSpace(Tag) ? $"{Tag} {Version}" : Version;
 
     public bool CanChangeRole => SupaBase.Permissions.Role >= ESupabaseRole.Staff && SupaBase.Permissions.Role > Role;
-    
-    public SolidColorBrush Brush => new(Role switch
+    public bool CanMute => SupaBase.Permissions.Role >= ESupabaseRole.Staff && SupaBase.Permissions.Role > Role;
+    public string MuteHeader => IsMuted ? "Unmute" : "Mute";
+
+    public SolidColorBrush Brush => new(IsMuted ? Color.Parse("#d23940") : Role switch
     {
         ESupabaseRole.System => Color.Parse("#B040FF"),
         ESupabaseRole.Owner => Color.Parse("#83c4db"),
         ESupabaseRole.Support => Color.Parse("#635fd4"),
         ESupabaseRole.Staff => Color.Parse("#9856a2"),
         ESupabaseRole.Verified => Color.Parse("#00ff97"),
-        ESupabaseRole.User => Colors.White,
-        ESupabaseRole.Muted => Color.Parse("#d23940")
+        ESupabaseRole.User => Colors.White
     });
     
     [RelayCommand]
@@ -45,7 +48,16 @@ public partial class ChatUser : ObservableObject
     {
         await App.Clipboard.SetTextAsync(UserId);
     }
-    
+
+    [RelayCommand]
+    public async Task ToggleMute()
+    {
+        await Api.FortnitePorting.PatchUserPermissions(UserId, new UserPermissionPatchRequest
+        {
+            IsMuted = !IsMuted,
+        });
+    }
+
     [RelayCommand]
     public async Task SetRole()
     {
@@ -68,10 +80,9 @@ public partial class ChatUser : ObservableObject
                 Action = async () =>
                 {
                     var role = Enum.GetValues<ESupabaseRole>().FirstOrDefault(role => role.Description.Equals(comboBox.SelectedItem));
-                    await SupaBase.Client.Rpc("set_role", new
+                    await Api.FortnitePorting.PatchUserPermissions(UserId, new UserPermissionPatchRequest
                     {
-                        target_user_id = UserId,
-                        new_role = role.ToString().ToLower()
+                        Role = role,
                     });
                 }
             }
