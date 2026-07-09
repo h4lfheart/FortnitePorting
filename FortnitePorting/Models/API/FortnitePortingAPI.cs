@@ -13,7 +13,7 @@ namespace FortnitePorting.Models.API;
 
 public class FortnitePortingAPI(RestClient client) : APIBase(client)
 {
-    protected override string BaseURL => "http://localhost:7000/v2";
+    protected override string BaseURL => "https://api.fortniteporting.app/v2";
 
     // Content
     public async Task<NewsResponse> News() => await ExecuteAsync<NewsResponse>("content/news");
@@ -87,6 +87,11 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
     public async Task DeleteMessage(string id) => await ExecuteAsync($"chat/messages/{id}", Method.Delete, verbose: false,
         notifyRateLimit: true
     );
+    
+    public async Task ReactToMessage(string id) => await ExecuteAsync($"chat/messages/{id}/react", Method.Post,
+        verbose: false, notifyRateLimit: true
+    );
+
 
     // Maps
     public async Task<MapResponse> Maps() => await ExecuteAsync<MapResponse>("maps");
