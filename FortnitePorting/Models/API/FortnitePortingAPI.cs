@@ -13,7 +13,7 @@ namespace FortnitePorting.Models.API;
 
 public class FortnitePortingAPI(RestClient client) : APIBase(client)
 {
-    protected override string BaseURL => "https://api.fortniteporting.app/v2";
+    protected override string BaseURL => "http://localhost:7000/v2";
 
     // Content
     public async Task<NewsResponse> News() => await ExecuteAsync<NewsResponse>("content/news");
@@ -71,6 +71,14 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
         if (before is not null)
             parameters.Add(new QueryParameter("before", before.Value.ToUniversalTime().ToString("o")));
         return await ExecuteAsync<ChatMessagesResponse>("chat/messages", verbose: false, parameters: parameters.ToArray());
+    }
+
+    public async Task<UploadImageResponse?> UploadImage(byte[] data, string fileName)
+    {
+        var request = new RestRequest($"{BaseURL}/chat/images", Method.Post);
+        request.AddFile("file", data, fileName);
+        var response = await _client.ExecuteAsync<UploadImageResponse>(request).ConfigureAwait(false);
+        return response.StatusCode == System.Net.HttpStatusCode.OK ? response.Data : null;
     }
 
     public async Task PostMessage(string text, string? replyId = null, string? imagePath = null) => await ExecuteAsync(

@@ -58,7 +58,7 @@ public partial class ChatView : ViewBase<ChatViewModel>
                 ViewModel.ClearNewMessageIndicator();
 
             var distanceFromTop = Scroll.Offset.Y;
-            if (distanceFromTop <= LoadMoreThreshold && !_isLoadingMore && Chat.HasMoreMessages)
+            if (_didInitialScroll && distanceFromTop <= LoadMoreThreshold && !_isLoadingMore && Chat.HasMoreMessages)
                 await LoadMoreMessages();
         };
 
@@ -286,23 +286,11 @@ public partial class ChatView : ViewBase<ChatViewModel>
                 string? imagePath = null;
                 if (shouldUploadImage)
                 {
-                    var imageBucket = SupaBase.Client.Storage.From("chat-images");
                     var memoryStream = new MemoryStream();
                     ViewModel.SelectedImage.Save(memoryStream);
 
-                    var fileNameWithoutExtension = ViewModel.SelectedImageName.SubstringBefore(".");
-                    var extension = ViewModel.SelectedImageName.SubstringAfterLast(".");
-                    var hash = memoryStream.GetHash();
-                    var fileName = $"{fileNameWithoutExtension}.{hash}.{extension}";
-
-                    try
-                    {
-                        imagePath = await imageBucket.Upload(memoryStream.ToArray(), fileName);
-                    }
-                    catch (SupabaseStorageException)
-                    {
-                        imagePath = $"chat-images/{fileName}";
-                    }
+                    var result = await Api.FortnitePorting.UploadImage(memoryStream.ToArray(), ViewModel.SelectedImageName);
+                    imagePath = result?.Path;
                 }
 
                 await Chat.SendMessage(Chat.ConvertMentionsToIds(text), replyId: ViewModel.ReplyMessage?.Id,

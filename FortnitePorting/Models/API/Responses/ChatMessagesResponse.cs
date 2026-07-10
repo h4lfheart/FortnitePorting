@@ -10,6 +10,11 @@ public class ChatMessagesResponse
     [JsonProperty("nextCursor")] public DateTime? NextCursor { get; set; }
 }
 
+public class UploadImageResponse
+{
+    [JsonProperty("path")] public string Path { get; set; } = string.Empty;
+}
+
 public class ChatMessageEntry
 {
     [JsonProperty("id")] public string Id { get; set; }
