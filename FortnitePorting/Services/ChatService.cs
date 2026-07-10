@@ -11,6 +11,7 @@ using DynamicData;
 using DynamicData.Binding;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
+using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.Chat;
 using FortnitePorting.Models.Supabase.Tables;
 using FortnitePorting.Shared.Extensions;
@@ -21,7 +22,6 @@ using Serilog;
 using Supabase.Realtime;
 using Supabase.Realtime.Interfaces;
 using Supabase.Realtime.Models;
-using Constants = Supabase.Postgrest.Constants;
 
 namespace FortnitePorting.Services;
 
@@ -151,48 +151,63 @@ public partial class ChatService : ObservableObject, IService
         {
             IsLoadingMessages = true;
 
-            var query = SupaBase.Client.From<Message>()
-                .Order("timestamp", Constants.Ordering.Descending)
-                .Limit(PageSize + 1);
+            var response = await Api.FortnitePorting.GetMessages(before: _oldestFetchedTimestamp, limit: PageSize);
 
-            if (_oldestFetchedTimestamp.HasValue)
-            {
-                var utcTimestamp = _oldestFetchedTimestamp.Value.ToUniversalTime();
-                query = query.Filter("timestamp", Constants.Operator.LessThanOrEqual, utcTimestamp.ToString("o"));
-            }
+            if (response is null)
+                return false;
 
-            var response = await query.Get();
-            var messages = response.Models.ToList();
-            var originalCount = messages.Count;
-
-            if (_oldestFetchedTimestamp.HasValue && messages.Count > 0)
-            {
-                messages = messages.Skip(1).ToList();
-            }
-
-            if (messages.Count == 0)
+            var entries = response.Messages;
+            if (entries.Count == 0)
             {
                 HasMoreMessages = false;
                 return false;
             }
 
-            _oldestFetchedTimestamp = messages.Last().Timestamp.ToUniversalTime();
+            _oldestFetchedTimestamp = response.NextCursor;
+            HasMoreMessages = response.NextCursor.HasValue;
 
-            if (originalCount < PageSize + 1)
+            // Resolve all message data (including user info) before touching the cache,
+            // so we can batch-insert in a single Edit() call and fire only one collection-change notification.
+            var prepared = new List<ChatMessage>();
+            foreach (var entry in entries.OrderBy(x => x.ReplyId is not null))
             {
-                HasMoreMessages = false;
+                if (_messageCache.Lookup(entry.Id).HasValue) continue;
+
+                var dbMessage = entry.Adapt<Message>();
+                dbMessage.Timestamp = entry.CreatedAt;
+
+                var chatMessage = dbMessage.Adapt<ChatMessage>();
+                chatMessage.User = await GetUser(dbMessage.UserId);
+
+                if (chatMessage.Text.Contains($"<@{SupaBase.UserInfo?.UserId}>") ||
+                    (chatMessage.Text.Contains("<@everyone>") && chatMessage.User?.Role >= ESupabaseRole.Staff))
+                    chatMessage.IsPing = true;
+
+                prepared.Add(chatMessage);
             }
 
-            var addedCount = 0;
-            foreach (var message in messages.OrderBy(x => x.ReplyId is not null))
-            {
-                if (_messageCache.Lookup(message.Id).HasValue) continue;
+            if (prepared.Count == 0) return false;
 
-                await AddMessage(message, isInit: true);
-                addedCount++;
+            // Batch-insert top-level messages in a single edit so only one layout pass is triggered.
+            var topLevel = prepared.Where(m => m.ReplyId is null).ToList();
+            if (topLevel.Count > 0)
+            {
+                _messageCache.Edit(updater =>
+                {
+                    foreach (var msg in topLevel)
+                        updater.AddOrUpdate(msg);
+                });
             }
 
-            return addedCount > 0;
+            // Insert replies into their parent's thread (parents are now in the cache from the batch above).
+            foreach (var msg in prepared.Where(m => m.ReplyId is not null))
+            {
+                var replyParent = _messageCache.Lookup(msg.ReplyId!);
+                if (replyParent.HasValue)
+                    replyParent.Value.ReplyMessages.InsertSorted(msg, SortExpressionComparer<ChatMessage>.Ascending(x => x.Timestamp));
+            }
+
+            return true;
         }
         catch (Exception)
         {

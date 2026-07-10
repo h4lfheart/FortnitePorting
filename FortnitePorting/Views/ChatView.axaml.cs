@@ -100,12 +100,24 @@ public partial class ChatView : ViewBase<ChatViewModel>
 
             var loaded = await Chat.LoadMoreMessages();
 
-            if (loaded)
+            if (!loaded) return;
+
+            // really scuffed layout wait, but it works!
+            var tcs = new TaskCompletionSource();
+            EventHandler? onLayout = null;
+            onLayout = (_, _) =>
             {
-                await Task.Delay(50);
-                var heightDifference = Scroll.Extent.Height - previousExtentHeight;
+                if (Scroll.Extent.Height <= previousExtentHeight) return;
+                Scroll.LayoutUpdated -= onLayout;
+                tcs.TrySetResult();
+            };
+            Scroll.LayoutUpdated += onLayout;
+            await Task.WhenAny(tcs.Task, Task.Delay(1000));
+            Scroll.LayoutUpdated -= onLayout;
+
+            var heightDifference = Scroll.Extent.Height - previousExtentHeight;
+            if (heightDifference > 0)
                 Scroll.Offset = Scroll.Offset.WithY(previousOffset + heightDifference);
-            }
         }
         finally
         {

@@ -65,6 +65,14 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
     );
     
     // Chat
+    public async Task<ChatMessagesResponse?> GetMessages(DateTime? before = null, int limit = 20)
+    {
+        var parameters = new List<Parameter> { new QueryParameter("limit", limit.ToString()) };
+        if (before is not null)
+            parameters.Add(new QueryParameter("before", before.Value.ToUniversalTime().ToString("o")));
+        return await ExecuteAsync<ChatMessagesResponse>("chat/messages", verbose: false, parameters: parameters.ToArray());
+    }
+
     public async Task PostMessage(string text, string? replyId = null, string? imagePath = null) => await ExecuteAsync(
         "chat/messages", Method.Post, verbose: false, notifyRateLimit: true,
         body: new

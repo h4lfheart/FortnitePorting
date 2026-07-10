@@ -197,7 +197,13 @@
                                               VerticalScrollBarVisibility="Auto">
                 <ItemsControl ItemsSource="{Binding Chat.Messages}"
                               Margin="{ext:Space 1, 0}"
-                              ItemTemplate="{StaticResource MessageTemplate}" />
+                              ItemTemplate="{StaticResource MessageTemplate}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <VirtualizingStackPanel />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
             </controls:DynamicFadeScrollViewer>
 
 
