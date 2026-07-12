@@ -282,7 +282,7 @@
             </Border>
         </Grid>
 
-        <Grid Grid.Row="2" Grid.Column="0" RowDefinitions="Auto Auto *" Margin="{ext:Space 1}"
+        <Grid Grid.Row="2" Grid.Column="0" RowDefinitions="Auto Auto Auto *" Margin="{ext:Space 1}"
               IsVisible="{Binding !SupaBase.Permissions.IsMuted}"
               ColumnDefinitions="Auto,*">
 
@@ -315,7 +315,37 @@
                     </Border>
                 </Grid>
             </controls:ContentCard>
-            <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="{ext:Space 0, 0, 0, 1}"
+
+            <controls:ContentCard Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                  IsVisible="{Binding SelectedImage, Converter={x:Static ObjectConverters.IsNotNull}}"
+                                  Margin="{ext:Space 0, 0, 0, 1}">
+                <Grid Margin="{ext:Space 2, 1}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="{ext:Space 1}" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="{ext:Space 1}" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" CornerRadius="4" ClipToBounds="True"
+                            VerticalAlignment="Center">
+                        <Image Source="{Binding SelectedImage}" MaxHeight="32" MaxWidth="32" />
+                    </Border>
+
+                    <TextBlock Grid.Column="2" Text="{Binding SelectedImageName}"
+                               Classes="BodyStrongTextBlockStyle"
+                               HorizontalAlignment="Left" VerticalAlignment="Center" />
+
+                    <Border Grid.Column="4" Background="Transparent" Cursor="Hand"
+                            HorizontalAlignment="Right" VerticalAlignment="Center"
+                            PointerPressed="OnImageCancelled">
+                        <material:MaterialIcon Kind="Close" Opacity="0.5" />
+                    </Border>
+                </Grid>
+            </controls:ContentCard>
+
+            <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="{ext:Space 0, 0, 0, 1}"
                   IsVisible="{Binding Chat.TypingUsersText, Converter={x:Static ObjectConverters.IsNotNull}}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -329,7 +359,7 @@
             </Grid>
 
 
-            <Button Grid.Row="2" x:Name="ImageButton" Grid.Column="0"
+            <Button Grid.Row="3" x:Name="ImageButton" Grid.Column="0"
                     IsVisible="{Binding SupaBase.Permissions.Role, 
                         Converter={StaticResource EnumGreaterOrEqual}, 
                         ConverterParameter={x:Static tables:ESupabaseRole.Verified}}"
@@ -337,18 +367,8 @@
                     Command="{Binding OpenImageCommand}"
                     Margin="{ext:Space 0, 0, 1, 0}" />
 
-            <ui:TeachingTip Grid.Row="2" x:Name="ImageFlyout" Grid.Column="0"
-                            Target="{Binding #ImageButton}"
-                            Title="{Binding SelectedImageName}">
-                <Border CornerRadius="4" ClipToBounds="True">
-                    <Image Source="{Binding SelectedImage}"
-                           VerticalAlignment="Center" MaxHeight="300"
-                           Height="{Binding SelectedImage.PixelSize.Height}" />
-                </Border>
-            </ui:TeachingTip>
 
-
-            <Grid Grid.Row="2" Grid.Column="1" x:Name="TextBoxContainer">
+            <Grid Grid.Row="3" Grid.Column="1" x:Name="TextBoxContainer">
                 <TextBox x:Name="TextBox"
                          Text="{Binding Text}"
                          Watermark="Enter a message"

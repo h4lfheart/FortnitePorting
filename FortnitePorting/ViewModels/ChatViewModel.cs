@@ -5,7 +5,6 @@ using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using FluentAvalonia.UI.Controls;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Chat;
 using FortnitePorting.Models.Clipboard;
@@ -20,8 +19,6 @@ public partial class ChatViewModel(SupabaseService supabase, ChatService chatSer
     [ObservableProperty] private ChatService _chat = chatService;
 
     [ObservableProperty] private ChatMessage? _replyMessage;
-    
-    [ObservableProperty] private TeachingTip _imageFlyout;
     
     [ObservableProperty] private string _text = string.Empty;
     [ObservableProperty] private TextBox _textBox;
@@ -43,8 +40,14 @@ public partial class ChatViewModel(SupabaseService supabase, ChatService chatSer
         {
             SelectedImageName = Path.GetFileName(path);
             SelectedImage = new Bitmap(path);
-            ImageFlyout.IsOpen = true;
         }
+    }
+
+    [RelayCommand]
+    public void ClearImage()
+    {
+        SelectedImage = null;
+        SelectedImageName = null;
     }
 
     public async Task ClipboardPaste()
@@ -60,7 +63,6 @@ public partial class ChatViewModel(SupabaseService supabase, ChatService chatSer
         {
             SelectedImageName = "clipboard.png";
             SelectedImage = image;
-            ImageFlyout.IsOpen = true;
         }
     }
     

@@ -36,7 +36,6 @@ public partial class ChatView : ViewBase<ChatViewModel>
     public ChatView()
     {
         InitializeComponent();
-        ViewModel.ImageFlyout = ImageFlyout;
 
         ViewModel.TextBox = TextBox;
         TextBox.AddHandler(KeyDownEvent, OnTextKeyDown, RoutingStrategies.Tunnel);
@@ -245,7 +244,7 @@ public partial class ChatView : ViewBase<ChatViewModel>
     {
         if (sender is not TextBox textBox) return;
         var text = textBox.Text ?? string.Empty;
-        if (string.IsNullOrWhiteSpace(text) && !ImageFlyout.IsOpen) return;
+        if (string.IsNullOrWhiteSpace(text) && ViewModel.SelectedImage is null) return;
 
         if (MentionPopup.IsOpen)
         {
@@ -291,16 +290,17 @@ public partial class ChatView : ViewBase<ChatViewModel>
             if (text.StartsWith("/shrug"))
                 text = @"¯\_(ツ)_/¯";
 
-            var shouldUploadImage = ImageFlyout.IsOpen;
+            var pendingImage = ViewModel.SelectedImage;
+            var pendingImageName = ViewModel.SelectedImageName;
             TaskService.Run(async () =>
             {
                 string? imagePath = null;
-                if (shouldUploadImage)
+                if (pendingImage is not null)
                 {
                     var memoryStream = new MemoryStream();
-                    ViewModel.SelectedImage.Save(memoryStream);
+                    pendingImage.Save(memoryStream);
 
-                    var result = await Api.FortnitePorting.UploadImage(memoryStream.ToArray(), ViewModel.SelectedImageName);
+                    var result = await Api.FortnitePorting.UploadImage(memoryStream.ToArray(), pendingImageName);
                     imagePath = result?.Path;
                 }
 
@@ -310,7 +310,7 @@ public partial class ChatView : ViewBase<ChatViewModel>
             });
 
             textBox.Text = string.Empty;
-            ImageFlyout.IsOpen = false;
+            ViewModel.ClearImage();
             CloseMentionPopup();
             Scroll.ScrollToEnd();
             e.Handled = true;
@@ -422,6 +422,11 @@ public partial class ChatView : ViewBase<ChatViewModel>
     private void OnReplyCancelled(object? sender, PointerPressedEventArgs e)
     {
         ViewModel.ReplyMessage = null;
+    }
+
+    private void OnImageCancelled(object? sender, PointerPressedEventArgs e)
+    {
+        ViewModel.ClearImage();
     }
 
     private void OnCopyPressed(object? sender, PointerPressedEventArgs e)
