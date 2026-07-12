@@ -9,15 +9,8 @@ using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using CUE4Parse_Conversion.Textures;
-using CUE4Parse.UE4.Assets;
-using CUE4Parse.UE4.Assets.Exports;
-using CUE4Parse.UE4.Assets.Exports.Texture;
-using CUE4Parse.UE4.Objects.Core.i18N;
-using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using FortnitePorting.Application;
-using FortnitePorting.Exporting;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Supabase.Tables;
@@ -100,63 +93,9 @@ public partial class ChatMessage : ObservableObject, IChatFeedItem
         if (string.IsNullOrEmpty(GameFilePath)) return;
         if (UEParse.Provider is null) return;
         if (GameFileIcon is not null) return;
-        TaskService.Run(() =>
+        TaskService.Run(async () =>
         {
-            Bitmap? icon = null;
-            string? displayName = null;
-            var fileName = GameFileName;
-
-            if (!UEParse.Provider.TryLoadPackage(UEParse.Provider!.FixPath(GameFilePath), out var package))
-                return;
-
-            for (var i = 0; i < package.ExportMapLength; i++)
-            {
-                var pointer = new FPackageIndex(package, i + 1).ResolvedObject;
-                if (pointer?.Object is null) continue;
-                if (!pointer.Name.Text.Equals(fileName) &&
-                    !pointer.Name.Text.Equals(fileName + "_C")) continue;
-
-                var obj = ((AbstractUePackage) package).ConstructObject(pointer.Class, package);
-
-                if (obj is UTexture2D && pointer.TryLoad(out var textureObj) &&
-                    textureObj is UTexture2D texture &&
-                    texture.Decode(maxMipSize: 128) is { } decodedTexture)
-                {
-                    icon = decodedTexture.ToWriteableBitmap();
-                    break;
-                }
-
-                var assetLoader = AssetLoading.Categories
-                    .SelectMany(category => category.Loaders)
-                    .FirstOrDefault(loader => loader.ClassNames.Contains(obj.ExportType));
-                if (assetLoader is not null && pointer.TryLoad(out var assetObj))
-                {
-                    icon = (assetLoader.LowResIconHandler(assetObj) ?? assetLoader.HighResIconHandler(assetObj))
-                        ?.Decode(maxMipSize: 128)?.ToWriteableBitmap();
-                    displayName = assetLoader.DisplayNameHandler(assetObj);
-                    break;
-                }
-
-                displayName = obj.GetAnyOrDefault<FText?>("DisplayName", "ItemName")?.Text;
-
-                if (obj.GetEditorIconBitmap() is { } editorIcon)
-                {
-                    icon = editorIcon;
-                    break;
-                }
-
-                if (Exporter.DetermineExportType(obj) is var exportType and not EExportType.None
-                    && $"avares://FortnitePorting/Assets/FN/{exportType}.png" is { } exportIconPath
-                    && AssetLoader.Exists(new Uri(exportIconPath)))
-                {
-                    icon = ImageExtensions.AvaresBitmap(exportIconPath);
-                    break;
-                }
-            }
-
-            icon ??= ImageExtensions.AvaresBitmap("avares://FortnitePorting/Assets/Unreal/DataAsset_64x.png");
-            displayName ??= fileName;
-
+            var (icon, displayName, _) = await UEParse.ResolveGameFileAsync(GameFilePath);
             TaskService.RunDispatcher(() =>
             {
                 GameFileIcon = icon;

@@ -244,7 +244,7 @@ public partial class ChatView : ViewBase<ChatViewModel>
     {
         if (sender is not TextBox textBox) return;
         var text = textBox.Text ?? string.Empty;
-        if (string.IsNullOrWhiteSpace(text) && ViewModel.SelectedImage is null) return;
+        if (string.IsNullOrWhiteSpace(text) && ViewModel.PendingImage is null && ViewModel.PendingGameFile is null) return;
 
         if (MentionPopup.IsOpen)
         {
@@ -290,27 +290,28 @@ public partial class ChatView : ViewBase<ChatViewModel>
             if (text.StartsWith("/shrug"))
                 text = @"¯\_(ツ)_/¯";
 
-            var pendingImage = ViewModel.SelectedImage;
-            var pendingImageName = ViewModel.SelectedImageName;
+            var pendingImage = ViewModel.PendingImage;
+            var pendingGameFile = ViewModel.PendingGameFile;
             TaskService.Run(async () =>
             {
                 string? imagePath = null;
                 if (pendingImage is not null)
                 {
                     var memoryStream = new MemoryStream();
-                    pendingImage.Save(memoryStream);
+                    pendingImage.Bitmap.Save(memoryStream);
 
-                    var result = await Api.FortnitePorting.UploadImage(memoryStream.ToArray(), pendingImageName);
+                    var result = await Api.FortnitePorting.UploadImage(memoryStream.ToArray(), pendingImage.Name);
                     imagePath = result?.Path;
                 }
 
                 await Chat.SendMessage(Chat.ConvertMentionsToIds(text), replyId: ViewModel.ReplyMessage?.Id,
-                    imagePath: imagePath);
+                    imagePath: imagePath, gameFilePath: pendingGameFile?.Path);
                 ViewModel.ReplyMessage = null;
             });
 
             textBox.Text = string.Empty;
             ViewModel.ClearImage();
+            ViewModel.ClearGameFile();
             CloseMentionPopup();
             Scroll.ScrollToEnd();
             e.Handled = true;
@@ -427,6 +428,11 @@ public partial class ChatView : ViewBase<ChatViewModel>
     private void OnImageCancelled(object? sender, PointerPressedEventArgs e)
     {
         ViewModel.ClearImage();
+    }
+
+    private void OnGameFileCancelled(object? sender, PointerPressedEventArgs e)
+    {
+        ViewModel.ClearGameFile();
     }
 
     private void OnCopyPressed(object? sender, PointerPressedEventArgs e)

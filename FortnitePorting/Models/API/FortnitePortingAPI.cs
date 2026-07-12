@@ -82,7 +82,7 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
         return response.StatusCode == HttpStatusCode.OK ? response.Data : null;
     }
 
-    public async Task PostMessage(string text, string? replyId = null, string? imagePath = null) => await ExecuteAsync(
+    public async Task PostMessage(string text, string? replyId = null, string? imagePath = null, string? gameFilePath = null) => await ExecuteAsync(
         "chat/messages", Method.Post, verbose: false, notifyRateLimit: true,
         body: new
         {
@@ -90,6 +90,7 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
             application = Globals.ApplicationTag,
             replyId = replyId,
             imagePath = imagePath,
+            gameFilePath = gameFilePath,
         }
     );
 

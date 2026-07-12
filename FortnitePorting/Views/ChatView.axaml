@@ -282,11 +282,24 @@
             </Border>
         </Grid>
 
-        <Grid Grid.Row="2" Grid.Column="0" RowDefinitions="Auto Auto Auto *" Margin="{ext:Space 1}"
+        <Grid Grid.Row="2" Grid.Column="0" RowDefinitions="Auto Auto Auto Auto *" Margin="{ext:Space 1}"
               IsVisible="{Binding !SupaBase.Permissions.IsMuted}"
               ColumnDefinitions="Auto,*">
 
-            <controls:ContentCard Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
+            <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="{ext:Space 0, 0, 0, 1}"
+                  IsVisible="{Binding Chat.TypingUsersText, Converter={x:Static ObjectConverters.IsNotNull}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="{ext:Space 1}" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <loading:ButtonPulseLoading Grid.Column="0" Width="64" Margin="{ext:Space -2, 0}" />
+
+                <TextBlock Grid.Column="2" Text="{Binding Chat.TypingUsersText}" Classes="BodyStrongTextBlockStyle" />
+            </Grid>
+
+            <controls:ContentCard Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
                                   IsVisible="{Binding ReplyMessage, Converter={x:Static ObjectConverters.IsNotNull}}"
                                   Margin="{ext:Space 0, 0, 0, 1}">
                 <Grid Margin="{ext:Space 2, 1}">
@@ -316,8 +329,8 @@
                 </Grid>
             </controls:ContentCard>
 
-            <controls:ContentCard Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
-                                  IsVisible="{Binding SelectedImage, Converter={x:Static ObjectConverters.IsNotNull}}"
+            <controls:ContentCard Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                                  IsVisible="{Binding PendingImage, Converter={x:Static ObjectConverters.IsNotNull}}"
                                   Margin="{ext:Space 0, 0, 0, 1}">
                 <Grid Margin="{ext:Space 2, 1}">
                     <Grid.ColumnDefinitions>
@@ -330,10 +343,10 @@
 
                     <Border Grid.Column="0" CornerRadius="4" ClipToBounds="True"
                             VerticalAlignment="Center">
-                        <Image Source="{Binding SelectedImage}" MaxHeight="32" MaxWidth="32" />
+                        <Image Source="{Binding PendingImage.Bitmap}" MaxHeight="32" MaxWidth="32" />
                     </Border>
 
-                    <TextBlock Grid.Column="2" Text="{Binding SelectedImageName}"
+                    <TextBlock Grid.Column="2" Text="{Binding PendingImage.Name}"
                                Classes="BodyStrongTextBlockStyle"
                                HorizontalAlignment="Left" VerticalAlignment="Center" />
 
@@ -345,30 +358,64 @@
                 </Grid>
             </controls:ContentCard>
 
-            <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="{ext:Space 0, 0, 0, 1}"
-                  IsVisible="{Binding Chat.TypingUsersText, Converter={x:Static ObjectConverters.IsNotNull}}">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="{ext:Space 1}" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
+            <controls:ContentCard Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
+                                  IsVisible="{Binding PendingGameFile, Converter={x:Static ObjectConverters.IsNotNull}}"
+                                  Margin="{ext:Space 0, 0, 0, 1}">
+                <Grid Margin="{ext:Space 2, 1}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="{ext:Space 1}" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="{ext:Space 1}" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
 
-                <loading:ButtonPulseLoading Grid.Column="0" Width="64" Margin="{ext:Space -2, 0}" />
+                    <Border Grid.Column="0" CornerRadius="4" ClipToBounds="True"
+                            VerticalAlignment="Center">
+                        <Image Source="{Binding PendingGameFile.Icon}" MaxHeight="32" MaxWidth="32" />
+                    </Border>
 
-                <TextBlock Grid.Column="2" Text="{Binding Chat.TypingUsersText}" Classes="BodyStrongTextBlockStyle" />
-            </Grid>
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding PendingGameFile.DisplayName}"
+                                   Classes="BodyStrongTextBlockStyle" />
+                        <TextBlock Text="{Binding PendingGameFile.Path}"
+                                   Classes="CaptionTextBlockStyle" Opacity="0.6"
+                                   TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+
+                    <Border Grid.Column="4" Background="Transparent" Cursor="Hand"
+                            HorizontalAlignment="Right" VerticalAlignment="Center"
+                            PointerPressed="OnGameFileCancelled">
+                        <material:MaterialIcon Kind="Close" Opacity="0.5" />
+                    </Border>
+                </Grid>
+            </controls:ContentCard>
+
+            <DropDownButton Grid.Row="4" Grid.Column="0"
+                            IsVisible="{Binding SupaBase.Permissions.Role,
+                                Converter={StaticResource EnumGreaterOrEqual},
+                                ConverterParameter={x:Static tables:ESupabaseRole.Verified}}"
+                            Margin="{ext:Space 0, 0, 1, 0}">
+                <DropDownButton.Flyout>
+                    <MenuFlyout>
+                        <MenuItem Header="Upload Image" Command="{Binding OpenImageCommand}">
+                            <MenuItem.Icon>
+                                <material:MaterialIcon Kind="Image" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Attach Game File" Command="{Binding OpenGameFileCommand}"
+                                  IsEnabled="{Binding !Files.IsLoading}">
+                            <MenuItem.Icon>
+                                <material:MaterialIcon Kind="FolderOpen" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                    </MenuFlyout>
+                </DropDownButton.Flyout>
+                <material:MaterialIcon Kind="Plus" />
+            </DropDownButton>
 
 
-            <Button Grid.Row="3" x:Name="ImageButton" Grid.Column="0"
-                    IsVisible="{Binding SupaBase.Permissions.Role, 
-                        Converter={StaticResource EnumGreaterOrEqual}, 
-                        ConverterParameter={x:Static tables:ESupabaseRole.Verified}}"
-                    Content="{material:MaterialIconExt Plus}"
-                    Command="{Binding OpenImageCommand}"
-                    Margin="{ext:Space 0, 0, 1, 0}" />
-
-
-            <Grid Grid.Row="3" Grid.Column="1" x:Name="TextBoxContainer">
+            <Grid Grid.Row="4" Grid.Column="1" x:Name="TextBoxContainer">
                 <TextBox x:Name="TextBox"
                          Text="{Binding Text}"
                          Watermark="Enter a message"

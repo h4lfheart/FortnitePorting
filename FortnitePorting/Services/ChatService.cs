@@ -391,6 +391,9 @@ public partial class ChatService : ObservableObject, IService
         var message = inMessage.Adapt<ChatMessage>();
         message.Timestamp = inMessage.Timestamp.ToLocalTime();
         message.User = await GetUser(inMessage.UserId);
+        message.GameFilePath = inMessage.GameFilePath;
+        if (!string.IsNullOrEmpty(message.GameFilePath))
+            message.LoadGameFileData();
 
         if (message.ReplyId is not null)
         {
@@ -509,9 +512,9 @@ public partial class ChatService : ObservableObject, IService
         }
     }
 
-    public async Task SendMessage(string text, string? replyId = null, string? imagePath = null)
+    public async Task SendMessage(string text, string? replyId = null, string? imagePath = null, string? gameFilePath = null)
     {
-        await Api.FortnitePorting.PostMessage(text, replyId, imagePath);
+        await Api.FortnitePorting.PostMessage(text, replyId, imagePath, gameFilePath);
     }
 
     public async Task UpdateMessage(ChatMessage message, string text)

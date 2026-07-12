@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Media.Imaging;
@@ -10,21 +11,23 @@ using FortnitePorting.Models.Chat;
 using FortnitePorting.Models.Clipboard;
 using FortnitePorting.Models.Supabase.Tables;
 using FortnitePorting.Services;
+using FortnitePorting.Windows;
 
 namespace FortnitePorting.ViewModels;
 
-public partial class ChatViewModel(SupabaseService supabase, ChatService chatService) : ViewModelBase
+public partial class ChatViewModel(SupabaseService supabase, ChatService chatService, FilesService filesService) : ViewModelBase
 {
     [ObservableProperty] private SupabaseService _supaBase = supabase;
     [ObservableProperty] private ChatService _chat = chatService;
+    [ObservableProperty] private FilesService _files = filesService;
 
     [ObservableProperty] private ChatMessage? _replyMessage;
     
     [ObservableProperty] private string _text = string.Empty;
     [ObservableProperty] private TextBox _textBox;
-    
-    [ObservableProperty] private Bitmap _selectedImage;
-    [ObservableProperty] private string _selectedImageName;
+
+    [ObservableProperty] private PendingImageAttachment? _pendingImage;
+    [ObservableProperty] private PendingGameFileAttachment? _pendingGameFile;
     
     [ObservableProperty] private bool _showNewMessageIndicator = false;
     
@@ -37,17 +40,30 @@ public partial class ChatViewModel(SupabaseService supabase, ChatService chatSer
     public async Task OpenImage()
     {
         if (await App.BrowseFileDialog(fileTypes: Globals.ChatAttachmentFileType) is { } path)
-        {
-            SelectedImageName = Path.GetFileName(path);
-            SelectedImage = new Bitmap(path);
-        }
+            PendingImage = new PendingImageAttachment(new Bitmap(path), Path.GetFileName(path));
     }
 
     [RelayCommand]
     public void ClearImage()
     {
-        SelectedImage = null;
-        SelectedImageName = null;
+        PendingImage = null;
+    }
+
+    [RelayCommand]
+    public async Task OpenGameFile()
+    {
+        if (await FilePickerWindow.OpenBrowserAsync("Attach Game File") is { Length: > 0 } paths
+            && paths.FirstOrDefault() is { } path)
+        {
+            var (icon, displayName, _) = await UEParse.ResolveGameFileAsync(path);
+            PendingGameFile = new PendingGameFileAttachment(path, icon, displayName);
+        }
+    }
+
+    [RelayCommand]
+    public void ClearGameFile()
+    {
+        PendingGameFile = null;
     }
 
     public async Task ClipboardPaste()
@@ -61,8 +77,7 @@ public partial class ChatViewModel(SupabaseService supabase, ChatService chatSer
         }
         else if (await AvaloniaClipboard.GetImageAsync() is { } image && SupaBase.UserInfo?.Role >= ESupabaseRole.Verified)
         {
-            SelectedImageName = "clipboard.png";
-            SelectedImage = image;
+            PendingImage = new PendingImageAttachment(image, "clipboard.png");
         }
     }
     
@@ -87,4 +102,5 @@ public partial class ChatViewModel(SupabaseService supabase, ChatService chatSer
         if (!Chat.HasFetchedMessages)
             await Chat.LoadMoreMessages();
     }
+
 }

@@ -235,7 +235,7 @@ public partial class FileBrowser : UserControl
     {
         if (e.Item is not TreeItem { FileBitmap: null } item) return;
 
-        Context.RealizeFileData(item);
+        TaskService.Run(() => Context.RealizeFileDataAsync(item));
     }
 
     private void OnSearchKeyDown(object? sender, KeyEventArgs e)
