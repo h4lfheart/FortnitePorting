@@ -18,6 +18,22 @@
              x:Class="FortnitePorting.Views.ChatView"
              x:DataType="viewModels:ChatViewModel">
     <UserControl.Resources>
+        <DataTemplate x:Key="DaySeparatorTemplate" DataType="chat:ChatDaySeparator">
+            <Grid Margin="{ext:Space 0, 1}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Separator Grid.Column="0" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1" Text="{Binding Label}"
+                           Margin="{ext:Space 2, 0}"
+                           Classes="CaptionTextBlockStyle TextFillColorTertiaryBrush"
+                           VerticalAlignment="Center" />
+                <Separator Grid.Column="2" VerticalAlignment="Center" />
+            </Grid>
+        </DataTemplate>
+
         <DataTemplate x:Key="MessageTemplate" DataType="chat:ChatMessage">
 
             <Grid>
@@ -26,8 +42,7 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <controls:ContentCard x:Name="PointerOverTarget" Grid.Row="0"
-                                      Margin="{ext:Space 0, 1, 0, 0}" Classes.Ping="{Binding IsPing}">
+                <controls:ContentCard x:Name="PointerOverTarget" Grid.Row="0" Classes.Ping="{Binding IsPing}">
                     <controls:ContentCard.Styles>
                         <Style Selector="controls|ContentCard.Ping">
                             <Setter Property="Background" Value="{DynamicResource FPContentCardBackgroundBright}" />
@@ -170,7 +185,7 @@
                     </Grid>
                 </controls:ContentCard>
 
-                <ItemsControl Grid.Row="1" Margin="{ext:Space 3, 0, 0, 0}"
+                <ItemsControl Grid.Row="1" Margin="{ext:Space 3, 1, 0, 0}" IsVisible="{Binding !!ReplyMessages.Count}"
                               ItemsSource="{Binding ReplyMessages}"
                               ItemTemplate="{StaticResource MessageTemplate}" />
             </Grid>
@@ -195,9 +210,24 @@
             <controls:DynamicFadeScrollViewer x:Name="Scroll"
                                               HorizontalScrollBarVisibility="Disabled"
                                               VerticalScrollBarVisibility="Auto">
-                <ItemsControl ItemsSource="{Binding Chat.Messages}"
-                              Margin="{ext:Space 1, 0}"
-                              ItemTemplate="{StaticResource MessageTemplate}" />
+                <ItemsControl ItemsSource="{Binding Chat.FeedItems}"
+                              Margin="{ext:Space 1, 0}">
+                    <ItemsControl.DataTemplates>
+                        <DataTemplate DataType="chat:ChatDaySeparator">
+                            <ContentControl Content="{Binding}"
+                                            ContentTemplate="{StaticResource DaySeparatorTemplate}" />
+                        </DataTemplate>
+                        <DataTemplate DataType="chat:ChatMessage">
+                            <ContentControl Content="{Binding}"
+                                            ContentTemplate="{StaticResource MessageTemplate}" />
+                        </DataTemplate>
+                    </ItemsControl.DataTemplates>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Spacing="{ext:Space 1}"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
             </controls:DynamicFadeScrollViewer>
 
 
@@ -324,9 +354,14 @@
             <Grid Margin="{ext:Space 1}">
                 <controls:DynamicFadeScrollViewer>
                     <ItemsControl ItemsSource="{Binding Chat.UsersByGroup}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Spacing="{ext:Space 1}" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Grid Margin="{ext:Space 0, 0, 0, 1}">
+                                <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="{ext:Space 0.5}" />
@@ -335,6 +370,7 @@
 
                                     <TextBlock Grid.Row="0" Classes="BodyStrongTextBlockStyle" FontWeight="SemiBold"
                                                HorizontalAlignment="Left"
+                                               Foreground="{Binding Value[0].Brush}"
                                                Margin="{ext:Space 0.25, 0, 0, 0}">
                                         <TextBlock.Text>
                                             <MultiBinding StringFormat='{}{0} - {1}'>
@@ -344,12 +380,16 @@
                                         </TextBlock.Text>
                                     </TextBlock>
 
-                                    <ItemsControl Grid.Row="2"  ItemsSource="{Binding Value}">
+                                    <ItemsControl Grid.Row="2" ItemsSource="{Binding Value}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel Spacing="{ext:Space 1}" />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate DataType="chat:ChatUser">
                                                 <controls:ContentCard HorizontalAlignment="Stretch" Cursor="Hand"
-                                                                      PointerPressed="OnUserPressed"
-                                                                      Margin="{ext:Space 0, 0, 0, 1}">
+                                                                      PointerPressed="OnUserPressed">
                                                     <FlyoutBase.AttachedFlyout>
                                                         <MenuFlyout>
                                                             <MenuItem Header="Copy User ID"

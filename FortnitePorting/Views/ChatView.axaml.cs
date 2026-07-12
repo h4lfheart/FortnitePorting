@@ -45,6 +45,7 @@ public partial class ChatView : ViewBase<ChatViewModel>
         Scroll.LayoutUpdated += (sender, args) =>
         {
             if (_didInitialScroll) return;
+            if (Scroll.Extent.Height <= Scroll.Viewport.Height) return;
             Scroll.ScrollToEnd();
             _didInitialScroll = true;
         };

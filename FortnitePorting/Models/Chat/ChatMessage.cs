@@ -14,7 +14,7 @@ using FortnitePorting.Models.Supabase.Tables;
 
 namespace FortnitePorting.Models.Chat;
 
-public partial class ChatMessage : ObservableObject
+public partial class ChatMessage : ObservableObject, IChatFeedItem
 {
     [ObservableProperty] private string _id;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(TimestampString))] private DateTime _timestamp;

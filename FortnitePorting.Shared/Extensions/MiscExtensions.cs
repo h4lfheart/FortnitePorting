@@ -91,6 +91,28 @@ public static class MiscExtensions
             list.Insert(i, item);
         }
     }
+    
+    extension<T>(ObservableCollection<T> list) where T : class
+    {
+        public void Diff(IList<T> target) 
+        {
+            for (var i = 0; i < target.Count; i++)
+            {
+                if (i < list.Count)
+                {
+                    if (!ReferenceEquals(list[i], target[i]))
+                        list[i] = target[i];
+                }
+                else
+                {
+                    list.Add(target[i]);
+                }
+            }
+
+            while (list.Count > target.Count)
+                list.RemoveAt(list.Count - 1);
+        }
+    }
 
     extension<T, K>(IDictionary<T, K> dict)
     {

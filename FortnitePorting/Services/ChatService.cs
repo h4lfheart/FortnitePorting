@@ -37,6 +37,7 @@ public partial class ChatService : ObservableObject, IService
     public event EventHandler<ChatMessage>? MessageReceived;
 
     [ObservableProperty] private ReadOnlyObservableCollection<ChatMessage> _messages = new([]);
+    [ObservableProperty] private ObservableCollection<IChatFeedItem> _feedItems = [];
 
     [ObservableProperty, NotifyPropertyChangedFor(nameof(UsersByGroup)),
      NotifyPropertyChangedFor(nameof(UserMentionNames))]
@@ -79,11 +80,11 @@ public partial class ChatService : ObservableObject, IService
     private RealtimeBroadcast<BaseBroadcast> _chatBroadcast;
 
     private SourceCache<ChatMessage, string> _messageCache = new(message => message.Id);
+    private readonly Dictionary<DateTime, ChatDaySeparator> _separatorCache = new();
 
     private readonly SemaphoreSlim _userGetLock = new(1, 1);
     private readonly SemaphoreSlim _messageFetchLock = new(1, 1);
 
-    // Pagination state
     private const int PageSize = 20;
     [ObservableProperty] private bool _isLoadingMessages = false;
     [ObservableProperty] private bool _hasMoreMessages = true;
@@ -97,7 +98,7 @@ public partial class ChatService : ObservableObject, IService
             .ObserveOn(RxApp.MainThreadScheduler)
             .Sort(SortExpressionComparer<ChatMessage>.Ascending(item => item.Timestamp))
             .Bind(out var messageCollection)
-            .Subscribe();
+            .Subscribe(_ => RebuildFeedItems());
 
         Messages = messageCollection;
 
@@ -166,15 +167,13 @@ public partial class ChatService : ObservableObject, IService
             _oldestFetchedTimestamp = response.NextCursor;
             HasMoreMessages = response.NextCursor.HasValue;
 
-            // Resolve all message data (including user info) before touching the cache,
-            // so we can batch-insert in a single Edit() call and fire only one collection-change notification.
             var prepared = new List<ChatMessage>();
             foreach (var entry in entries.OrderBy(x => x.ReplyId is not null))
             {
                 if (_messageCache.Lookup(entry.Id).HasValue) continue;
 
                 var chatMessage = entry.Adapt<ChatMessage>();
-                chatMessage.Timestamp = entry.CreatedAt;
+                chatMessage.Timestamp = entry.CreatedAt.ToLocalTime();
                 chatMessage.User = await GetUser(entry.UserId);
 
                 if (chatMessage.Text.Contains($"<@{SupaBase.UserInfo?.UserId}>") ||
@@ -186,7 +185,6 @@ public partial class ChatService : ObservableObject, IService
 
             if (prepared.Count == 0) return false;
 
-            // Batch-insert top-level messages in a single edit so only one layout pass is triggered.
             var topLevel = prepared.Where(m => m.ReplyId is null).ToList();
             if (topLevel.Count > 0)
             {
@@ -197,7 +195,6 @@ public partial class ChatService : ObservableObject, IService
                 });
             }
 
-            // Insert replies into their parent's thread (parents are now in the cache from the batch above).
             foreach (var msg in prepared.Where(m => m.ReplyId is not null))
             {
                 var replyParent = _messageCache.Lookup(msg.ReplyId!);
@@ -383,6 +380,7 @@ public partial class ChatService : ObservableObject, IService
     public async Task AddMessage(BroadcastMessage inMessage, bool isInit = false)
     {
         var message = inMessage.Adapt<ChatMessage>();
+        message.Timestamp = inMessage.Timestamp.ToLocalTime();
         message.User = await GetUser(inMessage.UserId);
 
         if (message.ReplyId is not null)
@@ -404,6 +402,38 @@ public partial class ChatService : ObservableObject, IService
 
         if (!isInit)
             MessageReceived?.Invoke(this, message);
+    }
+
+    private void RebuildFeedItems() => FeedItems.Diff(BuildFeed());
+
+    private List<IChatFeedItem> BuildFeed()
+    {
+        var result = new List<IChatFeedItem>();
+        DateTime? lastDate = null;
+        foreach (var msg in Messages)
+        {
+            var date = msg.Timestamp.Date;
+            if (lastDate is null || lastDate.Value != date)
+                result.Add(GetOrCreateSeparator(date));
+            
+            result.Add(msg);
+            lastDate = date;
+        }
+        return result;
+    }
+
+    private ChatDaySeparator GetOrCreateSeparator(DateTime date)
+    {
+        if (_separatorCache.TryGetValue(date, out var existingSeparator))
+            return existingSeparator;
+
+        var label = date == DateTime.Today ? "Today"
+            : date == DateTime.Today.AddDays(-1) ? "Yesterday"
+            : date.ToShortDateString();
+
+        var separator = new ChatDaySeparator(label);
+        _separatorCache[date] = separator;
+        return separator;
     }
 
     public string ConvertMentionsToIds(string text)
