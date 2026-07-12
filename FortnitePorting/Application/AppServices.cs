@@ -42,6 +42,7 @@ public static class AppServices
     // ViewModels
     public static AppWindowModel AppWM => Services.GetRequiredService<AppWindowModel>();
     public static FilesViewModel FilesVM => Services.GetRequiredService<FilesViewModel>();
+    public static ChatViewModel ChatVM => Services.GetRequiredService<ChatViewModel>();
     public static MapViewModel MapVM => Services.GetRequiredService<MapViewModel>();
     public static MusicViewModel MusicVM => Services.GetRequiredService<MusicViewModel>();
     public static TimeWasterViewModel TimeWasterVM => Services.GetRequiredService<TimeWasterViewModel>();

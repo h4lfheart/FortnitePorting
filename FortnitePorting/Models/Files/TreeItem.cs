@@ -7,6 +7,9 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.Utils;
 using FortnitePorting.Extensions;
+using FortnitePorting.Models.Chat;
+using FortnitePorting.Services;
+using FortnitePorting.Views;
 
 namespace FortnitePorting.Models.Files;
 
@@ -87,6 +90,18 @@ public partial class TreeItem : ObservableObject
     public async Task CopyPath(bool withoutExtension = false)
     {
         await App.Clipboard.SetTextAsync(withoutExtension ? FilePath.SubstringBefore(".") : FilePath);
+    }
+
+    [RelayCommand]
+    public async Task SendToChat()
+    {
+        if (Type == ENodeType.Folder) return;
+        var (icon, displayName, _) = await UEParse.ResolveGameFileAsync(FilePath);
+        await TaskService.RunDispatcherAsync(() =>
+        {
+            ChatVM.PendingGameFile = new PendingGameFileAttachment(FilePath, icon, displayName);
+            Navigation.App.Open<ChatView>();
+        });
     }
 }
 

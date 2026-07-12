@@ -5,6 +5,9 @@ using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.Utils;
 using FortnitePorting.Exporting;
 using FortnitePorting.Extensions;
+using FortnitePorting.Models.Chat;
+using FortnitePorting.Services;
+using FortnitePorting.Views;
 using Newtonsoft.Json;
 
 namespace FortnitePorting.Models.Files;
@@ -45,5 +48,16 @@ public partial class FlatItem : ObservableObject
             var json = JsonConvert.SerializeObject(assets, Formatting.Indented);
             await File.WriteAllTextAsync(path, json);
         }
+    }
+
+    [RelayCommand]
+    public async Task SendToChat()
+    {
+        var (icon, displayName, _) = await UEParse.ResolveGameFileAsync(Path);
+        await TaskService.RunDispatcherAsync(() =>
+        {
+            ChatVM.PendingGameFile = new PendingGameFileAttachment(Path, icon, displayName);
+            Navigation.App.Open<ChatView>();
+        });
     }
 }
