@@ -12,6 +12,7 @@ public class ExportData
 
 public class ExportDataMeta
 {
+    public string Version = Globals.VersionString;
     public string AssetsRoot;
     public BaseExportSettings Settings;
 

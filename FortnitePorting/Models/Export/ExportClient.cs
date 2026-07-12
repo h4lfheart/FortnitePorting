@@ -21,7 +21,8 @@ public enum EExportCommandType : byte
 {
     Message = 0,
     Data = 1,
-    DragDropRequest = 2
+    DragDropRequest = 2,
+    Dialog = 3
 }
 
 public class ExportClient(EExportServerType serverType) : IDisposable
@@ -246,6 +247,10 @@ public class ExportClient(EExportServerType serverType) : IDisposable
             case EExportCommandType.Message:
                 var message = JsonConvert.DeserializeObject<string>(jsonData) ?? string.Empty;
                 Info.Message($"{serverType.Description} Server", message);
+                break;
+            case EExportCommandType.Dialog:
+                var dialogMessage = JsonConvert.DeserializeObject<string>(jsonData) ?? string.Empty;
+                Info.Dialog($"{serverType.Description} Plugin", dialogMessage);
                 break;
             case EExportCommandType.DragDropRequest:
                 if (JObject.Parse(jsonData).TryGetValue("paths", out var token) 

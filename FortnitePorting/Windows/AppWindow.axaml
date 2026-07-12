@@ -278,6 +278,7 @@
 
                             <Button Grid.Row="0" Grid.RowSpan="2" Grid.Column="2" HorizontalAlignment="Right"
                                     VerticalAlignment="Top"
+                                    Classes="GhostButton"
                                     Margin="{ext:Space -0.5}"
                                     Content="{material:MaterialIconExt Close}" Command="{Binding CloseCommand}" />
 
@@ -372,6 +373,7 @@
                     <Button Grid.Row="0" Grid.RowSpan="2" Grid.Column="2" HorizontalAlignment="Right"
                             IsVisible="{Binding CanClose}"
                             VerticalAlignment="Top"
+                            Classes="GhostButton"
                             Margin="{ext:Space -1}"
                             Content="{material:MaterialIconExt Close}" Command="{Binding CloseCommand}" />
 

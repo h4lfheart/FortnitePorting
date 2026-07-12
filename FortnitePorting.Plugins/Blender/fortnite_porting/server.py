@@ -9,6 +9,7 @@ from .logger import Log
 COMMAND_MESSAGE = 0
 COMMAND_DATA = 1
 COMMAND_DRAG_DROP_REQUEST = 2
+COMMAND_DIALOG = 3
 
 class Server(Thread):
     instance = None
@@ -108,6 +109,27 @@ class Server(Thread):
             except Exception as e:
                 disconnected.append(client)
         
+        for client in disconnected:
+            self.clients.remove(client)
+            try:
+                client.close()
+            except:
+                pass
+
+    def send_dialog(self, message):
+        json_str = json.dumps(message)
+        data = json_str.encode('utf-8')
+
+        header = struct.pack('=BI', COMMAND_DIALOG, len(data))
+        packet = header + data
+
+        disconnected = []
+        for client in self.clients:
+            try:
+                client.sendall(packet)
+            except Exception as e:
+                disconnected.append(client)
+
         for client in disconnected:
             self.clients.remove(client)
             try:
