@@ -86,11 +86,6 @@ public partial class HelpViewModel : ViewModelBase
         });
     }
 
-    public override async Task OnViewOpened()
-    {
-        await UpdateArticles();
-    }
-
     [RelayCommand]
     public async Task Upload()
     {

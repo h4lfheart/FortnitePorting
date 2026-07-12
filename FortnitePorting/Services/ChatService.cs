@@ -173,11 +173,9 @@ public partial class ChatService : ObservableObject, IService
             {
                 if (_messageCache.Lookup(entry.Id).HasValue) continue;
 
-                var dbMessage = entry.Adapt<Message>();
-                dbMessage.Timestamp = entry.CreatedAt;
-
-                var chatMessage = dbMessage.Adapt<ChatMessage>();
-                chatMessage.User = await GetUser(dbMessage.UserId);
+                var chatMessage = entry.Adapt<ChatMessage>();
+                chatMessage.Timestamp = entry.CreatedAt;
+                chatMessage.User = await GetUser(entry.UserId);
 
                 if (chatMessage.Text.Contains($"<@{SupaBase.UserInfo?.UserId}>") ||
                     (chatMessage.Text.Contains("<@everyone>") && chatMessage.User?.Role >= ESupabaseRole.Staff))
@@ -320,14 +318,14 @@ public partial class ChatService : ObservableObject, IService
             {
                 case "insert_message":
                 {
-                    var message = broadcast.Get<Message>("message");
+                    var message = broadcast.Get<BroadcastMessage>("message");
                     await AddMessage(message);
 
                     break;
                 }
                 case "update_message":
                 {
-                    var updatedMessage = broadcast.Get<Message>("message");
+                    var updatedMessage = broadcast.Get<BroadcastMessage>("message");
 
                     var parentLookup = updatedMessage.ReplyId is not null
                         ? _messageCache.Lookup(updatedMessage.ReplyId)
@@ -382,7 +380,7 @@ public partial class ChatService : ObservableObject, IService
         });
     }
 
-    public async Task AddMessage(Message inMessage, bool isInit = false)
+    public async Task AddMessage(BroadcastMessage inMessage, bool isInit = false)
     {
         var message = inMessage.Adapt<ChatMessage>();
         message.User = await GetUser(inMessage.UserId);
