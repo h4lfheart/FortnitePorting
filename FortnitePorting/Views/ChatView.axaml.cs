@@ -367,39 +367,16 @@ public partial class ChatView : ViewBase<ChatViewModel>
         FlyoutBase.ShowAttachedFlyout(control);
     }
 
-    private async void OnYeahPressed(object? sender, PointerPressedEventArgs e)
+    private void OnMessageActionsClicked(object? sender, RoutedEventArgs e)
     {
-        if (sender is not Control control) return;
-        if (control.DataContext is not ChatMessage message) return;
-        
-        await Api.FortnitePorting.ReactToMessage(message.Id);
-    }
-
-    private void OnDeletePressed(object? sender, PointerPressedEventArgs e)
-    {
-        if (sender is not Control control) return;
-        if (control.DataContext is not ChatMessage message) return;
-        TaskService.Run(async () => await Chat.DeleteMessage(message));
+        if (sender is not Button button) return;
+        FlyoutBase.ShowAttachedFlyout(button);
     }
 
     private void OnMessageUserPressed(object? sender, PointerPressedEventArgs e)
     {
         if (sender is not Control control) return;
         FlyoutBase.ShowAttachedFlyout(control);
-    }
-
-    private async void OnReplyPressed(object? sender, PointerPressedEventArgs e)
-    {
-        if (sender is not Control control) return;
-        if (control.DataContext is not ChatMessage chatMessage) return;
-        ViewModel.ReplyMessage = chatMessage;
-    }
-
-    private void OnEditPressed(object? sender, PointerPressedEventArgs e)
-    {
-        if (sender is not Control control) return;
-        if (control.DataContext is not ChatMessage message) return;
-        message.IsEditing = !message.IsEditing;
     }
 
     private void OnEditBoxKeyDown(object? sender, KeyEventArgs e)
@@ -435,12 +412,6 @@ public partial class ChatView : ViewBase<ChatViewModel>
         ViewModel.ClearGameFile();
     }
 
-    private void OnCopyPressed(object? sender, PointerPressedEventArgs e)
-    {
-        if (sender is not Control control) return;
-        if (control.DataContext is not ChatMessage message) return;
-        App.Clipboard.SetTextAsync(message.Text);
-    }
 
     private void OnNewMessageIndicatorPressed(object? sender, PointerPressedEventArgs e)
     {

@@ -43,7 +43,9 @@ public partial class ChatMessage : ObservableObject, IChatFeedItem
     [NotifyPropertyChangedFor(
         nameof(DidReactTo), 
         nameof(ReactionBitmap),
-        nameof(ReactionBrush)
+        nameof(ReactionBrush),
+        nameof(HasReactions),
+        nameof(YeahMenuHeader)
     )]
     private string[] _reactorIds = [];
     
@@ -64,11 +66,43 @@ public partial class ChatMessage : ObservableObject, IChatFeedItem
     
     
     public bool DidReactTo => ReactorIds.Contains(SupaBase.UserInfo!.UserId);
+    public bool HasReactions => ReactorIds.Length > 0;
+    public string YeahMenuHeader => DidReactTo ? "Remove Yeah!" : "Yeah!";
     public Bitmap ReactionBitmap => DidReactTo ? ReactOff : ReactOn;
     public SolidColorBrush ReactionBrush => DidReactTo ? SolidColorBrush.Parse("#FF6de400") : SolidColorBrush.Parse("#80FFFFFF");
     
     private static readonly Bitmap ReactOn = ImageExtensions.AvaresBitmap("avares://FortnitePorting/Assets/YeahOff.png");
     private static readonly Bitmap ReactOff = ImageExtensions.AvaresBitmap("avares://FortnitePorting/Assets/YeahOn.png");
+
+    [RelayCommand]
+    public async Task React()
+    {
+        await Api.FortnitePorting.ReactToMessage(Id);
+    }
+
+    [RelayCommand]
+    public async Task Delete()
+    {
+        await AppServices.Chat.DeleteMessage(this);
+    }
+
+    [RelayCommand]
+    public void Reply()
+    {
+        ChatVM.ReplyMessage = this;
+    }
+
+    [RelayCommand]
+    public void Edit()
+    {
+        IsEditing = !IsEditing;
+    }
+
+    [RelayCommand]
+    public void Copy()
+    {
+        App.Clipboard.SetTextAsync(Text);
+    }
 
     [RelayCommand]
     public async Task SaveImage()
