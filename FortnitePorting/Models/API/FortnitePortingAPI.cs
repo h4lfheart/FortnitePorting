@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using CUE4Parse.Utils;
 using FortnitePorting.Models.API.Base;
@@ -78,7 +79,7 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
         var request = new RestRequest($"{BaseURL}/chat/images", Method.Post);
         request.AddFile("file", data, fileName);
         var response = await _client.ExecuteAsync<UploadImageResponse>(request).ConfigureAwait(false);
-        return response.StatusCode == System.Net.HttpStatusCode.OK ? response.Data : null;
+        return response.StatusCode == HttpStatusCode.OK ? response.Data : null;
     }
 
     public async Task PostMessage(string text, string? replyId = null, string? imagePath = null) => await ExecuteAsync(
@@ -122,7 +123,24 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
 
     public async Task DeleteMap(string id) => await ExecuteAsync($"maps/{id}", Method.Delete, verbose: false);
 
-    
+    // Articles
+    public async Task<ArticlesResponse?> GetArticles() =>
+        await ExecuteAsync<ArticlesResponse>("articles");
 
-   
+    public async Task<string?> CreateArticle(object request) =>
+        await ExecuteAsync<string>("articles", Method.Post, verbose: false, body: request);
+
+    public async Task UpdateArticle(string id, object request) =>
+        await ExecuteAsync($"articles/{id}", Method.Put, verbose: false, body: request);
+
+    public async Task DeleteArticle(string id) =>
+        await ExecuteAsync($"articles/{id}", Method.Delete, verbose: false);
+
+    public async Task<UploadArticleImageResponse?> UploadArticleImage(byte[] data, string fileName)
+    {
+        var request = new RestRequest($"{BaseURL}/articles/images", Method.Post);
+        request.AddFile("file", data, fileName);
+        var response = await _client.ExecuteAsync<UploadArticleImageResponse>(request).ConfigureAwait(false);
+        return response.StatusCode == HttpStatusCode.OK ? response.Data : null;
+    }
 }
