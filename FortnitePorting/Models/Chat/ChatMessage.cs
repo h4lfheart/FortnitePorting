@@ -49,7 +49,6 @@ public partial class ChatMessage : ObservableObject, IChatFeedItem
     )]
     private string[] _reactorIds = [];
     
-    [ObservableProperty] private bool _isEditing;
 
     [ObservableProperty] private ObservableCollection<ChatMessage> _replyMessages = [];
 
@@ -95,7 +94,7 @@ public partial class ChatMessage : ObservableObject, IChatFeedItem
     [RelayCommand]
     public void Edit()
     {
-        IsEditing = !IsEditing;
+        ChatVM.EditMessage = this;
     }
 
     [RelayCommand]

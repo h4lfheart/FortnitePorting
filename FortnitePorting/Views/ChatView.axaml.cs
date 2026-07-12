@@ -244,7 +244,14 @@ public partial class ChatView : ViewBase<ChatViewModel>
     {
         if (sender is not TextBox textBox) return;
         var text = textBox.Text ?? string.Empty;
-        if (string.IsNullOrWhiteSpace(text) && ViewModel.PendingImage is null && ViewModel.PendingGameFile is null) return;
+        if (string.IsNullOrWhiteSpace(text) && ViewModel.PendingImage is null && ViewModel.PendingGameFile is null && ViewModel.EditMessage is null) return;
+
+        if (e.Key == Key.Escape && ViewModel.EditMessage is not null)
+        {
+            ViewModel.EditMessage = null;
+            e.Handled = true;
+            return;
+        }
 
         if (MentionPopup.IsOpen)
         {
@@ -283,6 +290,16 @@ public partial class ChatView : ViewBase<ChatViewModel>
             if (text.Length > 400)
             {
                 Info.Message("Character Limit", "Your message is over the character limit of 400 characters.");
+                e.Handled = true;
+                return;
+            }
+
+            if (ViewModel.EditMessage is { } editMessage)
+            {
+                var editText = text;
+                ViewModel.EditMessage = null;
+                textBox.Text = string.Empty;
+                TaskService.Run(async () => await Chat.UpdateMessage(editMessage, editText));
                 e.Handled = true;
                 return;
             }
@@ -379,22 +396,9 @@ public partial class ChatView : ViewBase<ChatViewModel>
         FlyoutBase.ShowAttachedFlyout(control);
     }
 
-    private void OnEditBoxKeyDown(object? sender, KeyEventArgs e)
+    private void OnEditCancelled(object? sender, PointerPressedEventArgs e)
     {
-        if (sender is not TextBox textBox) return;
-        if (textBox.DataContext is not ChatMessage message) return;
-
-        if (e.Key == Key.Enter && !e.KeyModifiers.HasFlag(KeyModifiers.Shift))
-        {
-            message.IsEditing = false;
-            var newText = textBox.Text!;
-            TaskService.Run(async () => await Chat.UpdateMessage(message, newText));
-        }
-        else if (e.Key == Key.Enter && e.KeyModifiers.HasFlag(KeyModifiers.Shift))
-        {
-            textBox.Text += "\n";
-            textBox.CaretIndex = textBox.Text.Length;
-        }
+        ViewModel.EditMessage = null;
     }
 
     private void OnReplyCancelled(object? sender, PointerPressedEventArgs e)

@@ -152,19 +152,12 @@
                         </Button>
 
                         <StackPanel Grid.Row="1" Grid.RowSpan="2" Grid.Column="2" Grid.ColumnSpan="9">
-                            <Grid IsVisible="{Binding Text, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
-                                <chatControls:ChatMentionTextBlock IsVisible="{Binding !IsEditing}"
-                                                                   HighlightForeground="White"
-                                                                   TextToHighlight="{Binding Text}" TextWrapping="Wrap"
-                                                                   Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"
-                                                                   VerticalAlignment="Center">
-                                </chatControls:ChatMentionTextBlock>
-
-                                <TextBox IsVisible="{Binding IsEditing}"
-                                         KeyDown="OnEditBoxKeyDown" Margin="{ext:Space 0, 0.5}"
-                                         Text="{Binding Text}" TextWrapping="Wrap"
-                                         Classes="BodyTextBlockStyle" VerticalAlignment="Center" />
-                            </Grid>
+                            <chatControls:ChatMentionTextBlock
+                                IsVisible="{Binding Text, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                HighlightForeground="White"
+                                TextToHighlight="{Binding Text}" TextWrapping="Wrap"
+                                Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"
+                                VerticalAlignment="Center" />
 
                             <Border Background="{DynamicResource FPContentCardBackgroundBright}"
                                     IsVisible="{Binding FullImageUrl, Converter={x:Static ObjectConverters.IsNotNull}}"
@@ -296,7 +289,7 @@
             </Border>
         </Grid>
 
-        <Grid Grid.Row="2" Grid.Column="0" RowDefinitions="Auto Auto Auto Auto *" Margin="{ext:Space 1}"
+        <Grid Grid.Row="2" Grid.Column="0" RowDefinitions="Auto Auto Auto Auto Auto *" Margin="{ext:Space 1}"
               IsVisible="{Binding !SupaBase.Permissions.IsMuted}"
               ColumnDefinitions="Auto,*">
 
@@ -344,6 +337,34 @@
             </controls:ContentCard>
 
             <controls:ContentCard Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                                  IsVisible="{Binding EditMessage, Converter={x:Static ObjectConverters.IsNotNull}}"
+                                  Margin="{ext:Space 0, 0, 0, 1}">
+                <Grid Margin="{ext:Space 2, 1}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="{ext:Space 0.5}" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="{ext:Space 1}" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" Text="Editing"
+                               VerticalAlignment="Center" />
+
+                    <TextBlock Grid.Column="2" Text="{Binding EditMessage.Text}"
+                               Classes="BodyTextBlockStyle TextFillColorTertiaryBrush"
+                               TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"
+                               VerticalAlignment="Center" />
+
+                    <Border Grid.Column="4" Background="Transparent" Cursor="Hand"
+                            HorizontalAlignment="Right" VerticalAlignment="Center"
+                            PointerPressed="OnEditCancelled">
+                        <material:MaterialIcon Kind="Close" Opacity="0.5" />
+                    </Border>
+                </Grid>
+            </controls:ContentCard>
+
+            <controls:ContentCard Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
                                   IsVisible="{Binding PendingImage, Converter={x:Static ObjectConverters.IsNotNull}}"
                                   Margin="{ext:Space 0, 0, 0, 1}">
                 <Grid Margin="{ext:Space 2, 1}">
@@ -372,7 +393,7 @@
                 </Grid>
             </controls:ContentCard>
 
-            <controls:ContentCard Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
+            <controls:ContentCard Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2"
                                   IsVisible="{Binding PendingGameFile, Converter={x:Static ObjectConverters.IsNotNull}}"
                                   Margin="{ext:Space 0, 0, 0, 1}">
                 <Grid Margin="{ext:Space 2, 1}">
@@ -405,10 +426,11 @@
                 </Grid>
             </controls:ContentCard>
 
-            <DropDownButton Grid.Row="4" Grid.Column="0"
+            <DropDownButton Grid.Row="5" Grid.Column="0"
                             IsVisible="{Binding SupaBase.Permissions.Role,
                                 Converter={StaticResource EnumGreaterOrEqual},
                                 ConverterParameter={x:Static tables:ESupabaseRole.Verified}}"
+                            IsEnabled="{Binding EditMessage, Converter={x:Static ObjectConverters.IsNull}}"
                             Margin="{ext:Space 0, 0, 1, 0}">
                 <DropDownButton.Flyout>
                     <MenuFlyout>
@@ -429,7 +451,7 @@
             </DropDownButton>
 
 
-            <Grid Grid.Row="4" Grid.Column="1" x:Name="TextBoxContainer">
+            <Grid Grid.Row="5" Grid.Column="1" x:Name="TextBoxContainer">
                 <TextBox x:Name="TextBox"
                          Text="{Binding Text}"
                          Watermark="Enter a message"

@@ -22,7 +22,8 @@ public partial class ChatViewModel(SupabaseService supabase, ChatService chatSer
     [ObservableProperty] private FilesService _files = filesService;
 
     [ObservableProperty] private ChatMessage? _replyMessage;
-    
+    [ObservableProperty] private ChatMessage? _editMessage;
+
     [ObservableProperty] private string _text = string.Empty;
     [ObservableProperty] private TextBox _textBox;
 
@@ -34,8 +35,24 @@ public partial class ChatViewModel(SupabaseService supabase, ChatService chatSer
     [ObservableProperty, NotifyPropertyChangedFor(nameof(NewMessageCountText))] private int _unreadMessageCount = 0;
     
     public string NewMessageCountText => UnreadMessageCount == 1 ? "1 New Message" : $"{UnreadMessageCount} New Messages";
-
     
+    partial void OnEditMessageChanged(ChatMessage? value)
+    {
+        if (value is not null) ReplyMessage = null;
+        Text = value?.Text ?? string.Empty;
+    }
+
+    partial void OnReplyMessageChanged(ChatMessage? value)
+    {
+        if (value is not null) EditMessage = null;
+    }
+
+    [RelayCommand]
+    public void ClearEdit()
+    {
+        EditMessage = null;
+    }
+
     [RelayCommand]
     public async Task OpenImage()
     {
