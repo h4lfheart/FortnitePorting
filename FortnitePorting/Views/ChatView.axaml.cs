@@ -30,6 +30,7 @@ public partial class ChatView : ViewBase<ChatViewModel>
     private bool _shouldAutoScroll = true;
     private bool _didInitialScroll = false;
     private bool _isLoadingMore = false;
+    private double _lastExtentHeight = 0;
     private int _mentionStart = -1;
 
     public ChatView()
@@ -44,10 +45,19 @@ public partial class ChatView : ViewBase<ChatViewModel>
 
         Scroll.LayoutUpdated += (sender, args) =>
         {
-            if (_didInitialScroll) return;
-            if (Scroll.Extent.Height <= Scroll.Viewport.Height) return;
-            Scroll.ScrollToEnd();
-            _didInitialScroll = true;
+            var currentExtent = Scroll.Extent.Height;
+
+            if (!_didInitialScroll)
+            {
+                if (currentExtent <= Scroll.Viewport.Height) return;
+                _didInitialScroll = true;
+            }
+
+            var extentGrew = currentExtent > _lastExtentHeight;
+            _lastExtentHeight = currentExtent;
+
+            if (_shouldAutoScroll && extentGrew)
+                Scroll.ScrollToEnd();
         };
 
         Scroll.ScrollChanged += async (sender, args) =>
@@ -347,6 +357,7 @@ public partial class ChatView : ViewBase<ChatViewModel>
         TextBox.Focus();
         ViewModel.ClearNewMessageIndicator();
         _didInitialScroll = false;
+        _lastExtentHeight = 0;
     }
 
     private void OnUserPressed(object? sender, PointerPressedEventArgs e)

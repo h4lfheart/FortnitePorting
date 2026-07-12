@@ -180,6 +180,34 @@
                                        Height="{Binding $self.Source.Size.Height}"
                                        VerticalAlignment="Center" MaxHeight="300" />
                             </Border>
+
+                            <controls:ContentCard
+                                Background="{DynamicResource FPContentCardBackgroundBright}"
+                                Margin="{ext:Space 0, 1, 0, 0}"
+                                IsVisible="{Binding HasValidGameFile}">
+                                <Grid Margin="{ext:Space 1}" ColumnDefinitions="Auto,*,Auto">
+
+                                    <Image Grid.Column="0" Source="{Binding GameFileIcon}"
+                                           Width="40" Height="40" VerticalAlignment="Center"
+                                           RenderOptions.BitmapInterpolationMode="MediumQuality" />
+
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center"
+                                                Margin="{ext:Space 1, 0}" Spacing="{ext:Space 0.5}">
+                                        <TextBlock Text="{Binding GameFileDisplayName}"
+                                                   Classes="BodyStrongTextBlockStyle" Foreground="White" />
+                                        <TextBlock Text="{Binding GameFilePath}"
+                                                   Classes="CaptionTextBlockStyle TextFillColorTertiaryBrush"
+                                                   TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" />
+                                    </StackPanel>
+
+                                    <Button Grid.Column="2" Classes="GhostButton" VerticalAlignment="Center"
+                                            Command="{Binding NavigateToFilesCommand}"
+                                            HorizontalAlignment="Right">
+                                        <controls:IconText Icon="FolderOpen" Text="Open in Files" />
+                                    </Button>
+
+                                </Grid>
+                            </controls:ContentCard>
                         </StackPanel>
 
                     </Grid>
@@ -235,7 +263,8 @@
                 Text="No Messages Found"
                 Classes="BodyTextBlockStyle TextFillColorTertiaryBrush"
                 VerticalAlignment="Center" HorizontalAlignment="Center"
-                IsVisible="{Binding !Chat.Messages.Count}" />
+                IsVisible="{Binding Chat.IsEmpty}" />
+
 
             <Border IsVisible="{Binding ShowNewMessageIndicator}"
                     Background="#953BF8"

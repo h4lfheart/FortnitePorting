@@ -88,7 +88,10 @@ public partial class ChatService : ObservableObject, IService
     private const int PageSize = 20;
     [ObservableProperty] private bool _isLoadingMessages = false;
     [ObservableProperty] private bool _hasMoreMessages = true;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(IsEmpty))] private bool _hasFetchedMessages = false;
     private DateTime? _oldestFetchedTimestamp = null;
+
+    public bool IsEmpty => HasFetchedMessages && Messages.Count == 0;
 
     public async Task Initialize()
     {
@@ -98,7 +101,11 @@ public partial class ChatService : ObservableObject, IService
             .ObserveOn(RxApp.MainThreadScheduler)
             .Sort(SortExpressionComparer<ChatMessage>.Ascending(item => item.Timestamp))
             .Bind(out var messageCollection)
-            .Subscribe(_ => RebuildFeedItems());
+            .Subscribe(_ =>
+            {
+                RebuildFeedItems();
+                OnPropertyChanged(nameof(IsEmpty));
+            });
 
         Messages = messageCollection;
 
@@ -115,8 +122,6 @@ public partial class ChatService : ObservableObject, IService
         };
 
         await ChatPresence.Track(Presence);
-
-        await LoadMoreMessages();
 
         MessageReceived += (sender, message) =>
         {
@@ -175,6 +180,9 @@ public partial class ChatService : ObservableObject, IService
                 var chatMessage = entry.Adapt<ChatMessage>();
                 chatMessage.Timestamp = entry.CreatedAt.ToLocalTime();
                 chatMessage.User = await GetUser(entry.UserId);
+                chatMessage.GameFilePath = entry.GameFilePath;
+                if (!string.IsNullOrEmpty(entry.GameFilePath))
+                    chatMessage.LoadGameFileData();
 
                 if (chatMessage.Text.Contains($"<@{SupaBase.UserInfo?.UserId}>") ||
                     (chatMessage.Text.Contains("<@everyone>") && chatMessage.User?.Role >= ESupabaseRole.Staff))
@@ -211,6 +219,7 @@ public partial class ChatService : ObservableObject, IService
         finally
         {
             IsLoadingMessages = false;
+            HasFetchedMessages = true;
             _messageFetchLock.Release();
         }
     }
