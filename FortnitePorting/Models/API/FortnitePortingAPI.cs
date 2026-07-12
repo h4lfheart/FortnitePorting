@@ -14,7 +14,7 @@ namespace FortnitePorting.Models.API;
 
 public class FortnitePortingAPI(RestClient client) : APIBase(client)
 {
-    protected override string BaseURL => "http://localhost:7000/v2";
+    protected override string BaseURL => "https://api.fortniteporting.app/v2";
 
     // Content
     public async Task<NewsResponse> News() => await ExecuteAsync<NewsResponse>("content/news");
