@@ -219,6 +219,7 @@ public partial class FileBrowser : UserControl
 
         if (item.Type == ENodeType.Folder)
         {
+            ResetDragState();
             Context.LoadFileItems(item);
             item.Expanded = true;
         }

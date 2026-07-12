@@ -380,10 +380,6 @@ public enum EThemeType
     [Icon(MaterialIconKind.Flower)]
     Rose,
     
-    [Description("Dark")]
-    [Icon(MaterialIconKind.WeatherNight)]
-    Dark,
-    
     [Description("Royal")]
     [Icon(MaterialIconKind.Crown)]
     RoyalPurple,
@@ -391,6 +387,10 @@ public enum EThemeType
     [Description("Ocean")]
     [Icon(MaterialIconKind.WaterDrop)]
     OceanBlue,
+    
+    [Description("Dark")]
+    [Icon(MaterialIconKind.WeatherNight)]
+    Dark,
     
     [Description("Mica")]
     [Icon(MaterialIconKind.CircleOpacity)]
