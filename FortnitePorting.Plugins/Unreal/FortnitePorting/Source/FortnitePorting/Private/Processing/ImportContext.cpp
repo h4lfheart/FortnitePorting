@@ -8,14 +8,21 @@
 #include "Classes/BuildingTextureData.h"
 #include "Engine/SkinnedAssetCommon.h"
 #include "Engine/StaticMeshActor.h"
-#include "Factories/TextureFactory.h"
 #include "Factories/UEFModelFactory.h"
 #include "Framework/Notifications/NotificationManager.h"
+#include "InterchangeManager.h"
 #include "Materials/MaterialInstanceConstant.h"
 #include "Processing/Enums.h"
-#include "Utilities/EditorUtils.h"
+#include "Processing/FortnitePortingTexturePipeline.h"
 #include "Processing/MaterialMappings.h"
 #include "Processing/Names.h"
+#include "TextureCompiler.h"
+#include "Components/StaticMeshComponent.h"
+#include "Engine/Engine.h"
+#include "Materials/Material.h"
+#include "Misc/ScopedSlowTask.h"
+#include "Serialization/JsonSerializer.h"
+#include "Utilities/EditorUtils.h"
 #include "Utilities/JsonWrapper.h"
 #include "World/BuildingActor.h"
 
@@ -128,10 +135,51 @@ void FImportContext::ImportMeshData(const FJsonWrapper& ExportData)
 
 void FImportContext::ImportTextureData(const FJsonWrapper& ExportData)
 {
-	for (const auto& Texture : ExportData.GetArray("Textures"))
+	const auto Textures = ExportData.GetArray("Textures");
+
+	// Fire all imports concurrently — Interchange pipelines run on worker threads.
+	TArray<UE::Interchange::FAssetImportResultRef> PendingResults;
+	PendingResults.Reserve(Textures.Num());
+
+	for (const auto& TextureJson : Textures)
 	{
-		ImportTexture(Texture);
+		// Resolve path and skip already-imported / engine assets early.
+		const auto PathData = FEditorUtils::GetPathData(TextureJson.Get<FString>("Path"));
+		const auto Package = CreatePackage(*PathData.Path);
+
+		if (LoadObject<UTexture>(Package, *PathData.ObjectName) || PathData.RootName.Equals("Engine"))
+			continue;
+
+		FString AssetsRoot = MetaData.Get<FString>("AssetsRoot");
+		FString TexturePath = FPaths::Combine(AssetsRoot, PathData.Path + ".png");
+		if (!FPaths::FileExists(TexturePath))
+			TexturePath = FPaths::Combine(AssetsRoot, PathData.Path + ".hdr");
+		if (!FPaths::FileExists(TexturePath))
+			continue;
+
+		UInterchangeManager& Manager = UInterchangeManager::GetInterchangeManager();
+		UInterchangeSourceData* SourceData = Manager.CreateSourceData(TexturePath);
+
+		auto* Pipeline = NewObject<UFortnitePortingTexturePipeline>(GetTransientPackage());
+		Pipeline->bWantSRGB = TextureJson.Get<bool>("sRGB");
+		Pipeline->WantCompression = TextureJson.Get<TextureCompressionSettings>("CompressionSettings");
+
+		FImportAssetParameters Params;
+		Params.bIsAutomated = true;
+		Params.bReplaceExisting = false;
+		Params.OverridePipelines.Add(Pipeline);
+
+		FString ContentFolder = PathData.Path.LeftChop(PathData.ObjectName.Len() + 1);
+		PendingResults.Add(Manager.ImportAssetAsync(ContentFolder, SourceData, Params));
 	}
+
+	for (const auto& Result : PendingResults)
+	{
+		Result->WaitUntilDone();
+	}
+
+	// Flush the texture build queue so any subsequent save/cook sees fully compiled assets.
+	FTextureCompilingManager::Get().FinishAllCompilation();
 }
 
 UObject* FImportContext::ImportModel(const FJsonWrapper& ExportData, UWorld* World, ABuildingActor* Parent, const FJsonWrapper& MeshData, bool bCreateActor)
@@ -154,7 +202,7 @@ UObject* FImportContext::ImportModel(const FJsonWrapper& ExportData, UWorld* Wor
     	for (const auto& TexData : MeshData.GetArray("TextureData"))
     	{
     		Actor->TextureData.Add(FTextureDataInstance {
-				.LayerIndex = TexData.Get<int>("Name"),
+				.LayerIndex = TexData.Get<int>("Index"),
 				.TextureData = ImportBuildingTextureData(TexData)
 			});
     	}
@@ -386,9 +434,9 @@ UBuildingTextureData* FImportContext::ImportBuildingTextureData(const FJsonWrapp
 	TextureData->MarkPackageDirty();
 	FAssetRegistryModule::AssetCreated(TextureData);
 	
-	TextureData->Diffuse = ImportTexture(TexData["Diffuse"]["Texture"]);
-	TextureData->Normal = ImportTexture(TexData["Diffuse"]["Normal"]);
-	TextureData->Specular = ImportTexture(TexData["Diffuse"]["Specular"]);
+	TextureData->Diffuse = ImportTexture(TexData["Diffuse"]);
+	TextureData->Normal = ImportTexture(TexData["Normal"]);
+	TextureData->Specular = ImportTexture(TexData["Specular"]);
 	
 	if (auto OverrideMat = TexData["OverrideMaterial"]; OverrideMat.IsValid())
 	{
@@ -405,32 +453,37 @@ UTexture* FImportContext::ImportTexture(const FJsonWrapper& TextureData)
 
 	auto Texture = LoadObject<UTexture>(Package, *PathData.ObjectName);
 	if (Texture != nullptr || PathData.RootName.Equals("Engine")) return Texture;
-	
+
 	FString AssetsRoot = MetaData.Get<FString>("AssetsRoot");
-	auto TexturePath = FPaths::Combine(AssetsRoot, PathData.Path + ".png");
-	if (!FPaths::FileExists(TexturePath)) 
+	FString TexturePath = FPaths::Combine(AssetsRoot, PathData.Path + ".png");
+	if (!FPaths::FileExists(TexturePath))
 		TexturePath = FPaths::Combine(AssetsRoot, PathData.Path + ".hdr");
-	if (!FPaths::FileExists(TexturePath)) 
+	if (!FPaths::FileExists(TexturePath))
 		return nullptr;
 
-	auto AutomatedData = NewObject<UAutomatedAssetImportData>();
-	AutomatedData->bReplaceExisting = false;
-	
-	const auto TextureFactory = NewObject<UTextureFactory>();
-	TextureFactory->NoCompression = false;
-	TextureFactory->AutomatedImportData = AutomatedData;
-	
-	bool Canceled;
-	const auto ImportedTexture = TextureFactory->FactoryCreateFile(UTexture::StaticClass(), Package, FName(*PathData.ObjectName), RF_Public | RF_Standalone, TexturePath, nullptr, GWarn, Canceled);
-	if (ImportedTexture == nullptr) return nullptr;
+	UInterchangeManager& Manager = UInterchangeManager::GetInterchangeManager();
+	UInterchangeSourceData* SourceData = Manager.CreateSourceData(TexturePath);
 
-	Texture = Cast<UTexture>(ImportedTexture);
-	FAssetRegistryModule::AssetCreated(Texture);
-		
-	Texture->PreEditChange(nullptr);
-	Texture->SRGB = TextureData.Get<bool>("sRGB");
-	Texture->CompressionSettings = TextureData.Get<TextureCompressionSettings>("CompressionSettings");
-	Texture->PostEditChange();
+	auto* Pipeline = NewObject<UFortnitePortingTexturePipeline>(GetTransientPackage());
+	Pipeline->bWantSRGB = TextureData.Get<bool>("sRGB");
+	Pipeline->WantCompression = TextureData.Get<TextureCompressionSettings>("CompressionSettings");
+
+	FImportAssetParameters Params;
+	Params.bIsAutomated = true;
+	Params.bReplaceExisting = false;
+	Params.OverridePipelines.Add(Pipeline);
+
+	FString ContentFolder = PathData.Path.LeftChop(PathData.ObjectName.Len() + 1);
+	UE::Interchange::FAssetImportResultRef ImportResult =
+		Manager.ImportAssetAsync(ContentFolder, SourceData, Params);
+
+	ImportResult->WaitUntilDone();
+	if (!ImportResult->IsValid())
+		return nullptr;
+
+	Texture = Cast<UTexture>(ImportResult->GetFirstAssetOfClass(UTexture::StaticClass()));
+	if (Texture == nullptr)
+		return nullptr;
 
 	Package->MarkPackageDirty();
 	Package->FullyLoad();

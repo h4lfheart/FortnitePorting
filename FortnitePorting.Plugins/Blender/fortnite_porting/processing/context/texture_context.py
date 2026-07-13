@@ -58,11 +58,11 @@ class TextureImportContext:
 
         if existing := image_cache.get(path):
             return existing
-            
-        path, name = self.format_image_path(path)
-        if not os.path.exists(path):
+
+        fs_path, name = self.format_image_path(path)
+        if not os.path.exists(fs_path):
             return None
 
-        image = bpy.data.images.load(path, check_existing=True)
-        image_cache[name] = image
+        image = bpy.data.images.load(fs_path, check_existing=True)
+        image_cache[path] = image
         return image

@@ -1,6 +1,11 @@
 #include "FortnitePorting/Public/World/BuildingActor.h"
 
-void ResetToMaterialDefault(UMaterialInstanceDynamic* DynMat, const FString& ParamName)
+#include "Components/StaticMeshComponent.h"
+#include "Engine/StaticMesh.h"
+#include "Materials/Material.h"
+#include "Materials/MaterialInstanceDynamic.h"
+
+void ResetToMaterialDefault(UMaterialInstanceDynamic* DynMat, const FName ParamName)
 {
 	if (!DynMat) return;
 
@@ -8,8 +13,8 @@ void ResetToMaterialDefault(UMaterialInstanceDynamic* DynMat, const FString& Par
 	if (!BaseMat) return;
 
 	UTexture* DefaultTex = nullptr;
-	BaseMat->GetTextureParameterValue(FName(*ParamName), DefaultTex);
-	DynMat->SetTextureParameterValue(FName(*ParamName), DefaultTex);
+	BaseMat->GetTextureParameterValue(ParamName, DefaultTex);
+	DynMat->SetTextureParameterValue(ParamName, DefaultTex);
 }
 
 void ABuildingActor::OnConstruction(const FTransform& Transform)
@@ -38,7 +43,7 @@ void ABuildingActor::OnConstruction(const FTransform& Transform)
 		if (TextureDataInstance.TextureData == nullptr)
 			continue;
 		
-		const int32 Index = Instance.LayerIndex;
+		const int32 Index = TextureDataInstance.LayerIndex;
 
 		const FString TextureSuffix = Index > 0 ? FString::Printf(TEXT("_Texture_%d"), Index + 1) : TEXT("");
 
@@ -49,20 +54,20 @@ void ABuildingActor::OnConstruction(const FTransform& Transform)
 		const FName SpecularParam = *FString::Printf(TEXT("SpecularMasks%s"), *SpecSuffix);
 
 		// Diffuse
-		if (Instance.TextureData->Diffuse)
-			DynamicMaterial->SetTextureParameterValue(DiffuseParam, Instance.TextureData->Diffuse);
+		if (TextureDataInstance.TextureData->Diffuse)
+			DynamicMaterial->SetTextureParameterValue(DiffuseParam, TextureDataInstance.TextureData->Diffuse);
 		else
 			ResetToMaterialDefault(DynamicMaterial, DiffuseParam);
 
 		// Normal
-		if (Instance.TextureData->Normal)
-			DynamicMaterial->SetTextureParameterValue(NormalParam, Instance.TextureData->Normal);
+		if (TextureDataInstance.TextureData->Normal)
+			DynamicMaterial->SetTextureParameterValue(NormalParam, TextureDataInstance.TextureData->Normal);
 		else
 			ResetToMaterialDefault(DynamicMaterial, NormalParam);
 
 		// Specular
-		if (Instance.TextureData->Specular)
-			DynamicMaterial->SetTextureParameterValue(SpecularParam, Instance.TextureData->Specular);
+		if (TextureDataInstance.TextureData->Specular)
+			DynamicMaterial->SetTextureParameterValue(SpecularParam, TextureDataInstance.TextureData->Specular);
 		else
 			ResetToMaterialDefault(DynamicMaterial, SpecularParam);
 	}

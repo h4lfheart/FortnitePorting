@@ -23,7 +23,8 @@ public class FortnitePorting : ModuleRules
 		PublicDependencyModuleNames.AddRange(
 			[
 				"Core", "JsonUtilities", "Json", "PluginUtils", "UEFormat",
-				"Projects", "UnrealEd", "EditorScriptingUtilities", "Sockets", "Networking"
+				"Projects", "UnrealEd", "EditorScriptingUtilities", "Sockets", "Networking",
+				"InterchangeCore", "InterchangeEngine", "InterchangeImport", "InterchangeFactoryNodes", "InterchangePipelines"
 				// ... add other public dependencies that you statically link with here ...
 			]
 		);

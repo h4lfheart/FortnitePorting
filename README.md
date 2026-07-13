@@ -7,7 +7,7 @@
 
 [![Discord](https://discord.com/api/guilds/866821077769781249/widget.png?style=shield)](https://discord.gg/DZ5YFXdBA6)
 [![Blender](https://img.shields.io/badge/Blender-5.0+-blue?logo=blender&logoColor=white&color=orange)](https://www.blender.org/download/)
-[![Unreal](https://img.shields.io/badge/Unreal-5.5+-blue?logo=unreal-engine&logoColor=white&color=white)](https://www.unrealengine.com/en-US/download)
+[![Unreal](https://img.shields.io/badge/Unreal-5.8-blue?logo=unreal-engine&logoColor=white&color=white)](https://www.unrealengine.com/en-US/download)
 [![Release](https://img.shields.io/github/release/h4lfheart/FortnitePorting)]()
 [![Downloads](https://img.shields.io/github/downloads/h4lfheart/FortnitePorting/total?color=green)]()
 

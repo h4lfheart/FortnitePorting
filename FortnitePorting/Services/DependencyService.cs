@@ -60,12 +60,15 @@ public class DependencyService : IService
 
     public void EnsureBlenderExtensions()
     {
+        var blenderFolder = new DirectoryInfo(Path.Combine(App.PluginsFolder.FullName, "Blender"));
+        if (blenderFolder.Exists)
+            blenderFolder.Delete(true);
+
         var assets = AssetLoader.GetAssets(new Uri("avares://FortnitePorting.Plugins/Blender"), null);
         foreach (var asset in assets)
         {
             var assetStream = AssetLoader.Open(asset);
             var targetFile = new FileInfo(Path.Combine(App.PluginsFolder.FullName, asset.AbsolutePath[1..]));
-            if (targetFile is { Exists: true, Length: > 0 } && targetFile.GetHash() == assetStream.GetHash()) continue;
             targetFile.Directory?.Create();
             
             File.WriteAllBytes(targetFile.FullName, assetStream.ReadToEnd());
@@ -74,12 +77,15 @@ public class DependencyService : IService
     
     public void EnsureUnrealPlugins()
     {
+        var unrealFolder = new DirectoryInfo(Path.Combine(App.PluginsFolder.FullName, "Unreal"));
+        if (unrealFolder.Exists)
+            unrealFolder.Delete(true);
+
         var assets = AssetLoader.GetAssets(new Uri("avares://FortnitePorting.Plugins/Unreal"), null);
         foreach (var asset in assets)
         {
             var assetStream = AssetLoader.Open(asset);
             var targetFile = new FileInfo(Path.Combine(App.PluginsFolder.FullName, asset.AbsolutePath[1..]));
-            if (targetFile is { Exists: true, Length: > 0 } && targetFile.GetHash() == assetStream.GetHash()) continue;
             targetFile.Directory?.Create();
             
             File.WriteAllBytes(targetFile.FullName, assetStream.ReadToEnd());

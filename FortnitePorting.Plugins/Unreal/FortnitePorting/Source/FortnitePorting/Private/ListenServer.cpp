@@ -1,5 +1,6 @@
 #include "ListenServer.h"
 #include "Common/TcpSocketBuilder.h"
+#include "Containers/Ticker.h"
 #include "FortnitePorting/Public/FortnitePorting.h"
 #include "Interfaces/IPv4/IPv4Endpoint.h"
 #include "Processing/ImportContext.h"
@@ -95,10 +96,16 @@ void FListenServer::HandleClient(FSocket* ClientSocket)
 			UE_LOG(LogFortnitePorting, Log, TEXT("%s"), *ReceivedString)
 			break;
 		case EMessageCommandType::Data:
-			AsyncTask(ENamedThreads::GameThread, [ReceivedString]
-			{
-				FImportContext::RunExportJson(ReceivedString);
-			});
+			// Use FTSTicker (fires from FEngineLoop::Tick) rather than AsyncTask
+			// (fires from the task graph named-thread pump). WaitUntilDone() needs
+			// to re-enter the task graph to pump completion work; doing that from
+			// inside a named task triggers the RecursionGuard assertion.
+			FTSTicker::GetCoreTicker().AddTicker(
+				FTickerDelegate::CreateLambda([ReceivedString](float) -> bool
+				{
+					FImportContext::RunExportJson(ReceivedString);
+					return false; // fire once, then remove
+				}));
 			break;
 		}
 	}
