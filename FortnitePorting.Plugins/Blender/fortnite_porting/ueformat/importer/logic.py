@@ -395,9 +395,10 @@ class UEFormatImport:
 
                 bpy.ops.object.mode_set(mode="POSE")
 
-                # bone colors
+                # bone colors — build weighted group set once (was O(bones × verts))
+                weighted_groups = get_weighted_vertex_group_indices(lod)
                 for bone in armature_object.pose.bones:
-                    if not (vertex_group := lod.vertex_groups.get(bone.name)) or not has_vertex_weights(lod, vertex_group):
+                    if not (vertex_group := lod.vertex_groups.get(bone.name)) or not has_vertex_weights(lod, vertex_group, weighted_groups):
                         bone.color.palette = "THEME14"
                         continue
 
