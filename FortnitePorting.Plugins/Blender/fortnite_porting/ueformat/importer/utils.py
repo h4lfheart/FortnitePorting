@@ -175,6 +175,23 @@ def make_quat(rot):
 def make_vector(vec):
     return Vector((vec[0], vec[1], vec[2]))
 
-def has_vertex_weights(obj, vertex_group):
-    mesh = obj.data
-    return any(vertex_group.index in [g.group for g in v.groups] for v in mesh.vertices)
+def get_weighted_vertex_group_indices(obj):
+    """Collect vertex-group indices that actually have weights"""
+    weighted = set()
+    for v in obj.data.vertices:
+        for g in v.groups:
+            if g.weight > 0.0:
+                weighted.add(g.group)
+    return weighted
+
+def has_vertex_weights(obj, vertex_group, weighted_indices=None):
+    if weighted_indices is not None:
+        return vertex_group.index in weighted_indices
+
+    # Fallback for callers that don't precompute indices.
+    group_index = vertex_group.index
+    for v in obj.data.vertices:
+        for g in v.groups:
+            if g.group == group_index and g.weight > 0.0:
+                return True
+    return False
