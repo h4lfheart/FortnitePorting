@@ -470,9 +470,6 @@ public partial class AssetLoader : ObservableObject
                 {
                     if (sortType is EAssetSortType.Series && assetItem.Series is null)
                         return false;
-                
-                    if (sortType is EAssetSortType.Season && assetItem.Season == AssetItem.INVALID_SEASON)
-                        return false;
                 }
 
                 return assetItem.Match(searchFilter, useRegex)
