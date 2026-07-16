@@ -46,7 +46,7 @@ public partial class TimeWasterViewModel : ViewModelBase
     [ObservableProperty] private TransformGroup _spaceTransform;
     [ObservableProperty] private TransformGroup _barsTransform;
     
-    [ObservableProperty] private ScaleTransform _scoreTextTransform = new(1, 1);
+    [ObservableProperty] private ScaleTransform? _scoreTextTransform;
 
     private float TimeSinceLastProjectile;
     private int NextBossScore = BOSS_SCORE_DISTANCE;
