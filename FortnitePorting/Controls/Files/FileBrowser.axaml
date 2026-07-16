@@ -94,31 +94,30 @@
                         </Style>
                     </ComboBox.Styles>
                 </ComboBox>
-                
+
                 <DropDownButton Grid.Column="2" HorizontalAlignment="Stretch" Margin="{ext:Space 0, 0, 1, 0}"
                                 IsVisible="{Binding UseFlatView}">
                     <DropDownButton.Flyout>
-                        <Flyout VerticalOffset="4">
-                            <ItemsControl ItemsSource="{Binding VfsFilterCollection}">
-                                <ItemsControl.ItemTemplate>
+                        <Flyout VerticalOffset="4" Opened="OnVfsFilterFlyoutOpened">
+                            <ListBox ItemsSource="{Binding VfsFilterCollection}"
+                                     SelectionMode="Multiple,Toggle"
+                                     SelectionChanged="OnVfsFilterSelectionChanged"
+                                     MinWidth="240"
+                                     MaxHeight="360"
+                                     BorderThickness="0"
+                                     Background="Transparent">
+                                <ListBox.ItemTemplate>
                                     <DataTemplate DataType="files:VfsFilterItem">
-                                        <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}"
-                                                  Content="{Binding Title}" />
+                                        <TextBlock Text="{Binding Title}" />
                                     </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <StackPanel VerticalAlignment="Stretch"
-                                                    HorizontalAlignment="Stretch" />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                            </ItemsControl>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
                         </Flyout>
                     </DropDownButton.Flyout>
 
                     <StackPanel Orientation="Horizontal">
                         <material:MaterialIcon Kind="PackageVariant" Margin="{ext:Space 0, 0, 1, 0}" />
-                        <TextBlock Text="Container Filters" />
+                        <TextBlock Text="Containers" />
                     </StackPanel>
                 </DropDownButton>
 
@@ -333,12 +332,17 @@
                                                                   Command="{Binding SendToChatCommand}" />
                                                     </ContextMenu>
                                                 </ContentControl.ContextMenu>
-                                                <controls:HighlightableTextBlock
-                                                    HighlightBackground="#A9953BF8"
-                                                    HighlightForeground="White"
-                                                    TextToHighlight="{Binding Path}"
-                                                    HighlightText="{Binding $parent[controls1:FileBrowser].Context.FlatSearchFilter}"
-                                                    UseRegex="{Binding $parent[controls1:FileBrowser].Context.UseRegex}" />
+                                                <Panel>
+                                                    <TextBlock Text="{Binding Path}"
+                                                               IsVisible="{Binding $parent[controls1:FileBrowser].Context.ShowFlatPathPlain}" />
+                                                    <controls:HighlightableTextBlock
+                                                        IsVisible="{Binding $parent[controls1:FileBrowser].Context.HasFlatSearchFilter}"
+                                                        HighlightBackground="#A9953BF8"
+                                                        HighlightForeground="White"
+                                                        TextToHighlight="{Binding Path}"
+                                                        HighlightText="{Binding $parent[controls1:FileBrowser].Context.FlatSearchFilter}"
+                                                        UseRegex="{Binding $parent[controls1:FileBrowser].Context.UseRegex}" />
+                                                </Panel>
                                             </ContentControl>
                                         </DataTemplate>
                                     </ListBox.ItemTemplate>
@@ -349,7 +353,8 @@
                                     </ListBox.ItemsPanel>
                                 </ListBox>
 
-                                <TextBlock IsVisible="{Binding !FlatViewCollection.Count}" Text="No Files Found"
+                                <TextBlock IsVisible="{Binding !FlatViewCollection.Count}"
+                                           Text="{Binding FlatViewEmptyMessage}"
                                            Classes="BodyTextBlockStyle TextFillColorTertiaryBrush"
                                            HorizontalAlignment="Center" VerticalAlignment="Center" />
                             </Grid>
