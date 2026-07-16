@@ -179,7 +179,7 @@ public partial class CUE4ParseService : ObservableObject, IService, IResettable
         if (AppSettings.Application.UseDefaultExportLoadType)
             await AssetLoading.Load(AppSettings.Application.DefaultExportLoadType);
 
-        Files.Initialize();
+        await Files.Initialize();
         await FilesVM.Initialize();
     }
 

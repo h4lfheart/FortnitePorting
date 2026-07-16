@@ -28,6 +28,8 @@ namespace FortnitePorting.Models.Files;
 
 public partial class FileBrowserContext : ObservableObject
 {
+    private static readonly TimeSpan RegexMatchTimeout = TimeSpan.FromMilliseconds(250);
+
     [ObservableProperty, NotifyPropertyChangedFor(nameof(SearchText))] private string _flatSearchText = string.Empty;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(SearchText))] private string _fileSearchText = string.Empty;
 
@@ -43,7 +45,8 @@ public partial class FileBrowserContext : ObservableObject
         }
     }
 
-    [ObservableProperty] private string _flatSearchFilter = string.Empty;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(HasFlatSearchFilter), nameof(ShowFlatPathPlain), nameof(FlatViewEmptyMessage))]
+    private string _flatSearchFilter = string.Empty;
     [ObservableProperty] private string _fileSearchFilter = string.Empty;
     
     [ObservableProperty] private bool _isDragDropEnabled = false;
@@ -71,6 +74,12 @@ public partial class FileBrowserContext : ObservableObject
         UseFlatView ? MaterialIconKind.Folder : MaterialIconKind.FormatListBulleted;
     public string FlatViewToggleToolTip => UseFlatView ? "File View" : "Flat View";
 
+    public bool HasFlatSearchFilter => !string.IsNullOrWhiteSpace(FlatSearchFilter);
+    public bool ShowFlatPathPlain => !HasFlatSearchFilter;
+    public string FlatViewEmptyMessage => HasFlatSearchFilter
+        ? "No Files Found"
+        : "Search or select a container to find files";
+
     [ObservableProperty] private bool _useRegex = false;
 
     [ObservableProperty] private ObservableCollection<FlatItem> _selectedFlatViewItems = [];
@@ -97,6 +106,7 @@ public partial class FileBrowserContext : ObservableObject
 
     private readonly Stack<TreeItem> _backStack = new();
     private readonly Stack<TreeItem> _forwardStack = new();
+    private readonly HashSet<FlatItem> _selectedFlatViewSet = [];
 
     private readonly TreeItem _parentTreeItem = new("Files", ENodeType.Folder)
     {
@@ -125,6 +135,7 @@ public partial class FileBrowserContext : ObservableObject
         SelectedFileViewItems = [];
         VfsFilterCollection = [];
         FlatViewCollection = new ReadOnlyObservableCollection<FlatItem>([]);
+        _selectedFlatViewSet.Clear();
 
         _backStack.Clear();
         _forwardStack.Clear();
@@ -156,6 +167,7 @@ public partial class FileBrowserContext : ObservableObject
             .ObserveOn(RxApp.TaskpoolScheduler)
             .Filter(assetFilter)
             .Sort(SortExpressionComparer<FlatItem>.Ascending(x => x.Path))
+            .ObserveOn(RxApp.MainThreadScheduler)
             .Bind(out var flatCollection)
             .Subscribe();
 
@@ -175,8 +187,37 @@ public partial class FileBrowserContext : ObservableObject
         
         CurrentFolder = _parentTreeItem;
 
-        SelectedFileViewItems.CollectionChanged += (sender, args) => OnPropertyChanged(nameof(HasSelectedFiles));
-        SelectedFlatViewItems.CollectionChanged += (sender, args) => OnPropertyChanged(nameof(HasSelectedFiles));
+        SelectedFileViewItems.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasSelectedFiles));
+        AttachFlatSelectionTracking(SelectedFlatViewItems);
+    }
+
+    public bool IsFlatItemSelected(FlatItem item) => _selectedFlatViewSet.Contains(item);
+
+    partial void OnSelectedFlatViewItemsChanged(ObservableCollection<FlatItem> value)
+    {
+        AttachFlatSelectionTracking(value);
+        OnPropertyChanged(nameof(HasSelectedFiles));
+    }
+
+    private void AttachFlatSelectionTracking(ObservableCollection<FlatItem> collection)
+    {
+        collection.CollectionChanged -= OnFlatSelectionCollectionChanged;
+        collection.CollectionChanged += OnFlatSelectionCollectionChanged;
+        SyncSelectedFlatViewSet(collection);
+    }
+
+    private void OnFlatSelectionCollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+    {
+        if (sender is ObservableCollection<FlatItem> collection)
+            SyncSelectedFlatViewSet(collection);
+        OnPropertyChanged(nameof(HasSelectedFiles));
+    }
+
+    private void SyncSelectedFlatViewSet(ObservableCollection<FlatItem> collection)
+    {
+        _selectedFlatViewSet.Clear();
+        foreach (var item in collection)
+            _selectedFlatViewSet.Add(item);
     }
     
     public string[] GetSelectedFilePaths() => UseFlatView
@@ -188,13 +229,7 @@ public partial class FileBrowserContext : ObservableObject
             .Select(x => x.FilePath)
             .ToArray();
 
-    public void JumpTo(string path)
-    {
-        if (UseFlatView)
-            FlatViewJumpTo(path);
-        else
-            FileViewJumpTo(path);
-    }
+    public void JumpTo(string path) => FileViewJumpTo(path);
 
     public void ClearSearchFilter()
     {
@@ -315,17 +350,6 @@ public partial class FileBrowserContext : ObservableObject
             SelectedFileViewItems = [fileItem];
     }
 
-    public void FlatViewJumpTo(string directory)
-    {
-        var foundItem = AppServices.Files.FlatViewAssetCache.Lookup(directory);
-        if (!foundItem.HasValue) return;
-
-        FlatSearchFilter = string.Empty;
-        FlatSearchText = string.Empty;
-        SelectedFlatViewItems = [foundItem.Value];
-        UseFlatView = true;
-    }
-
     public TreeItem? TreeViewJumpTo(string directory)
     {
         var parts = directory.Split('/', StringSplitOptions.RemoveEmptyEntries);
@@ -411,16 +435,34 @@ public partial class FileBrowserContext : ObservableObject
             .Select(x => x.VfsName)
             .ToHashSet();
 
+        var hasFilter = !string.IsNullOrWhiteSpace(filter);
+        if (!hasFilter && activeVfs.Count == 0)
+            return _ => false;
+
         return asset =>
         {
-            var pathMatch = useRegex
-                ? Regex.IsMatch(asset.Path, filter)
-                : MiscExtensions.Filter(asset.Path, filter);
-
             var vfsMatch = activeVfs.Count == 0
                            || activeVfs.Contains(asset.VfsName);
+            if (!vfsMatch)
+                return false;
 
-            return pathMatch && vfsMatch;
+            if (!hasFilter)
+                return true;
+
+            try
+            {
+                return useRegex
+                    ? Regex.IsMatch(asset.Path, filter, RegexOptions.None, RegexMatchTimeout)
+                    : MiscExtensions.Filter(asset.Path, filter);
+            }
+            catch (RegexMatchTimeoutException)
+            {
+                return false;
+            }
+            catch (ArgumentException)
+            {
+                return false;
+            }
         };
     }
 
@@ -445,9 +487,20 @@ public partial class FileBrowserContext : ObservableObject
             .Where(item =>
             {
                 if (string.IsNullOrWhiteSpace(FileSearchFilter)) return true;
-                return UseRegex
-                    ? Regex.IsMatch(item.FilePath, FileSearchFilter)
-                    : MiscExtensions.Filter(item.FilePath, FileSearchFilter);
+                try
+                {
+                    return UseRegex
+                        ? Regex.IsMatch(item.FilePath, FileSearchFilter, RegexOptions.None, RegexMatchTimeout)
+                        : MiscExtensions.Filter(item.FilePath, FileSearchFilter);
+                }
+                catch (RegexMatchTimeoutException)
+                {
+                    return false;
+                }
+                catch (ArgumentException)
+                {
+                    return false;
+                }
             })
             .Where(item =>
             {
