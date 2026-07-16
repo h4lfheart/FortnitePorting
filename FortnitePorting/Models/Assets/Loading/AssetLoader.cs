@@ -485,14 +485,26 @@ public partial class AssetLoader : ObservableObject
     private static SortExpressionComparer<BaseAssetItem> CreateAssetSort((EAssetSortType, bool) values)
     {
         var (type, descending) = values;
+
+        if (type is EAssetSortType.Season)
+        {
+            // keep invalid seasons at the bottom regardless of ascending/descending.
+            var comparer = SortExpressionComparer<BaseAssetItem>.Ascending(asset =>
+                asset is AssetItem { Season: AssetItem.INVALID_SEASON } ? 1 : 0);
+
+            Func<BaseAssetItem, IComparable> seasonSort = asset =>
+                asset is AssetItem assetItem
+                    ? (assetItem.Season, assetItem.CreationData.ID)
+                    : (0, asset.CreationData.ID);
+
+            return descending
+                ? comparer.ThenByDescending(seasonSort)
+                : comparer.ThenByAscending(seasonSort);
+        }
+
         Func<BaseAssetItem, IComparable> sort = type switch
         {
             EAssetSortType.AZ => asset => asset.CreationData.DisplayName,
-
-            EAssetSortType.Season => asset =>
-                asset is AssetItem assetItem
-                    ? (assetItem.Season, assetItem.CreationData.ID)
-                    : (0, asset.CreationData.ID),
 
             EAssetSortType.Rarity => asset =>
                 asset is AssetItem assetItem
