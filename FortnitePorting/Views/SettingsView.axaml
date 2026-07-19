@@ -7,6 +7,7 @@
              xmlns:settings="clr-namespace:FortnitePorting.Views.Settings"
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
              xmlns:sidebar="clr-namespace:FortnitePorting.Controls.Navigation.Sidebar"
+             xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              d:DesignHeight="770" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.SettingsView"
              x:DataType="viewModels:SettingsViewModel">
@@ -24,12 +25,28 @@
                 <sidebar:SidebarItemButton Text="Developer" Icon="Bug" Tag="{x:Type settings:DeveloperSettingsView}" IsVisible="{Binding Settings.Application.ShowDeveloperSettings}"/>
             </sidebar:Sidebar.Items>
             <sidebar:Sidebar.Footer>
-                <StackPanel Spacing="{ext:Space 1.5}">
-                    <Button Content="{controls:IconText 'Open Data Folder', Folder}" Command="{Binding OpenDataFolderCommand}" HorizontalAlignment="Stretch"/> 
-                    <Button Content="{controls:IconText 'Save Settings', ContentSave}" Command="{Binding SaveCommand}" HorizontalAlignment="Stretch"/> 
-                    <Button Content="{controls:IconText 'Reset Settings', Trash}" Command="{Binding ResetCommand}" HorizontalAlignment="Stretch"/> 
-                    <Button Content="{controls:IconText 'Restart Application', Restart}" Command="{Binding RestartApplicationCommand}" HorizontalAlignment="Stretch"/> 
-                </StackPanel>
+                <DropDownButton HorizontalAlignment="Stretch">
+                    <DropDownButton.Flyout>
+                        <MenuFlyout Placement="Top">
+                            <MenuItem Header="Open Data Folder"
+                                      Icon="{material:MaterialIconExt Folder}"
+                                      Command="{Binding OpenDataFolderCommand}" />
+                            <MenuItem Header="Clear Cache"
+                                      Icon="{material:MaterialIconExt DeleteSweep}"
+                                      Command="{Binding ClearCacheCommand}" />
+                            <MenuItem Header="Save Settings"
+                                      Icon="{material:MaterialIconExt ContentSave}"
+                                      Command="{Binding SaveCommand}" />
+                            <MenuItem Header="Reset Settings"
+                                      Icon="{material:MaterialIconExt Trash}"
+                                      Command="{Binding ResetCommand}" />
+                            <MenuItem Header="Restart Application"
+                                      Icon="{material:MaterialIconExt Restart}"
+                                      Command="{Binding RestartApplicationCommand}" />
+                        </MenuFlyout>
+                    </DropDownButton.Flyout>
+                    <controls:IconText Text="Utilities" Icon="Wrench" />
+                </DropDownButton>
             </sidebar:Sidebar.Footer>
         </sidebar:Sidebar>
         
