@@ -2,8 +2,10 @@ using System;
 using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.VisualTree;
 using FortnitePorting.Controls.Navigation.Sidebar;
 using FortnitePorting.Controls.WrapPanel;
 using FortnitePorting.Framework;
@@ -145,6 +147,16 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
 
         assetStyleInfo.SelectedStyleIndex = -1;
         assetStyleInfo.SelectedItems.Clear();
+    }
+
+    private void OnStyleFlyoutItemPointerReleased(object? sender, PointerReleasedEventArgs e)
+    {
+        if (sender is not ListBox listBox) return;
+        if (e.InitialPressMouseButton != MouseButton.Left) return;
+        if (e.Source is not Control source || source.FindAncestorOfType<ListBoxItem>() is null) return;
+
+        if (listBox.FindAncestorOfType<FlyoutPresenter>()?.Parent is Popup popup)
+            popup.IsOpen = false;
     }
 
     private void OnAssetItemPressed(object? sender, PointerPressedEventArgs e)

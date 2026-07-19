@@ -398,7 +398,8 @@
                                                                              SelectedItems="{Binding SelectedItems}"
                                                                              SelectedIndex="{Binding SelectedStyleIndex, Mode=TwoWay}"
                                                                              ItemsSource="{Binding StyleDatas}"
-                                                                             HorizontalAlignment="Stretch">
+                                                                             HorizontalAlignment="Stretch"
+                                                                             PointerReleased="OnStyleFlyoutItemPointerReleased">
                                                                         <ListBox.ItemsPanel>
                                                                             <ItemsPanelTemplate>
                                                                                 <StackPanel VerticalAlignment="Top"
