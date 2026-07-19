@@ -23,8 +23,25 @@ public partial class WorldPartitionGrid : ObservableObject
 
     [ObservableProperty, NotifyPropertyChangedFor(nameof(GridBrush))] private bool _isSelected;
 
-    public SolidColorBrush GridBrush => IsSelected ? SolidColorBrush.Parse("#00CFFF"): SolidColorBrush.Parse("#808080");
-    
+    public SolidColorBrush GridBrush
+    {
+        get
+        {
+            if (!IsSelected)
+                return SolidColorBrush.Parse("#808080");
+
+            if (Maps.Any(map => map.Status == EWorldPartitionGridMapStatus.Exporting))
+                return SolidColorBrush.Parse("#FFBA00");
+
+            if (Maps.Count > 0 && Maps.All(map => map.Status == EWorldPartitionGridMapStatus.Finished))
+                return SolidColorBrush.Parse("#00FF00");
+
+            if (Maps.Any(map => map.Status == EWorldPartitionGridMapStatus.Waiting))
+                return SolidColorBrush.Parse("#FF0000");
+
+            return SolidColorBrush.Parse("#00CFFF");
+        }
+    }
 
     public MapInfo MapInfo;
 
@@ -36,6 +53,13 @@ public partial class WorldPartitionGrid : ObservableObject
         Position = new FVector(rotatedPosition.X, rotatedPosition.Y, 0);
         MapInfo = mapInfo;
         CellSize = (int)(mapInfo.MinGridDistance * mapInfo.Scale / 2);
+    }
+
+    public void AddMap(string path)
+    {
+        var map = new WorldPartitionGridMap(path);
+        map.StatusChanged += (_, _) => OnPropertyChanged(nameof(GridBrush));
+        Maps.Add(map);
     }
     
     public Vector2 RotateAboutOrigin(Vector2 point, Vector2 origin)

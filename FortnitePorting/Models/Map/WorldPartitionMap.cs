@@ -141,12 +141,12 @@ public partial class WorldPartitionMap : ObservableObject
                 
                     if (Grids.FirstOrDefault(grid => grid.OriginalPosition == position) is { } targetGrid)
                     {
-                        targetGrid.Maps.Add(new WorldPartitionGridMap(worldAsset.AssetPathName.Text));
+                        targetGrid.AddMap(worldAsset.AssetPathName.Text);
                     }
                     else
                     {
                         var grid = new WorldPartitionGrid(position, MapInfo);
-                        grid.Maps.Add(new WorldPartitionGridMap(worldAsset.AssetPathName.Text));
+                        grid.AddMap(worldAsset.AssetPathName.Text);
                         Grids.Add(grid);
                     }
                 }
@@ -168,12 +168,12 @@ public partial class WorldPartitionMap : ObservableObject
 
                     if (Grids.FirstOrDefault(grid => grid.OriginalPosition == position) is { } targetGrid)
                     {
-                        targetGrid.Maps.Add(new WorldPartitionGridMap(worldAsset.AssetPathName.Text));
+                        targetGrid.AddMap(worldAsset.AssetPathName.Text);
                     }
                     else
                     {
                         var grid = new WorldPartitionGrid(position, MapInfo);
-                        grid.Maps.Add(new WorldPartitionGridMap(worldAsset.AssetPathName.Text));
+                        grid.AddMap(worldAsset.AssetPathName.Text);
                         Grids.Add(grid);
                     }
                 }
