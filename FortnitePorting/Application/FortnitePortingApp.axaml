@@ -52,6 +52,7 @@
             <Brush x:Key="ExpanderHeaderBorderBrush">#78575757</Brush>
             <Brush x:Key="ExpanderHeaderPointerOverBorderBrush">#78575757</Brush>
             <Brush x:Key="ExpanderContentBorderBrush">#78575757</Brush>
+            <Brush x:Key="SkeletonBrush">#10FFFFFF</Brush>
 
             <FontFamily x:Key="SFTextLight">avares://FortnitePorting/Assets/Fonts/SF/SF-Pro-Text-Light.otf#SF Pro Text</FontFamily>
             <FontFamily x:Key="SFTextRegular">avares://FortnitePorting/Assets/Fonts/SF/SF-Pro-Text-Regular.otf#SF Pro Text</FontFamily>

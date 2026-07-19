@@ -14,6 +14,7 @@ public class APIService : IService
 {
     public readonly FortnitePortingAPI FortnitePorting;
     public readonly EpicGamesAPI EpicGames;
+    public readonly DillyAPI Dilly;
     
     public APIService()
     {
@@ -32,6 +33,7 @@ public class APIService : IService
         
         FortnitePorting = new FortnitePortingAPI(fpClient);
         EpicGames = new EpicGamesAPI(_client);
+        Dilly = new DillyAPI(_client);
     }
 
     protected readonly RestClient _client;
@@ -108,20 +110,22 @@ public class APIService : IService
         return new FileInfo(destination);
     }
 
-    public async Task<FileInfo> DownloadFileAsync(string url, DirectoryInfo destination)
+    public async Task<FileInfo?> DownloadFileAsync(string url, DirectoryInfo destination)
     {
         var outPath = Path.Combine(destination.FullName, Path.GetFileName(url));
         Log.Information("Downloading {url} to {destination}", url, outPath);
         
         var request = new RestRequest(url);
         var data = await _client.DownloadDataAsync(request);
-        
-        if (data is not null) 
+
+        if (data is not null)
+        {
             await File.WriteAllBytesAsync(outPath, data);
-        else 
-            Log.Information("Failed to download {url} to {destination}", url, destination);
+            return new FileInfo(outPath);
+        }
         
-        return new FileInfo(outPath);
+        Log.Information("Failed to download {url} to {destination}", url, destination);
+        return null;
     }
     
     public FileInfo DownloadFile(string url, DirectoryInfo destination)

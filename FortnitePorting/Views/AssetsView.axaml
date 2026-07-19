@@ -285,6 +285,8 @@
                                                             Height="{Binding Settings.Application.AssetScale, 
                                                         Converter={StaticResource Scale}, ConverterParameter='80'}">
                                                         <Grid>
+                                                            <Border Background="{StaticResource SkeletonBrush}"
+                                                                    IsVisible="{Binding BackgroundImage, Converter={x:Static ObjectConverters.IsNull}}" />
                                                             <Image Stretch="UniformToFill"
                                                                    Source="{Binding BackgroundImage}"
                                                                    RenderOptions.BitmapInterpolationMode="LowQuality" />

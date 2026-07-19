@@ -43,7 +43,7 @@ public partial class AssetLoader : ObservableObject
     public bool HideRarity;
     public Func<AssetLoader, UObject, string, bool> HidePredicate = (loader, asset, name) => false;
     public Action<AssetLoader, UObject, string> AddStyleHandler = (loader, asset, name) => {};
-    public string PlaceholderIconPath = "FortniteGame/Content/Athena/Prototype/Textures/T_Placeholder_Generic";
+    public string PlaceholderIconPath = "FortniteGame/Content/Global/Textures/Default/DefaultUI/T_Placeholder_Generic";
     public Func<UObject, UTexture2D?> LowResIconHandler = GetLowResIcon;
     public Func<UObject, UTexture2D?> HighResIconHandler = GetHighResIcon;
     public Func<UObject, string?> DisplayNameHandler = asset => asset.GetAnyOrDefault<FText?>("DisplayName", "ItemName")?.Text;

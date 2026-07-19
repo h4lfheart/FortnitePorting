@@ -85,13 +85,31 @@ public class AssetItem : Base.BaseAssetItem
     public async Task LoadBitmapAsync()
     {
         if (CreationData.IconPath is not { } iconPath) return;
-        
-        var texture = await UEParse.Provider!.SafeLoadPackageObjectAsync<UTexture2D>(iconPath);
-        using var iconBitmap = texture?.Decode()?.ToSkBitmap();
-        if (iconBitmap is null) return;
-        
-        IconDisplayImage = iconBitmap.ToWriteableBitmap();
+
+        IconDisplayImage = await TryLoadIconBitmapAsync(iconPath);
+
+        if (IconDisplayImage is null)
+        {
+            var placeholderPath = AssetLoading.Get(CreationData.ExportType).PlaceholderIconPath;
+            if (!string.Equals(iconPath, placeholderPath, StringComparison.OrdinalIgnoreCase))
+                IconDisplayImage = await TryLoadIconBitmapAsync(placeholderPath);
+        }
+
         BackgroundImage = CreateBackgroundImage();
+    }
+
+    private static async Task<WriteableBitmap?> TryLoadIconBitmapAsync(string iconPath)
+    {
+        try
+        {
+            var texture = await UEParse.Provider!.SafeLoadPackageObjectAsync<UTexture2D>(iconPath);
+            using var iconBitmap = texture?.Decode()?.ToSkBitmap();
+            return iconBitmap?.ToWriteableBitmap();
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     protected sealed override WriteableBitmap CreateBackgroundImage()

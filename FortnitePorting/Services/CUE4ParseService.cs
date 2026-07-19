@@ -221,7 +221,7 @@ public partial class CUE4ParseService : ObservableObject, IService, IResettable
         Provider.ReadNaniteData = AppSettings.Installation.CurrentProfile.LoadNaniteData;
         Provider.OnDemandOptions = new IoStoreOnDemandOptions
         {
-            ChunkHostUri = new Uri("https://download.epicgames.com/", UriKind.Absolute),
+            ChunkHostUri = new Uri("https://egdownload.fastly-edge.com/", UriKind.Absolute),
             ChunkCacheDirectory = CacheFolder,
             Authorization = new AuthenticationHeaderValue("Bearer", AppSettings.Application.EpicAuth?.Token),
             Timeout = TimeSpan.FromSeconds(AppSettings.Developer.RequestTimeoutSeconds)
@@ -298,18 +298,26 @@ public partial class CUE4ParseService : ObservableObject, IService, IResettable
 
                 var options = new ManifestParseOptions
                 {
-                    ChunkBaseUrl = "http://download.epicgames.com/Builds/Fortnite/CloudDir/",
+                    ChunkBaseUrl = "https://egdownload.fastly-edge.com/Builds/Fortnite/CloudDir/",
                     ChunkCacheDirectory = CacheFolder.FullName,
                     ManifestCacheDirectory = CacheFolder.FullName,
-                    Decompressor = ManifestZlibStreamDecompressor.Decompress,
-                    DecompressorState = ZlibHelper.Instance,
+                    Decompressor = Compression.Decompressor,
                     CacheChunksAsIs = true
                 };
                 
                 var (manifest, element) = await manifestInfo.DownloadAndParseAsync(options);
                 LiveManifest = manifest;
-
                 await Provider.RegisterFiles(manifest);
+                
+                var manifests = await Api.Dilly.Manifests();
+                if (manifests.FirstOrDefault(x => x.AppName == "Fortnite_Studio")?.DownloadUrl is { } studioDownloadUrl
+                    && await Api.DownloadFileAsync(studioDownloadUrl, CacheFolder) is { } studioManifestFile)
+                {
+                    var studioManifestBytes = await File.ReadAllBytesAsync(studioManifestFile.FullName);
+                    var studioManifest = FBuildPatchAppManifest.Deserialize(studioManifestBytes, options);
+                    await Provider.RegisterFiles(studioManifest);
+                }
+
                 
                 break;
             }
@@ -325,7 +333,8 @@ public partial class CUE4ParseService : ObservableObject, IService, IResettable
     private async Task InitializeTextureStreaming()
     {
         if (AppSettings.Installation.CurrentProfile.FortniteVersion is not (EFortniteVersion.LatestInstalled or EFortniteVersion.LatestOnDemand)) return;
-        if (!AppSettings.Installation.CurrentProfile.UseTextureStreaming) return;
+        if (AppSettings.Installation.CurrentProfile.FortniteVersion is EFortniteVersion.LatestInstalled  
+            && !AppSettings.Installation.CurrentProfile.UseTextureStreaming) return;
 
         try
         {
@@ -393,7 +402,8 @@ public partial class CUE4ParseService : ObservableObject, IService, IResettable
         Provider.LoadVirtualPaths();
         Provider.PostMount();
         
-        if (!Provider.TryChangeCulture(Provider.GetLanguageCode(AppSettings.Installation.CurrentProfile.GameLanguage)))
+        if (AppSettings.Installation.CurrentProfile.GameLanguage is not ELanguage.English 
+            && !Provider.TryChangeCulture(Provider.GetLanguageCode(AppSettings.Installation.CurrentProfile.GameLanguage)))
         {
             Info.Message("Internationalization", $"Failed to load language \"{AppSettings.Installation.CurrentProfile.GameLanguage.Description}\"");
         }
