@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -20,10 +21,14 @@ using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using DynamicData;
+using FluentAvalonia.UI.Controls;
 using FortnitePorting.Exporting;
+using FortnitePorting.Exporting.Heightmaps;
 using FortnitePorting.Extensions;
 using FortnitePorting.Models.Unreal.Landscape;
+using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
+using Serilog;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
@@ -31,7 +36,6 @@ using SixLabors.ImageSharp.Processing;
 using ImageExtensions = FortnitePorting.Extensions.ImageExtensions;
 
 namespace FortnitePorting.Models.Map;
-
 
 public partial class WorldPartitionMap : ObservableObject
 {
@@ -48,6 +52,12 @@ public partial class WorldPartitionMap : ObservableObject
     [ObservableProperty] private bool _worldFlagsHLODs = false;
 
     [ObservableProperty] private bool _includeMainLevel;
+
+    public int[] GeometryHeightmapResolutions => GeometryHeightmapGenerationOptions.ExportResolutions;
+    [ObservableProperty] private int _geometryHeightmapResolution = 2048;
+    [ObservableProperty] private bool _geometryHeightmapIncludeActors = true;
+    [ObservableProperty] private bool _geometryHeightmapIncludeSpawnIsland;
+    [ObservableProperty] private bool _geometryHeightmapIsGenerating;
     
     [ObservableProperty] private ObservableCollection<WorldPartitionGridMap> _selectedMaps = [];
     
@@ -58,9 +68,11 @@ public partial class WorldPartitionMap : ObservableObject
     
     private UWorld? _world;
     private ULevel? _level;
+    private CancellationTokenSource? _geometryHeightmapCancellationTokenSource;
 
     public void Detach()
     {
+        _geometryHeightmapCancellationTokenSource?.Cancel();
         _world = null;
         _level = null;
         MapBitmap?.Dispose();
@@ -94,7 +106,10 @@ public partial class WorldPartitionMap : ObservableObject
         WorldName = MapInfo.MapPath.SubstringAfterLast("/");
         
         _world = await UEParse.Provider.SafeLoadPackageObjectAsync<UWorld>(MapInfo.MapPath);
+        if (_world is null) return;
+
         _level = await _world.PersistentLevel.LoadAsync<ULevel>();
+        if (_level is null) return;
 
         async Task RuntimeHash(UObject runtimeHash)
         {
@@ -245,11 +260,7 @@ public partial class WorldPartitionMap : ObservableObject
     public async Task Export()
     {
         var meta = AppSettings.ExportSettings.CreateExportMeta(MapVM.ExportLocation);
-        meta.WorldFlags = 0;
-        if (WorldFlagsActors) meta.WorldFlags |= EWorldFlags.Actors;
-        if (WorldFlagsInstancedFoliage) meta.WorldFlags |= EWorldFlags.InstancedFoliage;
-        if (WorldFlagsLandscape) meta.WorldFlags |= EWorldFlags.Landscape;
-        if (WorldFlagsHLODs) meta.WorldFlags |= EWorldFlags.HLODs;
+        meta.WorldFlags = GetSelectedWorldFlags();
 
         SelectedMaps.ForEach(map => map.Status = EWorldPartitionGridMapStatus.Waiting);
         
@@ -281,6 +292,195 @@ public partial class WorldPartitionMap : ObservableObject
     }
 
     [RelayCommand]
+    public async Task GenerateGeometryHeightmap()
+    {
+        if (GeometryHeightmapIsGenerating) return;
+        if (_world is not { } mainWorld)
+        {
+            Info.Message("Heightmap", "Map data is not loaded.", InfoBarSeverity.Error);
+            return;
+        }
+
+        var includeActors = GeometryHeightmapIncludeActors;
+        var geometryWorldFlags = EWorldFlags.Landscape;
+        if (includeActors)
+            geometryWorldFlags |= EWorldFlags.Actors;
+
+        if (GeometryHeightmapResolution >= GeometryHeightmapGenerationOptions.ExtremeResolutionWarningThreshold)
+        {
+            Info.Message(
+                "Heightmap",
+                $"{GeometryHeightmapResolution:N0} heightmaps are very large and can use several GB of memory. Close other heavy apps before generating.",
+                InfoBarSeverity.Warning,
+                closeTime: 10);
+        }
+        else if (GeometryHeightmapResolution >= GeometryHeightmapGenerationOptions.HighResolutionWarningThreshold)
+        {
+            Info.Message(
+                "Heightmap",
+                "High resolution heightmaps can take a while and use a lot of memory.",
+                InfoBarSeverity.Warning,
+                closeTime: 6);
+        }
+
+        var outputPath = ExportPath;
+        var messageId = $"geometry-heightmap:{WorldName}";
+        var includeSpawnIsland = GeometryHeightmapIncludeSpawnIsland;
+        var selectedMaps = includeActors
+            ? GetGeometryHeightmapMaps(includeSpawnIsland)
+            : [];
+        var options = new GeometryHeightmapGenerationOptions(
+            GeometryHeightmapResolution,
+            includeActors,
+            new GeometryHeightmapTrimSettings(),
+            $"Height_Geometry_{WorldName}_{GeometryHeightmapResolution}x.png",
+            includeSpawnIsland,
+            true,
+            !includeSpawnIsland);
+
+        try
+        {
+            _geometryHeightmapCancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = _geometryHeightmapCancellationTokenSource.Token;
+
+            GeometryHeightmapIsGenerating = true;
+
+            selectedMaps.ForEach(map => map.Status = EWorldPartitionGridMapStatus.Waiting);
+
+            Info.CloseMessage(messageId);
+            Info.Message("Generating Heightmap", "Preparing Heightmap Generation...", autoClose: false, id: messageId);
+
+            IProgress<GeometryHeightmapProgress> progress = new Progress<GeometryHeightmapProgress>(update =>
+            {
+                var message = update.Total > 0
+                    ? $"{update.Stage}{Environment.NewLine}Progress: {update.Current:N0} / {update.Total:N0}"
+                    : update.Stage;
+
+                Info.UpdateMessage(messageId, message);
+            });
+
+            var exportData = await Task.Run(async () =>
+            {
+                var collector = new GeometryHeightmapCollector(geometryWorldFlags, includeSpawnIsland, cancellationToken: cancellationToken);
+                var instances = new List<GeometryHeightmapMeshInstance>();
+                var totalChunks = selectedMaps.Length + 1;
+                var completedChunks = 0;
+
+                void ReportCollectingPackage(string packageName)
+                {
+                    progress.Report(new GeometryHeightmapProgress($"Collecting: {packageName}", completedChunks + 1, totalChunks));
+                }
+
+                void ReportChunkComplete()
+                {
+                    completedChunks++;
+                }
+
+                ReportCollectingPackage(WorldName);
+                instances.AddRange(collector.Collect([mainWorld], includeStreamingLevels: false));
+                ReportChunkComplete();
+
+                for (var index = 0; index < selectedMaps.Length; index++)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    var map = selectedMaps[index];
+                    ReportCollectingPackage(map.Name);
+                    await TaskService.RunDispatcherAsync(() => map.Status = EWorldPartitionGridMapStatus.Exporting);
+
+                    var world = await UEParse.Provider.SafeLoadPackageObjectAsync<UWorld>(map.Path);
+                    if (world is null)
+                    {
+                        await TaskService.RunDispatcherAsync(() => map.Status = EWorldPartitionGridMapStatus.None);
+                        ReportChunkComplete();
+                        continue;
+                    }
+
+                    instances.AddRange(collector.Collect([world]));
+                    await TaskService.RunDispatcherAsync(() => map.Status = EWorldPartitionGridMapStatus.Finished);
+                    ReportChunkComplete();
+                }
+
+                progress.Report(new GeometryHeightmapProgress("Generating Heightmap"));
+                var exportData = new GeometryHeightmapGenerator().Generate(instances, outputPath, options, progress, cancellationToken);
+
+                return exportData;
+            }, cancellationToken);
+
+            Info.CloseMessage(messageId);
+
+            Info.Message(
+                "Heightmap Generation Complete",
+                $"Rasterized {exportData.RasterizedMeshes:N0} Meshes",
+                InfoBarSeverity.Success,
+                autoClose: false,
+                id: messageId,
+                useButton: true,
+                buttonTitle: "Open",
+                buttonCommand: () => App.Launch(outputPath));
+        }
+        catch (OperationCanceledException)
+        {
+            Info.CloseMessage(messageId);
+            Info.Message("Heightmap Cancelled", "Generation was cancelled.", InfoBarSeverity.Warning, id: messageId);
+        }
+        catch (Exception exception)
+        {
+            Log.Error(exception, "Failed to generate geometry heightmap for {WorldName}", WorldName);
+            Info.CloseMessage(messageId);
+            Info.Message("Heightmap Failed", exception.Message, InfoBarSeverity.Error, autoClose: false, id: messageId);
+        }
+        finally
+        {
+            GeometryHeightmapIsGenerating = false;
+            selectedMaps.ForEach(map => map.Status = EWorldPartitionGridMapStatus.None);
+            _geometryHeightmapCancellationTokenSource?.Dispose();
+            _geometryHeightmapCancellationTokenSource = null;
+        }
+    }
+
+    [RelayCommand]
+    public void CancelGeometryHeightmap()
+    {
+        _geometryHeightmapCancellationTokenSource?.Cancel();
+    }
+
+    private EWorldFlags GetSelectedWorldFlags()
+    {
+        var flags = default(EWorldFlags);
+        if (WorldFlagsActors) flags |= EWorldFlags.Actors;
+        if (WorldFlagsInstancedFoliage) flags |= EWorldFlags.InstancedFoliage;
+        if (WorldFlagsLandscape) flags |= EWorldFlags.Landscape;
+        if (WorldFlagsHLODs) flags |= EWorldFlags.HLODs;
+
+        return flags;
+    }
+
+    private WorldPartitionGridMap[] GetGeometryHeightmapMaps(bool includeSpawnIsland)
+    {
+        var paths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var maps = new List<WorldPartitionGridMap>();
+        foreach (var map in Grids.SelectMany(grid => grid.Maps))
+        {
+            if (map.Path.Equals(MapInfo.MapPath, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            if (!includeSpawnIsland && IsSpawnIslandMap(map))
+                continue;
+
+            if (paths.Add(map.Path))
+                maps.Add(map);
+        }
+
+        return maps.ToArray();
+    }
+
+    private static bool IsSpawnIslandMap(WorldPartitionGridMap map)
+    {
+        return GeometryHeightmapCollector.IsSpawnIsland(map.Name, map.Path);
+    }
+
+    [RelayCommand]
     public async Task Refresh()
     {
         Grids.Clear();
@@ -290,6 +490,8 @@ public partial class WorldPartitionMap : ObservableObject
 
     private async Task ExportLandscapeMaps(EMapTextureExportType exportType)
     {
+        if (_level is not { } loadedLevel) return;
+
         var heightTileInfos = new List<MapTextureTileInfo>();
         var weightmapTileInfos = new Dictionary<string, List<MapTextureTileInfo>>();
         
@@ -343,11 +545,11 @@ public partial class WorldPartitionMap : ObservableObject
             return proxyDetectedCount;
         }
 
-        var proxyCount = await CollectTileInfos(_level);
+        var proxyCount = await CollectTileInfos(loadedLevel);
 
         if (proxyCount == 0)
         {
-            var worldSettings = _level.Get<UObject>("WorldSettings");
+            var worldSettings = loadedLevel.Get<UObject>("WorldSettings");
             var worldPartition = worldSettings.Get<UObject>("WorldPartition");
             var runtimeHash = worldPartition.Get<UObject>("RuntimeHash");
             foreach (var streamingGrid in runtimeHash.GetOrDefault("StreamingGrids", Array.Empty<FStructFallback>()))

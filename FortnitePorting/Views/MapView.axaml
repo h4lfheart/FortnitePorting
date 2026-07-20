@@ -47,7 +47,9 @@
                       VerticalAlignment="Stretch" HorizontalAlignment="Stretch" IsVisible="{Binding !UseMapInfoCreator}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
-                        <RowDefinition Height="{ext:Space 4}" />
+                        <RowDefinition Height="{ext:Space 2}" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="{ext:Space 2}" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
@@ -93,7 +95,61 @@
 
                     <Separator Grid.Row="1" HorizontalAlignment="Stretch" Margin="0" />
 
-                    <Grid Grid.Row="2" VerticalAlignment="Stretch">
+                    <StackPanel Grid.Row="2" Spacing="{ext:Space 1}">
+                        <TextBlock Text="Heightmap" Classes="BodyStrongTextBlockStyle"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+                        <ComboBox ToolTip.Tip="Heightmap Resolution"
+                                  HorizontalAlignment="Stretch"
+                                  IsEnabled="{Binding !SelectedMap.GeometryHeightmapIsGenerating}"
+                                  ItemsSource="{Binding SelectedMap.GeometryHeightmapResolutions}"
+                                  SelectedItem="{Binding SelectedMap.GeometryHeightmapResolution, Mode=TwoWay}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding StringFormat='Resolution: {0} px'}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="{ext:Space 1}" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <DropDownButton Grid.Column="0"
+                                            IsEnabled="{Binding !SelectedMap.GeometryHeightmapIsGenerating}">
+                                <DropDownButton.Flyout>
+                                    <MenuFlyout>
+                                        <MenuItem Header="Actors" Classes="Checked"
+                                                  ToolTip.Tip="Include buildings, trees, props, and other placed objects. Turn off for terrain only."
+                                                  IsChecked="{Binding SelectedMap.GeometryHeightmapIncludeActors, Mode=TwoWay}" />
+                                        <MenuItem Header="Spawn Island" Classes="Checked"
+                                                  IsChecked="{Binding SelectedMap.GeometryHeightmapIncludeSpawnIsland, Mode=TwoWay}" />
+                                    </MenuFlyout>
+                                </DropDownButton.Flyout>
+                                <StackPanel Orientation="Horizontal">
+                                    <material:MaterialIcon Kind="Flag" Margin="{ext:Space 0, 0, 1, 0}" />
+                                    <TextBlock Text="Flags" />
+                                </StackPanel>
+                            </DropDownButton>
+
+                            <Button Grid.Column="2" HorizontalAlignment="Stretch"
+                                    Command="{Binding SelectedMap.GenerateGeometryHeightmapCommand}"
+                                    IsVisible="{Binding !SelectedMap.GeometryHeightmapIsGenerating}"
+                                    Content="{controls:IconText 'Generate', Landscape}" />
+
+                            <Button Grid.Column="2" HorizontalAlignment="Stretch"
+                                    Command="{Binding SelectedMap.CancelGeometryHeightmapCommand}"
+                                    IsVisible="{Binding SelectedMap.GeometryHeightmapIsGenerating}"
+                                    Content="{controls:IconText 'Cancel', Close}" />
+                        </Grid>
+                    </StackPanel>
+
+                    <Separator Grid.Row="3" HorizontalAlignment="Stretch" Margin="0" />
+
+                    <Grid Grid.Row="4" VerticalAlignment="Stretch">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="{ext:Space 2}" />
