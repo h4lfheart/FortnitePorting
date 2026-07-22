@@ -52,7 +52,7 @@ public partial class BlenderInstallation(string blenderExecutablePath) : Observa
         "fortnite_porting_meta.json");
 
     public static readonly DirectoryInfo PluginWorkingDirectory = new(Path.Combine(App.PluginsFolder.FullName, "Blender"));
-    public static readonly Version MinimumVersion = new(5, 0);
+    public static readonly Version MinimumVersion = new(4, 5);
 
     public static Version GetVersion(string blenderPath)
     {

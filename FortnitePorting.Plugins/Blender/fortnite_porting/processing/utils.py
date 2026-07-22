@@ -6,6 +6,7 @@ from ..utils import *
 from math import radians
 from mathutils import Matrix, Vector, Euler, Quaternion
 from bpy_extras import anim_utils
+from ..export_profile import resolve_export_profile
 
 def merge_armatures(base_armature, extra_armatures):
     bpy.ops.object.select_all(action='DESELECT')
@@ -286,7 +287,12 @@ def clear_children_bone_transforms(skeleton, anim, bone_name):
             dispose_paths.append(f'pose.bones["{bone.name}"].scale')
             pose_bones[bone.name].matrix_basis = Matrix()
             
-        if len(anim.slots) > 0:
+        profile = resolve_export_profile(bpy.app.version)
+        if profile.uses_legacy_action_curves:
+            dispose_curves = [fcurve for fcurve in anim.fcurves if fcurve.data_path in dispose_paths]
+            for fcurve in dispose_curves:
+                anim.fcurves.remove(fcurve)
+        elif len(anim.slots) > 0:
             channelbag = anim_utils.action_ensure_channelbag_for_slot(anim, anim.slots[0])
             dispose_curves = [fcurve for fcurve in channelbag.fcurves if fcurve.data_path in dispose_paths]
             for fcurve in dispose_curves:
@@ -295,17 +301,20 @@ def clear_children_bone_transforms(skeleton, anim, bone_name):
 
 def set_geo_nodes_param(geo_node_modifier, name, value):
     identifier = geo_node_modifier.node_group.interface.items_tree[name].identifier
-    if bpy.app.version < (5, 2, 0):
+    if resolve_export_profile(bpy.app.version).uses_id_property_geo_nodes_inputs:
         geo_node_modifier[identifier] = value
     else:
         getattr(geo_node_modifier.properties.inputs, identifier).value = value
     
     
 def get_sequence_editor():
-    if not bpy.context.workspace.sequencer_scene:
-        bpy.context.workspace.sequencer_scene = bpy.context.scene
-        
-    seq_scene = bpy.context.workspace.sequencer_scene
+    profile = resolve_export_profile(bpy.app.version)
+    if profile.uses_scene_sequence_editor:
+        seq_scene = bpy.context.scene
+    else:
+        if not bpy.context.workspace.sequencer_scene:
+            bpy.context.workspace.sequencer_scene = bpy.context.scene
+        seq_scene = bpy.context.workspace.sequencer_scene
     
     if not seq_scene.sequence_editor:
         seq_scene.sequence_editor_create()
