@@ -11,12 +11,19 @@ SPEC.loader.exec_module(export_profile)
 
 
 class ExportProfileTests(unittest.TestCase):
-    def test_blender_45_uses_legacy_apis(self):
-        profile = export_profile.resolve_export_profile((4, 5, 8))
+    def test_blender_42_uses_legacy_pipeline(self):
+        profile = export_profile.resolve_export_profile((4, 2, 3))
 
-        self.assertEqual(profile.name, "Blender 4.5")
+        self.assertEqual(profile.name, "Blender 4.2-4.5")
         self.assertTrue(profile.uses_legacy_action_curves)
         self.assertTrue(profile.uses_scene_sequence_editor)
+        self.assertTrue(profile.uses_legacy_materials)
+
+    def test_blender_45_uses_legacy_pipeline(self):
+        profile = export_profile.resolve_export_profile((4, 5, 8))
+
+        self.assertEqual(profile.name, "Blender 4.2-4.5")
+        self.assertTrue(profile.uses_legacy_materials)
 
     def test_blender_50_uses_slotted_actions(self):
         profile = export_profile.resolve_export_profile((5, 0, 1))
@@ -24,6 +31,7 @@ class ExportProfileTests(unittest.TestCase):
         self.assertEqual(profile.name, "Blender 5.0-5.1")
         self.assertFalse(profile.uses_legacy_action_curves)
         self.assertTrue(profile.uses_id_property_geo_nodes_inputs)
+        self.assertFalse(profile.uses_legacy_materials)
 
     def test_blender_52_uses_new_geometry_nodes_inputs(self):
         profile = export_profile.resolve_export_profile((5, 2, 0))

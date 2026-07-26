@@ -28,7 +28,7 @@ class BaseImportContext:
         if bpy.context.mode != "OBJECT":
             bpy.ops.object.mode_set(mode='OBJECT')
 
-        ensure_blend_data()
+        self.load_blend_data()
 
         import_type = EPrimitiveExportType(data.get("PrimitiveType"))
         
@@ -48,6 +48,9 @@ class BaseImportContext:
             self.import_material_standalone(data)
         elif import_type == EPrimitiveExportType.TASTY_RIG:
             self.import_tasty_rig_standalone(data)
+
+    def load_blend_data(self):
+        ensure_blend_data()
 
     def gather_metadata(self, *search_props):
         out_props = {}

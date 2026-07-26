@@ -1,7 +1,10 @@
 import json
+import bpy
 from .context import ImportContext
+from .legacy.context import LegacyImportContext
 from ..server import Server
 from ..utils import addon_version
+from ..export_profile import resolve_export_profile
 
 
 class Importer:
@@ -19,7 +22,8 @@ class Importer:
             Importer._check_version(meta)
 
         for export in exports:
-            context = ImportContext(meta)
+            profile = resolve_export_profile(bpy.app.version)
+            context = (LegacyImportContext if profile.uses_legacy_materials else ImportContext)(meta)
             context.run(export)
 
     @staticmethod

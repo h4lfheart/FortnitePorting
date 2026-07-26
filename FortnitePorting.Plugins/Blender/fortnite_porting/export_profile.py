@@ -8,14 +8,16 @@ class BlenderExportProfile:
     uses_legacy_action_curves: bool
     uses_scene_sequence_editor: bool
     uses_id_property_geo_nodes_inputs: bool
+    uses_legacy_materials: bool
 
 
-BLENDER_45_PROFILE = BlenderExportProfile(
-    name="Blender 4.5",
-    minimum_version=(4, 5, 0),
+BLENDER_42_PROFILE = BlenderExportProfile(
+    name="Blender 4.2-4.5",
+    minimum_version=(4, 2, 0),
     uses_legacy_action_curves=True,
     uses_scene_sequence_editor=True,
     uses_id_property_geo_nodes_inputs=True,
+    uses_legacy_materials=True,
 )
 
 BLENDER_50_PROFILE = BlenderExportProfile(
@@ -24,6 +26,7 @@ BLENDER_50_PROFILE = BlenderExportProfile(
     uses_legacy_action_curves=False,
     uses_scene_sequence_editor=False,
     uses_id_property_geo_nodes_inputs=True,
+    uses_legacy_materials=False,
 )
 
 BLENDER_52_PROFILE = BlenderExportProfile(
@@ -32,6 +35,7 @@ BLENDER_52_PROFILE = BlenderExportProfile(
     uses_legacy_action_curves=False,
     uses_scene_sequence_editor=False,
     uses_id_property_geo_nodes_inputs=False,
+    uses_legacy_materials=False,
 )
 
 
@@ -43,4 +47,4 @@ def resolve_export_profile(version: tuple[int, ...]) -> BlenderExportProfile:
         return BLENDER_52_PROFILE
     if normalized_version >= BLENDER_50_PROFILE.minimum_version:
         return BLENDER_50_PROFILE
-    return BLENDER_45_PROFILE
+    return BLENDER_42_PROFILE

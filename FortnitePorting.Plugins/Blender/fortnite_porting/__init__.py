@@ -20,7 +20,7 @@ bl_info = {
     "name": "Fortnite Porting",
     "description": "Import Server for Fortnite Porting",
     "author": "Half",
-    "blender": (4, 5, 0),
+    "blender": (4, 2, 0),
     "version": (4, 0, 0),
     "category": "Import-Export",
 }
