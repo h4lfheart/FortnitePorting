@@ -1,4 +1,4 @@
-from ..enums import *
+from ...enums import *
 
 layer_switch_names = [
     "Use 2 Layers", "Use 3 Layers", "Use 4 Layers", "Use 5 Layers", "Use 6 Layers", "Use 7 Layers",

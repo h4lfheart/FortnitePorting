@@ -10,9 +10,11 @@ from ...utils import *
 from ...logger import Log
 from ...ueformat.importer.logic import UEFormatImport
 from ...ueformat.options import UEModelOptions
+from ...export_profile import resolve_export_profile
 
 class MeshImportContext:
     def import_mesh_data(self, data):
+        vertex_crunch_prefix = "FPv3" if resolve_export_profile(bpy.app.version).uses_legacy_materials else "FPv4"
         rig_type = ERigType(self.options.get("RigType"))
         
         if rig_type == ERigType.TASTY:
@@ -55,16 +57,16 @@ class MeshImportContext:
             self.update_preskinned_bounds(master_mesh)
             
             for material, elements in self.partial_vertex_crunch_materials.items():
-                vertex_crunch_modifier = master_mesh.modifiers.new("FPv4 Vertex Crunch", type="NODES")
-                vertex_crunch_modifier.node_group = bpy.data.node_groups.get("FPv4 Vertex Crunch")
+                vertex_crunch_modifier = master_mesh.modifiers.new(f"{vertex_crunch_prefix} Vertex Crunch", type="NODES")
+                vertex_crunch_modifier.node_group = bpy.data.node_groups.get(f"{vertex_crunch_prefix} Vertex Crunch")
 
                 set_geo_nodes_param(vertex_crunch_modifier, "Material", material)
                 for name, value in elements.items():
                     set_geo_nodes_param(vertex_crunch_modifier, name, value == 1)
                     
             for material in self.full_vertex_crunch_materials:
-                vertex_crunch_modifier = master_mesh.modifiers.new("FPv4 Full Vertex Crunch", type="NODES")
-                vertex_crunch_modifier.node_group = bpy.data.node_groups.get("FPv4 Full Vertex Crunch")
+                vertex_crunch_modifier = master_mesh.modifiers.new(f"{vertex_crunch_prefix} Full Vertex Crunch", type="NODES")
+                vertex_crunch_modifier.node_group = bpy.data.node_groups.get(f"{vertex_crunch_prefix} Full Vertex Crunch")
                 set_geo_nodes_param(vertex_crunch_modifier, "Material", material)
 
             if self.add_toon_outline:
@@ -87,13 +89,13 @@ class MeshImportContext:
         if self.type in [EExportType.SIDEKICK]:
             master_mesh = self.imported_meshes[0]["Mesh"]
             for material in self.full_vertex_crunch_materials:
-                vertex_crunch_modifier = master_mesh.modifiers.new("FPv4 Full Vertex Crunch", type="NODES")
-                vertex_crunch_modifier.node_group = bpy.data.node_groups.get("FPv4 Full Vertex Crunch")
+                vertex_crunch_modifier = master_mesh.modifiers.new(f"{vertex_crunch_prefix} Full Vertex Crunch", type="NODES")
+                vertex_crunch_modifier.node_group = bpy.data.node_groups.get(f"{vertex_crunch_prefix} Full Vertex Crunch")
                 set_geo_nodes_param(vertex_crunch_modifier, "Material", material)
 
             for material, elements in self.partial_vertex_crunch_materials.items():
-                vertex_crunch_modifier = master_mesh.modifiers.new("FPv4 Vertex Crunch", type="NODES")
-                vertex_crunch_modifier.node_group = bpy.data.node_groups.get("FPv4 Vertex Crunch")
+                vertex_crunch_modifier = master_mesh.modifiers.new(f"{vertex_crunch_prefix} Vertex Crunch", type="NODES")
+                vertex_crunch_modifier.node_group = bpy.data.node_groups.get(f"{vertex_crunch_prefix} Vertex Crunch")
                 set_geo_nodes_param(vertex_crunch_modifier, "Material", material)
                 for name, value in elements.items():
                     set_geo_nodes_param(vertex_crunch_modifier, name, value == 1)
