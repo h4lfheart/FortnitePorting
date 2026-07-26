@@ -73,6 +73,7 @@ public partial class FilesService : ObservableObject, IService, IResettable
                 var parts = path.Split("/", StringSplitOptions.RemoveEmptyEntries);
 
                 var parentNode = RootFileNode;
+                RootFileNode.AddVfsName(sourceVfsName);
                 for (var i = 0; i < parts.Length; i++)
                 {
                     var part = parts[i];
@@ -84,6 +85,10 @@ public partial class FilesService : ObservableObject, IService, IResettable
                             : string.Concat(path.AsSpan(0, path.IndexOf(part, StringComparison.Ordinal)), part);
                         childNode = new FileNode(part, nodePath, isFile ? ENodeType.File : ENodeType.Folder, sourceVfsName);
                         parentNode.AddChild(part, childNode);
+                    }
+                    else
+                    {
+                        childNode.AddVfsName(sourceVfsName);
                     }
 
                     parentNode = childNode;

@@ -7,6 +7,7 @@ public class FileNode
     public string Name { get; }
     public string Path { get; }
     public string VfsName { get; }
+    public HashSet<string> VfsNames { get; } = new();
     public ENodeType Type { get; }
     public int FileChildCount { get; set; }
     public int FolderChildCount { get; set; }
@@ -19,6 +20,14 @@ public class FileNode
         Path = path;
         Type = type;
         VfsName = vfsName;
+        if (!string.IsNullOrEmpty(vfsName))
+            VfsNames.Add(vfsName);
+    }
+
+    public void AddVfsName(string vfsName)
+    {
+        if (!string.IsNullOrEmpty(vfsName))
+            VfsNames.Add(vfsName);
     }
 
     public void AddChild(string name, FileNode child)
@@ -37,6 +46,7 @@ public class FileNode
     public void Clear()
     {
         Children.Clear();
+        VfsNames.Clear();
         FileChildCount = 0;
         FolderChildCount = 0;
     }

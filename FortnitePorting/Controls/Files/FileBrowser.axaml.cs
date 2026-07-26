@@ -25,7 +25,6 @@ public partial class FileBrowser : UserControl
     public event Action<TreeItem>? FileItemDoubleTapped;
 
     private bool _suppressSelectionChange;
-    private bool _syncingVfsFilterSelection;
     private PointerPressedEventArgs? _dragPressArgs;
     private Point _dragStartPosition;
 
@@ -263,38 +262,6 @@ public partial class FileBrowser : UserControl
         Context.UseFlatView = true;
         Context.FlatSearchFilter = searchTerm;
         Context.FlatSearchText = searchTerm;
-    }
-
-    private void OnVfsFilterFlyoutOpened(object? sender, EventArgs e)
-    {
-        if (sender is not Flyout { Content: ListBox listBox }) return;
-        SyncVfsFilterListBoxSelection(listBox);
-    }
-
-    private void OnVfsFilterSelectionChanged(object? sender, SelectionChangedEventArgs e)
-    {
-        if (_syncingVfsFilterSelection) return;
-
-        foreach (var item in e.AddedItems.OfType<VfsFilterItem>())
-            item.IsChecked = true;
-
-        foreach (var item in e.RemovedItems.OfType<VfsFilterItem>())
-            item.IsChecked = false;
-    }
-
-    private void SyncVfsFilterListBoxSelection(ListBox listBox)
-    {
-        _syncingVfsFilterSelection = true;
-        try
-        {
-            listBox.SelectedItems?.Clear();
-            foreach (var item in Context.VfsFilterCollection.Where(x => x.IsChecked))
-                listBox.SelectedItems?.Add(item);
-        }
-        finally
-        {
-            _syncingVfsFilterSelection = false;
-        }
     }
 
 }

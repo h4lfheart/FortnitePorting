@@ -3,23 +3,20 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
-using Avalonia.Platform;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using CUE4Parse_Conversion.Textures;
-using CUE4Parse.UE4.Assets;
-using CUE4Parse.UE4.Assets.Exports;
-using CUE4Parse.UE4.Assets.Exports.Texture;
-using CUE4Parse.UE4.Objects.UObject;
 using DynamicData;
 using DynamicData.Binding;
+using FortnitePorting;
 using FortnitePorting.Application;
-using FortnitePorting.Exporting;
 using FortnitePorting.Extensions;
-using FortnitePorting.Models.Files;
+using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
 using Material.Icons;
 using ReactiveUI;
@@ -76,7 +73,7 @@ public partial class FileBrowserContext : ObservableObject
 
     public bool HasFlatSearchFilter => !string.IsNullOrWhiteSpace(FlatSearchFilter);
     public bool ShowFlatPathPlain => !HasFlatSearchFilter;
-    public string FlatViewEmptyMessage => HasFlatSearchFilter
+    public string FlatViewEmptyMessage => HasFlatSearchFilter || SelectedVfsCount > 0
         ? "No Files Found"
         : "Search or select a container to find files";
 
@@ -95,6 +92,23 @@ public partial class FileBrowserContext : ObservableObject
     [ObservableProperty, NotifyPropertyChangedFor(nameof(CanGoForward))] private int _forwardStackCount = 0;
     
     [ObservableProperty] private ObservableCollection<VfsFilterItem> _vfsFilterCollection = [];
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(HasVisibleVfsGroups))]
+    private ObservableCollection<VfsFilterGroup> _vfsFilterGroups = [];
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(ContainersButtonText), nameof(FlatViewEmptyMessage))]
+    private int _selectedVfsCount;
+    [ObservableProperty] private string _vfsFilterSearchText = string.Empty;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(VfsSortIcon))] private bool _descendingVfsSort;
+
+    public MaterialIconKind VfsSortIcon =>
+        DescendingVfsSort ? MaterialIconKind.SortDescending : MaterialIconKind.SortAscending;
+
+    public string ContainersButtonText => SelectedVfsCount > 0
+        ? $"Containers ({SelectedVfsCount})"
+        : "Containers";
+
+    public bool HasVisibleVfsGroups => VfsFilterGroups.Count > 0;
+
+    private readonly Dictionary<string, VfsFilterGroup> _vfsGroupsByName = new();
     
     public bool HasSelectedFiles => UseFlatView
         ? SelectedFlatViewItems.Count > 0
@@ -107,6 +121,7 @@ public partial class FileBrowserContext : ObservableObject
     private readonly Stack<TreeItem> _backStack = new();
     private readonly Stack<TreeItem> _forwardStack = new();
     private readonly HashSet<FlatItem> _selectedFlatViewSet = [];
+    private HashSet<string> _activeVfsNames = [];
 
     private readonly TreeItem _parentTreeItem = new("Files", ENodeType.Folder)
     {
@@ -114,12 +129,17 @@ public partial class FileBrowserContext : ObservableObject
         Selected = true
     };
 
-    private IDisposable? _flatViewSubscription;
+    private IDisposable? _subscriptions;
+    private CancellationTokenSource? _vfsSelectionCts;
 
     public void Reset()
     {
-        _flatViewSubscription?.Dispose();
-        _flatViewSubscription = null;
+        _vfsSelectionCts?.Cancel();
+        _vfsSelectionCts?.Dispose();
+        _vfsSelectionCts = null;
+
+        _subscriptions?.Dispose();
+        _subscriptions = null;
 
         _parentTreeItem.DetachSourceNodes();
         _parentTreeItem.FolderChildren.Clear();
@@ -134,8 +154,14 @@ public partial class FileBrowserContext : ObservableObject
         SelectedFlatViewItems = [];
         SelectedFileViewItems = [];
         VfsFilterCollection = [];
+        VfsFilterGroups = [];
+        _vfsGroupsByName.Clear();
+        SelectedVfsCount = 0;
+        VfsFilterSearchText = string.Empty;
+        DescendingVfsSort = false;
         FlatViewCollection = new ReadOnlyObservableCollection<FlatItem>([]);
         _selectedFlatViewSet.Clear();
+        _activeVfsNames = [];
 
         _backStack.Clear();
         _forwardStack.Clear();
@@ -147,9 +173,12 @@ public partial class FileBrowserContext : ObservableObject
             .Where(vfs => vfs.FileCount > 0)
             .Select(vfs => new VfsFilterItem(vfs.Name))
             .Where(vfs => !vfs.VfsName.Contains("plugin.utoc", StringComparison.OrdinalIgnoreCase))
-            .OrderBy(vfs => vfs.Title)
+            .OrderBy(vfs => vfs.VfsName)
         ];
-       
+
+        RefreshVisibleVfsFilters();
+        RefreshActiveVfsNames();
+
         var vfsCheckedChanges = VfsFilterCollection
             .Select(item => item
                 .WhenAnyValue(x => x.IsChecked)
@@ -163,7 +192,7 @@ public partial class FileBrowserContext : ObservableObject
             .CombineLatest(vfsCheckedChanges.StartWith(Unit.Default))
             .Select(_ => CreateAssetFilter(FlatSearchFilter, UseRegex, VfsFilterCollection));
 
-        _flatViewSubscription = AppServices.Files.FlatViewAssetCache.Connect()
+        var flatViewSubscription = AppServices.Files.FlatViewAssetCache.Connect()
             .ObserveOn(RxApp.TaskpoolScheduler)
             .Filter(assetFilter)
             .Sort(SortExpressionComparer<FlatItem>.Ascending(x => x.Path))
@@ -172,6 +201,11 @@ public partial class FileBrowserContext : ObservableObject
             .Subscribe();
 
         FlatViewCollection = flatCollection;
+
+        var vfsSelectionSubscription = vfsCheckedChanges
+            .Subscribe(_ => ScheduleVfsSelectionChanged());
+
+        _subscriptions = new CompositeDisposable(flatViewSubscription, vfsSelectionSubscription);
 
         RealizeTreeChildren(_parentTreeItem);
 
@@ -250,6 +284,7 @@ public partial class FileBrowserContext : ObservableObject
 
         var folderNodes = sourceNode.Children.Values
             .Where(n => n.Type == ENodeType.Folder)
+            .Where(IsVfsVisible)
             .OrderBy(n => n.Name, new CustomComparer<string>(ComparisonExtensions.CompareNatural));
 
         foreach (var node in folderNodes)
@@ -289,6 +324,7 @@ public partial class FileBrowserContext : ObservableObject
         }
 
         var children = sourceNode.Children.Values
+            .Where(IsVfsVisible)
             .OrderByDescending(n => n.Type == ENodeType.Folder)
             .ThenBy(n => n.Name, new CustomComparer<string>(ComparisonExtensions.CompareNatural))
             .Select(n =>
@@ -400,6 +436,13 @@ public partial class FileBrowserContext : ObservableObject
         SelectedFileViewItems.Clear();
     }
 
+    [RelayCommand]
+    public void ClearVfsSelection()
+    {
+        foreach (var item in VfsFilterCollection)
+            item.IsChecked = false;
+    }
+
     private void DeselectTree(TreeItem item)
     {
         item.Selected = false;
@@ -411,6 +454,8 @@ public partial class FileBrowserContext : ObservableObject
     {
         foreach (var child in node.Children.Values)
         {
+            if (!IsVfsVisible(child)) continue;
+
             if (child.Type == ENodeType.File)
             {
                 yield return new TreeItem(child.Name, ENodeType.File, child.Path, parent,
@@ -468,6 +513,162 @@ public partial class FileBrowserContext : ObservableObject
 
     partial void OnFileSearchFilterChanged(string value) => FilterFiles();
     partial void OnFileTypeFilterChanged(EFileFilterType value) => FilterFiles();
+    partial void OnVfsFilterSearchTextChanged(string value) => RefreshVisibleVfsFilters();
+    partial void OnDescendingVfsSortChanged(bool value) => RefreshVisibleVfsFilters();
+
+    partial void OnUseFlatViewChanged(bool value)
+    {
+        if (!value)
+            ScheduleVfsSelectionChanged();
+    }
+
+    private void ScheduleVfsSelectionChanged()
+    {
+        _vfsSelectionCts?.Cancel();
+        _vfsSelectionCts?.Dispose();
+        _vfsSelectionCts = new CancellationTokenSource();
+        var token = _vfsSelectionCts.Token;
+
+        _ = DebounceVfsSelectionAsync(token);
+    }
+
+    private async Task DebounceVfsSelectionAsync(CancellationToken token)
+    {
+        try
+        {
+            await Task.Delay(50, token);
+            await TaskService.RunDispatcherAsync(OnVfsSelectionChanged, DispatcherPriority.Background);
+        }
+        catch (OperationCanceledException)
+        {
+        }
+    }
+
+    private void OnVfsSelectionChanged()
+    {
+        RefreshActiveVfsNames();
+        SelectedVfsCount = _activeVfsNames.Count;
+        RefreshGroupSelectedCounts();
+        ApplyFileViewVfsFilter();
+    }
+
+    private void RefreshGroupSelectedCounts()
+    {
+        foreach (var group in _vfsGroupsByName.Values)
+            group.SelectedCount = VfsFilterCollection.Count(item => item.Group == group.Title && item.IsChecked);
+    }
+
+    private void RefreshActiveVfsNames()
+    {
+        _activeVfsNames = VfsFilterCollection
+            .Where(x => x.IsChecked)
+            .Select(x => x.VfsName)
+            .ToHashSet();
+    }
+
+    private void RefreshVisibleVfsFilters()
+    {
+        IEnumerable<VfsFilterItem> items = VfsFilterCollection;
+
+        if (!string.IsNullOrWhiteSpace(VfsFilterSearchText))
+        {
+            items = items.Where(item =>
+                MiscExtensions.Filter(item.VfsName, VfsFilterSearchText)
+                || MiscExtensions.Filter(item.Group, VfsFilterSearchText));
+        }
+
+        var comparer = new CustomComparer<string>(ComparisonExtensions.CompareNatural);
+        var groups = new ObservableCollection<VfsFilterGroup>();
+
+        foreach (var grouping in items.GroupBy(item => item.Group).OrderBy(group => group.Key, comparer))
+        {
+            if (!_vfsGroupsByName.TryGetValue(grouping.Key, out var group))
+            {
+                group = new VfsFilterGroup(grouping.Key);
+                _vfsGroupsByName[grouping.Key] = group;
+            }
+
+            var orderedItems = DescendingVfsSort
+                ? grouping.OrderByDescending(item => item.VfsName, comparer)
+                : grouping.OrderBy(item => item.VfsName, comparer);
+
+            group.Items = new ObservableCollection<VfsFilterItem>(orderedItems);
+            group.SelectedCount = VfsFilterCollection.Count(item => item.Group == group.Title && item.IsChecked);
+            groups.Add(group);
+        }
+
+        VfsFilterGroups = groups;
+    }
+
+    private bool IsVfsVisible(FileNode node)
+    {
+        if (_activeVfsNames.Count == 0) return true;
+        return node.VfsNames.Overlaps(_activeVfsNames);
+    }
+
+    private void ApplyFileViewVfsFilter()
+    {
+        if (UseFlatView) return;
+        if (TreeViewCollection.Count == 0) return;
+
+        RebuildFolderChildren(_parentTreeItem);
+
+        var folder = CurrentFolder;
+        while (folder != _parentTreeItem
+               && folder.SourceNode is not null
+               && !IsVfsVisible(folder.SourceNode))
+        {
+            folder = folder.Parent ?? _parentTreeItem;
+        }
+
+        if (SelectedFileViewItems.Count > 0)
+            SelectedFileViewItems.Clear();
+
+        if (folder != CurrentFolder)
+            LoadFileItems(folder, addToStackHistory: false);
+        else
+            FilterFiles();
+    }
+
+    private void RebuildFolderChildren(TreeItem treeItem)
+    {
+        var sourceNode = treeItem == _parentTreeItem ? AppServices.Files.RootFileNode : treeItem.SourceNode;
+        if (sourceNode is null) return;
+
+        var existingByName = treeItem.FolderChildren.ToDictionary(x => x.Name);
+        var expandedChildren = treeItem.FolderChildren
+            .Where(x => x.Expanded)
+            .Select(x => x.Name)
+            .ToHashSet();
+
+        treeItem.FolderChildren.Clear();
+        treeItem.FolderChildCount = sourceNode.FolderChildCount;
+        treeItem.FileChildCount = sourceNode.FileChildCount;
+
+        var folderNodes = sourceNode.Children.Values
+            .Where(n => n.Type == ENodeType.Folder)
+            .Where(IsVfsVisible)
+            .OrderBy(n => n.Name, new CustomComparer<string>(ComparisonExtensions.CompareNatural));
+
+        foreach (var node in folderNodes)
+        {
+            if (!existingByName.TryGetValue(node.Name, out var child))
+            {
+                child = new TreeItem(
+                    node.Name,
+                    ENodeType.Folder,
+                    node.Path,
+                    treeItem,
+                    sourceNode: node,
+                    onExpand: RealizeTreeChildren);
+            }
+
+            treeItem.AddFolderChild(child);
+
+            if (expandedChildren.Contains(node.Name) || child.Expanded)
+                RebuildFolderChildren(child);
+        }
+    }
 
     private void FilterFiles()
     {
@@ -477,6 +678,7 @@ public partial class FileBrowserContext : ObservableObject
         if (sourceNode is null) return;
 
         var items = sourceNode.Children.Values
+            .Where(IsVfsVisible)
             .Select(n =>
             {
                 if (n.Type == ENodeType.Folder && CurrentFolder.TryGetFolderChild(n.Name, out var existing))
