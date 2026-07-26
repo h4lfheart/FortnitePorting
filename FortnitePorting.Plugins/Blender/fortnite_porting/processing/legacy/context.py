@@ -27,6 +27,7 @@ class LegacyImportContext(
 
     def __init__(self, meta_data):
         BaseImportContext.__init__(self, meta_data)
+        LegacyMaterialImportContext.__init__(self)
 
     def load_blend_data(self):
         ensure_legacy_blend_data()

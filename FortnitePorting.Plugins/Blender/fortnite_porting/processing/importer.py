@@ -21,9 +21,11 @@ class Importer:
             Importer._version_checked = True
             Importer._check_version(meta)
 
+        profile = resolve_export_profile(bpy.app.version)
+        context_type = LegacyImportContext if profile.uses_legacy_materials else ImportContext
+
         for export in exports:
-            profile = resolve_export_profile(bpy.app.version)
-            context = (LegacyImportContext if profile.uses_legacy_materials else ImportContext)(meta)
+            context = context_type(meta)
             context.run(export)
 
     @staticmethod

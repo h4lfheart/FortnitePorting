@@ -10,7 +10,20 @@ from ..utils import *
 from ...utils import *
 from ...logger import Log
 
+LEGACY_MATERIAL_REVISION = 2
+legacy_material_hash_cache = {}
+legacy_material_name_cache = {}
+
 class LegacyMaterialImportContext:
+    def __init__(self):
+        for cache in (legacy_material_hash_cache, legacy_material_name_cache):
+            for key, material in list(cache.items()):
+                try:
+                    if not material.name:
+                        cache.pop(key)
+                except ReferenceError:
+                    cache.pop(key)
+
     def import_material(self, material_slot, material_data, meta, as_material_data=False):
 
         if not as_material_data:
@@ -66,17 +79,29 @@ class LegacyMaterialImportContext:
             material_hash += additional_hash
             material_name += f"_{hash_code(material_hash)}"
 
+        hash_key = hash_code(material_hash)
 
-        if existing_material := first(bpy.data.materials, lambda mat: mat.get("Hash") == hash_code(material_hash)):
-            if existing_material.get("FPBlender42LegacyMaterialRevision") == 2 and not as_material_data:
+        existing_material = legacy_material_hash_cache.get(hash_key)
+        if existing_material is None:
+            existing_material = first(bpy.data.materials, lambda mat: mat.get("Hash") == hash_key)
+
+        if existing_material:
+            if existing_material.get("FPBlender42LegacyMaterialRevision") == LEGACY_MATERIAL_REVISION:
+                legacy_material_hash_cache[hash_key] = existing_material
+                legacy_material_name_cache[existing_material.name.casefold()] = existing_material
+            if existing_material.get("FPBlender42LegacyMaterialRevision") == LEGACY_MATERIAL_REVISION and not as_material_data:
                 material_slot.material = existing_material
                 return
             if not as_material_data:
                 material_slot.material = existing_material
 
         # same name but different hash
-        if (name_existing := first(bpy.data.materials, lambda mat: mat.name == material_name)) and name_existing.get("Hash") != material_hash:
-            material_name += f"_{hash_code(material_hash)}"
+        name_key = material_name.casefold()
+        name_existing = legacy_material_name_cache.get(name_key)
+        if name_existing is None:
+            name_existing = first(bpy.data.materials, lambda mat: mat.name.casefold() == name_key)
+        if name_existing and name_existing.get("Hash") != hash_key:
+            material_name += f"_{hash_key}"
 
         if not as_material_data and material_slot.material.name.casefold() != material_name.casefold():
             material_slot.material = bpy.data.materials.new(material_name)
@@ -87,7 +112,7 @@ class LegacyMaterialImportContext:
 
         material = bpy.data.materials.new(material_name) if as_material_data else material_slot.material
         material.use_nodes = True
-        material["FPBlender42LegacyMaterialRevision"] = 2
+        material["FPBlender42LegacyMaterialRevision"] = LEGACY_MATERIAL_REVISION
         material.surface_render_method = "DITHERED"
 
         nodes = material.node_tree.nodes
@@ -427,6 +452,8 @@ class LegacyMaterialImportContext:
 
         if material_name in vertex_crunch_names or get_param(scalars, "HT_CrunchVerts") == 1 or any(toon_outline_names, lambda x: x in material_name):
             self.full_vertex_crunch_materials.append(material)
+            legacy_material_hash_cache[hash_key] = material
+            legacy_material_name_cache[material.name.casefold()] = material
             return
 
         if get_param(switches, "Use Vertex Colors for Mask"):
@@ -792,6 +819,9 @@ class LegacyMaterialImportContext:
             case "FPv3 Layer":
                 if diffuse_node := get_node(shader_node, "Diffuse"):
                     nodes.active = diffuse_node
+
+        legacy_material_hash_cache[hash_key] = material
+        legacy_material_name_cache[material.name.casefold()] = material
 
     def import_material_standalone(self, data):
         is_object_import = EMaterialImportMethod.OBJECT == EMaterialImportMethod(self.options.get("MaterialImportMethod"))
