@@ -320,3 +320,8 @@ def get_sequence_editor():
         seq_scene.sequence_editor_create()
         
     return seq_scene.sequence_editor
+
+
+def get_sequence_collection(sequence_editor):
+    profile = resolve_export_profile(bpy.app.version)
+    return sequence_editor.sequences if profile.uses_legacy_sequence_api else sequence_editor.strips

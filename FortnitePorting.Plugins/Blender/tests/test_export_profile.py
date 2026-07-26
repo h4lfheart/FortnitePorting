@@ -17,6 +17,7 @@ class ExportProfileTests(unittest.TestCase):
         self.assertEqual(profile.name, "Blender 4.2-4.5")
         self.assertTrue(profile.uses_legacy_action_curves)
         self.assertTrue(profile.uses_scene_sequence_editor)
+        self.assertTrue(profile.uses_legacy_sequence_api)
         self.assertTrue(profile.uses_legacy_materials)
 
     def test_blender_45_uses_legacy_pipeline(self):
@@ -30,6 +31,7 @@ class ExportProfileTests(unittest.TestCase):
 
         self.assertEqual(profile.name, "Blender 5.0-5.1")
         self.assertFalse(profile.uses_legacy_action_curves)
+        self.assertFalse(profile.uses_legacy_sequence_api)
         self.assertTrue(profile.uses_id_property_geo_nodes_inputs)
         self.assertFalse(profile.uses_legacy_materials)
 

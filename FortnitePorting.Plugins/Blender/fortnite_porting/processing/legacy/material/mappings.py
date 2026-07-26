@@ -5,6 +5,23 @@ class MappingCollection:
         self.vectors = vectors
         self.switches = switches
         self.component_masks = component_masks
+        self._lookups = {
+            "textures": self._create_lookup(textures),
+            "scalars": self._create_lookup(scalars),
+            "vectors": self._create_lookup(vectors),
+            "switches": self._create_lookup(switches),
+            "component_masks": self._create_lookup(component_masks),
+        }
+
+    @staticmethod
+    def _create_lookup(mappings):
+        lookup = {}
+        for mapping in mappings:
+            lookup.setdefault(mapping.name.casefold(), mapping)
+        return lookup
+
+    def find(self, category, name):
+        return self._lookups[category].get(name.casefold())
 
 
 class SlotMapping:

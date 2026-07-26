@@ -81,6 +81,27 @@ class LegacyMaterialImportContext:
 
         hash_key = hash_code(material_hash)
 
+        def restore_import_state(material):
+            if get_param_multiple(textures, toon_texture_names) or get_param_multiple(vectors, toon_vector_names):
+                self.add_toon_outline = True
+
+            is_full_vertex_crunch = (material_name in vertex_crunch_names
+                                      or get_param(scalars, "HT_CrunchVerts") == 1
+                                      or any(toon_outline_names, lambda x: x in material_name))
+            if is_full_vertex_crunch:
+                self.full_vertex_crunch_materials.append(material)
+                return True
+
+            if get_param(switches, "Use Vertex Colors for Mask"):
+                elements = {}
+                for scalar in scalars:
+                    name = scalar.get("Name")
+                    if "Hide Element" in name:
+                        elements[name] = scalar.get("Value")
+                self.partial_vertex_crunch_materials[material] = elements
+
+            return False
+
         existing_material = legacy_material_hash_cache.get(hash_key)
         if existing_material is None:
             existing_material = first(bpy.data.materials, lambda mat: mat.get("Hash") == hash_key)
@@ -91,6 +112,7 @@ class LegacyMaterialImportContext:
                 legacy_material_name_cache[existing_material.name.casefold()] = existing_material
             if existing_material.get("FPBlender42LegacyMaterialRevision") == LEGACY_MATERIAL_REVISION and not as_material_data:
                 material_slot.material = existing_material
+                restore_import_state(existing_material)
                 return
             if not as_material_data:
                 material_slot.material = existing_material
@@ -197,7 +219,7 @@ class LegacyMaterialImportContext:
                 node.interpolation = "Smart"
                 node.hide = True
 
-                mappings = first(target_mappings.textures, lambda x: x.name.casefold() == name.casefold())
+                mappings = target_mappings.find("textures", name)
                 if mappings is None or texture_name in texture_ignore_names:
                     if add_unused_params:
                         nonlocal unused_parameter_height
@@ -232,7 +254,7 @@ class LegacyMaterialImportContext:
                 name = data.get("Name")
                 value = data.get("Value")
 
-                mappings = first(target_mappings.scalars, lambda x: x.name.casefold() == name.casefold())
+                mappings = target_mappings.find("scalars", name)
                 if mappings is None:
                     if add_unused_params:
                         nonlocal unused_parameter_height
@@ -267,7 +289,7 @@ class LegacyMaterialImportContext:
                 name = data.get("Name")
                 value = data.get("Value")
 
-                mappings = first(target_mappings.vectors, lambda x: x.name.casefold() == name.casefold())
+                mappings = target_mappings.find("vectors", name)
                 if mappings is None:
                     if add_unused_params:
                         nonlocal unused_parameter_height
@@ -298,7 +320,7 @@ class LegacyMaterialImportContext:
                 name = data.get("Name")
                 value = data.get("Value")
 
-                mappings = first(target_mappings.component_masks, lambda x: x.name.casefold() == name.casefold())
+                mappings = target_mappings.find("component_masks", name)
                 if mappings is None:
                     if add_unused_params:
                         nonlocal unused_parameter_height
@@ -322,7 +344,7 @@ class LegacyMaterialImportContext:
                 name = data.get("Name")
                 value = data.get("Value")
 
-                mappings = first(target_mappings.switches, lambda x: x.name.casefold() == name.casefold())
+                mappings = target_mappings.find("switches", name)
                 if mappings is None:
                     if add_unused_params:
                         nonlocal unused_parameter_height
@@ -450,22 +472,10 @@ class LegacyMaterialImportContext:
 
         # post parameter handling
 
-        if material_name in vertex_crunch_names or get_param(scalars, "HT_CrunchVerts") == 1 or any(toon_outline_names, lambda x: x in material_name):
-            self.full_vertex_crunch_materials.append(material)
+        if restore_import_state(material):
             legacy_material_hash_cache[hash_key] = material
             legacy_material_name_cache[material.name.casefold()] = material
             return
-
-        if get_param(switches, "Use Vertex Colors for Mask"):
-            elements = {}
-            for scalar in scalars:
-                name = scalar.get("Name")
-                if "Hide Element" not in name:
-                    continue
-
-                elements[name] = scalar.get("Value")
-
-            self.partial_vertex_crunch_materials[material] = elements
 
         match shader_node.node_tree.name:
             case "FPv3 Material":

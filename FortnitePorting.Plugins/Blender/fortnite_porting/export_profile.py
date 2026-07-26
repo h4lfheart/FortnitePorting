@@ -7,6 +7,7 @@ class BlenderExportProfile:
     minimum_version: tuple[int, int, int]
     uses_legacy_action_curves: bool
     uses_scene_sequence_editor: bool
+    uses_legacy_sequence_api: bool
     uses_id_property_geo_nodes_inputs: bool
     uses_legacy_materials: bool
 
@@ -16,6 +17,7 @@ BLENDER_42_PROFILE = BlenderExportProfile(
     minimum_version=(4, 2, 0),
     uses_legacy_action_curves=True,
     uses_scene_sequence_editor=True,
+    uses_legacy_sequence_api=True,
     uses_id_property_geo_nodes_inputs=True,
     uses_legacy_materials=True,
 )
@@ -25,6 +27,7 @@ BLENDER_50_PROFILE = BlenderExportProfile(
     minimum_version=(5, 0, 0),
     uses_legacy_action_curves=False,
     uses_scene_sequence_editor=False,
+    uses_legacy_sequence_api=False,
     uses_id_property_geo_nodes_inputs=True,
     uses_legacy_materials=False,
 )
@@ -34,6 +37,7 @@ BLENDER_52_PROFILE = BlenderExportProfile(
     minimum_version=(5, 2, 0),
     uses_legacy_action_curves=False,
     uses_scene_sequence_editor=False,
+    uses_legacy_sequence_api=False,
     uses_id_property_geo_nodes_inputs=False,
     uses_legacy_materials=False,
 )
