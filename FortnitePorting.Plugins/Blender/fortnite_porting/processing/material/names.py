@@ -43,6 +43,11 @@ texture_ignore_names = ["DefaultTexture"]
 
 vertex_crunch_names = ["MI_VertexCrunch", "M_VertexCrunch", "M_Invis", "Transparent"]
 
+legacy_vertex_crunch_node_groups = [
+    ("FPv3 Vertex Crunch", "FPv4 Vertex Crunch"),
+    ("FPv3 Full Vertex Crunch", "FPv4 Full Vertex Crunch"),
+]
+
 toon_outline_names = ["Outline", "Toon_Lines"]
 toon_outline_disable_names = ["MI_OutlineLove"]
 
