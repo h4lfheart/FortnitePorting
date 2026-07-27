@@ -25,12 +25,12 @@ public partial class DialogData : ObservableObject
 public partial class DialogButton : ObservableObject
 {
     [ObservableProperty] private string _text;
-    [ObservableProperty] private Action _action;
+    [ObservableProperty] private Action? _action;
 
     [RelayCommand]
     public async Task Execute()
     {
-        Action();
+        Action?.Invoke();
         await Info.DialogQueue.Close();
     }
 }

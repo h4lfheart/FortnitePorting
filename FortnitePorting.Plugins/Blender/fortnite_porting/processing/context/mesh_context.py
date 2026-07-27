@@ -11,6 +11,9 @@ from ...logger import Log
 from ...ueformat.importer.logic import UEFormatImport
 from ...ueformat.options import UEModelOptions
 
+VERTEX_CRUNCH_NAME = "FPv4 Vertex Crunch"
+FULL_VERTEX_CRUNCH_NAME = "FPv4 Full Vertex Crunch"
+
 class MeshImportContext:
     def import_mesh_data(self, data):
         rig_type = ERigType(self.options.get("RigType"))
@@ -55,17 +58,17 @@ class MeshImportContext:
             self.update_preskinned_bounds(master_mesh)
             
             for material, elements in self.partial_vertex_crunch_materials.items():
-                vertex_crunch_modifier = master_mesh.modifiers.new("FPv4 Vertex Crunch", type="NODES")
-                vertex_crunch_modifier.node_group = bpy.data.node_groups.get("FPv4 Vertex Crunch")
+                vertex_crunch_modifier = master_mesh.modifiers.new(VERTEX_CRUNCH_NAME, type="NODES")
+                vertex_crunch_modifier.node_group = bpy.data.node_groups.get(VERTEX_CRUNCH_NAME)
 
-                set_geo_nodes_param(vertex_crunch_modifier, "Material", material)
+                set_geo_nodes_param(vertex_crunch_modifier, "Material", material, self.version_profile)
                 for name, value in elements.items():
-                    set_geo_nodes_param(vertex_crunch_modifier, name, value == 1)
+                    set_geo_nodes_param(vertex_crunch_modifier, name, value == 1, self.version_profile)
                     
             for material in self.full_vertex_crunch_materials:
-                vertex_crunch_modifier = master_mesh.modifiers.new("FPv4 Full Vertex Crunch", type="NODES")
-                vertex_crunch_modifier.node_group = bpy.data.node_groups.get("FPv4 Full Vertex Crunch")
-                set_geo_nodes_param(vertex_crunch_modifier, "Material", material)
+                vertex_crunch_modifier = master_mesh.modifiers.new(FULL_VERTEX_CRUNCH_NAME, type="NODES")
+                vertex_crunch_modifier.node_group = bpy.data.node_groups.get(FULL_VERTEX_CRUNCH_NAME)
+                set_geo_nodes_param(vertex_crunch_modifier, "Material", material, self.version_profile)
 
             if self.add_toon_outline:
                 master_mesh.data.materials.append(bpy.data.materials.get("M_FP_Outline"))
@@ -87,16 +90,16 @@ class MeshImportContext:
         if self.type in [EExportType.SIDEKICK]:
             master_mesh = self.imported_meshes[0]["Mesh"]
             for material in self.full_vertex_crunch_materials:
-                vertex_crunch_modifier = master_mesh.modifiers.new("FPv4 Full Vertex Crunch", type="NODES")
-                vertex_crunch_modifier.node_group = bpy.data.node_groups.get("FPv4 Full Vertex Crunch")
-                set_geo_nodes_param(vertex_crunch_modifier, "Material", material)
+                vertex_crunch_modifier = master_mesh.modifiers.new(FULL_VERTEX_CRUNCH_NAME, type="NODES")
+                vertex_crunch_modifier.node_group = bpy.data.node_groups.get(FULL_VERTEX_CRUNCH_NAME)
+                set_geo_nodes_param(vertex_crunch_modifier, "Material", material, self.version_profile)
 
             for material, elements in self.partial_vertex_crunch_materials.items():
-                vertex_crunch_modifier = master_mesh.modifiers.new("FPv4 Vertex Crunch", type="NODES")
-                vertex_crunch_modifier.node_group = bpy.data.node_groups.get("FPv4 Vertex Crunch")
-                set_geo_nodes_param(vertex_crunch_modifier, "Material", material)
+                vertex_crunch_modifier = master_mesh.modifiers.new(VERTEX_CRUNCH_NAME, type="NODES")
+                vertex_crunch_modifier.node_group = bpy.data.node_groups.get(VERTEX_CRUNCH_NAME)
+                set_geo_nodes_param(vertex_crunch_modifier, "Material", material, self.version_profile)
                 for name, value in elements.items():
-                    set_geo_nodes_param(vertex_crunch_modifier, name, value == 1)
+                    set_geo_nodes_param(vertex_crunch_modifier, name, value == 1, self.version_profile)
 
             shape_keys = master_mesh.data.shape_keys
             if (len(self.override_morph_targets) > 0) and shape_keys is not None:

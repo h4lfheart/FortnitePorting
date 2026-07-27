@@ -4,10 +4,12 @@ from ..enums import *
 from ..utils import *
 from ...utils import *
 from ...logger import Log
+from ...export_profile import resolve_export_profile
 
 class BaseImportContext:
     
     def __init__(self, meta_data):
+        self.version_profile = resolve_export_profile(bpy.app.version)
         self.options = meta_data.get("Settings")
         self.assets_root = meta_data.get("AssetsRoot")
         
@@ -28,7 +30,7 @@ class BaseImportContext:
         if bpy.context.mode != "OBJECT":
             bpy.ops.object.mode_set(mode='OBJECT')
 
-        ensure_blend_data()
+        self.load_blend_data()
 
         import_type = EPrimitiveExportType(data.get("PrimitiveType"))
         
@@ -48,6 +50,9 @@ class BaseImportContext:
             self.import_material_standalone(data)
         elif import_type == EPrimitiveExportType.TASTY_RIG:
             self.import_tasty_rig_standalone(data)
+
+    def load_blend_data(self):
+        ensure_blend_data()
 
     def gather_metadata(self, *search_props):
         out_props = {}
