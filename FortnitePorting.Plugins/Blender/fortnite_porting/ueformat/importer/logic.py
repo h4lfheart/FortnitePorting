@@ -36,7 +36,6 @@ from ..importer.reader import FArchiveReader
 from ..importer.utils import *
 from ..logging import Log
 from ..options import UEAnimOptions, UEFormatOptions, UEModelOptions, UEPoseOptions
-from ...export_profile import resolve_export_profile
 
 
 class UEFormatImport:
@@ -474,7 +473,7 @@ class UEFormatImport:
                 path = bone.path_from_id(name)
                 curves: list[FCurve] = []
                 for i in range(count):
-                    if resolve_export_profile(bpy.app.version).uses_legacy_action_curves:
+                    if bpy.app.version < (5, 0, 0):
                         curve = action.fcurves.new(path, index=i)
                     else:
                         slot = action.slots[0] if len(action.slots) > 0 else action.slots.new(id_type='OBJECT', name=f"Slot_{armature.name}")
