@@ -10,20 +10,10 @@ from ..utils import *
 from ...utils import *
 from ...logger import Log
 
-LEGACY_MATERIAL_REVISION = 2
 legacy_material_hash_cache = {}
 legacy_material_name_cache = {}
 
 class LegacyMaterialImportContext:
-    def __init__(self):
-        for cache in (legacy_material_hash_cache, legacy_material_name_cache):
-            for key, material in list(cache.items()):
-                try:
-                    if not material.name:
-                        cache.pop(key)
-                except ReferenceError:
-                    cache.pop(key)
-
     def import_material(self, material_slot, material_data, meta, as_material_data=False):
 
         if not as_material_data:
@@ -103,25 +93,15 @@ class LegacyMaterialImportContext:
             return False
 
         existing_material = legacy_material_hash_cache.get(hash_key)
-        if existing_material is None:
-            existing_material = first(bpy.data.materials, lambda mat: mat.get("Hash") == hash_key)
-
         if existing_material:
-            if existing_material.get("FPBlender42LegacyMaterialRevision") == LEGACY_MATERIAL_REVISION:
-                legacy_material_hash_cache[hash_key] = existing_material
-                legacy_material_name_cache[existing_material.name.casefold()] = existing_material
-            if existing_material.get("FPBlender42LegacyMaterialRevision") == LEGACY_MATERIAL_REVISION and not as_material_data:
+            if not as_material_data:
                 material_slot.material = existing_material
                 restore_import_state(existing_material)
                 return
-            if not as_material_data:
-                material_slot.material = existing_material
 
         # same name but different hash
         name_key = material_name.casefold()
         name_existing = legacy_material_name_cache.get(name_key)
-        if name_existing is None:
-            name_existing = first(bpy.data.materials, lambda mat: mat.name.casefold() == name_key)
         if name_existing and name_existing.get("Hash") != hash_key:
             material_name += f"_{hash_key}"
 
@@ -134,7 +114,6 @@ class LegacyMaterialImportContext:
 
         material = bpy.data.materials.new(material_name) if as_material_data else material_slot.material
         material.use_nodes = True
-        material["FPBlender42LegacyMaterialRevision"] = LEGACY_MATERIAL_REVISION
         material.surface_render_method = "DITHERED"
 
         nodes = material.node_tree.nodes

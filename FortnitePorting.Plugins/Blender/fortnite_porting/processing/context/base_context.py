@@ -4,10 +4,12 @@ from ..enums import *
 from ..utils import *
 from ...utils import *
 from ...logger import Log
+from ...export_profile import resolve_export_profile
 
 class BaseImportContext:
     
     def __init__(self, meta_data):
+        self.version_profile = resolve_export_profile(bpy.app.version)
         self.options = meta_data.get("Settings")
         self.assets_root = meta_data.get("AssetsRoot")
         

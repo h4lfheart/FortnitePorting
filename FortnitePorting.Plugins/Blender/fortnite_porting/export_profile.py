@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from functools import cache
 
 
 @dataclass(frozen=True)
@@ -43,6 +44,7 @@ BLENDER_52_PROFILE = BlenderExportProfile(
 )
 
 
+@cache
 def resolve_export_profile(version: tuple[int, ...]) -> BlenderExportProfile:
     """Return the API/export profile for the Blender instance receiving an export."""
     normalized_version = tuple(version[:3]) + (0,) * max(0, 3 - len(version))

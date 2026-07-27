@@ -21,8 +21,8 @@ class SoundImportContext:
         ext = ESoundFormat(self.options.get("SoundFormat")).name.lower()
         sound_path = os.path.join(self.assets_root, f"{file_path}.{ext}")
         
-        if sequence_editor := get_sequence_editor():
-            sound = get_sequence_collection(sequence_editor).new_sound(name, sound_path, 0, time)
+        if sequence_editor := get_sequence_editor(self.version_profile):
+            sound = get_sequence_collection(sequence_editor, self.version_profile).new_sound(name, sound_path, 0, time)
             sound["FPSound"] = True
             return sound
             

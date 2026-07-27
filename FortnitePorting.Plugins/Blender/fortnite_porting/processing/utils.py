@@ -299,16 +299,17 @@ def clear_children_bone_transforms(skeleton, anim, bone_name):
                 channelbag.fcurves.remove(fcurve)
     bpy.ops.object.mode_set(mode='OBJECT')
 
-def set_geo_nodes_param(geo_node_modifier, name, value):
+def set_geo_nodes_param(geo_node_modifier, name, value, version_profile=None):
     identifier = geo_node_modifier.node_group.interface.items_tree[name].identifier
-    if resolve_export_profile(bpy.app.version).uses_id_property_geo_nodes_inputs:
+    profile = version_profile or resolve_export_profile(bpy.app.version)
+    if profile.uses_id_property_geo_nodes_inputs:
         geo_node_modifier[identifier] = value
     else:
         getattr(geo_node_modifier.properties.inputs, identifier).value = value
     
     
-def get_sequence_editor():
-    profile = resolve_export_profile(bpy.app.version)
+def get_sequence_editor(version_profile=None):
+    profile = version_profile or resolve_export_profile(bpy.app.version)
     if profile.uses_scene_sequence_editor:
         seq_scene = bpy.context.scene
     else:
@@ -322,6 +323,6 @@ def get_sequence_editor():
     return seq_scene.sequence_editor
 
 
-def get_sequence_collection(sequence_editor):
-    profile = resolve_export_profile(bpy.app.version)
+def get_sequence_collection(sequence_editor, version_profile=None):
+    profile = version_profile or resolve_export_profile(bpy.app.version)
     return sequence_editor.sequences if profile.uses_legacy_sequence_api else sequence_editor.strips
