@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Framework;
+using FortnitePorting.Models.Information;
 using FortnitePorting.Models.Plugin;
 using FortnitePorting.Services;
 using Newtonsoft.Json;
@@ -56,6 +57,19 @@ public partial class BlenderPluginViewModel : ViewModelBase
                 $"Blender {blenderVersion} is too low of a version. Only Blender versions {BlenderInstallation.MinimumVersion} and higher are supported.",
                 InfoBarSeverity.Error, autoClose: false);
             return;
+        }
+
+        if (blenderVersion < BlenderInstallation.MinimumModernVersion)
+        {
+            Info.Dialog("Legacy Blender Plugin",
+                "You are using a legacy version of the blender plugin. Modern V4 features such as the modular material system will not be supported.",
+                canClose: false,
+                buttons: [ 
+                    new DialogButton
+                    {
+                        Text = "I Understand"
+                    }
+                ]);
         }
 
         if (TryGetBlenderProcess(blenderPath, out var blenderProcess))
