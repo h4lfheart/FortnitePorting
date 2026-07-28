@@ -1261,7 +1261,8 @@ class ValetDecalMappings(MappingCollection):
 
     @classmethod
     def meets_criteria(self, material_data):
-        return BaseValetMappings.meets_criteria(material_data) and get_param(material_data.get("Switches"), "Use Decal") and get_param(material_data.get("Textures"), "Decal") is not None
+        return BaseValetMappings.meets_criteria(material_data) \
+            and get_param(material_data.get("Switches"), "Use Decal") and get_param(material_data.get("Textures"), "Decal") is not None
 
     textures=(
         SlotMapping("Decal", "Decal Texture", closure=True),
@@ -1388,17 +1389,21 @@ class DetailMappings(MappingCollection):
     )
 
 
-# TODO: Separate nodes for toon eye/mouth/brow?
 @registry.register
 class FlipbookMappings(MappingCollection):
     node_name="FPv4 Flipbook"
     type=ENodeType.NT_Advanced_FX
     node_spacing=700
 
+    @classmethod
+    def meets_criteria(self, material_data):
+        return super().meets_criteria(material_data) \
+            and get_param_multiple(material_data.get("Textures"), ["Flipbook", "MouthFlipbook", "FB_MouthFlipbookTexture"]) is not None
+
     textures=(
         SlotMapping("Flipbook", closure=True),
         SlotMapping("MouthFlipbook", "Flipbook", switch_slot="Use Flipbook", closure=True),
-        SlotMapping("FB_MouthFlipbookTexture", "Flipbook", switch_slot="Use Second UV", closure=True),
+        SlotMapping("FB_MouthFlipbookTexture", "Flipbook", closure=True),
     )
 
     scalars=(
@@ -1411,10 +1416,12 @@ class FlipbookMappings(MappingCollection):
         SlotMapping("Flipbook Y"),
         SlotMapping("FB_MouthUVOffsetY", "Flipbook Y"),
         SlotMapping("Flipbook Scale"),
+        SlotMapping("FB_MouthUVScale", "Flipbook Scale"),
         SlotMapping("MouthScale", "Flipbook Scale", value_func=lambda value: 1 / value),
-        SlotMapping("FB_MouthUVScale", "Flipbook Scale"), # TODO: Add support for non-uniform scale
-        SlotMapping("FB_MouthUVScaleX", "Flipbook Scale"),
-        SlotMapping("FB_MouthUVScaleY", "Flipbook Scale"),
+        SlotMapping("Scale X"),
+        SlotMapping("FB_MouthUVScaleX", "Scale X"),
+        SlotMapping("Scale Y"),
+        SlotMapping("FB_MouthUVScaleY", "Scale Y"),
         SlotMapping("Use Second UV Channel", "Use Second UV"),
 
         SlotMapping("Affects Base Color"),
@@ -1431,15 +1438,100 @@ class FlipbookMappings(MappingCollection):
 
     switches=(
         SlotMapping("Use Flipbook"),
+        SlotMapping("isBanana", "Use Flipbook"),
         SlotMapping("Use Sub UV texture", "Use Flipbook"),
         SlotMapping("FB_UseMouth", "Use Flipbook"),
+        SlotMapping("FB_MouthUseTexture", "Use Flipbook"),
         SlotMapping("Use Second UV"),
         SlotMapping("UseUV2forMouth", "Use Second UV"),
         SlotMapping("FB_MouthUseUV2", "Use Second UV"),
+        SlotMapping("FB_MouthUVNonUniformScale", "UseNonUniformScale"),
+        SlotMapping("FB_MouhtUVNonUniformScale", "UseNonUniformScale"),
         SlotMapping("Affects Base Color"),
+        SlotMapping("FB_ApplyBaseColor", "Affects Base Color"),
         SlotMapping("Multiply Flipbook Emission"),
         SlotMapping("Multiply Flipbook Emissive", "Multiply Flipbook Emission"),
         SlotMapping("useEmissiveforMouth", "Multiply Flipbook Emission"),
+        SlotMapping("FB_ApplyEmissive", "Multiply Flipbook Emission"),
+    )
+
+
+@registry.register
+class FlipbookEyeMappings(MappingCollection):
+    node_name="FPv4 Flipbook Mirror"
+    type=ENodeType.NT_Advanced_FX
+    node_spacing=700
+
+    @classmethod
+    def meets_criteria(self, material_data):
+        return super().meets_criteria(material_data) \
+            and get_param(material_data.get("Switches"), "FB_UseEyes")
+
+    textures=(
+        SlotMapping("FB_EyeFlipbookTexture", "Flipbook", closure=True),
+    )
+
+    scalars=(
+        SlotMapping("FB_EyeRowCount", "SubImages"),
+        SlotMapping("FB_EyeColumnCount", "SubImages"),
+        SlotMapping("FB_EyeUVOffsetX", "Flipbook X"),
+        SlotMapping("FB_EyeUVOffsetY", "Flipbook Y"),
+        SlotMapping("FB_EyeUVScale", "Flipbook Scale"),
+        SlotMapping("FB_EyeUVScaleX", "Scale X"),
+        SlotMapping("FB_EyeUVScaleY", "Scale Y"),
+    )
+
+    colors=(
+        SlotMapping("FB_EyeColor", "FlipbookTint"),
+    )
+
+    switches=(
+        SlotMapping("FB_UseEyes", "Use Flipbook"),
+        SlotMapping("FB_EyeUseUV2", "Use Second UV"),
+        SlotMapping("FB_EyeMirrorLeftUV", "MirrorLeftUV"),
+        SlotMapping("FB_EyeUVNonUniformScale", "UseNonUniformScale"),
+        SlotMapping("FB_ApplyBaseColor", "Affects Base Color"),
+        SlotMapping("FB_ApplyEmissive", "Multiply Flipbook Emission"),
+    )
+
+
+@registry.register
+class FlipbookBrowMappings(MappingCollection):
+    node_name="FPv4 Flipbook Mirror"
+    type=ENodeType.NT_Advanced_FX
+    node_spacing=700
+
+    @classmethod
+    def meets_criteria(self, material_data):
+        return super().meets_criteria(material_data) \
+            and get_param(material_data.get("Switches"), "FB_UseBrows") \
+            and get_param(material_data.get("Textures"), "FB_BrowTexture") is not None
+
+    textures=(
+        SlotMapping("FB_BrowTexture", "Flipbook", closure=True),
+    )
+
+    scalars=(
+        SlotMapping("FB_BrowRowCount", "SubImages"),
+        SlotMapping("FB_BrowColumnCount", "SubImages"),
+        SlotMapping("FB_BrowUVOffsetX", "Flipbook X"),
+        SlotMapping("FB_BrowUVOffsetY", "Flipbook Y"),
+        SlotMapping("FB_BrowUVScale", "Flipbook Scale"),
+        SlotMapping("FB_BrowUVScaleX", "Scale X"),
+        SlotMapping("FB_BrowUVScaleY", "Scale Y"),
+    )
+
+    colors=(
+        SlotMapping("FB_BrowColor", "FlipbookTint"),
+    )
+
+    switches=(
+        SlotMapping("FB_UseBrows", "Use Flipbook"),
+        SlotMapping("FB_BrowUseUV2", "Use Second UV"),
+        SlotMapping("FB_BrowMirrorLeftUV", "MirrorLeftUV"),
+        SlotMapping("FB_BrowUVNonUniformScale", "UseNonUniformScale"),
+        SlotMapping("FB_ApplyBaseColor", "Affects Base Color"),
+        SlotMapping("FB_ApplyEmissive", "Multiply Flipbook Emission"),
     )
 
 
