@@ -103,6 +103,8 @@ public partial class ExportContext
         
         foreach (var actorLazy in level.Actors)
         {
+            if (CancellationToken.IsCancellationRequested) break;
+            
             currentActor++;
             if (actorLazy is null || actorLazy.IsNull) continue;
 

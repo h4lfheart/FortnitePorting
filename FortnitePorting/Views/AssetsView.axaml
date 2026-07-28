@@ -563,7 +563,8 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <SplitButton Grid.Column="0" HorizontalAlignment="Stretch" Command="{Binding ExportCommand}">
+                    <SplitButton Grid.Column="0" HorizontalAlignment="Stretch" Command="{Binding ExportCommand}"
+                                 IsVisible="{Binding !IsExporting}">
                         <SplitButton.Flyout>
                             <MenuFlyout ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EExportLocation}}">
                                 <MenuFlyout.ItemContainerTheme>
@@ -596,6 +597,15 @@
                                 Text="{Binding ExportLocation, Converter={StaticResource EnumToRecord}, StringFormat='Export to {0}'}" />
                         </StackPanel>
                     </SplitButton>
+
+                    <Button Grid.Column="0" HorizontalAlignment="Stretch" Margin="{ext:Space 0, 0.25}"
+                            Command="{Binding CancelExportCommand}"
+                            IsVisible="{Binding IsExporting}">
+                        <StackPanel Orientation="Horizontal">
+                            <material:MaterialIcon Kind="Cancel" Margin="{ext:Space 0, 0, 1, 0}" />
+                            <TextBlock Text="Cancel" />
+                        </StackPanel>
+                    </Button>
 
                     <Button Grid.Column="1" ToolTip.Tip="Apply Tasty Rig"
                             Command="{Binding ExportTastyRigCommand}"

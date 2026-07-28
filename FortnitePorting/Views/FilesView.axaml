@@ -60,7 +60,7 @@
                 </Button>
 
                 <SplitButton Grid.Column="4" HorizontalAlignment="Stretch" Command="{Binding ExportCommand}"
-                             IsVisible="{Binding IsAssetExportTarget}">
+                             IsVisible="{Binding ShowAssetExportButton}">
                     <SplitButton.Flyout>
                         <MenuFlyout ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EExportLocation}}">
                             <MenuFlyout.ItemContainerTheme>
@@ -95,7 +95,7 @@
                 </SplitButton>
 
                 <SplitButton Grid.Column="4" HorizontalAlignment="Stretch" Command="{Binding ExportCommand}"
-                             IsVisible="{Binding !IsAssetExportTarget}">
+                             IsVisible="{Binding ShowDataExportButton}">
                     <SplitButton.Flyout>
                         <MenuFlyout ItemsSource="{Binding FolderExportLocations}">
                             <MenuFlyout.ItemContainerTheme>
@@ -118,6 +118,15 @@
                             Text="{Binding DataExportLocation, Converter={StaticResource EnumToRecord}, StringFormat='Export to {0}'}" />
                     </StackPanel>
                 </SplitButton>
+
+                <Button Grid.Column="4" HorizontalAlignment="Stretch" Margin="{ext:Space 0, 0.25}"
+                        Command="{Binding CancelExportCommand}"
+                        IsVisible="{Binding IsExporting}">
+                    <StackPanel Orientation="Horizontal">
+                        <material:MaterialIcon Kind="Cancel" Margin="{ext:Space 0, 0, 1, 0}" />
+                        <TextBlock Text="Cancel" />
+                    </StackPanel>
+                </Button>
 
                 <ComboBox Grid.Column="6" ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EExportTarget}}"
                           SelectedItem="{Binding ExportTarget, Converter={StaticResource EnumToRecord}}"

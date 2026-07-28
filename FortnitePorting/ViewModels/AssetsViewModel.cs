@@ -11,6 +11,7 @@ using CUE4Parse.UE4.Assets.Exports.Texture;
 using DynamicData.Binding;
 using FortnitePorting.Controls.Navigation.Sidebar;
 using FortnitePorting.Exporting;
+using FortnitePorting.Exporting.Models;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Assets.Asset;
@@ -48,6 +49,10 @@ public partial class AssetsViewModel() : ViewModelBase
     [ObservableProperty] 
     [NotifyPropertyChangedFor(nameof(IsTastyRigApplyVisible))]
     private EExportLocation _exportLocation = EExportLocation.Blender;
+
+    [ObservableProperty] private bool _isExporting;
+
+    private ExportDataMeta? _exportMeta;
     
     [ObservableProperty, NotifyPropertyChangedFor(nameof(ShowNamesIcon))] private bool _showNames = AppSettings.Application.ShowAssetNames;
 
@@ -109,23 +114,38 @@ public partial class AssetsViewModel() : ViewModelBase
     public async Task Export()
     {
         if (AssetLoader.ActiveLoader is null) return;
-        
-        AssetLoader.ActiveLoader.Pause();
-        
-        var exportedProperly = await Exporter.Export(AssetLoader.ActiveLoader.SelectedAssetInfos, AppSettings.ExportSettings.CreateExportMeta(ExportLocation));
-        if (exportedProperly && SupaBase.IsLoggedIn)
+
+        _exportMeta = AppSettings.ExportSettings.CreateExportMeta(ExportLocation);
+        IsExporting = true;
+
+        try
         {
-            await SupaBase.PostExports([
-                ..AssetLoader.ActiveLoader.SelectedAssetInfos
-                    .OfType<AssetInfo>()
-                    .Select(asset => asset.Asset.CreationData.Object.GetPathName()),
-                ..AssetLoader.ActiveLoader.SelectedAssetInfos
-                    .OfType<CustomAssetInfo>()
-                    .Select(asset => $"Custom/{asset.Asset.Asset.Name}"),
-            ]);
+            var exportedProperly = await Exporter.Export(
+                AssetLoader.ActiveLoader.SelectedAssetInfos, _exportMeta);
+            if (exportedProperly && SupaBase.IsLoggedIn)
+            {
+                await SupaBase.PostExports([
+                    ..AssetLoader.ActiveLoader.SelectedAssetInfos
+                        .OfType<AssetInfo>()
+                        .Select(asset => asset.Asset.CreationData.Object.GetPathName()),
+                    ..AssetLoader.ActiveLoader.SelectedAssetInfos
+                        .OfType<CustomAssetInfo>()
+                        .Select(asset => $"Custom/{asset.Asset.Asset.Name}"),
+                ]);
+            }
         }
-        
-        AssetLoader.ActiveLoader.Unpause();
+        finally
+        {
+            _exportMeta?.Dispose();
+            _exportMeta = null;
+            IsExporting = false;
+        }
+    }
+
+    [RelayCommand]
+    public void CancelExport()
+    {
+        _exportMeta?.Cancel();
     }
     
     [RelayCommand]

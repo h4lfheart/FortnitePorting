@@ -82,8 +82,11 @@ public static class Exporter
             var serverType = metaData.ExportLocation.ServerType;
             if (serverType is EExportServerType.None)
             {
-                var exports = exportFunction.Invoke();
-                foreach (var export in exports) await export.WaitForExports();
+                foreach (var export in exportFunction.Invoke())
+                {
+                    await export.WaitForExports();
+                    if (metaData.CancellationToken.IsCancellationRequested) return;
+                }
             }
             else
             {
@@ -100,19 +103,27 @@ public static class Exporter
                     return;
                 }
 
-                var exports = exportFunction().ToArray();
+                var exports = new List<BaseExport>();
+                foreach (var export in exportFunction())
+                {
+                    exports.Add(export);
+                    if (metaData.CancellationToken.IsCancellationRequested) return;
+                }
+
                 foreach (var export in exports) await export.WaitForExports();
+
+                if (metaData.CancellationToken.IsCancellationRequested) return;
             
                 var exportData = new ExportData
                 {
                     MetaData = metaData,
-                    Exports = exports
+                    Exports = exports.ToArray()
                 };
             
                 await ExportClient.SendExportAsync(serverType, exportData);
             }
 
-            exportedProperly = true;
+            exportedProperly = !metaData.CancellationToken.IsCancellationRequested;
         });
 
         return exportedProperly;

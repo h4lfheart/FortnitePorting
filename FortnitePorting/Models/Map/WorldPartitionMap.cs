@@ -21,6 +21,7 @@ using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using DynamicData;
 using FortnitePorting.Exporting;
+using FortnitePorting.Exporting.Models;
 using FortnitePorting.Extensions;
 using FortnitePorting.Models.Unreal.Landscape;
 using FortnitePorting.Shared.Extensions;
@@ -49,6 +50,8 @@ public partial class WorldPartitionMap : ObservableObject
 
     [ObservableProperty] private bool _includeMainLevel;
     
+    [ObservableProperty] private bool _isExporting;
+    
     [ObservableProperty] private ObservableCollection<WorldPartitionGridMap> _selectedMaps = [];
     
     [ObservableProperty] private ObservableCollection<WorldPartitionGrid> _grids = [];
@@ -58,6 +61,7 @@ public partial class WorldPartitionMap : ObservableObject
     
     private UWorld? _world;
     private ULevel? _level;
+    private ExportDataMeta? _exportMeta;
 
     public void Detach()
     {
@@ -244,40 +248,62 @@ public partial class WorldPartitionMap : ObservableObject
     [RelayCommand]
     public async Task Export()
     {
-        var meta = AppSettings.ExportSettings.CreateExportMeta(MapVM.ExportLocation);
-        meta.WorldFlags = 0;
-        if (WorldFlagsActors) meta.WorldFlags |= EWorldFlags.Actors;
-        if (WorldFlagsInstancedFoliage) meta.WorldFlags |= EWorldFlags.InstancedFoliage;
-        if (WorldFlagsLandscape) meta.WorldFlags |= EWorldFlags.Landscape;
-        if (WorldFlagsHLODs) meta.WorldFlags |= EWorldFlags.HLODs;
+        _exportMeta = AppSettings.ExportSettings.CreateExportMeta(MapVM.ExportLocation);
+        IsExporting = true;
+        
+        try
+        {
+            _exportMeta.WorldFlags = 0;
+            if (WorldFlagsActors) _exportMeta.WorldFlags |= EWorldFlags.Actors;
+            if (WorldFlagsInstancedFoliage) _exportMeta.WorldFlags |= EWorldFlags.InstancedFoliage;
+            if (WorldFlagsLandscape) _exportMeta.WorldFlags |= EWorldFlags.Landscape;
+            if (WorldFlagsHLODs) _exportMeta.WorldFlags |= EWorldFlags.HLODs;
 
-        SelectedMaps.ForEach(map => map.Status = EWorldPartitionGridMapStatus.Waiting);
-        
-        var exportedProperly = true;
-        foreach (var map in SelectedMaps.ToArray())
-        {
-            map.Status = EWorldPartitionGridMapStatus.Exporting;
+            SelectedMaps.ForEach(map => map.Status = EWorldPartitionGridMapStatus.Waiting);
             
-            var world = await UEParse.Provider.SafeLoadPackageObjectAsync<UWorld>(map.Path);
-            if (world is null) continue;
+            var exportedProperly = true;
+            foreach (var map in SelectedMaps.ToArray())
+            {
+                map.Status = EWorldPartitionGridMapStatus.Exporting;
+                
+                var world = await UEParse.Provider.SafeLoadPackageObjectAsync<UWorld>(map.Path);
+                if (world is null) continue;
+                
+                exportedProperly &= await Exporter.Export(world, EExportType.World, _exportMeta);
+                
+                if (_exportMeta.CancellationToken.IsCancellationRequested)
+                {
+                    exportedProperly = false;
+                    break;
+                }
+                
+                map.Status = EWorldPartitionGridMapStatus.Finished;
+            }
             
-            exportedProperly &= await Exporter.Export(world, EExportType.World, meta);
+            if (exportedProperly && SupaBase.IsLoggedIn)
+            {
+                await SupaBase.PostExports(
+                    SelectedMaps
+                        .Select(map => map.Path)
+                );
+            }
             
-            map.Status = EWorldPartitionGridMapStatus.Finished;
+            SelectedMaps.ForEach(map => map.Status = EWorldPartitionGridMapStatus.None);
+            if (exportedProperly)
+                ClearSelectedMaps();
         }
-        
-        if (exportedProperly && SupaBase.IsLoggedIn)
+        finally
         {
-            await SupaBase.PostExports(
-                SelectedMaps
-                    .Select(map => map.Path)
-            );
+            _exportMeta?.Dispose();
+            _exportMeta = null;
+            IsExporting = false;
         }
-        
-        SelectedMaps.ForEach(map => map.Status = EWorldPartitionGridMapStatus.None);
-        if (exportedProperly)
-            ClearSelectedMaps();
-        
+    }
+
+    [RelayCommand]
+    public void CancelExport()
+    {
+        _exportMeta?.Cancel();
     }
 
     [RelayCommand]

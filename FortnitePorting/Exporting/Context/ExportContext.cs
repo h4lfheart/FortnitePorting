@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using CUE4Parse_Conversion;
 using CUE4Parse_Conversion.Animations;
@@ -40,6 +41,7 @@ public partial class ExportContext
     public List<Task> ExportTasks = [];
 
     public readonly ExportDataMeta Meta;
+    public CancellationToken CancellationToken => Meta.CancellationToken;
     private readonly ExporterOptions FileExportOptions;
 
     public ExportContext(ExportDataMeta metaData)

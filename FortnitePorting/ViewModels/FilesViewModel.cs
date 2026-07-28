@@ -49,10 +49,17 @@ public partial class FilesViewModel(FilesService filesService) : ViewModelBase, 
     [ObservableProperty] private EExportLocation _assetExportLocation = EExportLocation.Blender;
     [ObservableProperty] private EExportLocation _dataExportLocation = EExportLocation.AssetsFolder;
 
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(IsAssetExportTarget))]
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(IsAssetExportTarget)), NotifyPropertyChangedFor(nameof(ShowAssetExportButton)), NotifyPropertyChangedFor(nameof(ShowDataExportButton))]
     private EExportTarget _exportTarget = EExportTarget.Asset;
 
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(ShowAssetExportButton)), NotifyPropertyChangedFor(nameof(ShowDataExportButton))]
+    private bool _isExporting;
+
     public bool IsAssetExportTarget => ExportTarget == EExportTarget.Asset;
+    public bool ShowAssetExportButton => IsAssetExportTarget && !IsExporting;
+    public bool ShowDataExportButton => !IsAssetExportTarget && !IsExporting;
+
+    private ExportDataMeta? _exportMeta;
 
     public EnumRecord[] FolderExportLocations =>
         Enum.GetValues<EExportLocation>()
@@ -239,15 +246,34 @@ public partial class FilesViewModel(FilesService filesService) : ViewModelBase, 
     [RelayCommand]
     public async Task Export()
     {
-        switch (ExportTarget)
+        var location = ExportTarget is EExportTarget.Asset ? AssetExportLocation : DataExportLocation;
+        _exportMeta = AppSettings.ExportSettings.CreateExportMeta(location);
+        IsExporting = true;
+
+        try
         {
-            case EExportTarget.Asset: await ExportAssets(); break;
-            case EExportTarget.Properties: await ExportProperties(); break;
-            case EExportTarget.RawData: await ExportRawData(); break;
+            switch (ExportTarget)
+            {
+                case EExportTarget.Asset: await ExportAssets(_exportMeta); break;
+                case EExportTarget.Properties: await ExportProperties(_exportMeta); break;
+                case EExportTarget.RawData: await ExportRawData(_exportMeta); break;
+            }
+        }
+        finally
+        {
+            _exportMeta?.Dispose();
+            _exportMeta = null;
+            IsExporting = false;
         }
     }
 
-    private async Task ExportAssets()
+    [RelayCommand]
+    public void CancelExport()
+    {
+        _exportMeta?.Cancel();
+    }
+
+    private async Task ExportAssets(ExportDataMeta meta)
     {
         var unsupportedExportTypes = new HashSet<string>();
 
@@ -342,7 +368,6 @@ public partial class FilesViewModel(FilesService filesService) : ViewModelBase, 
             return;
         }
 
-        var meta = AppSettings.ExportSettings.CreateExportMeta(AssetExportLocation);
         meta.WorldFlags = EWorldFlags.Actors | EWorldFlags.Landscape | EWorldFlags.WorldPartitionGrids | EWorldFlags.HLODs;
         if (meta.Settings.ImportInstancedFoliage)
             meta.WorldFlags |= EWorldFlags.InstancedFoliage;
@@ -352,7 +377,7 @@ public partial class FilesViewModel(FilesService filesService) : ViewModelBase, 
             await SupaBase.PostExports(exports.Select(e => e.Object.GetPathName()));
     }
 
-    private async Task ExportProperties()
+    private async Task ExportProperties(ExportDataMeta meta)
     {
         var paths = Context.UseFlatView
             ? Context.SelectedFlatViewItems.Select(x => x.Path).ToList()
@@ -373,7 +398,6 @@ public partial class FilesViewModel(FilesService filesService) : ViewModelBase, 
             return;
         }
 
-        var meta = AppSettings.ExportSettings.CreateExportMeta(DataExportLocation);
         if (meta.ExportLocation is EExportLocation.CustomFolder &&
             await App.BrowseFolderDialog() is { } customExportPath)
             meta.CustomPath = customExportPath;
@@ -394,7 +418,7 @@ public partial class FilesViewModel(FilesService filesService) : ViewModelBase, 
         }
     }
 
-    private async Task ExportRawData()
+    private async Task ExportRawData(ExportDataMeta meta)
     {
         var paths = Context.UseFlatView
             ? Context.SelectedFlatViewItems.Select(x => x.Path).ToList()
@@ -415,7 +439,6 @@ public partial class FilesViewModel(FilesService filesService) : ViewModelBase, 
             return;
         }
 
-        var meta = AppSettings.ExportSettings.CreateExportMeta(DataExportLocation);
         if (meta.ExportLocation is EExportLocation.CustomFolder &&
             await App.BrowseFolderDialog() is { } customExportPath)
             meta.CustomPath = customExportPath;

@@ -1,3 +1,5 @@
+using System;
+using System.Threading;
 using FortnitePorting.Exporting.Types;
 using FortnitePorting.ViewModels;
 using Newtonsoft.Json;
@@ -10,7 +12,7 @@ public class ExportData
     public BaseExport[] Exports;
 }
 
-public class ExportDataMeta
+public class ExportDataMeta : IDisposable
 {
     public string Version = Globals.VersionString;
     public string AssetsRoot;
@@ -20,12 +22,20 @@ public class ExportDataMeta
     [JsonIgnore] public string? CustomPath;
     [JsonIgnore] public EWorldFlags WorldFlags = EWorldFlags.Actors | EWorldFlags.WorldPartitionGrids | EWorldFlags.Landscape | EWorldFlags.InstancedFoliage | EWorldFlags.HLODs;
 
+    private readonly CancellationTokenSource _cancellationSource = new();
+
+    [JsonIgnore] public CancellationToken CancellationToken => _cancellationSource.Token;
+
     public event ExportProgressUpdate UpdateProgress;
 
     public virtual void OnUpdateProgress(string name, int current, int total)
     {
         UpdateProgress?.Invoke(name, current, total);
     }
+
+    public void Cancel() => _cancellationSource.Cancel();
+
+    public void Dispose() => _cancellationSource.Dispose();
 }
 
 public delegate void ExportProgressUpdate(string name, int current, int total);

@@ -186,7 +186,9 @@
                                 </StackPanel>
                             </DropDownButton>
 
-                            <SplitButton Grid.Column="2" HorizontalAlignment="Stretch" IsEnabled="{Binding !!SelectedMap.SelectedMaps.Count}"
+                            <SplitButton Grid.Column="2" HorizontalAlignment="Stretch"
+                                         IsEnabled="{Binding !!SelectedMap.SelectedMaps.Count}"
+                                         IsVisible="{Binding !SelectedMap.IsExporting}"
                                          Command="{Binding SelectedMap.ExportCommand}">
                                 <SplitButton.Flyout>
                                     <MenuFlyout
@@ -221,6 +223,15 @@
                                         Text="{Binding ExportLocation, Converter={StaticResource EnumToRecord}, StringFormat='Export to {0}'}" />
                                 </StackPanel>
                             </SplitButton>
+
+                            <Button Grid.Column="2" HorizontalAlignment="Stretch" Margin="{ext:Space 0, 0.25}"
+                                    IsVisible="{Binding SelectedMap.IsExporting}"
+                                    Command="{Binding SelectedMap.CancelExportCommand}">
+                                <StackPanel Orientation="Horizontal">
+                                    <material:MaterialIcon Kind="Cancel" Margin="{ext:Space 0, 0, 1, 0}" />
+                                    <TextBlock Text="Cancel" />
+                                </StackPanel>
+                            </Button>
 
                             <Button Grid.Column="4" ToolTip.Tip="Export Settings"
                                     Content="{material:MaterialIconExt Settings}"

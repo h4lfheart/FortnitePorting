@@ -265,6 +265,8 @@ public class MeshExport : BaseExport
                 var currentProp = 0;
                 foreach (var prop in props)
                 {
+                    if (Exporter.CancellationToken.IsCancellationRequested) break;
+                    
                     currentProp++;
                     
                     var levelSaveRecord = prop.GetOrDefault<UObject?>("LevelSaveRecord");
