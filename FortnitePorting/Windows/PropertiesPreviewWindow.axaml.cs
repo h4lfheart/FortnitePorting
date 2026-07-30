@@ -93,7 +93,7 @@ public partial class PropertiesPreviewWindow : PreviewWindowBase<PropertiesPrevi
 
     public static void Preview(string name, string json, int targetIndex = -1)
     {
-        var window = GetOrCreate(() => new PropertiesPreviewWindow());
+        var window = WindowManager.GetOrShowPreview(() => new PropertiesPreviewWindow());
 
         var targetLine = 0;
         if (targetIndex >= 0)

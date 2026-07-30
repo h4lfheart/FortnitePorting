@@ -16,7 +16,7 @@ public partial class ModelPreviewWindow : PreviewWindowBase<ModelPreviewWindow, 
 
     public static void Preview(IEnumerable<UObject> objects)
     {
-        var window = GetOrCreate(() => new ModelPreviewWindow());
+        var window = WindowManager.GetOrShowPreview(() => new ModelPreviewWindow());
         window.WindowModel.LoadScene(objects);
     }
 }

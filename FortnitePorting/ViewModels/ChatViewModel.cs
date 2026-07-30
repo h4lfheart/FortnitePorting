@@ -1,8 +1,6 @@
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -15,27 +13,36 @@ using FortnitePorting.Windows;
 
 namespace FortnitePorting.ViewModels;
 
-public partial class ChatViewModel(SupabaseService supabase, ChatService chatService, FilesService filesService) : ViewModelBase
+public partial class ChatViewModel(
+    SupabaseService supabase,
+    ChatService chat,
+    FilesService files,
+    APIService api,
+    InfoService info,
+    AppService app,
+    DiscordService discord,
+    CUE4ParseService ueParse) : ViewModelBase
 {
     [ObservableProperty] private SupabaseService _supaBase = supabase;
-    [ObservableProperty] private ChatService _chat = chatService;
-    [ObservableProperty] private FilesService _files = filesService;
+    [ObservableProperty] private ChatService _chat = chat;
+    [ObservableProperty] private FilesService _files = files;
+
+    private readonly APIService _api = api;
+    private readonly InfoService _info = info;
+    private readonly AppService _app = app;
+    private readonly DiscordService _discord = discord;
+    private readonly CUE4ParseService _ueParse = ueParse;
 
     [ObservableProperty] private ChatMessage? _replyMessage;
     [ObservableProperty] private ChatMessage? _editMessage;
-
     [ObservableProperty] private string _text = string.Empty;
-    [ObservableProperty] private TextBox _textBox;
-
     [ObservableProperty] private PendingImageAttachment? _pendingImage;
     [ObservableProperty] private PendingGameFileAttachment? _pendingGameFile;
-    
-    [ObservableProperty] private bool _showNewMessageIndicator = false;
-    
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(NewMessageCountText))] private int _unreadMessageCount = 0;
-    
+    [ObservableProperty] private bool _showNewMessageIndicator;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(NewMessageCountText))] private int _unreadMessageCount;
+
     public string NewMessageCountText => UnreadMessageCount == 1 ? "1 New Message" : $"{UnreadMessageCount} New Messages";
-    
+
     partial void OnEditMessageChanged(ChatMessage? value)
     {
         if (value is not null) ReplyMessage = null;
@@ -48,23 +55,17 @@ public partial class ChatViewModel(SupabaseService supabase, ChatService chatSer
     }
 
     [RelayCommand]
-    public void ClearEdit()
-    {
-        EditMessage = null;
-    }
+    public void ClearEdit() => EditMessage = null;
 
     [RelayCommand]
     public async Task OpenImage()
     {
-        if (await App.BrowseFileDialog(fileTypes: Globals.ChatAttachmentFileType) is { } path)
+        if (await _app.BrowseFileDialog(fileTypes: Globals.ChatAttachmentFileType) is { } path)
             PendingImage = new PendingImageAttachment(new Bitmap(path), Path.GetFileName(path));
     }
 
     [RelayCommand]
-    public void ClearImage()
-    {
-        PendingImage = null;
-    }
+    public void ClearImage() => PendingImage = null;
 
     [RelayCommand]
     public async Task OpenGameFile()
@@ -72,32 +73,84 @@ public partial class ChatViewModel(SupabaseService supabase, ChatService chatSer
         if (await FilePickerWindow.OpenBrowserAsync("Attach Game File") is { Length: > 0 } paths
             && paths.FirstOrDefault() is { } path)
         {
-            var (icon, displayName, _) = await UEParse.ResolveGameFileAsync(path);
+            var (icon, displayName, _) = await _ueParse.ResolveGameFileAsync(path);
             PendingGameFile = new PendingGameFileAttachment(path, icon, displayName);
         }
     }
 
     [RelayCommand]
-    public void ClearGameFile()
-    {
-        PendingGameFile = null;
-    }
+    public void ClearGameFile() => PendingGameFile = null;
 
+    [RelayCommand]
     public async Task ClipboardPaste()
     {
-        if (await App.Clipboard.GetTextAsync() is { } text)
+        if (await _app.Clipboard.GetTextAsync() is { } clipboardText)
         {
-            var caret = TextBox.CaretIndex;
-            var current = TextBox.Text ?? string.Empty;
-            TextBox.Text = current.Insert(caret, text);
-            TextBox.CaretIndex = caret + text.Length;
+            Text += clipboardText;
         }
-        else if (await AvaloniaClipboard.GetImageAsync() is { } image && SupaBase.UserInfo?.Role >= ESupabaseRole.Verified)
+        else if (await AvaloniaClipboard.GetImageAsync() is { } image && _supaBase.UserInfo?.Role >= ESupabaseRole.Verified)
         {
             PendingImage = new PendingImageAttachment(image, "clipboard.png");
         }
     }
-    
+
+    public bool CanSubmit(string text)
+        => !(string.IsNullOrWhiteSpace(text) && PendingImage is null && PendingGameFile is null && EditMessage is null);
+
+    public bool ValidateLength(string text)
+    {
+        if (text.Length <= 400) return true;
+
+        _info.Message("Character Limit", "Your message is over the character limit of 400 characters.");
+        return false;
+    }
+
+    public async Task SendOrUpdateAsync(string text)
+    {
+        if (EditMessage is { } editMessage)
+        {
+            EditMessage = null;
+            Text = string.Empty;
+            await _chat.UpdateMessage(editMessage, text);
+            return;
+        }
+
+        if (text.StartsWith("/shrug"))
+            text = @"¯\_(?)_/¯";
+
+        var pendingImage = PendingImage;
+        var pendingGameFile = PendingGameFile;
+        var replyId = ReplyMessage?.Id;
+
+        string? imagePath = null;
+        if (pendingImage is not null)
+        {
+            var memoryStream = new MemoryStream();
+            pendingImage.Bitmap.Save(memoryStream);
+
+            var result = await _api.FortnitePorting.UploadImage(memoryStream.ToArray(), pendingImage.Name);
+            imagePath = result?.Path;
+        }
+
+        await _chat.SendMessage(_chat.ConvertMentionsToIds(text), replyId: replyId,
+            imagePath: imagePath, gameFilePath: pendingGameFile?.Path);
+
+        ReplyMessage = null;
+        Text = string.Empty;
+        ClearImage();
+        ClearGameFile();
+    }
+
+    public async Task UpdateTypingAsync(bool isTyping)
+    {
+        if (_chat.Presence.IsTyping == isTyping) return;
+
+        _chat.Presence.IsTyping = isTyping;
+        await _chat.ChatPresence.Track(_chat.Presence);
+    }
+
+    public async Task<bool> LoadMoreMessagesAsync() => await _chat.LoadMoreMessages();
+
     public void IncrementNewMessageIndicator()
     {
         UnreadMessageCount++;
@@ -112,12 +165,11 @@ public partial class ChatViewModel(SupabaseService supabase, ChatService chatSer
 
     public override async Task OnViewOpened()
     {
-        Discord.Update($"Chatting with {Chat.Users.Count} {(Chat.Users.Count > 1 ? "Users" : "User")}");
+        _discord.Update($"Chatting with {_chat.Users.Count} {(_chat.Users.Count > 1 ? "Users" : "User")}");
 
-        Chat.UnseenMessageCount = 0;
+        _chat.UnseenMessageCount = 0;
 
-        if (!Chat.HasFetchedMessages)
-            await Chat.LoadMoreMessages();
+        if (!_chat.HasFetchedMessages)
+            await _chat.LoadMoreMessages();
     }
-
 }

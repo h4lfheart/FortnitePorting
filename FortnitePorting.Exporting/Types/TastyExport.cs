@@ -9,6 +9,6 @@ public class TastyExport : BaseExport
 
     public TastyExport(ExportDataMeta metaData) : base("Tasty Rig", EExportType.TastyRig, metaData)
     {
-        MasterSkeletalMesh = Exporter.Mesh(metaData.Provider.Provider.SafeLoadPackageObject<USkeletalMesh>("/FortniteGame/Content/Characters/Player/Male/Medium/Base/SK_M_MALE_Base_Skeleton"));
+        MasterSkeletalMesh = Context.Mesh(metaData.Provider.Provider.SafeLoadPackageObject<USkeletalMesh>("/FortniteGame/Content/Characters/Player/Male/Medium/Base/SK_M_MALE_Base_Skeleton"));
     }
 }

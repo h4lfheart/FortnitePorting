@@ -57,7 +57,7 @@ public static class AppServiceExtensions
 {
     extension(ServiceCollection collection)
     {
-        public  void AddCommonServices()
+        public void AddCommonServices()
         {
             var serviceTypes = Assembly.GetAssembly(typeof(IService))?
                 .GetTypes()

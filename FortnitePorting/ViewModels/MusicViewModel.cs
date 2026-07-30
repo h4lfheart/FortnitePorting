@@ -6,22 +6,18 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Layout;
-using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.Utils;
 using DynamicData;
 using DynamicData.Binding;
-using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Information;
 using FortnitePorting.Models.Radio;
 using FortnitePorting.Services;
-using FortnitePorting.Windows;
 using Newtonsoft.Json;
 using ReactiveUI;
 using Serilog;
-using MessageData = FortnitePorting.Models.Information.MessageData;
 
 namespace FortnitePorting.ViewModels;
 
@@ -29,9 +25,9 @@ public partial class MusicViewModel : ViewModelBase, IResettable
 {
     [ObservableProperty] private ReadOnlyObservableCollection<MusicPackItem> _activeCollection;
     [ObservableProperty] private string _searchFilter = string.Empty;
-
     [ObservableProperty] private RadioPlaylist _activePlaylist;
     [ObservableProperty] private ObservableCollection<RadioPlaylist> _playlists = [RadioPlaylist.Default];
+
     public RadioPlaylist[] CustomPlaylists => Playlists.Where(p => !p.IsDefault).ToArray();
 
     public readonly ReadOnlyObservableCollection<MusicPackItem> Filtered;
@@ -41,24 +37,30 @@ public partial class MusicViewModel : ViewModelBase, IResettable
     private readonly IObservable<Func<MusicPackItem, bool>> RadioSearchFilter;
     private readonly IObservable<Func<MusicPackItem, bool>> RadioPlaylistFilter;
 
+    private readonly CUE4ParseService _ueParse;
+    private readonly SettingsService _settings;
+    private readonly InfoService _info;
+    private readonly AppService _app;
+    private readonly DiscordService _discord;
+
     private readonly string[] IgnoreFilters = ["Random", "TBD", "MusicPack_000_Default"];
     private const string CLASS_NAME = "AthenaMusicPackItemDefinition";
 
-    public void Reset()
+    public MusicViewModel(
+        CUE4ParseService ueParse,
+        SettingsService settings,
+        InfoService info,
+        AppService app,
+        DiscordService discord)
     {
-        foreach (var item in Source.Items)
-            item.Detach();
-        Source.Clear();
-        Playlists.Clear();
-        Playlists.Add(RadioPlaylist.Default);
-        ActivePlaylist = RadioPlaylist.Default;
-        InvalidateInitialization();
-    }
+        _ueParse = ueParse;
+        _settings = settings;
+        _info = info;
+        _app = app;
+        _discord = discord;
 
-    public MusicViewModel()
-    {
         RadioSearchFilter = this.WhenAnyValue(x => x.SearchFilter).Select(CreateSearchFilter);
-        
+
         RadioPlaylistFilter = this.WhenAnyValue(x => x.ActivePlaylist)
             .Select(playlist => playlist is null
                 ? Observable.Return<Func<MusicPackItem, bool>>(_ => true)
@@ -85,13 +87,24 @@ public partial class MusicViewModel : ViewModelBase, IResettable
         ActiveCollection = Filtered;
     }
 
+    public void Reset()
+    {
+        foreach (var item in Source.Items)
+            item.Detach();
+        Source.Clear();
+        Playlists.Clear();
+        Playlists.Add(RadioPlaylist.Default);
+        ActivePlaylist = RadioPlaylist.Default;
+        InvalidateInitialization();
+    }
+
     public override async Task Initialize()
     {
         if (Playlists.Count <= 1)
         {
             await TaskService.RunDispatcherAsync(async () =>
             {
-                foreach (var serializeData in AppSettings.Application.Playlists)
+                foreach (var serializeData in _settings.Application.Playlists)
                     Playlists.Add(await RadioPlaylist.FromSerializeData(serializeData));
             });
         }
@@ -101,7 +114,7 @@ public partial class MusicViewModel : ViewModelBase, IResettable
 
     private async Task LoadMusicPacksAsync()
     {
-        var assets = UEParse.AssetRegistry
+        var assets = _ueParse.AssetRegistry
             .Where(d => d.AssetClass.Text.Equals(CLASS_NAME))
             .Where(d => !IgnoreFilters.Any(f => d.AssetName.Text.Contains(f, StringComparison.OrdinalIgnoreCase)))
             .ToList();
@@ -110,7 +123,7 @@ public partial class MusicViewModel : ViewModelBase, IResettable
         {
             try
             {
-                var musicPack = await UEParse.Provider.SafeLoadPackageObjectAsync(asset.ObjectPath);
+                var musicPack = await _ueParse.Provider.SafeLoadPackageObjectAsync(asset.ObjectPath);
                 Source.Add(new MusicPackItem(musicPack));
             }
             catch (Exception e)
@@ -123,10 +136,10 @@ public partial class MusicViewModel : ViewModelBase, IResettable
     public override void OnApplicationExit()
     {
         base.OnApplicationExit();
-        AppSettings.Application.Playlists = CustomPlaylists.Select(RadioPlaylistSerializeData.FromPlaylist).ToArray();
+        _settings.Application.Playlists = CustomPlaylists.Select(RadioPlaylistSerializeData.FromPlaylist).ToArray();
     }
 
-    public override async Task OnViewOpened() => Discord.Update("Browsing Music");
+    public override async Task OnViewOpened() => _discord.Update("Browsing Music");
 
     [RelayCommand]
     public async Task AddPlaylist() => Playlists.Add(new RadioPlaylist(isDefault: false));
@@ -145,7 +158,7 @@ public partial class MusicViewModel : ViewModelBase, IResettable
     public async Task ExportPlaylist()
     {
         if (ActivePlaylist.IsDefault) return;
-        if (await App.SaveFileDialog(suggestedFileName: ActivePlaylist.PlaylistName,
+        if (await _app.SaveFileDialog(suggestedFileName: ActivePlaylist.PlaylistName,
                 fileTypes: Globals.PlaylistFileType) is not { } path) return;
         path = path.SubstringBeforeLast(".").SubstringBeforeLast(".");
         var data = RadioPlaylistSerializeData.FromPlaylist(ActivePlaylist);
@@ -155,7 +168,7 @@ public partial class MusicViewModel : ViewModelBase, IResettable
     [RelayCommand]
     public async Task ImportPlaylist()
     {
-        if (await App.BrowseFileDialog(fileTypes: Globals.PlaylistFileType) is not { } path) return;
+        if (await _app.BrowseFileDialog(fileTypes: Globals.PlaylistFileType) is not { } path) return;
         var data = JsonConvert.DeserializeObject<RadioPlaylistSerializeData>(await File.ReadAllTextAsync(path));
         if (data is null) return;
         Playlists.Add(await RadioPlaylist.FromSerializeData(data));
@@ -174,7 +187,7 @@ public partial class MusicViewModel : ViewModelBase, IResettable
                 HorizontalAlignment = HorizontalAlignment.Stretch
             };
 
-            Info.Dialog($"Rename Playlist", content: textBox, buttons:
+            _info.Dialog($"Rename Playlist", content: textBox, buttons:
             [
                 new DialogButton
                 {

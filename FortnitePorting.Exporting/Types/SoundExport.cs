@@ -41,7 +41,7 @@ public class SoundExport : BaseExport
         
         foreach (var exportSound in exportSounds)
         {
-            Sounds.Add(new ExportSound { Path = Exporter.Export(exportSound) });
+            Sounds.Add(new ExportSound { Path = Context.Export(exportSound) });
         }
     }
     

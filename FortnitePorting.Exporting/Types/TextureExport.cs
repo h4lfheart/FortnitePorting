@@ -57,13 +57,13 @@ public class TextureExport : BaseExport
         {
             if (metaData.ExportLocation.IsFolder)
             {
-                var exportPath = Exporter.Export(texture, returnRealPath: true, synchronousExport: true);
+                var exportPath = Context.Export(texture, returnRealPath: true, synchronousExport: true);
                 if (Path.GetDirectoryName(exportPath) is { } exportFolder)
                     FolderPaths.Add(exportFolder);
             }
             else
             {
-                Textures.Add(new ExportTexture(Exporter.Export(texture), texture.SRGB, texture.CompressionSettings));
+                Textures.Add(new ExportTexture(Context.Export(texture), texture.SRGB, texture.CompressionSettings));
             }
         }
     }

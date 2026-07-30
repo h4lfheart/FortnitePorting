@@ -25,16 +25,25 @@ using Serilog;
 
 namespace FortnitePorting.ViewModels;
 
-public partial class MapViewModel : ViewModelBase, IResettable
+public partial class MapViewModel(
+    SettingsService settings,
+    SupabaseService supabase,
+    APIService api,
+    CUE4ParseService ueParse,
+    InfoService info,
+    NavigationService navigation,
+    DiscordService discord,
+    AppService app) : ViewModelBase, IResettable
 {
-    [ObservableProperty] private SettingsService _appSettings;
-    [ObservableProperty] private SupabaseService _supaBase;
+    [ObservableProperty] private SupabaseService _supaBase = supabase;
 
-    public MapViewModel(SettingsService settings, SupabaseService supabase)
-    {
-        AppSettings = settings;
-        SupaBase = supabase;
-    }
+    private readonly SettingsService _settings = settings;
+    private readonly APIService _api = api;
+    private readonly CUE4ParseService _ueParse = ueParse;
+    private readonly InfoService _info = info;
+    private readonly NavigationService _navigation = navigation;
+    private readonly DiscordService _discord = discord;
+    private readonly AppService _app = app;
     
     [ObservableProperty] private ObservableCollection<WorldPartitionMap> _maps = [];
     [ObservableProperty] private WorldPartitionMap _selectedMap;
@@ -54,12 +63,7 @@ public partial class MapViewModel : ViewModelBase, IResettable
 
     public ItemsControl? GridsControl;
     
-    public DirectoryInfo MapsFolder => new(Path.Combine(App.ApplicationDataFolder.FullName, "Maps"));
-
-    public MapViewModel()
-    {
-        MapsFolder.Create();
-    }
+    public DirectoryInfo MapsFolder => new(Path.Combine(_app.ApplicationDataFolder.FullName, "Maps"));
 
     private static string[] PluginRemoveList =
     [
@@ -87,7 +91,8 @@ public partial class MapViewModel : ViewModelBase, IResettable
 
     public override async Task Initialize()
     {
-        ExportLocation = AppSettings.Application.DefaultExportLocation;
+        MapsFolder.Create();
+        ExportLocation = _settings.Application.DefaultExportLocation;
         await LoadMapsAsync();
     }
 
@@ -97,7 +102,7 @@ public partial class MapViewModel : ViewModelBase, IResettable
         {
             IsLoading = true;
         
-            var mapResponse = await Api.FortnitePorting.Maps();
+            var mapResponse = await _api.FortnitePorting.Maps();
             foreach (var map in mapResponse.Entries)
             {
                 var mapInfo = map.Adapt<MapInfo>();
@@ -108,12 +113,12 @@ public partial class MapViewModel : ViewModelBase, IResettable
                 Maps.Add(new WorldPartitionMap(mapInfo));
             }
 
-            foreach (var mapInfo in AppSettings.Application.LocalMapInfos.ToArray())
+            foreach (var mapInfo in _settings.Application.LocalMapInfos.ToArray())
             {
                 if (!mapInfo.IsValid())
                 {
-                    Info.Message("Local Map Info", $"Failed to load {mapInfo.Name} due to invalid file paths, removing from local registry.");
-                    AppSettings.Application.LocalMapInfos.RemoveAll(map => ReferenceEquals(map, mapInfo));
+                    _info.Message("Local Map Info", $"Failed to load {mapInfo.Name} due to invalid file paths, removing from local registry.");
+                    _settings.Application.LocalMapInfos.RemoveAll(map => ReferenceEquals(map, mapInfo));
                     continue;
                 }
 
@@ -121,16 +126,16 @@ public partial class MapViewModel : ViewModelBase, IResettable
                 Maps.Add(new WorldPartitionMap(mapInfo));
             }
 
-            if (SupaBase.Permissions.CanExportUEFN)
+            if (_supaBase.Permissions.CanExportUEFN)
             {
-                foreach (var mountedVfs in UEParse.Provider.MountedVfs)
+                foreach (var mountedVfs in _ueParse.Provider.MountedVfs)
                 {
                     if (mountedVfs is not IoStoreReader { Name: "plugin.utoc" } ioStoreReader) continue;
 
                     var gameFeatureDataFile = ioStoreReader.Files.FirstOrDefault(file => file.Key.EndsWith("GameFeatureData.uasset", StringComparison.OrdinalIgnoreCase));
                     if (gameFeatureDataFile.Value is null) continue;
 
-                    var gameFeatureData = await UEParse.Provider.SafeLoadPackageObjectAsync<UFortGameFeatureData>(gameFeatureDataFile.Value.PathWithoutExtension);
+                    var gameFeatureData = await _ueParse.Provider.SafeLoadPackageObjectAsync<UFortGameFeatureData>(gameFeatureDataFile.Value.PathWithoutExtension);
 
                     if (gameFeatureData?.ExperienceData?.DefaultMap is not { } defaultMapPath) continue;
 
@@ -145,7 +150,7 @@ public partial class MapViewModel : ViewModelBase, IResettable
             
             if (Maps.Count == 0)
             {
-                Info.Message("No Supported Maps", "Failed to find any supported maps for processing.");
+                _info.Message("No Supported Maps", "Failed to find any supported maps for processing.");
             }
 
             TotalMaps = Maps.Count;
@@ -160,7 +165,7 @@ public partial class MapViewModel : ViewModelBase, IResettable
                 }
                 catch (Exception e)
                 {
-                    Info.Message(map.MapInfo.Name, $"Failed to load {map.MapInfo.Name} for export, skipping.");
+                    _info.Message(map.MapInfo.Name, $"Failed to load {map.MapInfo.Name} for export, skipping.");
 #if DEBUG
                     Log.Error(e.ToString());
 #else
@@ -181,25 +186,25 @@ public partial class MapViewModel : ViewModelBase, IResettable
     {
         if (!SelectedMap.MapInfo.IsValid())
         {
-            Info.Message("Publish Map", "Map information is invalid, ensure all paths exist");
+            _info.Message("Publish Map", "Map information is invalid, ensure all paths exist");
             return;
         }
         
-        Info.Dialog("Publish Map", $"Are you sure you would like to publish {SelectedMap.MapInfo.Name}? This will make the map visible for all users.", buttons: [
+        _info.Dialog("Publish Map", $"Are you sure you would like to publish {SelectedMap.MapInfo.Name}? This will make the map visible for all users.", buttons: [
             new DialogButton
             {
                 Text = "Publish",
                 Action = () => TaskService.Run(async () =>
                 {
                     if (SelectedMap.MapInfo.Id is null)
-                        SelectedMap.MapInfo.Id = await Api.FortnitePorting.CreateMap(SelectedMap.MapInfo); 
+                        SelectedMap.MapInfo.Id = await _api.FortnitePorting.CreateMap(SelectedMap.MapInfo); 
                     else
-                        await Api.FortnitePorting.UpdateMap(SelectedMap.MapInfo);
+                        await _api.FortnitePorting.UpdateMap(SelectedMap.MapInfo);
                     
                     SelectedMap.MapInfo.IsPublished = true;
-                    AppSettings.Application.LocalMapInfos.RemoveAll(map => ReferenceEquals(map, SelectedMap.MapInfo));
+                    _settings.Application.LocalMapInfos.RemoveAll(map => ReferenceEquals(map, SelectedMap.MapInfo));
                     
-                    Info.Message("Publish Map", $"Successfully published {SelectedMap.MapInfo.Name}!");
+                    _info.Message("Publish Map", $"Successfully published {SelectedMap.MapInfo.Name}!");
                 })
             }
         ]);
@@ -208,7 +213,7 @@ public partial class MapViewModel : ViewModelBase, IResettable
     [RelayCommand]
     public async Task EditorDelete()
     {
-        Info.Dialog("Delete Map", $"Are you sure you would like to delete {SelectedMap.MapInfo.Name}? This will remove the map for all users.", buttons: [
+        _info.Dialog("Delete Map", $"Are you sure you would like to delete {SelectedMap.MapInfo.Name}? This will remove the map for all users.", buttons: [
             new DialogButton
             {
                 Text = "Delete",
@@ -219,15 +224,15 @@ public partial class MapViewModel : ViewModelBase, IResettable
                     {
                         TaskService.Run(async () =>
                         {
-                            await Api.FortnitePorting.DeleteMap(targetMapInfo.Id);
+                            await _api.FortnitePorting.DeleteMap(targetMapInfo.Id);
                         });
                     }
                         
                     Maps.Remove(SelectedMap);
                     SelectedMap = Maps.FirstOrDefault();
-                    AppSettings.Application.LocalMapInfos.RemoveAll(map => ReferenceEquals(map, targetMapInfo));
+                    _settings.Application.LocalMapInfos.RemoveAll(map => ReferenceEquals(map, targetMapInfo));
                     
-                    Info.Message("Delete Map", $"Successfully deleted {targetMapInfo.Name}!");
+                    _info.Message("Delete Map", $"Successfully deleted {targetMapInfo.Name}!");
                 }
             }
         ]);
@@ -238,7 +243,7 @@ public partial class MapViewModel : ViewModelBase, IResettable
     {
         if (!SelectedMap.MapInfo.IsValid())
         {
-            Info.Message("Refresh Map", "Map information is invalid, ensure all paths exist");
+            _info.Message("Refresh Map", "Map information is invalid, ensure all paths exist");
             return;
         }
         
@@ -248,8 +253,8 @@ public partial class MapViewModel : ViewModelBase, IResettable
     [RelayCommand]
     public async Task OpenSettings()
     {
-        Navigation.App.Open<ExportSettingsView>();
-        Navigation.ExportSettings.Open(ExportLocation);
+        _navigation.App.Open<ExportSettingsView>();
+        _navigation.ExportSettings.Open(ExportLocation);
     }
     
     [RelayCommand]
@@ -261,7 +266,7 @@ public partial class MapViewModel : ViewModelBase, IResettable
     public override async Task OnViewOpened()
     {
         if (SelectedMap is not null)
-            Discord.Update($"Browsing Map: \"{SelectedMap.MapInfo.Name}\"");
+            _discord.Update($"Browsing Map: \"{SelectedMap.MapInfo.Name}\"");
     }
 
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
@@ -274,7 +279,7 @@ public partial class MapViewModel : ViewModelBase, IResettable
             {
                 GridsControl?.InvalidateVisual();
                 
-                Discord.Update($"Browsing Map: \"{SelectedMap.MapInfo.Name}\"");
+                _discord.Update($"Browsing Map: \"{SelectedMap.MapInfo.Name}\"");
                 break;
             }
         }

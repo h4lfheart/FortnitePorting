@@ -1,23 +1,15 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.VisualTree;
-using CUE4Parse.Utils;
 using FortnitePorting.Framework;
-using FortnitePorting.Models.Chat;
 using FortnitePorting.Models.Supabase.Tables;
 using FortnitePorting.Services;
-using FortnitePorting.Shared.Extensions;
 using FortnitePorting.ViewModels;
-using Serilog;
-using Supabase.Storage.Exceptions;
 
 namespace FortnitePorting.Views;
 
@@ -37,12 +29,11 @@ public partial class ChatView : ViewBase<ChatViewModel>
     {
         InitializeComponent();
 
-        ViewModel.TextBox = TextBox;
         TextBox.AddHandler(KeyDownEvent, OnTextKeyDown, RoutingStrategies.Tunnel);
         TextBox.TextChanged += OnTextBoxTextChanged;
         MentionList.SelectionChanged += OnMentionSelectionChanged;
 
-        Scroll.LayoutUpdated += (sender, args) =>
+        Scroll.LayoutUpdated += (_, _) =>
         {
             var currentExtent = Scroll.Extent.Height;
 
@@ -59,7 +50,7 @@ public partial class ChatView : ViewBase<ChatViewModel>
                 Scroll.ScrollToEnd();
         };
 
-        Scroll.ScrollChanged += async (sender, args) =>
+        Scroll.ScrollChanged += async (_, _) =>
         {
             var distanceFromBottom = Scroll.Extent.Height - Scroll.Viewport.Height - Scroll.Offset.Y;
             _shouldAutoScroll = distanceFromBottom <= AutoScrollThreshold;
@@ -68,11 +59,11 @@ public partial class ChatView : ViewBase<ChatViewModel>
                 ViewModel.ClearNewMessageIndicator();
 
             var distanceFromTop = Scroll.Offset.Y;
-            if (_didInitialScroll && distanceFromTop <= LoadMoreThreshold && !_isLoadingMore && Chat.HasMoreMessages)
+            if (_didInitialScroll && distanceFromTop <= LoadMoreThreshold && !_isLoadingMore && ViewModel.Chat.HasMoreMessages)
                 await LoadMoreMessages();
         };
 
-        Chat.TypingUsers.CollectionChanged += (sender, args) =>
+        ViewModel.Chat.TypingUsers.CollectionChanged += (_, _) =>
         {
             TaskService.RunDispatcher(() =>
             {
@@ -81,11 +72,11 @@ public partial class ChatView : ViewBase<ChatViewModel>
             });
         };
 
-        Chat.MessageReceived += (sender, args) =>
+        ViewModel.Chat.MessageReceived += (_, _) =>
         {
             TaskService.RunDispatcher(async () =>
             {
-                await Task.Delay(50); // short delay to account for image load
+                await Task.Delay(50);
 
                 var distanceFromBottom = Scroll.Extent.Height - Scroll.Viewport.Height - Scroll.Offset.Y;
                 _shouldAutoScroll = distanceFromBottom <= AutoScrollThreshold;
@@ -108,11 +99,9 @@ public partial class ChatView : ViewBase<ChatViewModel>
             var previousExtentHeight = Scroll.Extent.Height;
             var previousOffset = Scroll.Offset.Y;
 
-            var loaded = await Chat.LoadMoreMessages();
-
+            var loaded = await ViewModel.LoadMoreMessagesAsync();
             if (!loaded) return;
 
-            // really scuffed layout wait, but it works!
             var tcs = new TaskCompletionSource();
             EventHandler? onLayout = null;
             onLayout = (_, _) =>
@@ -169,7 +158,7 @@ public partial class ChatView : ViewBase<ChatViewModel>
         }
 
         var query = text.Substring(_mentionStart + 1, caret - _mentionStart - 1).ToLowerInvariant();
-        var isStaff = SupaBase.UserInfo?.Role >= ESupabaseRole.Staff;
+        var isStaff = ViewModel.SupaBase.UserInfo?.Role >= ESupabaseRole.Staff;
 
         List<string> matchList;
         if (string.IsNullOrEmpty(query))
@@ -227,15 +216,10 @@ public partial class ChatView : ViewBase<ChatViewModel>
     private void OnTextBoxTextChanged(object? sender, TextChangedEventArgs e)
     {
         var text = TextBox.Text ?? string.Empty;
+        ViewModel.Text = text;
 
         if (string.IsNullOrWhiteSpace(text))
-        {
-            TaskService.Run(async () =>
-            {
-                ViewModel.Chat.Presence.IsTyping = false;
-                await ViewModel.Chat.ChatPresence.Track(ViewModel.Chat.Presence);
-            });
-        }
+            TaskService.Run(async () => await ViewModel.UpdateTypingAsync(false));
 
         UpdateMentionPopup();
     }
@@ -244,7 +228,6 @@ public partial class ChatView : ViewBase<ChatViewModel>
     {
         if (sender is not TextBox textBox) return;
         var text = textBox.Text ?? string.Empty;
-        if (string.IsNullOrWhiteSpace(text) && ViewModel.PendingImage is null && ViewModel.PendingGameFile is null && ViewModel.EditMessage is null) return;
 
         if (e.Key == Key.Escape && ViewModel.EditMessage is not null)
         {
@@ -285,52 +268,21 @@ public partial class ChatView : ViewBase<ChatViewModel>
             }
         }
 
+        if (!ViewModel.CanSubmit(text)) return;
+
         if (e.Key == Key.Enter && !e.KeyModifiers.HasFlag(KeyModifiers.Shift))
         {
-            if (text.Length > 400)
+            if (!ViewModel.ValidateLength(text))
             {
-                Info.Message("Character Limit", "Your message is over the character limit of 400 characters.");
                 e.Handled = true;
                 return;
             }
 
-            if (ViewModel.EditMessage is { } editMessage)
-            {
-                var editText = text;
-                ViewModel.EditMessage = null;
-                textBox.Text = string.Empty;
-                TaskService.Run(async () => await Chat.UpdateMessage(editMessage, editText));
-                e.Handled = true;
-                return;
-            }
-
-            if (text.StartsWith("/shrug"))
-                text = @"¯\_(ツ)_/¯";
-
-            var pendingImage = ViewModel.PendingImage;
-            var pendingGameFile = ViewModel.PendingGameFile;
-            TaskService.Run(async () =>
-            {
-                string? imagePath = null;
-                if (pendingImage is not null)
-                {
-                    var memoryStream = new MemoryStream();
-                    pendingImage.Bitmap.Save(memoryStream);
-
-                    var result = await Api.FortnitePorting.UploadImage(memoryStream.ToArray(), pendingImage.Name);
-                    imagePath = result?.Path;
-                }
-
-                await Chat.SendMessage(Chat.ConvertMentionsToIds(text), replyId: ViewModel.ReplyMessage?.Id,
-                    imagePath: imagePath, gameFilePath: pendingGameFile?.Path);
-                ViewModel.ReplyMessage = null;
-            });
-
+            var sendText = text;
             textBox.Text = string.Empty;
-            ViewModel.ClearImage();
-            ViewModel.ClearGameFile();
             CloseMentionPopup();
             Scroll.ScrollToEnd();
+            TaskService.Run(async () => await ViewModel.SendOrUpdateAsync(sendText));
             e.Handled = true;
         }
         else if (e.Key == Key.Enter && e.KeyModifiers.HasFlag(KeyModifiers.Shift))
@@ -343,14 +295,7 @@ public partial class ChatView : ViewBase<ChatViewModel>
         if (e.Key != Key.Enter)
         {
             var isTyping = !string.IsNullOrWhiteSpace(textBox.Text);
-            TaskService.Run(async () =>
-            {
-                if (ViewModel.Chat.Presence.IsTyping != isTyping)
-                {
-                    ViewModel.Chat.Presence.IsTyping = isTyping;
-                    await ViewModel.Chat.ChatPresence.Track(ViewModel.Chat.Presence);
-                }
-            });
+            TaskService.Run(async () => await ViewModel.UpdateTypingAsync(isTyping));
         }
     }
 
@@ -415,7 +360,6 @@ public partial class ChatView : ViewBase<ChatViewModel>
     {
         ViewModel.ClearGameFile();
     }
-
 
     private void OnNewMessageIndicatorPressed(object? sender, PointerPressedEventArgs e)
     {

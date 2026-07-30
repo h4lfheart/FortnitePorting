@@ -18,7 +18,7 @@ public partial class SoundCuePreviewWindow : NodeGraphPreviewWindowBase<SoundCue
 
     public static void Preview(UObject obj)
     {
-        var window = GetOrCreate(() => new SoundCuePreviewWindow());
+        var window = WindowManager.GetOrShowPreview(() => new SoundCuePreviewWindow());
 
         if (window.WindowModel.Trees.FirstOrDefault(mat => mat.Asset?.Name.Equals(obj.Name) ?? false) is
             { } existing)

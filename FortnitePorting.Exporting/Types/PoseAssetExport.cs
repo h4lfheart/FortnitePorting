@@ -14,6 +14,6 @@ public class PoseAssetExport : BaseExport
         if (asset is not UPoseAsset poseAsset) return;
         if (metaData.ExportLocation.IsFolder) return;
 
-        PoseAsset = Exporter.Export(poseAsset);
+        PoseAsset = Context.Export(poseAsset);
     }
 }

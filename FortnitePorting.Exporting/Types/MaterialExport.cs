@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Material;
 using FortnitePorting.Exporting.Models;
@@ -13,6 +13,6 @@ public class MaterialExport : BaseExport
     
     public MaterialExport(string name, UObject asset, EExportType exportType, ExportDataMeta metaData, IExportFileMeta? fileMeta) : base(name, exportType, metaData)
     {
-        Materials.AddIfNotNull(Exporter.Material((UMaterialInterface)asset, 0));
+        Materials.AddIfNotNull(Context.Material((UMaterialInterface)asset, 0));
     }
 }
