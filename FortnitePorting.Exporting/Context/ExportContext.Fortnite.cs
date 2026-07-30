@@ -15,10 +15,10 @@ using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Objects.Engine.Animation;
 using CUE4Parse.UE4.Objects.UObject;
+using FortnitePorting.CUE4Parse.Extensions;
 using FortnitePorting.CUE4Parse.Models.Fortnite;
 using FortnitePorting.CUE4Parse.Models.Fortnite.Enums;
 using FortnitePorting.Exporting.Models;
-using FortnitePorting.Extensions;
 using FortnitePorting.Shared.Extensions;
 
 namespace FortnitePorting.Exporting.Context;
@@ -87,7 +87,7 @@ public partial class ExportContext
                                 break;
                             }
                             // Fallback in case DNA exporting fails
-                            if (!foundDNA && UEParse.Provider.TryLoadPackageObject("/BRCosmetics/Characters/Player/Male/Medium/Heads/M_MED_Jonesy3L_Head/Meshes/3L/3L_lod2_Facial_Poses_PoseAsset", out UPoseAsset poseAsset)) 
+                            if (!foundDNA && Meta.Provider.Provider.TryLoadPackageObject("/BRCosmetics/Characters/Player/Male/Medium/Heads/M_MED_Jonesy3L_Head/Meshes/3L/3L_lod2_Facial_Poses_PoseAsset", out UPoseAsset poseAsset)) 
                                 meta.PoseAsset = Export(poseAsset);
                         }
                     }
@@ -282,7 +282,7 @@ public partial class ExportContext
 
                     var textureData = property.Tag?.GetValue<FPackageIndex>()?.Load<UBuildingTextureData>();
                     if (property.Tag?.GetValue<string>() is { } textureDataAssetPath)
-                        textureData ??= UEParse.Provider!.SafeLoadPackageObject<UBuildingTextureData>(textureDataAssetPath);
+                        textureData ??= Meta.Provider.Provider!.SafeLoadPackageObject<UBuildingTextureData>(textureDataAssetPath);
                     
                     if (textureData is not null)
                         textureDatas.Add(property.ArrayIndex, textureData);

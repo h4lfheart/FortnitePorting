@@ -2,7 +2,7 @@ using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Utils;
 using CUE4Parse.UE4.Objects.UObject;
 
-namespace FortnitePorting.CUE4Parse.Models.Fortnite.Experience;
+namespace FortnitePorting.CUE4Parse.Models.Fortnite.GameFeature;
 
 [StructFallback]
 public class FVkMapExperienceData

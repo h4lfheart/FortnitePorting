@@ -9,12 +9,13 @@ using CUE4Parse.UE4.Assets.Exports.MetaSound;
 using CUE4Parse.UE4.Assets.Exports.Sound;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.UObject;
+using FortnitePorting.CUE4Parse.Extensions;
 using FortnitePorting.CUE4Parse.Models.Fortnite;
 using FortnitePorting.CUE4Parse.Models.Fortnite.AnimNotifies;
+using FortnitePorting.Exporting.Extensions;
 using FortnitePorting.Exporting.Models;
 using FortnitePorting.Exporting.Models.Files.Meta;
-using FortnitePorting.Extensions;
-using FortnitePorting.Models.Assets;
+using FortnitePorting.Exporting.Styles;
 using FortnitePorting.Shared.Extensions;
 
 namespace FortnitePorting.Exporting.Types;
@@ -28,7 +29,7 @@ public class AnimExport : BaseExport
     public List<ExportCurveMapping> LegacyToMetahumanMappings = [];
     public List<ExportCurveMapping> MetahumanToLegacyMappings = [];
     
-    public AnimExport(string name, UObject asset, BaseStyleData[] styles, EExportType exportType, ExportDataMeta metaData, IExportFileMeta? fileMeta) : base(name, exportType, metaData)
+    public AnimExport(string name, UObject asset, ExportStyleBase[] styles, EExportType exportType, ExportDataMeta metaData, IExportFileMeta? fileMeta) : base(name, exportType, metaData)
     {
         switch (exportType)
         {
@@ -67,7 +68,7 @@ public class AnimExport : BaseExport
             {
                 if (styles.Length > 0)
                 {
-                    foreach (var style in styles.OfType<AnimStyleData>())
+                    foreach (var style in styles.OfType<ExportObjectStyle>())
                     {
                         if (style.StyleData is not UAnimMontage styleMontage) continue;
                         
@@ -87,14 +88,14 @@ public class AnimExport : BaseExport
             }
         }
 
-        if (UEParse.Provider.TryLoadPackageObject<UCurveExpressionsDataAsset>(
+        if (Exporter.Meta.Provider.Provider.TryLoadPackageObject<UCurveExpressionsDataAsset>(
                 "FortniteGame/Content/Characters/Player/Common/Fortnite_Base_Head/Facials/CurveMappings/FN_LegacyTo3L_Main_Mapping",
                 out var legacyToMetahumanCurves))
         {
             LegacyToMetahumanMappings = CurveMappings(legacyToMetahumanCurves);
         }
         
-        if (UEParse.Provider.TryLoadPackageObject<UCurveExpressionsDataAsset>(
+        if (Exporter.Meta.Provider.Provider.TryLoadPackageObject<UCurveExpressionsDataAsset>(
                 "FortniteGame/Content/Characters/Player/Common/Fortnite_Base_Head/Facials/CurveMappings/FN_3LToLegacy_Main_Mapping",
                 out var metahumanToLegacyCurves))
         {

@@ -8,7 +8,7 @@ using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using FortnitePorting.CUE4Parse.Models.Fortnite;
-using FortnitePorting.CUE4Parse.Models.Fortnite.Items;
+using FortnitePorting.CUE4Parse.Models.Fortnite.Styles;
 using FortnitePorting.Exporting;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;

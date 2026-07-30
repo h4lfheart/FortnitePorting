@@ -261,7 +261,10 @@ public class ExportClient(EExportServerType serverType) : IDisposable
                         var loadedObjects = paths
                             .Select(path => UEParse.Provider.SafeLoadPackageObject(path.Value<string>()!.SubstringBeforeLast(".")))
                             .Where(asset => asset is not null);
-                        await Exporter.Export(loadedObjects!, AppSettings.ExportSettings.CreateExportMeta(serverType.LocationType));
+                        var location = serverType.LocationType;
+                        await Exporter.Export(
+                            loadedObjects!,
+                            AppSettings.ExportSettings.CreateExportMeta(location));
                     });
                 }
                 break;

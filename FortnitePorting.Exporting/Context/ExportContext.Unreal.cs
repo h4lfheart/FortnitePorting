@@ -12,10 +12,11 @@ using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
+using FortnitePorting.CUE4Parse.Extensions;
 using FortnitePorting.CUE4Parse.Models.Unreal.Lights;
 using FortnitePorting.Exporting.Models;
-using FortnitePorting.Extensions;
 using FortnitePorting.Models.CUE4Parse;
+using FortnitePorting.Models.Unreal.Landscape;
 using FortnitePorting.Shared.Extensions;
 using Serilog;
 
@@ -187,7 +188,7 @@ public partial class ExportContext
                 {
                     var basePath = template.GetPathName().SubstringBeforeLast(".");
                     var blueprintPath = $"{basePath}.{basePath.SubstringAfterLast("/")}_C";
-                    if (UEParse.Provider.TryLoadPackageObject(blueprintPath, out var templateBlueprintGeneratedClass))
+                    if (FileProvider.TryLoadPackageObject(blueprintPath, out var templateBlueprintGeneratedClass))
                     {
                         exportMesh.AddChildren(ConstructionScript(templateBlueprintGeneratedClass));
                         exportMesh.AddChildren(InheritableComponentHandler(templateBlueprintGeneratedClass));
@@ -215,7 +216,7 @@ public partial class ExportContext
                 {
                     var basePath = template.GetPathName().SubstringBeforeLast(".");
                     var blueprintPath = $"{basePath}.{basePath.SubstringAfterLast("/")}_C";
-                    if (UEParse.Provider.TryLoadPackageObject(blueprintPath, out var templateBlueprintGeneratedClass))
+                    if (FileProvider.TryLoadPackageObject(blueprintPath, out var templateBlueprintGeneratedClass))
                     {
                         exportMesh.AddChildren(ConstructionScript(templateBlueprintGeneratedClass));
                         exportMesh.AddChildren(InheritableComponentHandler(templateBlueprintGeneratedClass));

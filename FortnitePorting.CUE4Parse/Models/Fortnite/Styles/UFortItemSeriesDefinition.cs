@@ -2,7 +2,7 @@ using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.UObject;
 
-namespace FortnitePorting.CUE4Parse.Models.Fortnite.Items;
+namespace FortnitePorting.CUE4Parse.Models.Fortnite.Styles;
 
 public class UFortItemSeriesDefinition : UObject
 {

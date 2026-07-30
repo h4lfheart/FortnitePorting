@@ -8,17 +8,12 @@ namespace FortnitePorting.Exporting.Types;
 public class PoseAssetExport : BaseExport
 {
     public string PoseAsset;
-    
+
     public PoseAssetExport(string name, UObject asset, EExportType exportType, ExportDataMeta metaData, IExportFileMeta? fileMeta) : base(name, exportType, metaData)
     {
         if (asset is not UPoseAsset poseAsset) return;
-        if (metaData.ExportLocation.IsFolder)
-        {
-            Info.Message("Pose Asset Export", "Pose Assets cannot be exported to a folder.");
-            return;
-        }
+        if (metaData.ExportLocation.IsFolder) return;
 
         PoseAsset = Exporter.Export(poseAsset);
     }
-    
 }

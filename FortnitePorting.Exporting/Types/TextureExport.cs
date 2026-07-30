@@ -1,16 +1,12 @@
 using System.Collections.Generic;
-using Avalonia.Controls.Shapes;
 using CUE4Parse.GameTypes.FN.Assets.Exports.DataAssets;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Texture;
-using FortnitePorting.CUE4Parse.Models.Unreal;
+using FortnitePorting.CUE4Parse.Extensions;
 using FortnitePorting.CUE4Parse.Models.Unreal.VirtualTexture;
 using FortnitePorting.Exporting.Models;
 using FortnitePorting.Exporting.Models.Files.Meta;
-using FortnitePorting.Extensions;
-using FortnitePorting.Models.Unreal;
 using FortnitePorting.Shared.Extensions;
-using FortnitePorting.ViewModels.Settings;
 using Path = System.IO.Path;
 
 namespace FortnitePorting.Exporting.Types;
@@ -18,7 +14,8 @@ namespace FortnitePorting.Exporting.Types;
 public class TextureExport : BaseExport
 {
     public List<ExportTexture> Textures = [];
-    
+    public List<string> FolderPaths = [];
+
     private static readonly Dictionary<EExportType, string> TextureNames = new()
     {
         { EExportType.Spray, "DecalTexture" },
@@ -26,7 +23,7 @@ public class TextureExport : BaseExport
         { EExportType.LoadingScreen, "BackgroundImage" },
         { EExportType.Emoticon, "SpriteSheet" }
     };
-    
+
     public TextureExport(string name, UObject asset, EExportType exportType, ExportDataMeta metaData, IExportFileMeta? fileMeta) : base(name, exportType, metaData)
     {
         var textures = new List<UTexture>();
@@ -56,27 +53,18 @@ public class TextureExport : BaseExport
             }
         }
 
-        var textureOpenPaths = new HashSet<string>();
         foreach (var texture in textures)
         {
             if (metaData.ExportLocation.IsFolder)
             {
                 var exportPath = Exporter.Export(texture, returnRealPath: true, synchronousExport: true);
                 if (Path.GetDirectoryName(exportPath) is { } exportFolder)
-                    textureOpenPaths.Add(exportFolder);
+                    FolderPaths.Add(exportFolder);
             }
             else
             {
                 Textures.Add(new ExportTexture(Exporter.Export(texture), texture.SRGB, texture.CompressionSettings));
             }
         }
-
-        if (metaData.ExportLocation.IsFolder &&
-            metaData.Settings is FolderSettingsViewModel { OpenFoldersOnExport: true })
-        {
-            textureOpenPaths.ForEach(path => App.Launch(path));
-        }
-       
     }
-    
 }

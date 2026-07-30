@@ -6,6 +6,7 @@
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
              xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:fortnitePorting="clr-namespace:FortnitePorting"
+             xmlns:fpExport="clr-namespace:FortnitePorting;assembly=FortnitePorting.Exporting"
              xmlns:map="clr-namespace:FortnitePorting.Models.Map"
              xmlns:views="clr-namespace:FortnitePorting.Views"
              xmlns:sidebar="clr-namespace:FortnitePorting.Controls.Navigation.Sidebar"
@@ -192,7 +193,7 @@
                                          Command="{Binding SelectedMap.ExportCommand}">
                                 <SplitButton.Flyout>
                                     <MenuFlyout
-                                        ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EExportLocation}}">
+                                        ItemsSource="{ext:EnumToItemsSource {x:Type fpExport:EExportLocation}}">
                                         <MenuFlyout.ItemContainerTheme>
                                             <ControlTheme x:DataType="ext:EnumRecord" TargetType="MenuItem"
                                                           BasedOn="{StaticResource {x:Type MenuItem}}">

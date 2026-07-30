@@ -5,6 +5,7 @@
     <Project Path="Dependencies/FluentAvalonia.BreadcrumbBar/FluentAvalonia.BreadcrumbBar/FluentAvalonia.BreadcrumbBar.csproj" />
   </Folder>
   <Folder Name="/Libraries/">
+    <Project Path="FortnitePorting.Exporting/FortnitePorting.Exporting.csproj" />
     <Project Path="FortnitePorting.CUE4Parse/FortnitePorting.CUE4Parse.csproj" />
     <Project Path="FortnitePorting.Rendering/FortnitePorting.Rendering.csproj" />
     <Project Path="FortnitePorting.Shared/FortnitePorting.Shared.csproj" />

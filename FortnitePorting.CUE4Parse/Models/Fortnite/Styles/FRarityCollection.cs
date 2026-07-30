@@ -2,7 +2,7 @@ using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Utils;
 using CUE4Parse.UE4.Objects.Core.Math;
 
-namespace FortnitePorting.CUE4Parse.Models.Fortnite.Items;
+namespace FortnitePorting.CUE4Parse.Models.Fortnite.Styles;
 
 [StructFallback]
 public class FRarityCollection

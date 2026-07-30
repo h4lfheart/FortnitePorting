@@ -9,6 +9,7 @@
              xmlns:controls="clr-namespace:FortnitePorting.Controls.Settings"
              xmlns:controls1="clr-namespace:FortnitePorting.Controls"
              xmlns:fortnitePorting="clr-namespace:FortnitePorting"
+             xmlns:fpExport="clr-namespace:FortnitePorting;assembly=FortnitePorting.Exporting"
              xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FortnitePorting.Views.Settings.ApplicationSettingsView"
@@ -120,7 +121,7 @@
                                   SelectedItem="{Binding DefaultExportLoadType}"
                                   HorizontalAlignment="Center" VerticalAlignment="Center">
                             <ComboBox.ItemTemplate>
-                                <DataTemplate DataType="fortnitePorting:EExportType">
+                                <DataTemplate DataType="fpExport:EExportType">
                                     <controls1:ImageText Text="{Binding Converter={StaticResource EnumToRecord}}" 
                                                          Image="{Binding Converter={StaticResource ExportTypeIcon}}"/>
                                 </DataTemplate>
@@ -133,7 +134,7 @@
 
             <controls:SettingsItem Title="Default Export Location" Description="The default export location used on startup.">
                 <controls:SettingsItem.Footer>
-                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EExportLocation}}"
+                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fpExport:EExportLocation}}"
                               SelectedItem="{Binding DefaultExportLocation, Converter={StaticResource EnumToRecord}}"
                               HorizontalAlignment="Center" VerticalAlignment="Center">
                         <ComboBox.ItemContainerTheme>
