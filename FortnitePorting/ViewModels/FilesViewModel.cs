@@ -76,6 +76,11 @@ public partial class FilesViewModel(FilesService filesService) : ViewModelBase, 
 
     public override async Task Initialize()
     {
+        var defaultLocation = AppSettings.Application.DefaultExportLocation;
+        AssetExportLocation = defaultLocation;
+        if (defaultLocation.IsFolder)
+            DataExportLocation = defaultLocation;
+
         if (UEParse.Provider is null) return;
         Context.Initialize();
     }

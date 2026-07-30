@@ -62,6 +62,8 @@ public partial class AssetsViewModel() : ViewModelBase
     
     public override async Task Initialize()
     {
+        ExportLocation = AppSettings.Application.DefaultExportLocation;
+
         await TaskService.RunDispatcherAsync(() =>
         {
             foreach (var (index, category) in AssetLoader.Categories.Index())

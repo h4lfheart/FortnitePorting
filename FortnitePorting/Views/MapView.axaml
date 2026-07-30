@@ -205,23 +205,21 @@
                                                 <Setter Property="StaysOpenOnClick" Value="False" />
                                                 <Setter Property="Icon">
                                                     <Template>
-                                                        <Grid>
-                                                            <material:MaterialIcon Kind="Check"
-                                                                                   IsVisible="{Binding $parent[views:MapView].((viewModels:MapViewModel)DataContext).ExportLocation, 
-                                                        Converter={StaticResource EnumEquals}, 
-                                                        ConverterParameter={Binding $parent[MenuItem].((ext:EnumRecord)DataContext).Value}}" />
-                                                        </Grid>
+                                                        <material:MaterialIcon Kind="{Binding Icon}" />
                                                     </Template>
                                                 </Setter>
                                             </ControlTheme>
                                         </MenuFlyout.ItemContainerTheme>
                                     </MenuFlyout>
                                 </SplitButton.Flyout>
-                                <StackPanel Orientation="Horizontal">
-                                    <material:MaterialIcon Kind="Download" Margin="{ext:Space 0, 0, 1, 0}" />
-                                    <TextBlock
-                                        Text="{Binding ExportLocation, Converter={StaticResource EnumToRecord}, StringFormat='Export to {0}'}" />
-                                </StackPanel>
+                                <ContentControl Content="{Binding ExportLocation, Converter={StaticResource EnumToRecord}}">
+                                    <ContentControl.ContentTemplate>
+                                        <DataTemplate x:DataType="ext:EnumRecord">
+                                            <controls:IconText Text="{Binding Description, StringFormat='Export to {0}'}"
+                                                               Icon="{Binding Icon}" />
+                                        </DataTemplate>
+                                    </ContentControl.ContentTemplate>
+                                </ContentControl>
                             </SplitButton>
 
                             <Button Grid.Column="2" HorizontalAlignment="Stretch" Margin="{ext:Space 0, 0.25}"

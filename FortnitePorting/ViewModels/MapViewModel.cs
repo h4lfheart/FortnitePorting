@@ -86,6 +86,7 @@ public partial class MapViewModel : ViewModelBase, IResettable
 
     public override async Task Initialize()
     {
+        ExportLocation = AppSettings.Application.DefaultExportLocation;
         await LoadMapsAsync();
     }
 

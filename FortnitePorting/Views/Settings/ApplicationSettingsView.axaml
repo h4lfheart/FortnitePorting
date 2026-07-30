@@ -74,6 +74,27 @@
 
                 </controls:SettingsItem.Footer>
             </controls:SettingsItem>
+
+            <controls:SettingsItem Title="Default Export Location" Description="The default export location used on startup.">
+                <controls:SettingsItem.Footer>
+                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EExportLocation}}"
+                              SelectedItem="{Binding DefaultExportLocation, Converter={StaticResource EnumToRecord}}"
+                              HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <ComboBox.ItemContainerTheme>
+                            <ControlTheme x:DataType="ext:EnumRecord" TargetType="ComboBoxItem"
+                                          BasedOn="{StaticResource {x:Type ComboBoxItem}}">
+                                <Setter Property="IsEnabled" Value="{Binding !IsDisabled}" />
+                            </ControlTheme>
+                        </ComboBox.ItemContainerTheme>
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate DataType="ext:EnumRecord">
+                                <controls1:IconText Text="{Binding Description}"
+                                                    Icon="{Binding Icon}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
             <controls:SettingsItem Title="Audio Device" Description="The device that should be used for audio playback.">
                 <controls:SettingsItem.Footer>

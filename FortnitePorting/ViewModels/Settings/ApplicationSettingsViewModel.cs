@@ -57,6 +57,7 @@ public partial class ApplicationSettingsViewModel : SettingsViewModelBase
     
     [ObservableProperty] private bool _useDefaultExportLoadType = false;
     [ObservableProperty] private EExportType _defaultExportLoadType = EExportType.Outfit;
+    [ObservableProperty] private EExportLocation _defaultExportLocation = EExportLocation.Blender;
     [ObservableProperty] private EpicAuthResponse? _epicAuth;
     
     [ObservableProperty, NotifyPropertyChangedFor(nameof(TransparencyHints))] private EThemeType _theme = EThemeType.Amethyst;

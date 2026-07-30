@@ -25,18 +25,23 @@ public enum EFortniteVersion
 public enum EExportLocation
 {
     [Description("Blender")]
+    [Icon(MaterialIconKind.BlenderSoftware)]
     Blender,
     
     [Description("Unreal Engine")]
+    [Icon(MaterialIconKind.UnrealEngine)]
     Unreal,
     
     [Description("Assets Folder")]
+    [Icon(MaterialIconKind.Folder)]
     AssetsFolder,
     
     [Description("Custom Folder")]
+    [Icon(MaterialIconKind.FolderEdit)]
     CustomFolder,
     
     [Description("Unity (Not Implemented)")]
+    [Icon(MaterialIconKind.Unity)]
     [Disabled]
     Unity,
 }
