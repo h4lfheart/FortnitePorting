@@ -8,7 +8,8 @@ namespace FortnitePorting.Exporting.Types;
 public class FontExport : BaseExport
 {
     public string Path;
-    
+    public string? FolderPath;
+
     public FontExport(string name, UObject asset, EExportType exportType, ExportDataMeta metaData, IExportFileMeta? fileMeta) : base(name, exportType, metaData)
     {
         if (asset is not UFontFace fontFace) return;
@@ -16,12 +17,11 @@ public class FontExport : BaseExport
         if (metaData.ExportLocation.IsFolder)
         {
             var exportPath = Exporter.Export(fontFace, returnRealPath: true, synchronousExport: true);
-            App.Launch(System.IO.Path.GetDirectoryName(exportPath)!);
+            FolderPath = System.IO.Path.GetDirectoryName(exportPath);
         }
         else
         {
             Path = Exporter.Export(fontFace);
         }
     }
-    
 }

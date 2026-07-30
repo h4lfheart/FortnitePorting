@@ -5,6 +5,7 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.Assets.Exports.Sound;
 using FortnitePorting.Application;
+using FortnitePorting.Exporting.Extensions;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Services;
@@ -60,7 +61,8 @@ public partial class SoundPreviewWindowModel(
     public async Task Play()
     {
         if (SoundWave is null) return;
-        if (!SoundExtensions.TrySaveSoundToAssets(SoundWave, AppSettings.Application.AssetPath, out Stream stream)) return;
+        if (!SoundExtensions.TrySaveSoundToAssets(SoundWave, AppSettings.Application.AssetPath, out Stream stream,
+                Dependencies.BinkaDecoderFile, Dependencies.RadaDecoderFile, Dependencies.VgmStreamFile)) return;
 
         IsPaused = false;
         Session.Load(stream);

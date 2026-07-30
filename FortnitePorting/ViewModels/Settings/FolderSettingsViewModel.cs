@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse_Conversion;
 using CUE4Parse_Conversion.Meshes;
 using CUE4Parse.UE4.Assets.Exports.Nanite;
+using FortnitePorting.Exporting.Models;
 
 namespace FortnitePorting.ViewModels.Settings;
 
@@ -22,5 +23,12 @@ public partial class FolderSettingsViewModel : BaseExportSettings
             ExportMorphTargets = true,
             ExportMaterials = false
         };
+    }
+
+    public override ExportSettings ToExportSettings()
+    {
+        var settings = base.ToExportSettings();
+        settings.OpenFoldersOnExport = OpenFoldersOnExport;
+        return settings;
     }
 }

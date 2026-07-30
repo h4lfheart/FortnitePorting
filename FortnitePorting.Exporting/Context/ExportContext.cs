@@ -27,10 +27,12 @@ using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.UE4.Writers;
 using CUE4Parse.Utils;
 using FFMpegCore;
+using CUE4Parse.FileProvider.Vfs;
+using FortnitePorting.CUE4Parse.Extensions;
+using FortnitePorting.Exporting.Extensions;
 using FortnitePorting.Exporting.Models;
-using FortnitePorting.Extensions;
 using FortnitePorting.Models.CUE4Parse;
-using FortnitePorting.Services;
+using FortnitePorting.Models.Unreal.Landscape;
 using Serilog;
 using Image = System.Drawing.Image;
 
@@ -43,6 +45,8 @@ public partial class ExportContext
     public readonly ExportDataMeta Meta;
     public CancellationToken CancellationToken => Meta.CancellationToken;
     private readonly ExporterOptions FileExportOptions;
+
+    private AbstractVfsFileProvider FileProvider => Meta.Provider.Provider;
 
     public ExportContext(ExportDataMeta metaData)
     {
@@ -142,7 +146,7 @@ public partial class ExportContext
         if (synchronousExport)
             exportTask.RunSynchronously();
         else
-            exportTask.RunAsynchronously();
+            exportTask.Start();
 
         return returnValue;
     }
@@ -266,7 +270,7 @@ public partial class ExportContext
             case USoundWave soundWave:
             {
                 var wavPath = Path.ChangeExtension(path, "wav");
-                if (!SoundExtensions.TrySaveSoundToPath(soundWave, wavPath))
+                if (!SoundExtensions.TrySaveSoundToPath(soundWave, wavPath, Meta.Provider.BinkaDecoderFile, Meta.Provider.RadaDecoderFile, Meta.Provider.VgmStreamFile))
                 {
                     throw new Exception($"Failed to export sound '{soundWave.Name}' at {path}");
                 }
@@ -300,7 +304,7 @@ public partial class ExportContext
             }
             case UFontFace fontFace:
             {
-                if (!UEParse.Provider.TrySavePackage(fontFace.GetPathName().SubstringBeforeLast(".") + ".ufont",
+                if (!FileProvider.TrySavePackage(fontFace.GetPathName().SubstringBeforeLast(".") + ".ufont",
                         out var assets) || assets.Count == 0) break;
 
                 var fontData = assets.First().Value;

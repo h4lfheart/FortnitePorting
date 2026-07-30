@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.UE4.Assets.Exports.Sound;
 using FortnitePorting.Application;
+using FortnitePorting.Exporting.Extensions;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Radio;
@@ -141,7 +142,10 @@ public partial class MusicPlayerWindowModel(
         if (!SoundExtensions.TrySaveSoundToAssets(
                 item.SoundWave.Load<USoundWave>(),
                 AppSettings.Application.AssetPath,
-                out Stream stream)) return;
+                out Stream stream,
+                Dependencies.BinkaDecoderFile,
+                Dependencies.RadaDecoderFile,
+                Dependencies.VgmStreamFile)) return;
 
         _playbackCts.Cancel();
         _playbackCts.Dispose();

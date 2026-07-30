@@ -9,6 +9,7 @@
              xmlns:assets="clr-namespace:FortnitePorting.Models.Assets"
              xmlns:filters="clr-namespace:FortnitePorting.Models.Assets.Filters"
              xmlns:fortnitePorting="clr-namespace:FortnitePorting"
+             xmlns:fpExport="clr-namespace:FortnitePorting;assembly=FortnitePorting.Exporting"
              xmlns:base="clr-namespace:FortnitePorting.Models.Assets.Base"
              xmlns:views="clr-namespace:FortnitePorting.Views"
              xmlns:sidebar="clr-namespace:FortnitePorting.Controls.Navigation.Sidebar"
@@ -566,7 +567,7 @@
                     <SplitButton Grid.Column="0" HorizontalAlignment="Stretch" Command="{Binding ExportCommand}"
                                  IsVisible="{Binding !IsExporting}">
                         <SplitButton.Flyout>
-                            <MenuFlyout ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EExportLocation}}">
+                            <MenuFlyout ItemsSource="{ext:EnumToItemsSource {x:Type fpExport:EExportLocation}}">
                                 <MenuFlyout.ItemContainerTheme>
                                     <ControlTheme x:DataType="ext:EnumRecord" TargetType="MenuItem"
                                                   BasedOn="{StaticResource {x:Type MenuItem}}">

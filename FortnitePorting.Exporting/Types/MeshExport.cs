@@ -18,13 +18,13 @@ using CUE4Parse.UE4.Objects.Engine.Animation;
 using CUE4Parse.UE4.Objects.GameplayTags;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
+using FortnitePorting.CUE4Parse.Extensions;
 using FortnitePorting.CUE4Parse.Models.Fortnite;
 using FortnitePorting.CUE4Parse.Models.Fortnite.Enums;
+using FortnitePorting.Exporting.Custom;
 using FortnitePorting.Exporting.Models;
 using FortnitePorting.Exporting.Models.Files.Meta;
-using FortnitePorting.Extensions;
-using FortnitePorting.Models.Assets;
-using FortnitePorting.Models.Assets.Custom;
+using FortnitePorting.Exporting.Styles;
 using FortnitePorting.Shared.Extensions;
 using Path = System.IO.Path;
 
@@ -40,31 +40,31 @@ public class MeshExport : BaseExport
     public ExportLightCollection Lights = new();
     public AnimExport? Animation;
     
-    public MeshExport(string name, UObject asset, BaseStyleData[] styles, EExportType exportType, ExportDataMeta metaData, IExportFileMeta? fileMeta) : base(name, exportType, metaData)
+    public MeshExport(string name, UObject asset, ExportStyleBase[] styles, EExportType exportType, ExportDataMeta metaData, IExportFileMeta? fileMeta) : base(name, exportType, metaData)
     {
-        var objectStyles = styles.OfType<ObjectStyleData>().ToArray();
+        var objectStyles = styles.OfType<ExportObjectStyle>().ToArray();
         if (objectStyles.Length > 0)
         {
             foreach (var objectStyle in objectStyles)
             {
                 Export(objectStyle.StyleData, objectStyle.AssociatedExportType is not EExportType.None ? objectStyle.AssociatedExportType : exportType);
             }
-            
+
             return;
         }
 
         Export(asset, exportType);
-        
-        var assetStyles = styles.OfType<AssetStyleData>();
+
+        var assetStyles = styles.OfType<ExportStructStyle>();
         ExportStyles(asset, assetStyles);
     }
 
-    public MeshExport(CustomAsset customAsset, EExportType exportType, ExportDataMeta metaData) : base(customAsset.Name, exportType, metaData)
+    public MeshExport(string name, MeshDefinition mesh, Func<string, Stream> openCustomAssetResource, EExportType exportType, ExportDataMeta metaData) : base(name, exportType, metaData)
     {
         string ExportCustom(string path)
         {
-            var stream = Avalonia.Platform.AssetLoader.Open(new Uri($"avares://FortnitePorting/{path}"));
-            
+            using var stream = openCustomAssetResource(path);
+
             var outPathPortion = path.SubstringAfter("Assets/");
             var outPath = Path.Combine(metaData.AssetsRoot, outPathPortion);
             Directory.CreateDirectory(outPath.SubstringBeforeLast("/"));
@@ -73,10 +73,8 @@ public class MeshExport : BaseExport
             return outPathPortion;
         }
         
-        var mesh = customAsset.Mesh;
-
         var exportMesh = new ExportMesh();
-        exportMesh.Name = customAsset.Name;
+        exportMesh.Name = name;
         exportMesh.Path = ExportCustom(mesh.Path);
 
         for (var matIndex = 0; matIndex < mesh.Materials.Length; matIndex++)
@@ -130,8 +128,8 @@ public class MeshExport : BaseExport
                 {
                     montage ??= bodyPart.GenderPermitted switch
                     {
-                        EFortCustomGender.Female => UEParse.FemaleLobbyMontages.Random()!,
-                        _ => UEParse.MaleLobbyMontages.Random()!
+                        EFortCustomGender.Female => Exporter.Meta.Provider.FemaleLobbyMontages.Random()!,
+                        _ => Exporter.Meta.Provider.MaleLobbyMontages.Random()!
                     };
                 }
                 
@@ -192,7 +190,7 @@ public class MeshExport : BaseExport
                 // pet mesh
                 var petAsset = asset.Get<UObject>("DefaultPet");
                 var prefabClassPath = petAsset.Get<FSoftObjectPath>("PetPrefabClass");
-                var prefabExports = UEParse.Provider.LoadAllObjects(prefabClassPath.AssetPathName.Text.SubstringBeforeLast("."));
+                var prefabExports = Exporter.Meta.Provider.Provider.LoadAllObjects(prefabClassPath.AssetPathName.Text.SubstringBeforeLast("."));
                 if (prefabExports.FirstOrDefault(export => export.Name.Equals("PetMesh0")) is not USkeletalMeshComponentBudgeted meshComponent) break;
                 
                 var mesh = meshComponent.GetSkeletalMesh().Load<USkeletalMesh>();
@@ -334,7 +332,7 @@ public class MeshExport : BaseExport
                     Meshes.AddIfNotNull(Exporter.MeshComponent(staticMesh));
                 }
 
-                var components = UEParse.Provider.LoadAllObjects(actor.GetPathName().SubstringBeforeLast("."));
+                var components = Exporter.Meta.Provider.Provider.LoadAllObjects(actor.GetPathName().SubstringBeforeLast("."));
                 foreach (var component in components)
                 {
                     if (component.Name.Equals(staticMesh?.Name)) continue;
@@ -460,7 +458,7 @@ public class MeshExport : BaseExport
                             4 => 1
                         };
 
-                        var offset = UEParse.BeanstalkAtlasTextureUVs[index];
+                        var offset = Exporter.Meta.Provider.BeanstalkAtlasTextureUVs[index];
                         parameterSet.Vectors.Add(new VectorParameter(shaderName, new FLinearColor(offset.X, offset.Y, offset.Z, 0)));
                     }
 
@@ -468,7 +466,7 @@ public class MeshExport : BaseExport
                     {
                         if (!field.TryGetValue(out int index, propertyName)) return;
                     
-                        var color = UEParse.BeanstalkColors[index];
+                        var color = Exporter.Meta.Provider.BeanstalkColors[index];
                         parameterSet.Vectors.Add(new VectorParameter(shaderName, color.ToLinearColor()));
                     }
                     
@@ -476,7 +474,7 @@ public class MeshExport : BaseExport
                     {
                         if (!field.TryGetValue(out int index, propertyName)) return;
                     
-                        var color = UEParse.BeanstalkMaterialProps[index];
+                        var color = Exporter.Meta.Provider.BeanstalkMaterialProps[index];
                         parameterSet.Vectors.Add(new VectorParameter(shaderName, color));
                     }
                     
@@ -616,7 +614,7 @@ public class MeshExport : BaseExport
         }
     }
     
-    private void ExportStyles(UObject asset, IEnumerable<AssetStyleData> styles)
+    private void ExportStyles(UObject asset, IEnumerable<ExportStructStyle> styles)
     {
         var metaTagsToApply = new List<FGameplayTag>();
         var metaTagsToRemove = new List<FGameplayTag>();
@@ -653,8 +651,8 @@ public class MeshExport : BaseExport
 
         foreach (var style in styleDatas) ExportStyleData(style);
 
-        var colorStyles = styles.Where(style => style is AssetColorStyleData)
-                                                 .Select(style => (AssetColorStyleData)style)
+        var colorStyles = styles.Where(style => style is ExportColorStyle)
+                                                 .Select(style => (ExportColorStyle)style)
                                                  .ToArray();
         foreach (var colorStyle in colorStyles) OverrideParameters.AddRangeIfNotNull(Exporter.OverrideColors(colorStyle));
     }

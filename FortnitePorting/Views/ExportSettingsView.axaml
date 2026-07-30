@@ -4,6 +4,7 @@
              xmlns:ui="using:FluentAvalonia.UI.Controls"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:fortnitePorting="clr-namespace:FortnitePorting"
+             xmlns:fpExport="clr-namespace:FortnitePorting;assembly=FortnitePorting.Exporting"
              xmlns:sidebar="clr-namespace:FortnitePorting.Controls.Navigation.Sidebar"
              d:DesignHeight="770" d:DesignWidth="1160"
              x:Class="FortnitePorting.Views.ExportSettingsView"
@@ -17,10 +18,10 @@
         <sidebar:Sidebar x:Name="Sidebar" Grid.Column="0" ItemSelected="OnItemSelected">
             <sidebar:Sidebar.Items>
                 <sidebar:SidebarItemText Text="EXPORT OPTIONS"/>
-                <sidebar:SidebarItemButton Text="Blender" IconBitmap="/Assets/Icons/Blender.png" Tag="{x:Static fortnitePorting:EExportLocation.Blender}"/>
-                <sidebar:SidebarItemButton Text="Unreal" IconBitmap="/Assets/Icons/Unreal.png" Tag="{x:Static fortnitePorting:EExportLocation.Unreal}"/>
-                <sidebar:SidebarItemButton Text="Unity" IconBitmap="/Assets/Icons/Unity.png" Tag="{x:Static fortnitePorting:EExportLocation.Unity}" IsEnabled="False"/>
-                <sidebar:SidebarItemButton Text="Folder" Icon="Folder" Tag="{x:Static fortnitePorting:EExportLocation.AssetsFolder}"/>
+                <sidebar:SidebarItemButton Text="Blender" IconBitmap="/Assets/Icons/Blender.png" Tag="{x:Static fpExport:EExportLocation.Blender}"/>
+                <sidebar:SidebarItemButton Text="Unreal" IconBitmap="/Assets/Icons/Unreal.png" Tag="{x:Static fpExport:EExportLocation.Unreal}"/>
+                <sidebar:SidebarItemButton Text="Unity" IconBitmap="/Assets/Icons/Unity.png" Tag="{x:Static fpExport:EExportLocation.Unity}" IsEnabled="False"/>
+                <sidebar:SidebarItemButton Text="Folder" Icon="Folder" Tag="{x:Static fpExport:EExportLocation.AssetsFolder}"/>
             </sidebar:Sidebar.Items>
         </sidebar:Sidebar>
         

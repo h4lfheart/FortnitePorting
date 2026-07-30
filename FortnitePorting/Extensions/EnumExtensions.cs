@@ -4,12 +4,10 @@ using System.Globalization;
 using System.Linq;
 using Avalonia.Data.Converters;
 using Avalonia.Markup.Xaml;
+using FortnitePorting.Models;
 using Material.Icons;
 
 namespace FortnitePorting.Extensions;
-
-public class NonAssetAttribute : Attribute;
-public class CosmeticAssetAttribute : Attribute;
 
 public static class EnumExtensions
 {
@@ -55,13 +53,6 @@ public class EnumToItemsSource(Type type) : MarkupExtension
         var values = Enum.GetValues(type).Cast<Enum>();
         return values.Select(value => value.ToEnumRecord()).ToList();
     }
-}
-
-public class DisabledAttribute : Attribute;
-
-public class IconAttribute(MaterialIconKind icon) : Attribute
-{
-    public MaterialIconKind Icon = icon;
 }
 
 public record EnumRecord(Type EnumType, Enum Value, string Description, bool IsDisabled = false, MaterialIconKind? Icon = null)

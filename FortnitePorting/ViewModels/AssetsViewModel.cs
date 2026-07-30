@@ -123,7 +123,8 @@ public partial class AssetsViewModel() : ViewModelBase
         try
         {
             var exportedProperly = await Exporter.Export(
-                AssetLoader.ActiveLoader.SelectedAssetInfos, _exportMeta);
+                AssetLoader.ActiveLoader.SelectedAssetInfos,
+                _exportMeta);
             if (exportedProperly && SupaBase.IsLoggedIn)
             {
                 await SupaBase.PostExports([

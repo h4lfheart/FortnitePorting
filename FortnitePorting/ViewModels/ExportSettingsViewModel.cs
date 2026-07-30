@@ -10,6 +10,7 @@ using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
 using FortnitePorting.Exporting.Models;
 using FortnitePorting.Framework;
+using FortnitePorting.Providers;
 using FortnitePorting.ViewModels.Settings;
 
 namespace FortnitePorting.ViewModels;
@@ -20,18 +21,27 @@ public partial class ExportSettingsViewModel : ViewModelBase
     [ObservableProperty] private UnrealSettingsViewModel _unreal = new();
     [ObservableProperty] private FolderSettingsViewModel _folder = new();
     
-    public ExportDataMeta CreateExportMeta(EExportLocation exportLocation = EExportLocation.Blender, string? customPath = null) => new()
+    public BaseExportSettings GetSettingsViewModel(EExportLocation exportLocation = EExportLocation.Blender) => exportLocation switch
     {
-        ExportLocation = exportLocation,
-        AssetsRoot = AppSettings.Application.AssetPath,
-        Settings = exportLocation switch
-        {
-            EExportLocation.Blender => Blender,
-            EExportLocation.Unreal => Unreal,
-            EExportLocation.AssetsFolder or EExportLocation.CustomFolder => Folder
-        },
-        CustomPath = customPath
+        EExportLocation.Blender => Blender,
+        EExportLocation.Unreal => Unreal,
+        EExportLocation.AssetsFolder or EExportLocation.CustomFolder => Folder,
+        _ => Folder
     };
+
+    public ExportDataMeta CreateExportMeta(EExportLocation exportLocation = EExportLocation.Blender, string? customPath = null)
+    {
+        var viewModel = GetSettingsViewModel(exportLocation);
+        return new ExportDataMeta
+        {
+            Version = Globals.VersionString,
+            ExportLocation = exportLocation,
+            AssetsRoot = AppSettings.Application.AssetPath,
+            Settings = viewModel.ToExportSettings(),
+            Provider = ExportAssets,
+            CustomPath = customPath
+        };
+    }
 
     public override async Task OnViewExited()
     {
@@ -66,5 +76,18 @@ public partial class BaseExportSettings : ViewModelBase
             NaniteMeshFormat = ExportNanite ? ENaniteMeshFormat.NaniteSeparateFile : ENaniteMeshFormat.OnlyNormalLODs
         };
     }
+
+    public virtual ExportSettings ToExportSettings() => new()
+    {
+        CompressionFormat = CompressionFormat,
+        ImageFormat = ImageFormat,
+        ExportMaterials = ExportMaterials,
+        MeshFormat = MeshFormat,
+        ExportNanite = ExportNanite,
+        ImportInstancedFoliage = ImportInstancedFoliage,
+        AnimFormat = AnimFormat,
+        ImportLobbyPoses = ImportLobbyPoses,
+        SoundFormat = SoundFormat
+    };
 }
 

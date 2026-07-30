@@ -10,11 +10,11 @@ using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
+using FortnitePorting.CUE4Parse.Extensions;
 using FortnitePorting.CUE4Parse.Models.Fortnite;
-using FortnitePorting.CUE4Parse.Models.Fortnite.Items;
+using FortnitePorting.CUE4Parse.Models.Fortnite.Styles;
 using FortnitePorting.Exporting.Models;
-using FortnitePorting.Extensions;
-using FortnitePorting.Models.Assets;
+using FortnitePorting.Exporting.Styles;
 using FortnitePorting.Shared.Extensions;
 
 namespace FortnitePorting.Exporting.Context;
@@ -106,7 +106,7 @@ public partial class ExportContext
     }
     
 
-    public List<ExportOverrideParameters>? OverrideColors(AssetColorStyleData colorStyle)
+    public List<ExportOverrideParameters>? OverrideColors(ExportColorStyle colorStyle)
     {
         var materialsToAlter = colorStyle.StyleData.Get<FSoftObjectPath[]>("MaterialsToAlter");
         if (materialsToAlter.Any(mat => mat.AssetPathName.IsNone)) return null;
@@ -116,7 +116,7 @@ public partial class ExportContext
             : ProcessColorSwatchOverride(colorStyle, materialsToAlter);
     }
     
-    private List<ExportOverrideParameters>? ProcessColorSwatchOverride(AssetColorStyleData colorStyle, FSoftObjectPath[] materialsToAlter)
+    private List<ExportOverrideParameters>? ProcessColorSwatchOverride(ExportColorStyle colorStyle, FSoftObjectPath[] materialsToAlter)
     {
         var overrideColorValue = colorStyle.ColorData.GetOrDefault<FLinearColor>("ColorValue");
         var paramName = colorStyle.StyleData.GetOrDefault("ColorParamName", new FName(overrideColorValue.Hex));
@@ -135,7 +135,7 @@ public partial class ExportContext
         return returnParams;
     }
     
-    private List<ExportOverrideParameters>? ProcessParamSetOverride(AssetColorStyleData colorStyle, FSoftObjectPath[] materialsToAlter)
+    private List<ExportOverrideParameters>? ProcessParamSetOverride(ExportColorStyle colorStyle, FSoftObjectPath[] materialsToAlter)
     {
         var exportParamsTemplate = new ExportOverrideParameters();
         var paramsToApply = colorStyle.ColorData.GetOrDefault<FStructFallback>("MaterialParamsToApply");
