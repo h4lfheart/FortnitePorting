@@ -21,39 +21,40 @@ public partial class AppWindowModel(
     InfoService info,
     SettingsService settings,
     SupabaseService supabase,
-    CUE4ParseService cue4Parse,
+    CUE4ParseService ueParse,
     BlackHoleService blackHole,
-    ChatService chat) : WindowModelBase
+    ChatService chat,
+    APIService api,
+    AppService app) : WindowModelBase
 {
     [ObservableProperty] private InfoService _info = info;
     [ObservableProperty] private SettingsService _settings = settings;
     [ObservableProperty] private SupabaseService _supaBase = supabase;
-    [ObservableProperty] private CUE4ParseService _UEParse = cue4Parse;
+    [ObservableProperty] private CUE4ParseService _UEParse = ueParse;
     [ObservableProperty] private BlackHoleService _blackHole = blackHole;
     [ObservableProperty] private ChatService _chat = chat;
-    
+
+    private readonly APIService _api = api;
+    private readonly AppService _app = app;
+
     [ObservableProperty] private string _versionString = Globals.Version.Identifier switch
     {
         "dev" => "dev-build",
         var hash when CommitShaMatch().IsMatch(hash) => hash,
         _ => Globals.VersionString
     };
-    [ObservableProperty] private int _unreadNewsCount = 0;
-
+    [ObservableProperty] private int _unreadNewsCount;
     [ObservableProperty] private int _chatNotifications;
     [ObservableProperty] private int _unsubmittedPolls;
-
     [ObservableProperty] private SetupView? _setupViewContent;
-    
     [ObservableProperty] private RepositoryVersion? _updateVersion;
-
     [ObservableProperty] private BroadcastResponse[] _broadcasts = [];
 
     private const string PORTLE_URL = "https://cdn.fortniteporting.app/portle/Portle.exe";
 
     public override async Task Initialize()
     {
-        if (!AppSettings.Installation.FinishedSetup)
+        if (!_settings.Installation.FinishedSetup)
         {
             await TaskService.RunDispatcherAsync(() =>
             {
@@ -61,17 +62,17 @@ public partial class AppWindowModel(
             });
         }
 
-        var broadcastResponse = await Api.FortnitePorting.Broadcasts();
+        var broadcastResponse = await _api.FortnitePorting.Broadcasts();
         foreach (var broadcast in broadcastResponse.Entries)
         {
             if (!broadcast.IsEnabled)
                 continue;
-            
+
             var satisfiesMaxVersion = broadcast.MaxVersion is null || Globals.Version <= broadcast.MaxVersion;
             var satisfiesMinVersion = broadcast.MinVersion is null || Globals.Version >= broadcast.MinVersion;
-            
-            if (satisfiesMaxVersion && satisfiesMinVersion) 
-                Info.Broadcast(broadcast);
+
+            if (satisfiesMaxVersion && satisfiesMinVersion)
+                _info.Broadcast(broadcast);
         }
 
         await CheckForUpdate();
@@ -80,12 +81,12 @@ public partial class AppWindowModel(
     [RelayCommand]
     public async Task Update()
     {
-        var remoteHash = Api.GetHash(PORTLE_URL) ?? string.Empty;
-        
-        if (!File.Exists(Settings.Developer.PortlePath) || (!Settings.Developer.UsePortlePath && !remoteHash.Equals(Settings.Developer.PortlePath.GetHash(), StringComparison.OrdinalIgnoreCase)))
+        var remoteHash = _api.GetHash(PORTLE_URL) ?? string.Empty;
+
+        if (!File.Exists(_settings.Developer.PortlePath) || (!_settings.Developer.UsePortlePath && !remoteHash.Equals(_settings.Developer.PortlePath.GetHash(), StringComparison.OrdinalIgnoreCase)))
         {
-            Log.Information($"Updating portle executable from {PORTLE_URL} at {Settings.Developer.PortlePath}");
-            await Api.DownloadFileAsync(PORTLE_URL, Settings.Developer.PortlePath);
+            Log.Information($"Updating portle executable from {PORTLE_URL} at {_settings.Developer.PortlePath}");
+            await _api.DownloadFileAsync(PORTLE_URL, _settings.Developer.PortlePath);
         }
 
         var args = new[]
@@ -96,36 +97,36 @@ public partial class AppWindowModel(
             "--update-profile \"Fortnite Porting\" -force",
             "--launch-profile \"Fortnite Porting\"",
         };
-        
-        Info.Message("Portle", $"Fortnite Porting {UpdateVersion!.Version} is currently being downloaded.");
+
+        _info.Message("Portle", $"Fortnite Porting {UpdateVersion!.Version} is currently being downloaded.");
 
         await Task.Delay(2500);
-        
+
         Process.Start(new ProcessStartInfo
         {
-            FileName = Settings.Developer.PortlePath,
+            FileName = _settings.Developer.PortlePath,
             Arguments = string.Join(' ', args),
             WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory,
             UseShellExecute = true
         });
-        
-        App.Lifetime.Shutdown();
+
+        _app.Shutdown();
     }
 
     public async Task CheckForUpdate()
     {
         if (Globals.IsDevBuild) return;
 
-        var repositoryInfo = await Api.FortnitePorting.Repository();
+        var repositoryInfo = await _api.FortnitePorting.Repository();
         var newestVersion = repositoryInfo?.Versions.MaxBy(version => version.UploadTime);
         if (newestVersion is null || newestVersion.Version <= Globals.Version) return;
-        
+
         UpdateVersion = newestVersion;
 
         if (DateTime.Today > newestVersion.UploadTime.AddDays(6))
         {
             var outOfDateDays = DateTime.Today - newestVersion.UploadTime;
-            Info.Dialog($"Update {newestVersion.Version}", $"Your Fortnite Porting is {outOfDateDays.Days} days out of date, please consider updating.", buttons: [
+            _info.Dialog($"Update {newestVersion.Version}", $"Your Fortnite Porting is {outOfDateDays.Days} days out of date, please consider updating.", buttons: [
                 new DialogButton
                 {
                     Text = "Update",

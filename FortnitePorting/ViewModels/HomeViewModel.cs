@@ -3,7 +3,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.API.Responses;
@@ -14,17 +13,20 @@ using FortnitePorting.Windows;
 
 namespace FortnitePorting.ViewModels;
 
-public partial class HomeViewModel() : ViewModelBase
+public partial class HomeViewModel(
+    CUE4ParseService ueParse,
+    APIService api,
+    SettingsService settings,
+    InfoService info,
+    AppService app) : ViewModelBase
 {
-    [ObservableProperty] private SupabaseService _supaBase;
-    [ObservableProperty] private CUE4ParseService _UEParse;
-    
-    public HomeViewModel(SupabaseService supabase, CUE4ParseService cue4Parse) : this()
-    {
-        SupaBase = supabase;
-        UEParse = cue4Parse;
-    }
-    
+    [ObservableProperty] private CUE4ParseService _UEParse = ueParse;
+
+    private readonly APIService _api = api;
+    private readonly SettingsService _settings = settings;
+    private readonly InfoService _info = info;
+    private readonly AppService _app = app;
+
     [ObservableProperty] private ObservableCollection<NewsEntry> _news = [];
     [ObservableProperty] private ObservableCollection<FeaturedArtEntry> _featuredArt = [];
 
@@ -32,21 +34,21 @@ public partial class HomeViewModel() : ViewModelBase
     {
         TaskService.Run(async () =>
         {
-            var newsResponse = await Api.FortnitePorting.News();
+            var newsResponse = await _api.FortnitePorting.News();
             News = [..newsResponse.Entries.Take(3)];
-            
-            var featuredArtResponse = await Api.FortnitePorting.FeaturedArt();
+
+            var featuredArtResponse = await _api.FortnitePorting.FeaturedArt();
             FeaturedArt = [..featuredArtResponse.Entries.Random(3)];
-            
-            await UEParse.LoadCoreSessionAsync();
+
+            await _UEParse.LoadCoreSessionAsync();
         });
 
-        if (!AppSettings.Application.DontAskAboutKofi &&
-            DateTime.Now.Date >= AppSettings.Application.NextKofiAskDate)
+        if (!_settings.Application.DontAskAboutKofi &&
+            DateTime.Now.Date >= _settings.Application.NextKofiAskDate)
         {
-            AppSettings.Application.NextKofiAskDate = DateTime.Today.AddDays(7);
-            
-            Info.Dialog("Enjoying FortnitePorting?", "Consider donating to the Ko-Fi to support the development of the project!!", buttons: 
+            _settings.Application.NextKofiAskDate = DateTime.Today.AddDays(7);
+
+            _info.Dialog("Enjoying FortnitePorting?", "Consider donating to the Ko-Fi to support the development of the project!!", buttons:
             [
                 new DialogButton
                 {
@@ -56,7 +58,7 @@ public partial class HomeViewModel() : ViewModelBase
                 new DialogButton
                 {
                     Text = "Don't Ask Again",
-                    Action = () => AppSettings.Application.DontAskAboutKofi = true
+                    Action = () => _settings.Application.DontAskAboutKofi = true
                 }
             ]);
         }
@@ -69,31 +71,12 @@ public partial class HomeViewModel() : ViewModelBase
 
     public void OpenFeaturedArt(FeaturedArtEntry featured)
     {
-        App.Launch(featured.Social);
+        _app.Launch(featured.Social);
     }
-    
-    public void LaunchDiscord()
-    {
-        App.Launch(Globals.DISCORD_URL);
-    }
-    
-    public void LaunchTwitter()
-    {
-        App.Launch(Globals.TWITTER_URL);
-    }
-    
-    public void LaunchGitHub()
-    {
-        App.Launch(Globals.GITHUB_URL);
-    }
-    
-    public void LaunchKoFi()
-    {
-        App.Launch(Globals.KOFI_URL);
-    }
-    
-    public void LaunchWebsite()
-    {
-        App.Launch(Globals.WEBSITE_URL);
-    }
+
+    public void LaunchDiscord() => _app.Launch(Globals.DISCORD_URL);
+    public void LaunchTwitter() => _app.Launch(Globals.TWITTER_URL);
+    public void LaunchGitHub() => _app.Launch(Globals.GITHUB_URL);
+    public void LaunchKoFi() => _app.Launch(Globals.KOFI_URL);
+    public void LaunchWebsite() => _app.Launch(Globals.WEBSITE_URL);
 }

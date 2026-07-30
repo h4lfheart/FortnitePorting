@@ -25,9 +25,9 @@ public partial class MusicPlayerWindowModel(
     MusicViewModel music,
     AudioPlaybackService audio) : WindowModelBase
 {
-    public SettingsService Settings { get; } = settings;
+    [ObservableProperty] private SettingsService _settings = settings;
 
-    public MusicViewModel Music { get; } = music;
+    private readonly MusicViewModel _music = music;
 
     public AudioPlaybackSession Session { get; } = audio.CreateSession();
 
@@ -68,7 +68,7 @@ public partial class MusicPlayerWindowModel(
 
     public override void OnApplicationExit()
     {
-        MusicPlayerWindow.Instance?.Close();
+        WindowManager.FindOpen<MusicPlayerWindow>()?.Close();
     }
 
     private void OnUpdateTimerTick(object? sender, EventArgs e)
@@ -99,8 +99,8 @@ public partial class MusicPlayerWindowModel(
     {
         if (ActiveItem is null) return;
 
-        var idx = Music.PlaylistMusicPacks.IndexOf(ActiveItem) - 1;
-        if (idx < 0) idx = Music.PlaylistMusicPacks.Count - 1;
+        var idx = _music.PlaylistMusicPacks.IndexOf(ActiveItem) - 1;
+        if (idx < 0) idx = _music.PlaylistMusicPacks.Count - 1;
 
         if (Session.CurrentTime.TotalSeconds > 5)
         {
@@ -109,7 +109,7 @@ public partial class MusicPlayerWindowModel(
         }
 
         CurrentTime = TimeSpan.Zero;
-        PlayItem(Music.PlaylistMusicPacks[idx]);
+        PlayItem(_music.PlaylistMusicPacks[idx]);
     }
 
     [RelayCommand]
@@ -118,17 +118,17 @@ public partial class MusicPlayerWindowModel(
         if (ActiveItem is null) return;
 
         var idx = IsShuffling
-            ? Random.Shared.Next(0, Music.PlaylistMusicPacks.Count)
-            : Music.PlaylistMusicPacks.IndexOf(ActiveItem) + 1;
+            ? Random.Shared.Next(0, _music.PlaylistMusicPacks.Count)
+            : _music.PlaylistMusicPacks.IndexOf(ActiveItem) + 1;
 
-        if (idx >= Music.PlaylistMusicPacks.Count) idx = 0;
+        if (idx >= _music.PlaylistMusicPacks.Count) idx = 0;
 
         CurrentTime = TimeSpan.Zero;
-        PlayItem(Music.PlaylistMusicPacks[idx]);
+        PlayItem(_music.PlaylistMusicPacks[idx]);
     }
 
     [RelayCommand]
-    public void CloseWindow() => MusicPlayerWindow.Instance?.Close();
+    public void CloseWindow() => Window?.Close();
 
     public void PlayItem(MusicPackItem item)
     {
@@ -159,7 +159,7 @@ public partial class MusicPlayerWindowModel(
 
         Discord.Update($"Listening to \"{ActiveItem.TrackName}\"");
 
-        TaskService.RunDispatcher(MusicPlayerWindow.Open);
+        TaskService.RunDispatcher(() => MusicPlayerWindow.Open());
 
         TaskService.Run(() =>
         {
@@ -199,8 +199,8 @@ public partial class MusicPlayerWindowModel(
         IsPlaying = false;
         Session.CurrentTime = TimeSpan.Zero;
 
-        if (!suppressClose && MusicPlayerWindow.Instance is not null)
-            TaskService.RunDispatcher(() => MusicPlayerWindow.Instance?.Close());
+        if (!suppressClose && WindowManager.FindOpen<MusicPlayerWindow>() is not null)
+            TaskService.RunDispatcher(() => WindowManager.FindOpen<MusicPlayerWindow>()?.Close());
     }
 
     public void Restart()

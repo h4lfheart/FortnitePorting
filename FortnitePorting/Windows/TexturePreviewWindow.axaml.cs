@@ -16,7 +16,7 @@ public partial class TexturePreviewWindow : PreviewWindowBase<TexturePreviewWind
 
     public static void Preview(string name, UTexture texture)
     {
-        var window = GetOrCreate(() => new TexturePreviewWindow());
+        var window = WindowManager.GetOrShowPreview(() => new TexturePreviewWindow());
 
         if (window.WindowModel.Textures.FirstOrDefault(texture => texture.TextureName.Equals(name)) is { } existing)
         {

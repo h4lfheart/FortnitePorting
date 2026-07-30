@@ -4,12 +4,11 @@ using Avalonia.Threading;
 
 namespace FortnitePorting.Services;
 
-// TODO actually make this part of the service collection
 public static class TaskService
 {
-    public static event ExceptionDelegate Exception; 
+    public static event ExceptionDelegate? Exception;
     public delegate void ExceptionDelegate(Exception exception);
-    
+
     public static Task Run(Func<Task> function)
     {
         return Task.Run(async () =>
@@ -99,7 +98,7 @@ public static class TaskService
             }
         }, priority);
     }
-    
+
     public static void RunDispatcher(Action function, DispatcherPriority priority = default)
     {
         try
@@ -143,7 +142,10 @@ public static class TaskService
             Exception?.Invoke(e);
         }
     }
+}
 
+public static class TaskExtensions
+{
     extension(Task task)
     {
         public void RunAsynchronously()
@@ -151,5 +153,4 @@ public static class TaskService
             task.Start();
         }
     }
-    
 }

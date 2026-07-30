@@ -21,20 +21,18 @@ public partial class SoundPreviewWindow : PreviewWindowBase<SoundPreviewWindow, 
 
     public static void Preview(USoundWave soundWave)
     {
-        if (Instance is not null)
-        {
-            Instance.WindowModel.SoundName = soundWave.Name;
-            Instance.WindowModel.SoundWave = soundWave;
-            TaskService.Run(Instance.WindowModel.Play);
-            Instance.BringToTop();
-            return;
-        }
-
         TaskService.RunDispatcher(() =>
         {
-            Instance = new SoundPreviewWindow(soundWave);
-            Instance.Show();
-            Instance.BringToTop();
+            if (WindowManager.FindOpen<SoundPreviewWindow>() is { } existing)
+            {
+                existing.WindowModel.SoundName = soundWave.Name;
+                existing.WindowModel.SoundWave = soundWave;
+                TaskService.Run(existing.WindowModel.Play);
+                existing.BringToTop();
+                return;
+            }
+
+            WindowManager.GetOrShowPreview(() => new SoundPreviewWindow(soundWave));
         });
     }
 

@@ -46,17 +46,17 @@ public class AnimExport : BaseExport
                     {
                         if (animSequenceBase.Skeleton.Load<USkeleton>() is { } skeleton)
                         {
-                            Skeleton = Exporter.Skeleton(skeleton);
+                            Skeleton = Context.Skeleton(skeleton);
                         }
                         
                         if (fileMeta is ExportAdditiveAnimFileMeta additiveAnimFileMeta
                             && animSequenceBase is UAnimSequence animSequence)
                         {
-                            Sections.AddIfNotNull(Exporter.AnimSequence(animSequence, additiveAnimFileMeta.BaseSequence));
+                            Sections.AddIfNotNull(Context.AnimSequence(animSequence, additiveAnimFileMeta.BaseSequence));
                         }
                         else
                         {
-                            Sections.AddIfNotNull(Exporter.AnimSequence(animSequenceBase));
+                            Sections.AddIfNotNull(Context.AnimSequence(animSequenceBase));
                         }
                         break;
                     }
@@ -88,14 +88,14 @@ public class AnimExport : BaseExport
             }
         }
 
-        if (Exporter.Meta.Provider.Provider.TryLoadPackageObject<UCurveExpressionsDataAsset>(
+        if (Context.Meta.Provider.Provider.TryLoadPackageObject<UCurveExpressionsDataAsset>(
                 "FortniteGame/Content/Characters/Player/Common/Fortnite_Base_Head/Facials/CurveMappings/FN_LegacyTo3L_Main_Mapping",
                 out var legacyToMetahumanCurves))
         {
             LegacyToMetahumanMappings = CurveMappings(legacyToMetahumanCurves);
         }
         
-        if (Exporter.Meta.Provider.Provider.TryLoadPackageObject<UCurveExpressionsDataAsset>(
+        if (Context.Meta.Provider.Provider.TryLoadPackageObject<UCurveExpressionsDataAsset>(
                 "FortniteGame/Content/Characters/Player/Common/Fortnite_Base_Head/Facials/CurveMappings/FN_3LToLegacy_Main_Mapping",
                 out var metahumanToLegacyCurves))
         {
@@ -105,7 +105,7 @@ public class AnimExport : BaseExport
     
     private void AnimMontage(UAnimMontage montage)
     {
-        Skeleton = Exporter.Skeleton(montage.Skeleton.Load<USkeleton>())!;
+        Skeleton = Context.Skeleton(montage.Skeleton.Load<USkeleton>())!;
         HandleSectionTree(Sections, montage, montage.CompositeSections.First());
 
         var notifies = new List<FAnimNotifyEvent>();
@@ -128,10 +128,10 @@ public class AnimExport : BaseExport
         {
             var additiveSection = additiveSlot.AnimTrack.AnimSegments.FirstOrDefault(x => Math.Abs(x.StartPos - currentSection.SegmentBeginTime) < 0.01);
             var additiveSequence = additiveSection?.AnimReference.Load<UAnimSequence>();
-            anim = Exporter.AnimSequence(additiveSequence, baseSequence);
+            anim = Context.AnimSequence(additiveSequence, baseSequence);
         }
         
-        anim ??= Exporter.AnimSequence(baseSequence);
+        anim ??= Context.AnimSequence(baseSequence);
         
         if (anim is not null)
         {
@@ -168,7 +168,7 @@ public class AnimExport : BaseExport
                 {
                     Sounds.Add(new ExportSound
                     {
-                        Path = Exporter.Export(sound.SoundWave.Load<USoundWave>()),
+                        Path = Context.Export(sound.SoundWave.Load<USoundWave>()),
                         Time = sound.Time + notify.LinkValue ,
                         Loop = sound.Loop
                     });
@@ -177,7 +177,7 @@ public class AnimExport : BaseExport
             }
             case FortAnimNotifyState_SpawnProp propNotify:
             {
-                var mesh = Exporter.Mesh(propNotify.StaticMeshProp) ?? Exporter.Mesh(propNotify.SkeletalMeshProp);
+                var mesh = Context.Mesh(propNotify.StaticMeshProp) ?? Context.Mesh(propNotify.SkeletalMeshProp);
                 if (mesh is null) break;
                 
                 var animSections = new List<ExportAnimSection>();
@@ -189,7 +189,7 @@ public class AnimExport : BaseExport
                     HandleSectionTree(animSections, secondMontage, secondMontage.CompositeSections.First());
 
                 if (animSections.Count == 0 && propNotify.SkeletalMeshPropAnimation is { } animSequence &&
-                    Exporter.AnimSequence(animSequence) is { } exportedSequenceSection)
+                    Context.AnimSequence(animSequence) is { } exportedSequenceSection)
                     animSections = [exportedSequenceSection];
                 
                 var prop = new ExportProp

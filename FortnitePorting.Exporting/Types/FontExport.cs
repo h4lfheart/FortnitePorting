@@ -16,12 +16,12 @@ public class FontExport : BaseExport
 
         if (metaData.ExportLocation.IsFolder)
         {
-            var exportPath = Exporter.Export(fontFace, returnRealPath: true, synchronousExport: true);
+            var exportPath = Context.Export(fontFace, returnRealPath: true, synchronousExport: true);
             FolderPath = System.IO.Path.GetDirectoryName(exportPath);
         }
         else
         {
-            Path = Exporter.Export(fontFace);
+            Path = Context.Export(fontFace);
         }
     }
 }

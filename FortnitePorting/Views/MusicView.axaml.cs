@@ -22,8 +22,8 @@ public partial class MusicView : ViewBase<MusicViewModel>
         if (sender is not Control control) return;
         if (control.DataContext is not MusicPackItem musicPackItem) return;
         
-        MusicPlayerWindow.Open();
-        if (MusicPlayerWindow.Instance?.WindowModel is not { } player) return;
+        var window = MusicPlayerWindow.Open();
+        if (window.WindowModel is not { } player) return;
 
         if (player.ActiveItem == musicPackItem)
             player.TogglePlayPause();

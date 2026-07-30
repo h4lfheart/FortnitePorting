@@ -18,7 +18,7 @@ public partial class MaterialPreviewWindow : NodeGraphPreviewWindowBase<Material
 
     public static void Preview(UObject obj)
     {
-        var window = GetOrCreate(() => new MaterialPreviewWindow());
+        var window = WindowManager.GetOrShowPreview(() => new MaterialPreviewWindow());
 
         if (window.WindowModel.Trees.FirstOrDefault(mat => mat.Asset?.Name.Equals(obj.Name) ?? false) is
             { } existing)

@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
@@ -11,7 +12,6 @@ using FortnitePorting.Controls.WrapPanel;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.Assets.Asset;
-using FortnitePorting.Models.Assets.Custom;
 using FortnitePorting.Models.Assets.Filters;
 using FortnitePorting.Services;
 using FortnitePorting.ViewModels;
@@ -38,14 +38,11 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
             ChangeTab(enumType);
         });
 
-        PointerWheelChangedEvent.AddClassHandler<TopLevel>((sender, args) =>
+        PointerWheelChangedEvent.AddClassHandler<TopLevel>((_, args) =>
         {
             if ((args.KeyModifiers & KeyModifiers.Control) == 0) return;
 
-            var delta = args.Delta.Y;
-            AppSettings.Application.AssetScale =
-                float.Clamp(AppSettings.Application.AssetScale + (delta > 0 ? 0.25f : -0.25f), 0.5f, 4.0f);
-
+            ViewModel.AdjustAssetScale(args.Delta.Y > 0);
             args.Handled = true;
         }, handledEventsToo: true);
 
@@ -56,27 +53,16 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
 
     private void ChangeTab(EExportType assetType)
     {
-        if (ViewModel.AssetLoader.ActiveLoader?.Type == assetType) return;
-
         AssetsListBox.SelectedItems?.Clear();
-        Discord.Update(assetType);
-
-        var loaders = ViewModel.AssetLoader.Categories.SelectMany(category => category.Loaders);
-        foreach (var loader in loaders)
-        {
-            if (loader.Type == assetType)
-                loader.Unpause();
-            else
-                loader.Pause();
-        }
-
-        TaskService.Run(async () => await ViewModel.AssetLoader.Load(assetType));
+        ViewModel.ChangeTab(assetType);
     }
 
     private void OnRandomButtonPressed(object? sender, RoutedEventArgs routedEventArgs)
     {
-        AssetsListBox.SelectedIndex = Random.Shared.Next(0, AssetsListBox.Items.Count);
+        var index = ViewModel.GetRandomIndex(AssetsListBox.Items.Count);
+        if (index < 0) return;
 
+        AssetsListBox.SelectedIndex = index;
         if (AssetsListBox.SelectedItem is not AssetItem item) return;
         if (item.IconDisplayImage is not null) return;
 
@@ -88,25 +74,7 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
         if (sender is not ListBox listBox) return;
         if (listBox.SelectedItems is null || listBox.SelectedItems.Count == 0) return;
 
-        ViewModel.AssetLoader.ActiveLoader.SelectedAssetInfos = [];
-        foreach (var asset in listBox.SelectedItems.Cast<BaseAssetItem>())
-        {
-            if (asset is AssetItem assetItem)
-            {
-                var stylePaths =
-                    ViewModel.AssetLoader.ActiveLoader.StyleDictionary.GetValueOrDefault(asset.CreationData.DisplayName) ??
-                    ViewModel.AssetLoader.ActiveLoader.StyleDictionary.GetValueOrDefault(asset.CreationData.ID);
-
-                ViewModel.AssetLoader.ActiveLoader.SelectedAssetInfos.Add(
-                    stylePaths is not null
-                        ? new AssetInfo(assetItem, stylePaths.OrderBy(x => x.EndsWith(asset.CreationData.ID, StringComparison.OrdinalIgnoreCase) ? 0 : 1))
-                        : new AssetInfo(assetItem));
-            }
-            else if (asset is CustomAssetItem customAsset)
-            {
-                ViewModel.AssetLoader.ActiveLoader.SelectedAssetInfos.Add(new CustomAssetInfo(customAsset));
-            }
-        }
+        ViewModel.SyncSelectedAssets(listBox.SelectedItems.Cast<BaseAssetItem>());
     }
 
     private void OnScrollAssets(object? sender, PointerWheelEventArgs e)
@@ -124,7 +92,7 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
     {
         if (sender is not CheckBox { Content: not null, IsChecked: { } isChecked, DataContext: FilterItem filterItem }) return;
 
-        ViewModel.AssetLoader.ActiveLoader.UpdateFilters(filterItem, isChecked);
+        ViewModel.UpdateFilter(filterItem, isChecked);
     }
 
     private void OnItemSelected(object? sender, SidebarItemSelectedArgs e)
@@ -221,11 +189,7 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
 
     private async Task StartDragAsync(PointerEventArgs e)
     {
-        var paths = ViewModel.AssetLoader.ActiveLoader!.SelectedAssetInfos
-            .OfType<AssetInfo>()
-            .Select(asset => asset.Asset.CreationData.Object.GetPathName())
-            .ToArray();
-
+        var paths = ViewModel.GetSelectedAssetPaths();
         var dragDropInfoFile = await WriteDragDropInfoAsync(paths);
 
         TaskService.Run(ExportClient.DiscoverAsync);
