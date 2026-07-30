@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using FluentAvalonia.UI.Controls;
@@ -8,30 +7,20 @@ using FortnitePorting.WindowModels;
 
 namespace FortnitePorting.Windows;
 
-public partial class TexturePreviewWindow : WindowBase<TexturePreviewWindowModel>, IPreviewWindow
+public partial class TexturePreviewWindow : PreviewWindowBase<TexturePreviewWindow, TexturePreviewWindowModel>
 {
-    public static TexturePreviewWindow? Instance;
-    
     public TexturePreviewWindow()
     {
         InitializeComponent();
-        DataContext = WindowModel;
-        Owner = App.Lifetime.MainWindow;
     }
 
     public static void Preview(string name, UTexture texture)
     {
-        if (Instance is null)
-        {
-            Instance = new TexturePreviewWindow();
-            Instance.Show();
-        }
-        
-        Instance.BringToTop();
+        var window = GetOrCreate(() => new TexturePreviewWindow());
 
-        if (Instance.WindowModel.Textures.FirstOrDefault(texture => texture.TextureName.Equals(name)) is { } existing)
+        if (window.WindowModel.Textures.FirstOrDefault(texture => texture.TextureName.Equals(name)) is { } existing)
         {
-            Instance.WindowModel.SelectedTexture = existing;
+            window.WindowModel.SelectedTexture = existing;
             return;
         }
 
@@ -43,26 +32,12 @@ public partial class TexturePreviewWindow : WindowBase<TexturePreviewWindowModel
         
         container.Update();
         
-        Instance.WindowModel.Textures.Add(container);
-        Instance.WindowModel.SelectedTexture = container;
-    }
-
-    protected override void OnClosed(EventArgs e)
-    {
-        base.OnClosed(e);
-
-        Instance = null;
+        window.WindowModel.Textures.Add(container);
+        window.WindowModel.SelectedTexture = container;
     }
     
     private void OnTabClosed(TabView sender, TabViewTabCloseRequestedEventArgs args)
     {
-        if (args.Item is not TextureContainer texture) return;
-
-        WindowModel.Textures.Remove(texture);
-
-        if (WindowModel.Textures.Count == 0)
-        {
-            Close();
-        }
+        RemoveTabAndCloseIfEmpty(WindowModel.Textures, args.Item);
     }
 }

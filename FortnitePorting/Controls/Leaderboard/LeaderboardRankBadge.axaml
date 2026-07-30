@@ -1,0 +1,52 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             xmlns:leaderboard="clr-namespace:FortnitePorting.Controls.Leaderboard"
+             x:Class="FortnitePorting.Controls.Leaderboard.LeaderboardRankBadge">
+    <Grid Width="40" Height="40" Margin="{ext:Space 0, 0, 1, 0}">
+        <Border CornerRadius="8"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                Classes="rank"
+                Tag="{Binding Ranking, RelativeSource={RelativeSource AncestorType=leaderboard:LeaderboardRankBadge}}"
+                BoxShadow="{DynamicResource FPCardShadow}">
+            <Border.Styles>
+                <Style Selector="Border.rank">
+                    <Setter Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}"/>
+                </Style>
+                <Style Selector="Border.rank[Tag=1]">
+                    <Setter Property="Background" Value="#FFD700"/>
+                </Style>
+                <Style Selector="Border.rank[Tag=2]">
+                    <Setter Property="Background" Value="#C0C0C0"/>
+                </Style>
+                <Style Selector="Border.rank[Tag=3]">
+                    <Setter Property="Background" Value="#CD7F32"/>
+                </Style>
+            </Border.Styles>
+        </Border>
+
+        <TextBlock Text="{Binding Ranking, RelativeSource={RelativeSource AncestorType=leaderboard:LeaderboardRankBadge}}"
+                   Classes="BodyTextBlockStyle"
+                   FontWeight="Bold"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   Tag="{Binding Ranking, RelativeSource={RelativeSource AncestorType=leaderboard:LeaderboardRankBadge}}">
+            <TextBlock.Styles>
+                <Style Selector="TextBlock">
+                    <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}"/>
+                </Style>
+                <Style Selector="TextBlock[Tag=1]">
+                    <Setter Property="Foreground" Value="#000000"/>
+                </Style>
+                <Style Selector="TextBlock[Tag=2]">
+                    <Setter Property="Foreground" Value="#000000"/>
+                </Style>
+                <Style Selector="TextBlock[Tag=3]">
+                    <Setter Property="Foreground" Value="#000000"/>
+                </Style>
+            </TextBlock.Styles>
+        </TextBlock>
+    </Grid>
+</UserControl>

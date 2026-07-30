@@ -1,9 +1,9 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:ui="using:FluentAvalonia.UI.Controls"
         xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
         xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
         xmlns:windowModels="clr-namespace:FortnitePorting.WindowModels"
+        xmlns:controls="clr-namespace:FortnitePorting.Controls"
         x:Class="FortnitePorting.Windows.SoundPreviewWindow"
         x:DataType="windowModels:SoundPreviewWindowModel"
         Width="540" SizeToContent="Height" RequestedThemeVariant="Dark" Background="{DynamicResource WindowBackgroundBrush}"  
@@ -13,40 +13,7 @@
         Icon="/Assets/LogoRebrand.ico"
         Title="Sound Viewer">
     <Grid RowDefinitions="35, *" Margin="{Binding $parent[Window].OffScreenMargin}">
-         <Grid Grid.Row="0" HorizontalAlignment="Stretch" PointerPressed="OnPointerPressedUpperBar">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="{ext:Space 0.75}" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="{ext:Space 0.5}" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-            
-                <ui:ImageIcon Grid.Column="0" Source="{DynamicResource FPLogoBitmap}" 
-                              HorizontalAlignment="Right"
-                              Width="20" Height="20" 
-                              RenderOptions.BitmapInterpolationMode="HighQuality" RenderOptions.EdgeMode="Antialias"/>
-
-                <TextBlock Grid.Column="2" Text="Sound Viewer" FontFamily="{StaticResource SFTextSemiBold}" FontSize="14"
-                           HorizontalAlignment="Center" VerticalAlignment="Center" />
-            </Grid>
-            
-            <Grid HorizontalAlignment="Right">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="{ext:Space 0.5}" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="{ext:Space 0.5}" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="1" />
-                </Grid.ColumnDefinitions>
-            
-                <Border Grid.Column="0" PointerPressed="OnMinimizePressed" Cursor="Hand" CornerRadius="0" Classes="MinimizeMaximize" Child="{avalonia:MaterialIconExt Minus}" Width="35" Height="35"/>
-                <Border Grid.Column="2" PointerPressed="OnMaximizePressed" Cursor="Hand" CornerRadius="0" Classes="MinimizeMaximize" Child="{avalonia:MaterialIconExt Maximize}" Width="35" Height="35"/>
-                <Border Grid.Column="4" PointerPressed="OnClosePressed" Cursor="Hand" CornerRadius="0" Classes="Close" Child="{avalonia:MaterialIconExt Close}" Width="35" Height="35"/>
-            </Grid>
-        </Grid>
+        <controls:WindowTitleBar Grid.Row="0" Title="Sound Viewer"/>
         
         <Grid Grid.Row="1" Margin="{ext:Space 1}">
             <Grid.ColumnDefinitions>

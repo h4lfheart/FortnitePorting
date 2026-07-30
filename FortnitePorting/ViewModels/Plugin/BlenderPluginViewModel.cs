@@ -1,40 +1,27 @@
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FluentAvalonia.UI.Controls;
-using FortnitePorting.Framework;
 using FortnitePorting.Models.Information;
 using FortnitePorting.Models.Plugin;
 using FortnitePorting.Services;
-using Newtonsoft.Json;
 
 namespace FortnitePorting.ViewModels.Plugin;
 
-public partial class BlenderPluginViewModel : ViewModelBase
+public partial class BlenderPluginViewModel : PluginInstallationViewModelBase<BlenderInstallation>
 {
-    [ObservableProperty] private bool _automaticallySync = true;
-    [ObservableProperty] private ObservableCollection<BlenderInstallation> _installations = [];
-
     [ObservableProperty] private bool _completedFirstInstall;
 
-    public override async Task Initialize()
-    {
-        if (!BlenderInstallation.PluginWorkingDirectory.Exists)
-            BlenderInstallation.PluginWorkingDirectory.Create();
+    protected override DirectoryInfo PluginWorkingDirectory => BlenderInstallation.PluginWorkingDirectory;
 
-        foreach (var installation in Installations.ToArray())
-        {
-            if (installation.SyncExtensionVersion()) continue;
+    protected override bool TrySyncVersion(BlenderInstallation installation) => installation.SyncExtensionVersion();
 
-            installation.Uninstall();
-            Installations.Remove(installation);
-        }
-    }
+    protected override void Uninstall(BlenderInstallation installation) => installation.Uninstall();
 
-    public async Task AddInstallation()
+    public override async Task AddInstallation()
     {
         if (await App.BrowseFileDialog(fileTypes: Globals.BlenderFileType) is not { } blenderPath) return;
 
@@ -100,22 +87,7 @@ public partial class BlenderPluginViewModel : ViewModelBase
         });
     }
 
-    public async Task RemoveInstallation(BlenderInstallation installation)
-    {
-        TaskService.Run(() =>
-        {
-            installation.Uninstall();
-
-            Installations.Remove(installation);
-        });
-    }
-
-    public async Task SyncInstallations()
-    {
-        await SyncInstallations(true);
-    }
-
-    public async Task SyncInstallations(bool verbose)
+    public override async Task SyncInstallations(bool verbose)
     {
         var currentVersion = Globals.Version.ToVersion();
         foreach (var installation in Installations)
