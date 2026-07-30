@@ -437,23 +437,6 @@
                                  Grid.Row="0" 
                                  Grid.RowSpan="2" />
 
-        <Grid Grid.Row="0" HorizontalAlignment="Stretch" PointerPressed="OnPointerPressedUpperBar">
-            <Grid HorizontalAlignment="Right">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="{ext:Space 0.5}" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="{ext:Space 0.5}" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-
-                <Border Grid.Column="0" PointerPressed="OnMinimizePressed" Cursor="Hand" CornerRadius="0"
-                        Classes="MinimizeMaximize" Child="{material:MaterialIconExt Minus}" Width="35" Height="35" />
-                <Border Grid.Column="2" PointerPressed="OnMaximizePressed" Cursor="Hand" CornerRadius="0"
-                        Classes="MinimizeMaximize" Child="{material:MaterialIconExt Maximize}" Width="35" Height="35" />
-                <Border Grid.Column="4" PointerPressed="OnClosePressed" Cursor="Hand" CornerRadius="0" Classes="Close"
-                        Child="{material:MaterialIconExt Close}" Width="35" Height="35" />
-            </Grid>
-        </Grid>
+        <controls:WindowTitleBar Grid.Row="0"/>
     </Grid>
 </Window>

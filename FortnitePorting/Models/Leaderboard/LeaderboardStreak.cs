@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using Avalonia.Media;
-using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FortnitePorting.Extensions;
 using FortnitePorting.Models.API.Responses;
@@ -15,21 +14,13 @@ public partial class LeaderboardStreak : ObservableObject
     [ObservableProperty] [JsonProperty("user_id")] private string _userId;
 
     [ObservableProperty, NotifyPropertyChangedFor(nameof(DayText))] [JsonProperty("streak")] private int _streak;
-    
-    [ObservableProperty] private UserInfoResponse? _userInfo;
+
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(UserBrush))]
+    private UserInfoResponse? _userInfo;
 
     public string DayText => Streak == 1 ? "Day" : "Days";
-    
-    public SolidColorBrush UserBrush => new(UserInfo?.Role switch
-    {
-        ESupabaseRole.System => Color.Parse("#B040FF"),
-        ESupabaseRole.Owner => Color.Parse("#83c4db"),
-        ESupabaseRole.Support => Color.Parse("#635fd4"),
-        ESupabaseRole.Staff => Color.Parse("#9856a2"),
-        ESupabaseRole.Verified => Color.Parse("#00ff97"),
-        ESupabaseRole.User => Colors.White,
-        _ => Colors.White
-    });
+
+    public SolidColorBrush UserBrush => UserInfo?.Role.Brush() ?? ESupabaseRole.User.Brush();
 
     public async Task Load()
     {

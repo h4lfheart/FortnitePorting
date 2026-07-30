@@ -1,0 +1,69 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
+             xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             xmlns:plugin="clr-namespace:FortnitePorting.Controls.Plugin"
+             x:Class="FortnitePorting.Controls.Plugin.PluginInstallationsHeader"
+             x:CompileBindings="False">
+    <Grid HorizontalAlignment="Stretch">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="{ext:Space 1}" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="{ext:Space 1}" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="{ext:Space 1}" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="{ext:Space 1}" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0"
+                       Text="{Binding Title, RelativeSource={RelativeSource AncestorType=plugin:PluginInstallationsHeader}}"
+                       Classes="SubtitleTextBlockStyle" />
+
+            <TextBlock Grid.Row="2"
+                       Text="{Binding Subtitle, RelativeSource={RelativeSource AncestorType=plugin:PluginInstallationsHeader}}"
+                       Classes="BodyTextBlockStyle TextFillColorSecondaryBrush" />
+        </Grid>
+
+        <Button Grid.Column="2"
+                Content="{Binding AddButtonContent, RelativeSource={RelativeSource AncestorType=plugin:PluginInstallationsHeader}}"
+                Command="{Binding AddInstallation}" />
+
+        <Button Grid.Column="4"
+                Command="{Binding SyncInstallations}"
+                IsEnabled="{Binding !!Installations.Count}"
+                VerticalAlignment="Center" HorizontalAlignment="Right"
+                Content="{controls:IconText 'Sync', Sync}" />
+
+        <DropDownButton Grid.Column="6" HorizontalAlignment="Stretch">
+            <DropDownButton.Flyout>
+                <Flyout VerticalOffset="4">
+                    <StackPanel Spacing="{ext:Space 1}" HorizontalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal" Spacing="{ext:Space 4}" VerticalAlignment="Center">
+                            <StackPanel Spacing="{ext:Space 1}">
+                                <TextBlock Text="Auto-Sync"/>
+                                <TextBlock Text="Automatically syncs the plugin after an update has occurred."
+                                           Classes="CaptionTextBlockStyle TextFillColorSecondaryBrush"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <ToggleSwitch IsChecked="{Binding AutomaticallySync}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Flyout>
+            </DropDownButton.Flyout>
+
+            <StackPanel Orientation="Horizontal">
+                <material:MaterialIcon Kind="Settings" Margin="{ext:Space 0, 0, 1, 0}" />
+                <TextBlock Text="Options" />
+            </StackPanel>
+        </DropDownButton>
+    </Grid>
+</UserControl>

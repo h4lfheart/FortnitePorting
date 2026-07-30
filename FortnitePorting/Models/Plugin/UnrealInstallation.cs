@@ -30,13 +30,7 @@ public partial class UnrealInstallation : ObservableObject
     private EPluginStatusType _status = EPluginStatusType.Modifying;
 
     [JsonIgnore]
-    public SolidColorBrush StatusBrush => Status switch
-    {
-        EPluginStatusType.Newest => SolidColorBrush.Parse("#17854F"),
-        EPluginStatusType.UpdateAvailable => SolidColorBrush.Parse("#E0A100"),
-        EPluginStatusType.Failed => SolidColorBrush.Parse("#A61717"),
-        EPluginStatusType.Modifying => SolidColorBrush.Parse("#6F6F75")
-    };
+    public SolidColorBrush StatusBrush => Status.Brush;
 
     [JsonIgnore]
     public Bitmap Image { get; private set; } =

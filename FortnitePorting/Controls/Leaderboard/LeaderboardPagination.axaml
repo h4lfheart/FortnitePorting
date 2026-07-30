@@ -1,0 +1,38 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:leaderboard="clr-namespace:FortnitePorting.Controls.Leaderboard"
+             x:Class="FortnitePorting.Controls.Leaderboard.LeaderboardPagination">
+    <Grid ColumnDefinitions="Auto * Auto"
+          IsVisible="{Binding IsVisible, RelativeSource={RelativeSource AncestorType=leaderboard:LeaderboardPagination}}">
+
+        <Button Grid.Column="0"
+                Padding="{ext:Space 1, 0.75, 1.5, 0.75}"
+                Command="{Binding PreviousPageCommand, RelativeSource={RelativeSource AncestorType=leaderboard:LeaderboardPagination}}">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <avalonia:MaterialIcon Kind="ChevronLeft" Width="16" Height="16"/>
+                <TextBlock Text="Previous"/>
+            </StackPanel>
+        </Button>
+
+        <StackPanel Grid.Column="1"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Spacing="8">
+            <TextBlock Text="{Binding PageInfo, RelativeSource={RelativeSource AncestorType=leaderboard:LeaderboardPagination}, FallbackValue='Page 1 of 1'}"
+                       Classes="CaptionTextBlockStyle TextFillColorSecondaryBrush"
+                       VerticalAlignment="Center"/>
+        </StackPanel>
+
+        <Button Grid.Column="2"
+                Padding="{ext:Space 1.5, 0.75, 1, 0.75}"
+                Command="{Binding NextPageCommand, RelativeSource={RelativeSource AncestorType=leaderboard:LeaderboardPagination}}">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <TextBlock Text="Next"/>
+                <avalonia:MaterialIcon Kind="ChevronRight" Width="16" Height="16"/>
+            </StackPanel>
+        </Button>
+    </Grid>
+</UserControl>

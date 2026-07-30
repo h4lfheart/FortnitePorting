@@ -15,9 +15,8 @@ using PropertiesContainer = FortnitePorting.Models.Viewers.PropertiesContainer;
 
 namespace FortnitePorting.Windows;
 
-public partial class PropertiesPreviewWindow : WindowBase<PropertiesPreviewWindowModel>, IPreviewWindow
+public partial class PropertiesPreviewWindow : PreviewWindowBase<PropertiesPreviewWindow, PropertiesPreviewWindowModel>
 {
-    public static PropertiesPreviewWindow? Instance;
     private FoldingManager _foldingManager;
     private bool _isInitialized;
     private bool _isRestoringScroll;
@@ -25,8 +24,6 @@ public partial class PropertiesPreviewWindow : WindowBase<PropertiesPreviewWindo
     public PropertiesPreviewWindow()
     {
         InitializeComponent();
-        DataContext = WindowModel;
-        Owner = App.Lifetime.MainWindow;
         
         WindowModel.PropertyChanged += (_, args) =>
         {
@@ -96,26 +93,20 @@ public partial class PropertiesPreviewWindow : WindowBase<PropertiesPreviewWindo
 
     public static void Preview(string name, string json, int targetIndex = -1)
     {
-        if (Instance == null)
-        {
-            Instance = new PropertiesPreviewWindow();
-            Instance.Show();
-        }
-        
-        Instance.BringToTop();
+        var window = GetOrCreate(() => new PropertiesPreviewWindow());
 
         var targetLine = 0;
         if (targetIndex >= 0)
         {
             targetLine = StringExtensions.GetPropertiesExportIndexLine(json, targetIndex);
-            Instance.Editor.ScrollTo(targetLine, 0, VisualYPosition.LineTop, 0, 0);
+            window.Editor.ScrollTo(targetLine, 0, VisualYPosition.LineTop, 0, 0);
         }
 
-        var existing = Instance.WindowModel.Assets.FirstOrDefault(asset => asset.AssetName.Equals(name));
+        var existing = window.WindowModel.Assets.FirstOrDefault(asset => asset.AssetName.Equals(name));
         if (existing != null)
         {
-            Instance.WindowModel.SelectedAsset = existing;
-            Instance.WindowModel.SelectedAsset.ScrollLine = targetLine;
+            window.WindowModel.SelectedAsset = existing;
+            window.WindowModel.SelectedAsset.ScrollLine = targetLine;
             return;
         }
         
@@ -126,27 +117,12 @@ public partial class PropertiesPreviewWindow : WindowBase<PropertiesPreviewWindo
             ScrollLine = targetLine
         };
         
-        Instance.WindowModel.Assets.Add(container);
-        Instance.WindowModel.SelectedAsset = container;
-
-    }
-
-    protected override void OnClosed(EventArgs e)
-    {
-        base.OnClosed(e);
-        
-        Instance = null;
+        window.WindowModel.Assets.Add(container);
+        window.WindowModel.SelectedAsset = container;
     }
 
     private void OnTabClosed(TabView sender, TabViewTabCloseRequestedEventArgs args)
     {
-        if (args.Item is not PropertiesContainer properties) return;
-
-        WindowModel.Assets.Remove(properties);
-
-        if (WindowModel.Assets.Count == 0)
-        {
-            Close();
-        }
+        RemoveTabAndCloseIfEmpty(WindowModel.Assets, args.Item);
     }
 }

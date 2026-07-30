@@ -11,7 +11,6 @@ namespace FortnitePorting.Controls;
 
 public class EntranceTransition : IPageTransition
 {
-    
     private double FromHorizontalOffset { get; set; } = 0;
     private double FromVerticalOffset { get; set; } = 100;
     private TimeSpan Duration { get; set; } = TimeSpan.FromSeconds(0.5);
@@ -19,7 +18,7 @@ public class EntranceTransition : IPageTransition
     public async Task Start(Visual? from, Visual? to, bool forward, CancellationToken cancellationToken)
     {
         if (to is null) return;
-      
+
         if (from is not null && from != to)
             from.Opacity = 0;
 

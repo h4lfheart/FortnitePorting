@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using FortnitePorting.Extensions;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.ViewModels;
 using Newtonsoft.Json;
@@ -28,13 +29,7 @@ public partial class BlenderInstallation(string blenderExecutablePath) : Observa
     private EPluginStatusType _status = EPluginStatusType.Newest;
 
     [JsonIgnore]
-    public SolidColorBrush StatusBrush => Status switch
-    {
-        EPluginStatusType.Newest => SolidColorBrush.Parse("#17854F"),
-        EPluginStatusType.UpdateAvailable => SolidColorBrush.Parse("#E0A100"),
-        EPluginStatusType.Failed => SolidColorBrush.Parse("#A61717"),
-        EPluginStatusType.Modifying => SolidColorBrush.Parse("#6F6F75"),
-    };
+    public SolidColorBrush StatusBrush => Status.Brush;
 
     [JsonIgnore]
     public Version? BlenderVersion => TryGetVersion(BlenderPath);

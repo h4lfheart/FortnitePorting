@@ -8,15 +8,11 @@ using FortnitePorting.WindowModels;
 
 namespace FortnitePorting.Windows;
 
-public partial class SoundPreviewWindow : WindowBase<SoundPreviewWindowModel>, IPreviewWindow
+public partial class SoundPreviewWindow : PreviewWindowBase<SoundPreviewWindow, SoundPreviewWindowModel>
 {
-    public static SoundPreviewWindow? Instance;
-    
     public SoundPreviewWindow(USoundWave soundWave)
     {
         InitializeComponent();
-        DataContext = WindowModel;
-        Owner = App.Lifetime.MainWindow;
 
         WindowModel.SoundName = soundWave.Name;
         WindowModel.SoundWave = soundWave;
@@ -44,10 +40,8 @@ public partial class SoundPreviewWindow : WindowBase<SoundPreviewWindowModel>, I
 
     protected override void OnClosed(EventArgs e)
     {
+        WindowModel.OutputDevice.Dispose();
         base.OnClosed(e);
-
-        Instance?.WindowModel.OutputDevice.Dispose();
-        Instance = null;
     }
 
     private void OnSliderValueChanged(object? sender, RangeBaseValueChangedEventArgs e)

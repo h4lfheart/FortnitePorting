@@ -6,6 +6,7 @@
              xmlns:plugin="clr-namespace:FortnitePorting.ViewModels.Plugin"
              xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             xmlns:pluginControls="clr-namespace:FortnitePorting.Controls.Plugin"
              xmlns:settingsControls="clr-namespace:FortnitePorting.Controls.Settings"
              xmlns:plugin1="clr-namespace:FortnitePorting.Views.Plugin"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
@@ -20,62 +21,10 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0" HorizontalAlignment="Stretch">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="{ext:Space 1}" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="{ext:Space 1}" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="{ext:Space 1}" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-
-            <Grid Grid.Column="0">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="{ext:Space 1}" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-
-                <TextBlock Grid.Row="0" Text="Blender" Classes="SubtitleTextBlockStyle" />
-
-                <TextBlock Grid.Row="2"
-                           Text="{Binding Installations.Count, StringFormat='{}{0} Version(s) Registered'}"
-                           Classes="BodyTextBlockStyle TextFillColorSecondaryBrush" />
-            </Grid>
-
-
-            <Button Grid.Column="2" Content="{controls:IconText 'Add Version', Plus}"
-                    Command="{Binding AddInstallation}" />
-
-            <Button Grid.Column="4"
-                    Command="{Binding SyncInstallations}"
-                    IsEnabled="{Binding !!Installations.Count}"
-                    VerticalAlignment="Center" HorizontalAlignment="Right" Content="{controls:IconText 'Sync', Sync}" />
-
-            <DropDownButton Grid.Column="6" HorizontalAlignment="Stretch">
-                <DropDownButton.Flyout>
-                    <Flyout VerticalOffset="4">
-                        <StackPanel Spacing="{ext:Space 1}" HorizontalAlignment="Stretch">
-                            <StackPanel Orientation="Horizontal" Spacing="{ext:Space 4}" VerticalAlignment="Center">
-                                <StackPanel Spacing="{ext:Space 1}">
-                                    <TextBlock Text="Auto-Sync"/>
-                                    <TextBlock Text="Automatically syncs the plugin after an update has occurred." Classes="CaptionTextBlockStyle TextFillColorSecondaryBrush" VerticalAlignment="Center"/>
-                                </StackPanel>
-                                <ToggleSwitch IsChecked="{Binding AutomaticallySync}" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </StackPanel>
-                    </Flyout>
-                </DropDownButton.Flyout>
-
-                <StackPanel Orientation="Horizontal">
-                    <material:MaterialIcon Kind="Settings" Margin="{ext:Space 0, 0, 1, 0}" />
-                    <TextBlock Text="Options" />
-                </StackPanel>
-            </DropDownButton>
-
-        </Grid>
+        <pluginControls:PluginInstallationsHeader Grid.Row="0"
+            Title="Blender"
+            Subtitle="{Binding Installations.Count, StringFormat='{}{0} Version(s) Registered'}"
+            AddButtonContent="{controls:IconText 'Add Version', Plus}" />
 
         <Separator Grid.Row="1" Background="{DynamicResource FPSeparatorColorLayer1}" Margin="{ext:Space 0, 2}" />
 
