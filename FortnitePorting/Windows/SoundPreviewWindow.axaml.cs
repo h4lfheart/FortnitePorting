@@ -38,12 +38,6 @@ public partial class SoundPreviewWindow : PreviewWindowBase<SoundPreviewWindow, 
         });
     }
 
-    protected override void OnClosed(EventArgs e)
-    {
-        WindowModel.OutputDevice.Dispose();
-        base.OnClosed(e);
-    }
-
     private void OnSliderValueChanged(object? sender, RangeBaseValueChangedEventArgs e)
     {
         if (sender is not Slider slider) return;

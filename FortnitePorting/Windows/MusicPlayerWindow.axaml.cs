@@ -33,9 +33,9 @@ public partial class MusicPlayerWindow : WindowBase<MusicPlayerWindowModel>, IPr
 
     protected override void OnClosed(EventArgs e)
     {
-        base.OnClosed(e);
-        WindowModel.Stop();
+        WindowModel.Stop(suppressClose: true);
         Instance = null;
+        base.OnClosed(e);
     }
 
     private void OnPlaybackSliderChanged(object? sender, RangeBaseValueChangedEventArgs e)

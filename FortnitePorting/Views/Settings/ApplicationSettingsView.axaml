@@ -110,6 +110,21 @@
 
                 </controls:SettingsItem.Footer>
             </controls:SettingsItem>
+
+            <controls:SettingsItem Title="Volume" Description="The output volume used for audio playback.">
+                <controls:SettingsItem.Footer>
+                    <StackPanel Orientation="Horizontal">
+                        <avalonia:MaterialIcon Kind="{Binding VolumeIconKind}"
+                                               Width="20" Height="20"
+                                               VerticalAlignment="Center"
+                                               Margin="{ext:Space 0, 0, 1, 0}"/>
+                        <Slider Value="{Binding Volume}" MinWidth="200"
+                                Minimum="0" Maximum="1"
+                                TickFrequency="0.05" TickPlacement="BottomRight"
+                                IsSnapToTickEnabled="True"/>
+                    </StackPanel>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
             <controls:SettingsItem Title="Tab Transitions" Description="Toggles the transition that plays when switching between tabs.">
                 <controls:SettingsItem.Footer>
