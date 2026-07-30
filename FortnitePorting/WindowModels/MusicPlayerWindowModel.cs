@@ -21,11 +21,14 @@ namespace FortnitePorting.WindowModels;
 [Transient]
 public partial class MusicPlayerWindowModel(
     SettingsService settings,
-    MusicViewModel music) : WindowModelBase
+    MusicViewModel music,
+    AudioPlaybackService audio) : WindowModelBase
 {
     public SettingsService Settings { get; } = settings;
 
     public MusicViewModel Music { get; } = music;
+
+    public AudioPlaybackSession Session { get; } = audio.CreateSession();
 
     [ObservableProperty] private MusicPackItem? _activeItem;
 
@@ -34,25 +37,11 @@ public partial class MusicPlayerWindowModel(
 
     public MaterialIconKind PlayIconKind => IsPlaying ? MaterialIconKind.Pause : MaterialIconKind.Play;
 
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(VolumeIconKind))]
-    private float _volume = 1.0f;
-
-    public MaterialIconKind VolumeIconKind => Volume switch
-    {
-        0.0f => MaterialIconKind.VolumeMute,
-        < 0.3f => MaterialIconKind.VolumeLow,
-        < 0.66f => MaterialIconKind.VolumeMedium,
-        <= 1.0f => MaterialIconKind.VolumeHigh
-    };
-
     [ObservableProperty] private ESoundFormat _soundFormat;
     [ObservableProperty] private TimeSpan _currentTime;
     [ObservableProperty] private TimeSpan _totalTime;
     [ObservableProperty] private bool _isLooping;
     [ObservableProperty] private bool _isShuffling;
-
-    public WaveFileReader? AudioReader;
-    public WaveOutEvent OutputDevice = new() { DeviceNumber = AppSettings.Application.AudioDeviceIndex };
 
     private CancellationTokenSource _playbackCts = new();
 
@@ -63,23 +52,30 @@ public partial class MusicPlayerWindowModel(
 
     public override async Task Initialize()
     {
-        Volume = AppSettings.Application.Volume;
         _updateTimer.Tick += OnUpdateTimerTick;
         _updateTimer.Start();
     }
 
+    public override async Task OnViewExited()
+    {
+        _updateTimer.Stop();
+        _updateTimer.Tick -= OnUpdateTimerTick;
+        await _playbackCts.CancelAsync();
+        _playbackCts.Dispose();
+        Session.Dispose();
+    }
+
     public override void OnApplicationExit()
     {
-        AppSettings.Application.Volume = Volume;
         MusicPlayerWindow.Instance?.Close();
     }
 
     private void OnUpdateTimerTick(object? sender, EventArgs e)
     {
-        if (AudioReader is null) return;
+        if (Session.Reader is null) return;
 
-        TotalTime = AudioReader.TotalTime;
-        CurrentTime = AudioReader.CurrentTime;
+        TotalTime = Session.TotalTime;
+        CurrentTime = Session.CurrentTime;
 
         if (CurrentTime < TotalTime) return;
 
@@ -105,7 +101,7 @@ public partial class MusicPlayerWindowModel(
         var idx = Music.PlaylistMusicPacks.IndexOf(ActiveItem) - 1;
         if (idx < 0) idx = Music.PlaylistMusicPacks.Count - 1;
 
-        if (AudioReader?.CurrentTime.TotalSeconds > 5)
+        if (Session.CurrentTime.TotalSeconds > 5)
         {
             Restart();
             return;
@@ -148,13 +144,14 @@ public partial class MusicPlayerWindowModel(
                 out Stream stream)) return;
 
         _playbackCts.Cancel();
+        _playbackCts.Dispose();
         _playbackCts = new CancellationTokenSource();
         var cts = _playbackCts;
 
         Stop(suppressClose: true);
 
         ActiveItem = item;
-        AudioReader = new WaveFileReader(stream);
+        Session.Load(stream);
 
         Discord.Update($"Listening to \"{ActiveItem.TrackName}\"");
 
@@ -162,10 +159,9 @@ public partial class MusicPlayerWindowModel(
 
         TaskService.Run(() =>
         {
-            OutputDevice.Init(AudioReader);
             Play();
 
-            while (OutputDevice.PlaybackState != PlaybackState.Stopped)
+            while (Session.PlaybackState != PlaybackState.Stopped)
             {
                 if (cts.IsCancellationRequested) return;
             }
@@ -178,7 +174,7 @@ public partial class MusicPlayerWindowModel(
     public void Play()
     {
         if (ActiveItem is null) return;
-        OutputDevice.Play();
+        Session.Play();
         IsPlaying = true;
         ActiveItem.IsPlaying = true;
     }
@@ -186,7 +182,7 @@ public partial class MusicPlayerWindowModel(
     public void Pause()
     {
         if (ActiveItem is null) return;
-        OutputDevice.Pause();
+        Session.Pause();
         IsPlaying = false;
         ActiveItem.IsPlaying = false;
     }
@@ -194,9 +190,10 @@ public partial class MusicPlayerWindowModel(
     public void Stop(bool suppressClose = false)
     {
         if (ActiveItem is null) return;
-        OutputDevice.Stop();
+        Session.Stop();
         ActiveItem.IsPlaying = false;
-        AudioReader?.CurrentTime = TimeSpan.Zero;
+        IsPlaying = false;
+        Session.CurrentTime = TimeSpan.Zero;
 
         if (!suppressClose && MusicPlayerWindow.Instance is not null)
             TaskService.RunDispatcher(() => MusicPlayerWindow.Instance?.Close());
@@ -204,28 +201,13 @@ public partial class MusicPlayerWindowModel(
 
     public void Restart()
     {
-        if (AudioReader is null) return;
-        AudioReader.CurrentTime = TimeSpan.Zero;
-        OutputDevice.Play();
+        if (Session.Reader is null) return;
+        Session.CurrentTime = TimeSpan.Zero;
+        Session.Play();
+        IsPlaying = true;
+        if (ActiveItem is not null)
+            ActiveItem.IsPlaying = true;
     }
 
-    public void Scrub(TimeSpan time)
-    {
-        if (AudioReader is not null)
-            AudioReader.CurrentTime = time;
-    }
-
-    public void SetVolume(float value) => OutputDevice.Volume = value;
-
-    public void UpdateOutputDevice()
-    {
-        if (AudioReader is null) return;
-        OutputDevice.Stop();
-        OutputDevice = new WaveOutEvent { DeviceNumber = AppSettings.Application.AudioDeviceIndex };
-        OutputDevice.Init(AudioReader);
-        if (IsPlaying)
-            OutputDevice.Play();
-    }
-
-    partial void OnVolumeChanged(float value) => SetVolume(value);
+    public void Scrub(TimeSpan time) => Session.Scrub(time);
 }

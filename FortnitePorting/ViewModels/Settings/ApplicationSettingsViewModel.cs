@@ -19,7 +19,7 @@ using FortnitePorting.Models.Map;
 using FortnitePorting.Models.Radio;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Validators;
-using FortnitePorting.Windows;
+using Material.Icons;
 using NAudio.Wave;
 using Newtonsoft.Json;
 
@@ -43,7 +43,16 @@ public partial class ApplicationSettingsViewModel : SettingsViewModelBase
 
     [ObservableProperty] private int _audioDeviceIndex = 0;
     [ObservableProperty] private RadioPlaylistSerializeData[] _playlists = [];
-    [ObservableProperty] private float _volume = 1.0f;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(VolumeIconKind))] private float _volume = 1.0f;
+
+    [JsonIgnore]
+    public MaterialIconKind VolumeIconKind => Volume switch
+    {
+        0.0f => MaterialIconKind.VolumeMute,
+        < 0.3f => MaterialIconKind.VolumeLow,
+        < 0.66f => MaterialIconKind.VolumeMedium,
+        _ => MaterialIconKind.VolumeHigh
+    };
 
     [ObservableProperty] private FPVersion _lastOnlineVersion = Globals.Version;
 
@@ -68,7 +77,7 @@ public partial class ApplicationSettingsViewModel : SettingsViewModelBase
     public string AssetPath => UseAssetsPath && Directory.Exists(AssetsPath) ? AssetsPath : App.AssetsFolder.FullName;
     
     [JsonIgnore]
-    public DirectSoundDeviceInfo[] AudioDevices => DirectSoundOut.Devices.ToArray()[1..];
+    public DirectSoundDeviceInfo[] AudioDevices => Audio.Devices;
 
     [JsonIgnore]
     public EExportType[] AssetTypes => Enum.GetValues<EExportType>().Where(type => !type.IsDisabled && type.IsAssetType).ToArray();
@@ -85,8 +94,16 @@ public partial class ApplicationSettingsViewModel : SettingsViewModelBase
     
     partial void OnAudioDeviceIndexChanged(int value)
     {
-        MusicPlayerWindow.Instance?.WindowModel.UpdateOutputDevice();
-        SoundPreviewWM?.UpdateOutputDevice();
+        if (!ReferenceEquals(this, AppSettings.Application)) return;
+
+        Audio.NotifyOutputDeviceChanged();
+    }
+
+    partial void OnVolumeChanged(float value)
+    {
+        if (!ReferenceEquals(this, AppSettings.Application)) return;
+
+        Audio.NotifyVolumeChanged();
     }
     
     partial void OnThemeChanged(EThemeType value)

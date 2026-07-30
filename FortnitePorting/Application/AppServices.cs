@@ -38,6 +38,7 @@ public static class AppServices
     public static FilesService Files => Services.GetRequiredService<FilesService>();
     public static ExportClientService ExportClient => Services.GetRequiredService<ExportClientService>();
     public static WindowManagerService WindowManager => Services.GetRequiredService<WindowManagerService>();
+    public static AudioPlaybackService Audio => Services.GetRequiredService<AudioPlaybackService>();
    
     // ViewModels
     public static AppWindowModel AppWM => Services.GetRequiredService<AppWindowModel>();
@@ -46,7 +47,6 @@ public static class AppServices
     public static MapViewModel MapVM => Services.GetRequiredService<MapViewModel>();
     public static MusicViewModel MusicVM => Services.GetRequiredService<MusicViewModel>();
     public static TimeWasterViewModel TimeWasterVM => Services.GetRequiredService<TimeWasterViewModel>();
-    public static SoundPreviewWindowModel SoundPreviewWM => Services.GetRequiredService<SoundPreviewWindowModel>();
     
 }
 
