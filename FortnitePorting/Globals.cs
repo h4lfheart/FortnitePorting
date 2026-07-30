@@ -1,4 +1,6 @@
 global using static FortnitePorting.Application.AppServices;
+global using FortnitePorting.CUE4Parse.Extensions;
+global using FortnitePorting.Shared.Extensions;
 
 using System.Reflection;
 using Avalonia.Platform.Storage;

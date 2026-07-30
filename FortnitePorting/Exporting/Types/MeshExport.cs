@@ -18,12 +18,13 @@ using CUE4Parse.UE4.Objects.Engine.Animation;
 using CUE4Parse.UE4.Objects.GameplayTags;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
+using FortnitePorting.CUE4Parse.Models.Fortnite;
+using FortnitePorting.CUE4Parse.Models.Fortnite.Enums;
 using FortnitePorting.Exporting.Models;
 using FortnitePorting.Exporting.Models.Files.Meta;
 using FortnitePorting.Extensions;
 using FortnitePorting.Models.Assets;
 using FortnitePorting.Models.Assets.Custom;
-using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Shared.Extensions;
 using Path = System.IO.Path;
 

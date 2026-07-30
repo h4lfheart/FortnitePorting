@@ -15,9 +15,10 @@ using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Objects.Engine.Animation;
 using CUE4Parse.UE4.Objects.UObject;
+using FortnitePorting.CUE4Parse.Models.Fortnite;
+using FortnitePorting.CUE4Parse.Models.Fortnite.Enums;
 using FortnitePorting.Exporting.Models;
 using FortnitePorting.Extensions;
-using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Shared.Extensions;
 
 namespace FortnitePorting.Exporting.Context;

@@ -12,11 +12,10 @@ using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
+using FortnitePorting.CUE4Parse.Models.Unreal.Lights;
 using FortnitePorting.Exporting.Models;
 using FortnitePorting.Extensions;
 using FortnitePorting.Models.CUE4Parse;
-using FortnitePorting.Models.Fortnite;
-using FortnitePorting.Models.Unreal.Lights;
 using FortnitePorting.Shared.Extensions;
 using Serilog;
 

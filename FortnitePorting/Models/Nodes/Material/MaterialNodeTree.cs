@@ -18,7 +18,6 @@ using CUE4Parse.UE4.Objects.UObject;
 using DynamicData;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Extensions;
-using FortnitePorting.Models.Unreal.Material;
 using Serilog;
 using ColorSpectrumShape = Avalonia.Controls.ColorSpectrumShape;
 

@@ -111,7 +111,7 @@ public partial class MusicPackItem : ObservableObject
     
     public bool Match(string filter)
     {
-        return MiscExtensions.Filter(TrackName, filter) || MiscExtensions.Filter(Id, filter);
+        return FilterExtensions.Filter(TrackName, filter) || FilterExtensions.Filter(Id, filter);
     }
 
 

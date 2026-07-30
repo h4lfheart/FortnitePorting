@@ -54,7 +54,7 @@ public static class SoundExtensions
     
     public static bool TrySaveSoundToAssets(USoundWave soundWave, string assetsRoot, out string path)
     {
-        path = Path.Combine(assetsRoot, CUE4ParseExtensions.GetCleanedExportPath(soundWave) + ".wav");
+        path = Path.Combine(assetsRoot, soundWave.GetCleanedExportPath() + ".wav");
         Directory.CreateDirectory(path.SubstringBeforeLast("/"));
         
         if (File.Exists(path) || TrySaveSoundToPath(soundWave, path))
@@ -67,7 +67,7 @@ public static class SoundExtensions
     
     public static bool TrySaveSoundToAssets(USoundWave soundWave, string assetsRoot, out Stream stream)
     {
-        var path = Path.Combine(assetsRoot, CUE4ParseExtensions.GetCleanedExportPath(soundWave) + ".wav");
+        var path = Path.Combine(assetsRoot, soundWave.GetCleanedExportPath() + ".wav");
         Directory.CreateDirectory(path.SubstringBeforeLast("/"));
         
         if (File.Exists(path) || TrySaveSoundToPath(soundWave, path))
@@ -99,7 +99,7 @@ public static class SoundExtensions
             binkaProcess.WaitForExit();
         }
         
-        MiscExtensions.TryDeleteFile(binkaPath);
+        FileSystemExtensions.TryDeleteFile(binkaPath);
     }
     
     public static void SaveRadaAsWav(byte[] data, string outPath)
@@ -122,7 +122,7 @@ public static class SoundExtensions
             radaProcess.WaitForExit();
         }
         
-        MiscExtensions.TryDeleteFile(radaPath);
+        FileSystemExtensions.TryDeleteFile(radaPath);
     }
     
     public static void SaveADPCMAsWav(byte[] data, string outPath)
@@ -144,7 +144,7 @@ public static class SoundExtensions
             adpcmProcess.WaitForExit();
         }
         
-        MiscExtensions.TryDeleteFile(adpcmPath);
+        FileSystemExtensions.TryDeleteFile(adpcmPath);
     }
     
     extension(USoundCue root)

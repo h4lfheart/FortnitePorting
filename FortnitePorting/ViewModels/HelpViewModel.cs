@@ -207,8 +207,8 @@ public partial class HelpViewModel : ViewModelBase
 
     private Func<Article, bool> CreateFilter(string filter)
     {
-        return article => MiscExtensions.Filter(article.Title, filter)
-                          || MiscExtensions.Filter(article.Description, filter)
-                          || MiscExtensions.Filter(article.Tag, filter);
+        return article => FilterExtensions.Filter(article.Title, filter)
+                          || FilterExtensions.Filter(article.Description, filter)
+                          || FilterExtensions.Filter(article.Tag, filter);
     }
 }

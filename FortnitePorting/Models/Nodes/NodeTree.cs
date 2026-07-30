@@ -113,7 +113,7 @@ public partial class NodeTree : ObservableObject
     
     private Func<BaseNode, bool> CreateAssetFilter(string searchFilter)
     {
-        return asset => MiscExtensions.Filter(asset.Label, searchFilter) || MiscExtensions.Filter(asset.ExpressionName, searchFilter);
+        return asset => FilterExtensions.Filter(asset.Label, searchFilter) || FilterExtensions.Filter(asset.ExpressionName, searchFilter);
     }
 }
 
