@@ -114,7 +114,7 @@ public partial class BlenderInstallation(string blenderExecutablePath) : Observa
 
         Status = EPluginStatusType.Modifying;
 
-        MiscExtensions.Copy(Path.Combine(PluginWorkingDirectory.FullName, "fortnite_porting"), Path.Combine(StartupPath, "fortnite_porting"));
+        FileSystemExtensions.Copy(Path.Combine(PluginWorkingDirectory.FullName, "fortnite_porting"), Path.Combine(StartupPath, "fortnite_porting"));
 
         if (MetaPath is not null)
             File.WriteAllText(MetaPath, JsonConvert.SerializeObject(new FPPluginMeta { Version = Globals.VersionString }));

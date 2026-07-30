@@ -87,7 +87,7 @@ public partial class UnrealInstallation : ObservableObject
     {
         Status = EPluginStatusType.Modifying;
 
-        MiscExtensions.Copy(PluginWorkingDirectory.FullName, PluginsFolder);
+        FileSystemExtensions.Copy(PluginWorkingDirectory.FullName, PluginsFolder);
 
         File.WriteAllText(MetaPath, JsonConvert.SerializeObject(new FPPluginMeta { Version = Globals.VersionString }));
 

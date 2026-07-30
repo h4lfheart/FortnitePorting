@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using CUE4Parse.UE4.Objects.Core.Math;
-using FortnitePorting.Models.Fortnite;
+using FortnitePorting.CUE4Parse.Models.Fortnite;
+using FortnitePorting.CUE4Parse.Models.Fortnite.Enums;
 using Newtonsoft.Json;
 
 namespace FortnitePorting.Exporting.Models;

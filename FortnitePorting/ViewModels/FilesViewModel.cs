@@ -16,6 +16,8 @@ using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.Utils;
 using DynamicData;
 using FluentAvalonia.UI.Controls;
+using FortnitePorting.CUE4Parse.Models.Unreal;
+using FortnitePorting.CUE4Parse.Models.Unreal.VirtualTexture;
 using FortnitePorting.Exporting;
 using FortnitePorting.Exporting.Context;
 using FortnitePorting.Exporting.Models;

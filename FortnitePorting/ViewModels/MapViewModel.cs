@@ -11,8 +11,9 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.UE4.IO;
 using CUE4Parse.Utils;
+using FortnitePorting.CUE4Parse.Models.Fortnite;
+using FortnitePorting.CUE4Parse.Models.Fortnite.Experience;
 using FortnitePorting.Framework;
-using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Models.Information;
 using FortnitePorting.Models.Map;
 

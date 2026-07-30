@@ -498,7 +498,7 @@ public partial class FileBrowserContext : ObservableObject
             {
                 return useRegex
                     ? Regex.IsMatch(asset.Path, filter, RegexOptions.None, RegexMatchTimeout)
-                    : MiscExtensions.Filter(asset.Path, filter);
+                    : FilterExtensions.Filter(asset.Path, filter);
             }
             catch (RegexMatchTimeoutException)
             {
@@ -573,8 +573,8 @@ public partial class FileBrowserContext : ObservableObject
         if (!string.IsNullOrWhiteSpace(VfsFilterSearchText))
         {
             items = items.Where(item =>
-                MiscExtensions.Filter(item.VfsName, VfsFilterSearchText)
-                || MiscExtensions.Filter(item.Group, VfsFilterSearchText));
+                FilterExtensions.Filter(item.VfsName, VfsFilterSearchText)
+                || FilterExtensions.Filter(item.Group, VfsFilterSearchText));
         }
 
         var comparer = new CustomComparer<string>(ComparisonExtensions.CompareNatural);
@@ -693,7 +693,7 @@ public partial class FileBrowserContext : ObservableObject
                 {
                     return UseRegex
                         ? Regex.IsMatch(item.FilePath, FileSearchFilter, RegexOptions.None, RegexMatchTimeout)
-                        : MiscExtensions.Filter(item.FilePath, FileSearchFilter);
+                        : FilterExtensions.Filter(item.FilePath, FileSearchFilter);
                 }
                 catch (RegexMatchTimeoutException)
                 {

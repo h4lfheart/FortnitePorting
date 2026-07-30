@@ -9,8 +9,9 @@ using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
+using FortnitePorting.CUE4Parse.Models.Fortnite;
+using FortnitePorting.CUE4Parse.Models.Fortnite.Enums;
 using FortnitePorting.Extensions;
-using FortnitePorting.Models.Fortnite;
 using Serilog;
 
 namespace FortnitePorting.Models.Assets.Asset;

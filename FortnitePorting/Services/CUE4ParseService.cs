@@ -34,12 +34,14 @@ using CUE4Parse.UE4.VirtualFileSystem;
 using CUE4Parse.Utils;
 using EpicManifestParser;
 using EpicManifestParser.UE;
+using FortnitePorting.CUE4Parse.Models.Fortnite;
+using FortnitePorting.CUE4Parse.Models.Fortnite.Experience;
+using FortnitePorting.CUE4Parse.Models.Fortnite.Items;
 using FortnitePorting.Exporting;
 using FortnitePorting.Extensions;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.CUE4Parse;
-using FortnitePorting.Models.Fortnite;
 using FortnitePorting.Models.Information;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Views;
@@ -214,7 +216,7 @@ public partial class CUE4ParseService : ObservableObject, IService, IResettable
         Log.Information("Unreal Version: {Version}", Provider.Versions.Game.ToString());
         Log.Information("Texture Streaming: {UseTextureStreaming}", AppSettings.Installation.CurrentProfile.UseTextureStreaming);
         
-        ObjectTypeRegistry.RegisterEngine(Assembly.Load("FortnitePorting"));
+        ObjectTypeRegistry.RegisterEngine(typeof(UFortGameFeatureData).Assembly);
 
         Provider.LoadOnDemandTocs = AppSettings.Installation.CurrentProfile is { TextureStreamingEnabled: true, UseTextureStreaming: true };
         Provider.LoadExtraDirectories = AppSettings.Installation.CurrentProfile.LoadInstalledBundles;
