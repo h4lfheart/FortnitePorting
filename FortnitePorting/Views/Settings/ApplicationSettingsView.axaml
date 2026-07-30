@@ -15,21 +15,11 @@
              x:DataType="settings:ApplicationSettingsViewModel">
     
     <ScrollViewer>
-        <StackPanel VerticalAlignment="Top" Margin="{ext:Space 1}" Spacing="{ext:Space 0, 0, 0, 1}">
-            <controls:SettingsItem Title="Theme"
-                                   Description="The theme that should be used for Fortnite Porting.">
-                <controls:SettingsItem.Footer>
-                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EThemeType}}"
-                              SelectedItem="{Binding Theme, Converter={StaticResource EnumToRecord}}" >
-                        <ComboBox.ItemTemplate>
-                            <DataTemplate DataType="ext:EnumRecord">
-                                <controls1:IconText Text="{Binding Description}"
-                                                    Icon="{Binding Icon}" />
-                            </DataTemplate>
-                        </ComboBox.ItemTemplate>
-                    </ComboBox>
-                </controls:SettingsItem.Footer>
-            </controls:SettingsItem>
+        <StackPanel VerticalAlignment="Top" Margin="{ext:Space 1, 2, 1, 1}" Spacing="{ext:Space 0, 0, 0, 1}">
+            <TextBlock Text="General"
+                       Classes="BodyLargeTextBlockStyle"
+                       HorizontalAlignment="Left"
+                       Margin="{ext:Space 1, 0, 0, 0}"/>
             
             <controls:SettingsItem Title="Application Data Folder (Optional)" Description="The folder in which all saved application data will save to. Defaults to %localappdata%/FortnitePorting.">
                 <controls:SettingsItem.Footer>
@@ -54,6 +44,72 @@
                     </StackPanel>
                 </controls:SettingsItem.Footer>
             </controls:SettingsItem>
+            
+            <TextBlock Text="Display"
+                       Classes="BodyLargeTextBlockStyle"
+                       HorizontalAlignment="Left"
+                       Margin="{ext:Space 1, 2, 0, 0}"/>
+            
+            <controls:SettingsItem Title="Theme"
+                                   Description="The theme that should be used for Fortnite Porting.">
+                <controls:SettingsItem.Footer>
+                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EThemeType}}"
+                              SelectedItem="{Binding Theme, Converter={StaticResource EnumToRecord}}" >
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate DataType="ext:EnumRecord">
+                                <controls1:IconText Text="{Binding Description}"
+                                                    Icon="{Binding Icon}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
+            
+            <controls:SettingsItem Title="Tab Transitions" Description="Toggles the transition that plays when switching between tabs.">
+                <controls:SettingsItem.Footer>
+                    <ToggleSwitch IsChecked="{Binding UseTabTransitions}"/>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
+            
+            <TextBlock Text="Audio"
+                       Classes="BodyLargeTextBlockStyle"
+                       HorizontalAlignment="Left"
+                       Margin="{ext:Space 1, 2, 0, 0}"/>
+            
+            <controls:SettingsItem Title="Audio Device" Description="The device that should be used for audio playback.">
+                <controls:SettingsItem.Footer>
+                    <ComboBox ItemsSource="{Binding AudioDevices}" 
+                              SelectedIndex="{Binding AudioDeviceIndex, Mode=TwoWay}"
+                              HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate DataType="wave:DirectSoundDeviceInfo">
+                                <TextBlock Text="{Binding Description}"/>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
+
+            <controls:SettingsItem Title="Volume" Description="The output volume used for audio playback.">
+                <controls:SettingsItem.Footer>
+                    <StackPanel Orientation="Horizontal">
+                        <avalonia:MaterialIcon Kind="{Binding VolumeIconKind}"
+                                               Width="20" Height="20"
+                                               VerticalAlignment="Center"
+                                               Margin="{ext:Space 0, 0, 1, 0}"/>
+                        <Slider Value="{Binding Volume}" MinWidth="200"
+                                Minimum="0" Maximum="1"
+                                TickFrequency="0.05" TickPlacement="BottomRight"
+                                IsSnapToTickEnabled="True"/>
+                    </StackPanel>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
+            
+            <TextBlock Text="Loading"
+                       Classes="BodyLargeTextBlockStyle"
+                       HorizontalAlignment="Left"
+                       Margin="{ext:Space 1, 2, 0, 0}"/>
             
             <controls:SettingsItem Title="Default Asset Type" Description="The asset type that should be automatically preloaded and selected.">
                 <controls:SettingsItem.Footer>
@@ -96,42 +152,10 @@
                 </controls:SettingsItem.Footer>
             </controls:SettingsItem>
             
-            <controls:SettingsItem Title="Audio Device" Description="The device that should be used for audio playback.">
-                <controls:SettingsItem.Footer>
-                    <ComboBox ItemsSource="{Binding AudioDevices}" 
-                              SelectedIndex="{Binding AudioDeviceIndex, Mode=TwoWay}"
-                              HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <ComboBox.ItemTemplate>
-                            <DataTemplate DataType="wave:DirectSoundDeviceInfo">
-                                <TextBlock Text="{Binding Description}"/>
-                            </DataTemplate>
-                        </ComboBox.ItemTemplate>
-                    </ComboBox>
-
-                </controls:SettingsItem.Footer>
-            </controls:SettingsItem>
-
-            <controls:SettingsItem Title="Volume" Description="The output volume used for audio playback.">
-                <controls:SettingsItem.Footer>
-                    <StackPanel Orientation="Horizontal">
-                        <avalonia:MaterialIcon Kind="{Binding VolumeIconKind}"
-                                               Width="20" Height="20"
-                                               VerticalAlignment="Center"
-                                               Margin="{ext:Space 0, 0, 1, 0}"/>
-                        <Slider Value="{Binding Volume}" MinWidth="200"
-                                Minimum="0" Maximum="1"
-                                TickFrequency="0.05" TickPlacement="BottomRight"
-                                IsSnapToTickEnabled="True"/>
-                    </StackPanel>
-                </controls:SettingsItem.Footer>
-            </controls:SettingsItem>
-            
-            <controls:SettingsItem Title="Tab Transitions" Description="Toggles the transition that plays when switching between tabs.">
-                <controls:SettingsItem.Footer>
-                    <ToggleSwitch IsChecked="{Binding UseTabTransitions}"/>
-                </controls:SettingsItem.Footer>
-            </controls:SettingsItem>
-            
+            <TextBlock Text="Other"
+                       Classes="BodyLargeTextBlockStyle"
+                       HorizontalAlignment="Left"
+                       Margin="{ext:Space 1, 2, 0, 0}"/>
             
             <controls:SettingsItem Title="Show Developer Settings" Description="Enables the developer settings tab.">
                 <controls:SettingsItem.Footer>

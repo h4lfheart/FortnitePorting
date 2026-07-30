@@ -1147,6 +1147,11 @@
             <Setter Property="FontFamily" Value="{StaticResource SFTextSemiBold}" />
         </Style>
 
+        <Style Selector="TextBlock.BodyLargeTextBlockStyle">
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="FontFamily" Value="{StaticResource SFTextBold}" />
+        </Style>
+
         <Style Selector="TextBlock.SubtitleTextBlockStyle">
             <Setter Property="FontSize" Value="20" />
             <Setter Property="FontFamily" Value="{StaticResource SFTextBold}" />
