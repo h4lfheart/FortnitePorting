@@ -1,6 +1,6 @@
 using CUE4Parse_Conversion.Animations.PSA;
 
-namespace FortnitePorting.Rendering.Animation;
+namespace FortnitePorting.Rendering.Animation.Montage;
 
 public sealed class AnimMontageSection
 {

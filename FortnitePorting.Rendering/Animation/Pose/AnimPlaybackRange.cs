@@ -1,20 +1,9 @@
 using CUE4Parse_Conversion.Animations.PSA;
 
-namespace FortnitePorting.Rendering.Animation;
+namespace FortnitePorting.Rendering.Animation.Pose;
 
 public readonly record struct AnimPlaybackRange(float StartTime, float EndTime, float PlayRate)
 {
-    public float Duration
-    {
-        get
-        {
-            var span = Math.Max(EndTime - StartTime, 0f);
-            var rate = Math.Abs(PlayRate);
-            if (rate < 1e-6f) rate = 1f;
-            return span / rate;
-        }
-    }
-
     public static AnimPlaybackRange FromSequence(CAnimSequence sequence)
     {
         var source = sequence.OriginalSequence;

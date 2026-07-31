@@ -4,7 +4,7 @@ using CUE4Parse_Conversion.Meshes.PSK;
 using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
-using FortnitePorting.Rendering.Animation;
+using FortnitePorting.Rendering.Animation.Pose;
 using FortnitePorting.Rendering.Components.Rendering;
 using FortnitePorting.Rendering.Data.Buffers;
 using FortnitePorting.Rendering.Data.Programs;
@@ -20,6 +20,7 @@ public class SkeletalMeshRenderer : MeshRenderer
     public List<Section> Sections = [];
     public Material[] Materials = [];
     public SkeletalPoseEvaluator Pose;
+    public event Action<float>? AfterAnimationUpdate;
 
     private SSBO<Matrix4> _boneBuffer = new(0);
     private Matrix4[] _uploadBones = [];
@@ -106,11 +107,11 @@ public class SkeletalMeshRenderer : MeshRenderer
 
     public void Play(UAnimationAsset animation, USkeletalMesh mesh, bool loop = true, float speed = 1f)
     { 
-        var animSkeleton = animation.Skeleton.Load<USkeleton>()
-                         ?? mesh.Skeleton.Load<USkeleton>()
-                         ?? throw new RenderingXException("Could not resolve a skeleton for animation playback.");
+        var animationSkeleton = animation.Skeleton.Load<USkeleton>()
+                                ?? mesh.Skeleton.Load<USkeleton>()
+                                ?? throw new RenderingXException("Could not resolve a skeleton for animation playback.");
 
-        Pose.Play(animation, animSkeleton, loop, speed);
+        Pose.Play(animation, animationSkeleton, loop, speed);
     }
 
     public void Play(CAnimSequence sequence, bool loop = true, float speed = 1f)
@@ -138,11 +139,13 @@ public class SkeletalMeshRenderer : MeshRenderer
     {
         base.Update(deltaTime);
 
-        if (Pose.Sequence is null || !Pose.IsPlaying)
-            return;
+        if (Pose.Sequence is not null && Pose.IsPlaying)
+        {
+            Pose.Update(deltaTime);
+            UploadBoneMatrices(Pose.SkinMatrices);
+        }
 
-        Pose.Update(deltaTime);
-        UploadBoneMatrices(Pose.SkinMatrices);
+        AfterAnimationUpdate?.Invoke(deltaTime);
     }
 
     private void UploadBoneMatrices(Matrix4[] skinMatrices)
