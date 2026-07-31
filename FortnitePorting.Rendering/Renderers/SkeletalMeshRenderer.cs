@@ -1,10 +1,12 @@
+using CUE4Parse_Conversion.Animations.PSA;
 using CUE4Parse_Conversion.Meshes;
 using CUE4Parse_Conversion.Meshes.PSK;
+using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
-using CUE4Parse.UE4.Assets.Exports.StaticMesh;
-using CUE4Parse.UE4.Objects.Core.Math;
+using FortnitePorting.Rendering.Animation;
 using FortnitePorting.Rendering.Components.Rendering;
+using FortnitePorting.Rendering.Data.Buffers;
 using FortnitePorting.Rendering.Data.Programs;
 using FortnitePorting.Rendering.Exceptions;
 using FortnitePorting.Rendering.Materials;
@@ -13,25 +15,44 @@ namespace FortnitePorting.Rendering.Renderers;
 
 public class SkeletalMeshRenderer : MeshRenderer
 {
+    private const int InfluenceSlots = 8;
+
     public List<Section> Sections = [];
     public Material[] Materials = [];
-    
-    public SkeletalMeshRenderer(USkeletalMesh staticMesh, int lodLevel = 0) : base(new ShaderProgram("shader"))
+    public SkeletalPoseEvaluator Pose;
+
+    private SSBO<Matrix4> _boneBuffer = new(0);
+    private Matrix4[] _uploadBones = [];
+
+    public SkeletalMeshRenderer(USkeletalMesh skeletalMesh, UAnimationAsset? animation = null, int lodLevel = 0)
+        : base(new ShaderProgram("skinned", "shader"))
     {
-        if (!staticMesh.TryConvert(out var convertedMesh))
+        if (!skeletalMesh.TryConvert(out var convertedMesh))
         {
-            throw new RenderingXException("Failed to convert static mesh.");
+            throw new RenderingXException("Failed to convert skeletal mesh.");
         }
 
         BoundingBox = convertedMesh.BoundingBox;
-        
+
+        var refPose = skeletalMesh.ReferenceSkeleton.FinalRefBonePose;
+        Pose = new SkeletalPoseEvaluator(convertedMesh.RefSkeleton, refPose);
+        _uploadBones = new Matrix4[Pose.BoneCount];
+        Array.Fill(_uploadBones, Matrix4.Identity);
+
+        if (convertedMesh.LODs.Count == 0)
+        {
+            throw new RenderingXException("Skeletal mesh has no LODs after conversion (check mappings).");
+        }
+
         var lod = convertedMesh.LODs[Math.Min(lodLevel, convertedMesh.LODs.Count - 1)];
-        
+
         Indices = lod.Indices!.Value;
-        
+
         var vertices = lod.Verts;
         var extraUVs = lod.ExtraUV.Value;
-        var buildVertices = new List<float>();
+        
+        var buildVertices = new List<float>(vertices.Length * 28);
+
         for (var vertexIndex = 0; vertexIndex < vertices.Length; vertexIndex++)
         {
             var vertex = vertices[vertexIndex];
@@ -48,12 +69,12 @@ public class SkeletalMeshRenderer : MeshRenderer
                 uv.U, uv.V,
                 materialLayer
             ]);
-            
+
+            PackInfluences(vertex, buildVertices);
         }
 
         Vertices = buildVertices.ToArray();
-        
-        
+
         var sections = lod.Sections.Value;
         Materials = new Material[sections.Length];
 
@@ -62,7 +83,7 @@ public class SkeletalMeshRenderer : MeshRenderer
             var section = sections[sectionIndex];
             Sections.Add(new Section(section.MaterialIndex, section.NumFaces * 3, section.FirstIndex));
 
-            if (staticMesh.Materials[section.MaterialIndex]?.TryLoad(out var sectionMaterial) ?? false)
+            if (skeletalMesh.Materials[section.MaterialIndex]?.TryLoad(out var sectionMaterial) ?? false)
             {
                 Materials[sectionIndex] = sectionMaterial switch
                 {
@@ -76,17 +97,60 @@ public class SkeletalMeshRenderer : MeshRenderer
                 Materials[sectionIndex] = new Material();
             }
         }
+
+        if (animation is not null)
+        {
+            Play(animation, skeletalMesh);
+        }
     }
+
+    public void Play(UAnimationAsset animation, USkeletalMesh mesh, bool loop = true, float speed = 1f)
+    { 
+        var animSkeleton = animation.Skeleton.Load<USkeleton>()
+                         ?? mesh.Skeleton.Load<USkeleton>()
+                         ?? throw new RenderingXException("Could not resolve a skeleton for animation playback.");
+
+        Pose.Play(animation, animSkeleton, loop, speed);
+    }
+
+    public void Play(CAnimSequence sequence, bool loop = true, float speed = 1f)
+    {
+        Pose.Play(sequence, loop, speed);
+    }
+
+    public void Stop() => Pose.Stop();
 
     public override void Initialize()
     {
         base.Initialize();
-           
+
+        _boneBuffer.Generate();
+        UploadBoneMatrices(_uploadBones);
+
         foreach (var material in Materials)
         {
             Shader.Use();
             material.SetUniforms(Shader);
         }
+    }
+
+    public override void Update(float deltaTime)
+    {
+        base.Update(deltaTime);
+
+        if (Pose.Sequence is null || !Pose.IsPlaying)
+            return;
+
+        Pose.Update(deltaTime);
+        UploadBoneMatrices(Pose.SkinMatrices);
+    }
+
+    private void UploadBoneMatrices(Matrix4[] skinMatrices)
+    {
+        for (var i = 0; i < skinMatrices.Length; i++)
+            _uploadBones[i] = Matrix4.Transpose(skinMatrices[i]);
+
+        _boneBuffer.Fill(_uploadBones);
     }
 
     protected override void BuildMesh()
@@ -96,14 +160,20 @@ public class SkeletalMeshRenderer : MeshRenderer
         RegisterAttribute("Tangent", 3, VertexAttribPointerType.Float);
         RegisterAttribute("TexCoord", 2, VertexAttribPointerType.Float);
         RegisterAttribute("MaterialLayer", 1, VertexAttribPointerType.Float);
-        
+        RegisterAttribute("BoneIndices0", 4, VertexAttribPointerType.Float);
+        RegisterAttribute("BoneIndices1", 4, VertexAttribPointerType.Float);
+        RegisterAttribute("BoneWeights0", 4, VertexAttribPointerType.Float);
+        RegisterAttribute("BoneWeights1", 4, VertexAttribPointerType.Float);
+
         base.BuildMesh();
     }
 
     protected override void RenderShader(CameraComponent camera)
     {
         base.RenderShader(camera);
-        
+
+        _boneBuffer.BindBufferBase();
+
         foreach (var section in Sections)
         {
             Materials[section.MaterialIndex].Bind();
@@ -112,11 +182,53 @@ public class SkeletalMeshRenderer : MeshRenderer
 
     protected override void RenderGeometry(CameraComponent camera)
     {
-        base.RenderGeometry(camera);
-        
+        VertexArray.Bind();
+
         foreach (var section in Sections)
         {
             GL.DrawElements(PrimitiveType.Triangles, section.FaceCount, DrawElementsType.UnsignedInt, section.FirstFaceIndexPtr);
         }
+    }
+
+    public override void Destroy()
+    {
+        base.Destroy();
+        _boneBuffer.Delete();
+    }
+
+    private static void PackInfluences(CSkelMeshVertex vertex, List<float> buildVertices)
+    {
+        Span<float> indices = stackalloc float[InfluenceSlots];
+        Span<float> weights = stackalloc float[InfluenceSlots];
+
+        var sources = vertex.Influences.Count <= InfluenceSlots
+            ? vertex.Influences
+            : vertex.Influences.OrderByDescending(i => i.Weight).Take(InfluenceSlots).ToList();
+
+        var weightSum = 0f;
+        for (var i = 0; i < sources.Count; i++)
+        {
+            indices[i] = sources[i].Bone;
+            weights[i] = sources[i].Weight;
+            weightSum += sources[i].Weight;
+        }
+
+        if (weightSum > 0f)
+        {
+            for (var i = 0; i < sources.Count; i++)
+                weights[i] /= weightSum;
+        }
+        else
+        {
+            indices[0] = 0;
+            weights[0] = 1f;
+        }
+
+        buildVertices.AddRange([
+            indices[0], indices[1], indices[2], indices[3],
+            indices[4], indices[5], indices[6], indices[7],
+            weights[0], weights[1], weights[2], weights[3],
+            weights[4], weights[5], weights[6], weights[7]
+        ]);
     }
 }
