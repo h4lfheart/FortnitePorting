@@ -11,10 +11,14 @@ public class ShaderProgram : Program
     
     private readonly Dictionary<string, int> _uniformCache = [];
     
-    public ShaderProgram(string shaderName)
+    public ShaderProgram(string shaderName) : this(shaderName, shaderName)
     {
-        _shaderHandles.Add(CompileShader(shaderName, ShaderType.FragmentShader));
-        _shaderHandles.Add(CompileShader(shaderName, ShaderType.VertexShader));
+    }
+
+    public ShaderProgram(string vertexName, string fragmentName)
+    {
+        _shaderHandles.Add(CompileShader(fragmentName, ShaderType.FragmentShader));
+        _shaderHandles.Add(CompileShader(vertexName, ShaderType.VertexShader));
     }
 
     public override void Link()

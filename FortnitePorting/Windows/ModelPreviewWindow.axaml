@@ -2,11 +2,13 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
         xmlns:windowModels="clr-namespace:FortnitePorting.WindowModels"
+        xmlns:viewers="clr-namespace:FortnitePorting.Models.Viewers"
         xmlns:controls="clr-namespace:FortnitePorting.Controls"
+        xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
         xmlns:loading="clr-namespace:FortnitePorting.Controls.Loading"
         x:Class="FortnitePorting.Windows.ModelPreviewWindow"
         x:DataType="windowModels:ModelPreviewWindowModel"
-        Width="1280" Height="720" RequestedThemeVariant="Dark" Background="{DynamicResource WindowBackgroundBrush}"  
+        Width="1280" Height="720" RequestedThemeVariant="Dark" Background="{DynamicResource WindowBackgroundBrush}"
         TransparencyLevelHint="{Binding Settings.Application.TransparencyHints}"
         ExtendClientAreaToDecorationsHint="True" ExtendClientAreaChromeHints="NoChrome"
         FontFamily="{StaticResource SFTextRegular}"
@@ -14,6 +16,9 @@
         ExtendClientAreaTitleBarHeightHint="35"
         Icon="/Assets/LogoRebrand.ico"
         Title="Model Viewer">
+    <Window.KeyBindings>
+        <KeyBinding Gesture="Space" Command="{Binding TogglePlayPauseCommand}"/>
+    </Window.KeyBindings>
     <Grid Margin="{Binding $parent[Window].OffScreenMargin}">
         <Grid.RowDefinitions>
             <RowDefinition Height="35" />
@@ -25,16 +30,163 @@
         <Border Grid.Row="1" Background="{DynamicResource ContentBorderBackgroundBrush}" CornerRadius="0"
                 BorderThickness="0 2 0 0" BorderBrush="{DynamicResource ContentBorderBorderBrush}">
             <Grid Margin="{ext:Space 1}" ClipToBounds="True">
-                <ContentControl Content="{Binding Control}" IsVisible="{Binding !IsLoading}" />
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="{ext:Space 1}"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
-                <Panel IsVisible="{Binding IsLoading}">
+                <ContentControl Grid.Column="0" Content="{Binding Control}" IsVisible="{Binding !IsLoading}" />
+
+                <GridSplitter Grid.Column="1" Background="Transparent"
+                              IsVisible="{Binding HasPreviewContent}"/>
+
+                <Grid Grid.Column="2"
+                      IsVisible="{Binding HasPreviewContent}"
+                      RowDefinitions="*,Auto">
+
+                    <controls:DynamicFadeScrollViewer Grid.Row="0"
+                                                      Classes="FixedScrollbar"
+                                                      VerticalScrollBarVisibility="Hidden">
+                        <StackPanel Spacing="{ext:Space 1.5}">
+                            <controls:ContentCard Padding="{ext:Space 1.5}">
+                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="*,*">
+                                    <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0"
+                                            Width="48" Height="48"
+                                            CornerRadius="8" ClipToBounds="True"
+                                            VerticalAlignment="Center">
+                                        <Image Source="{Binding ObjectIcon}" Stretch="Uniform"/>
+                                    </Border>
+
+                                    <TextBlock Grid.Row="0" Grid.Column="1"
+                                               Margin="{ext:Space 1.5, 0, 0, 0}"
+                                               Classes="BodyStrongTextBlockStyle"
+                                               VerticalAlignment="Bottom"
+                                               TextTrimming="CharacterEllipsis"
+                                               Text="{Binding ObjectDisplayName}"/>
+
+                                    <TextBlock Grid.Row="1" Grid.Column="1"
+                                               Margin="{ext:Space 1.5, 0, 0, 0}"
+                                               Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"
+                                               VerticalAlignment="Top"
+                                               TextTrimming="CharacterEllipsis"
+                                               Text="{Binding ObjectTypeName}"/>
+                                </Grid>
+                            </controls:ContentCard>
+
+                            <controls:ContentCard Padding="{ext:Space 1.5}"
+                                                  IsVisible="{Binding HasAnimation}">
+                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="*,*">
+                                    <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0"
+                                            Width="48" Height="48"
+                                            CornerRadius="8" ClipToBounds="True"
+                                            VerticalAlignment="Center">
+                                        <Image Source="{Binding AnimationIcon}" Stretch="Uniform"/>
+                                    </Border>
+
+                                    <TextBlock Grid.Row="0" Grid.Column="1"
+                                               Margin="{ext:Space 1.5, 0, 0, 0}"
+                                               Classes="BodyStrongTextBlockStyle"
+                                               VerticalAlignment="Bottom"
+                                               TextTrimming="CharacterEllipsis"
+                                               Text="{Binding AnimationDisplayName}"/>
+
+                                    <TextBlock Grid.Row="1" Grid.Column="1"
+                                               Margin="{ext:Space 1.5, 0, 0, 0}"
+                                               Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"
+                                               VerticalAlignment="Top"
+                                               TextTrimming="CharacterEllipsis"
+                                               Text="{Binding AnimationTypeName}"/>
+                                </Grid>
+                            </controls:ContentCard>
+
+                            <controls:ContentCard Padding="{ext:Space 1.5}"
+                                                  IsVisible="{Binding HasAnimation}">
+                                <StackPanel Spacing="{ext:Space 1}">
+                                    <TextBlock Text="Controls"
+                                               Classes="BodyStrongTextBlockStyle"
+                                               HorizontalAlignment="Center"/>
+
+                                    <Grid ColumnDefinitions="Auto,Auto,*,Auto">
+                                        <Button Grid.Column="0"
+                                                ToolTip.Tip="Play / Pause"
+                                                Command="{Binding TogglePlayPauseCommand}"
+                                                VerticalAlignment="Center"
+                                                Margin="{ext:Space 0, 0, 1, 0}">
+                                            <avalonia:MaterialIcon Kind="{Binding PlayIconKind}"/>
+                                        </Button>
+
+                                        <TextBlock Grid.Column="1"
+                                                   VerticalAlignment="Center"
+                                                   Classes="CaptionTextBlockStyle"
+                                                   Text="{Binding Time, StringFormat={}{0:0.00}s}"/>
+
+                                        <Slider x:Name="ScrubSlider"
+                                                Grid.Column="2"
+                                                Margin="{ext:Space 1, 0}"
+                                                VerticalAlignment="Center"
+                                                Minimum="0"
+                                                Maximum="{Binding Duration}"
+                                                Value="{Binding Time, Mode=OneWay}"
+                                                ValueChanged="OnScrubValueChanged"/>
+
+                                        <TextBlock Grid.Column="3"
+                                                   VerticalAlignment="Center"
+                                                   Classes="CaptionTextBlockStyle"
+                                                   Text="{Binding Duration, StringFormat={}{0:0.00}s}"/>
+                                    </Grid>
+                                </StackPanel>
+                            </controls:ContentCard>
+
+                            <controls:ContentCard Padding="{ext:Space 1.5}"
+                                                  IsVisible="{Binding !!Sections.Count}">
+                                <StackPanel Spacing="{ext:Space 1}">
+                                    <TextBlock Text="Sections"
+                                               Classes="BodyStrongTextBlockStyle"
+                                               HorizontalAlignment="Center"/>
+
+                                    <ListBox ItemsSource="{Binding Sections}"
+                                             SelectedItem="{Binding SelectedSection, Mode=OneWay}"
+                                             SelectionChanged="OnSectionSelectionChanged">
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate x:DataType="viewers:AnimSectionItem">
+                                                <StackPanel Margin="{ext:Space 0, 0.5}">
+                                                    <TextBlock Text="{Binding Name}" Classes="BodyTextBlockStyle"/>
+                                                    <TextBlock Text="{Binding Subtitle}"
+                                                               Classes="CaptionTextBlockStyle TextFillColorSecondaryBrush"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+                                </StackPanel>
+                            </controls:ContentCard>
+                        </StackPanel>
+                    </controls:DynamicFadeScrollViewer>
+
+                    <StackPanel Grid.Row="1"
+                                Spacing="{ext:Space 1}"
+                                Margin="{ext:Space 0, 1.5, 0, 0}">
+                        <Button HorizontalAlignment="Stretch"
+                                Command="{Binding SelectAnimationCommand}"
+                                IsEnabled="{Binding HasSkeletalMesh}">
+                            <controls:IconText Text="Select Animation" Icon="FolderOpen"/>
+                        </Button>
+                        <Button HorizontalAlignment="Stretch"
+                                Command="{Binding ClearAnimationCommand}"
+                                IsVisible="{Binding HasAnimation}">
+                            <controls:IconText Text="Clear Animation" Icon="Close"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+
+                <Panel Grid.Column="0" Grid.ColumnSpan="3" IsVisible="{Binding IsLoading}">
                     <loading:LoadingIndicator IsVisible="{Binding !IsLoadingWorld}"
-                                            Status="Loading Assets"
-                                            IsIndeterminate="True" />
+                                              Status="Loading Assets"
+                                              IsIndeterminate="True" />
                     <loading:LoadingIndicator IsVisible="{Binding IsLoadingWorld}"
-                                            Status="{Binding LoadName, StringFormat='Loading {0}'}"
-                                            Value="{Binding LoadCount}"
-                                            Maximum="{Binding TotalCount}">
+                                              Status="{Binding LoadName, StringFormat='Loading {0}'}"
+                                              Value="{Binding LoadCount}"
+                                              Maximum="{Binding TotalCount}">
                         <loading:LoadingIndicator.Subtitle>
                             <MultiBinding StringFormat="{}{0} / {1}">
                                 <Binding Path="LoadCount" />

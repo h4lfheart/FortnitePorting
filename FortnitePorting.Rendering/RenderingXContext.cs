@@ -12,13 +12,18 @@ public class RenderingXContext : GameWindow
 {
     private Scene _scene;
 
-    private Thread _renderThread;
+    private Thread? _renderThread;
 
     private bool _isRunning;
+    private bool _embeddedStarted;
+    private volatile bool _isPaused;
     
     private bool _sizeChanged;
     private int _width;
     private int _height;
+
+    private bool _isLooking;
+    private bool _skipNextMouseDelta;
     
     private readonly ConcurrentQueue<Action> _commandQueue = new();
     
@@ -39,18 +44,34 @@ public class RenderingXContext : GameWindow
         MouseMove += delegate(MouseMoveEventArgs args)
         {
             if (_scene.ActiveCamera is null) return;
-            
-            var delta = args.Delta * _scene.ActiveCamera.Sensitivity;
-            if (MouseState[MouseButton.Left] || MouseState[MouseButton.Right])
+
+            var isLooking = MouseState[MouseButton.Left] || MouseState[MouseButton.Right];
+            if (isLooking)
             {
+                if (!_isLooking)
+                {
+                    Cursor = MouseCursor.Empty;
+                    CursorState = CursorState.Grabbed;
+                    _isLooking = true;
+                    _skipNextMouseDelta = true;
+                    return;
+                }
+
+                if (_skipNextMouseDelta)
+                {
+                    _skipNextMouseDelta = false;
+                    return;
+                }
+
+                var delta = args.Delta * _scene.ActiveCamera.Sensitivity;
                 _scene.ActiveCamera.UpdateDirection(delta.X, delta.Y);
-                Cursor = MouseCursor.Empty;
-                CursorState = CursorState.Grabbed;
             }
-            else
+            else if (_isLooking)
             {
                 Cursor = MouseCursor.Default;
                 CursorState = CursorState.Normal;
+                _isLooking = false;
+                _skipNextMouseDelta = false;
             }
         };
 
@@ -73,6 +94,38 @@ public class RenderingXContext : GameWindow
     {
         _commandQueue.Enqueue(command);
     }
+
+    public void StartEmbedded()
+    {
+        if (_embeddedStarted) return;
+        _embeddedStarted = true;
+        _isPaused = true;
+
+        Context?.MakeCurrent();
+        OnLoad();
+        OnResize(new ResizeEventArgs(ClientSize));
+    }
+
+    public unsafe void ProcessEvents()
+    {
+        if (!_embeddedStarted || WindowPtr == null) return;
+
+        NewInputFrame();
+        ProcessWindowEvents(waitForEvents: false);
+    }
+
+    public void StopEmbedded()
+    {
+        if (!_embeddedStarted) return;
+
+        _isRunning = false;
+        _renderThread?.Join();
+        _embeddedStarted = false;
+    }
+
+    public void Pause() => _isPaused = true;
+
+    public void Resume() => _isPaused = false;
     
     private void ProcessCommands()
     {
@@ -109,6 +162,14 @@ public class RenderingXContext : GameWindow
         var lastFrameTime = GLFW.GetTime();
         while (_isRunning)
         {
+            if (_isPaused)
+            {
+                ProcessCommands();
+                Thread.Sleep(50);
+                lastFrameTime = GLFW.GetTime();
+                continue;
+            }
+
             var currentTime = GLFW.GetTime();
             var deltaTime = (float) (currentTime - lastFrameTime);
             lastFrameTime = currentTime;
@@ -157,7 +218,7 @@ public class RenderingXContext : GameWindow
     protected override void OnUnload()
     {
         _isRunning = false;
-        _renderThread.Join();
+        _renderThread?.Join();
         Dispose();
     }
 
