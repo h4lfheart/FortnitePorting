@@ -121,6 +121,21 @@ public static class TaskService
         }
     }
 
+    public static void PostDispatcher(Action function, DispatcherPriority priority = default)
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            try
+            {
+                function();
+            }
+            catch (Exception e)
+            {
+                Exception?.Invoke(e);
+            }
+        }, priority);
+    }
+
     public static async Task RunDispatcherAsync(Action function, DispatcherPriority priority = default)
     {
         try

@@ -194,7 +194,7 @@ public partial class ModelPreviewWindowModel(SettingsService settings, CUE4Parse
             var primaryObject = primarySkeletalObject ?? firstPreviewObject;
             var hasPreviewContent = firstPreviewObject is not null;
 
-            TaskService.RunDispatcher(() =>
+            TaskService.PostDispatcher(() =>
             {
                 PrimaryObject = primaryObject;
                 HasPreviewContent = hasPreviewContent;
@@ -282,7 +282,7 @@ public partial class ModelPreviewWindowModel(SettingsService settings, CUE4Parse
             else
                 actor.Resume();
 
-            TaskService.RunDispatcher(() => SyncFromPose());
+            TaskService.PostDispatcher(() => SyncFromPose());
         });
     }
 
@@ -295,7 +295,7 @@ public partial class ModelPreviewWindowModel(SettingsService settings, CUE4Parse
         Context?.EnqueueCommand(() =>
         {
             actor.Stop();
-            TaskService.RunDispatcher(() =>
+            TaskService.PostDispatcher(() =>
             {
                 CurrentAnimation = null;
                 SelectedSection = null;
@@ -334,7 +334,7 @@ public partial class ModelPreviewWindowModel(SettingsService settings, CUE4Parse
         Context?.EnqueueCommand(() =>
         {
             actor.Play(animation);
-            TaskService.RunDispatcher(() =>
+            TaskService.PostDispatcher(() =>
             {
                 CurrentAnimation = animation;
                 SyncFromPose(forceSectionRefresh: true);
@@ -352,7 +352,7 @@ public partial class ModelPreviewWindowModel(SettingsService settings, CUE4Parse
         Context?.EnqueueCommand(() =>
         {
             actor.JumpToSection(sectionName);
-            TaskService.RunDispatcher(() => SyncFromPose());
+            TaskService.PostDispatcher(() => SyncFromPose());
         });
     }
 
@@ -368,7 +368,7 @@ public partial class ModelPreviewWindowModel(SettingsService settings, CUE4Parse
         Context?.EnqueueCommand(() =>
         {
             actor.Pause();
-            TaskService.RunDispatcher(() => SyncFromPose());
+            TaskService.PostDispatcher(() => SyncFromPose());
         });
     }
 
@@ -390,7 +390,7 @@ public partial class ModelPreviewWindowModel(SettingsService settings, CUE4Parse
         Context?.EnqueueCommand(() =>
         {
             actor.Resume();
-            TaskService.RunDispatcher(() => SyncFromPose());
+            TaskService.PostDispatcher(() => SyncFromPose());
         });
     }
 

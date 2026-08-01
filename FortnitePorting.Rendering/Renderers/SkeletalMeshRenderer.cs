@@ -22,7 +22,7 @@ public class SkeletalMeshRenderer : MeshRenderer
     public SkeletalPoseEvaluator Pose;
     public event Action<float>? AfterAnimationUpdate;
 
-    private SSBO<Matrix4> _boneBuffer = new(0);
+    private SSBO<Matrix4> _boneBuffer = new();
     private Matrix4[] _uploadBones = [];
 
     public SkeletalMeshRenderer(USkeletalMesh skeletalMesh, UAnimationAsset? animation = null, int lodLevel = 0)
