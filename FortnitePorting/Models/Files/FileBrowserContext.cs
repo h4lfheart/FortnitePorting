@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
@@ -131,6 +132,7 @@ public partial class FileBrowserContext : ObservableObject
 
     private IDisposable? _subscriptions;
     private CancellationTokenSource? _vfsSelectionCts;
+    private bool _suppressFileViewVfsRefresh;
 
     public void Reset()
     {
@@ -221,11 +223,26 @@ public partial class FileBrowserContext : ObservableObject
         
         CurrentFolder = _parentTreeItem;
 
-        SelectedFileViewItems.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasSelectedFiles));
+        AttachFileSelectionTracking(SelectedFileViewItems);
         AttachFlatSelectionTracking(SelectedFlatViewItems);
     }
 
     public bool IsFlatItemSelected(FlatItem item) => _selectedFlatViewSet.Contains(item);
+
+    partial void OnSelectedFileViewItemsChanged(ObservableCollection<TreeItem> value)
+    {
+        AttachFileSelectionTracking(value);
+        OnPropertyChanged(nameof(HasSelectedFiles));
+    }
+
+    private void AttachFileSelectionTracking(ObservableCollection<TreeItem> collection)
+    {
+        collection.CollectionChanged -= OnFileSelectionCollectionChanged;
+        collection.CollectionChanged += OnFileSelectionCollectionChanged;
+    }
+
+    private void OnFileSelectionCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        => OnPropertyChanged(nameof(HasSelectedFiles));
 
     partial void OnSelectedFlatViewItemsChanged(ObservableCollection<FlatItem> value)
     {
@@ -240,7 +257,7 @@ public partial class FileBrowserContext : ObservableObject
         SyncSelectedFlatViewSet(collection);
     }
 
-    private void OnFlatSelectionCollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+    private void OnFlatSelectionCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         if (sender is ObservableCollection<FlatItem> collection)
             SyncSelectedFlatViewSet(collection);
@@ -378,12 +395,26 @@ public partial class FileBrowserContext : ObservableObject
             ancestor = ancestor.Parent;
         }
 
-        LoadFileItems(parentFolder);
+        _suppressFileViewVfsRefresh = true;
         UseFlatView = false;
+        _suppressFileViewVfsRefresh = false;
+        _vfsSelectionCts?.Cancel();
+
+        LoadFileItems(parentFolder);
 
         var fileItem = FileViewCollection.FirstOrDefault(x => x.Name == fileName);
-        if (fileItem is not null)
-            SelectedFileViewItems = [fileItem];
+        SelectedFileViewItems.Clear();
+        if (fileItem is null) return;
+
+        SelectedFileViewItems.Add(fileItem);
+        TaskService.RunDispatcher(() =>
+        {
+            if (SelectedFileViewItems.Count == 1 && SelectedFileViewItems[0] == fileItem)
+                return;
+
+            SelectedFileViewItems.Clear();
+            SelectedFileViewItems.Add(fileItem);
+        }, DispatcherPriority.Loaded);
     }
 
     public TreeItem? TreeViewJumpTo(string directory)
@@ -518,7 +549,7 @@ public partial class FileBrowserContext : ObservableObject
 
     partial void OnUseFlatViewChanged(bool value)
     {
-        if (!value)
+        if (!value && !_suppressFileViewVfsRefresh)
             ScheduleVfsSelectionChanged();
     }
 

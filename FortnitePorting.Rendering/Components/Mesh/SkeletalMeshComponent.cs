@@ -22,4 +22,14 @@ public class SkeletalMeshComponent : MeshComponent
     }
 
     public void Stop() => Renderer.Stop();
+
+    public void Pause() => Renderer.Pause();
+
+    public void Resume() => Renderer.Resume();
+
+    public void Seek(float timeSeconds) => Renderer.Seek(timeSeconds);
+
+    public void JumpToSection(int index) => Renderer.JumpToSection(index);
+
+    public void JumpToSection(string name) => Renderer.JumpToSection(name);
 }

@@ -21,27 +21,25 @@ public partial class SkeletalPoseEvaluator
     private readonly FTransform[] _localPose;
     private int[] _trackRemap = [];
 
-    private List<AnimMontageSection> _montageSections = [];
+    public List<AnimMontageSection> MontageSections = [];
     private int _montageSectionIndex;
 
     public int BoneCount => _refLocalPose.Length;
-
     public Matrix4[] SkinMatrices => _skinMatrices;
 
-    public CAnimSequence? Sequence { get; private set; }
-    public float Time { get; set; }
-    public float Speed { get; set; } = 1f;
-    public bool IsPlaying { get; set; } = true;
-    public bool Loop { get; set; } = true;
+    public float Time;
+    public float Speed = 1f;
+    public bool IsPlaying = true;
+    public bool Loop = true;
 
+    public CAnimSequence? Sequence { get; private set; }
     public float AnimStartTime { get; private set; }
     public float AnimEndTime { get; private set; }
-
     public float PlayRate { get; private set; } = 1f;
 
     public string? CurrentSectionName =>
-        _montageSections.Count > 0 && _montageSectionIndex < _montageSections.Count
-            ? _montageSections[_montageSectionIndex].Name
+        MontageSections.Count > 0 && _montageSectionIndex < MontageSections.Count
+            ? MontageSections[_montageSectionIndex].Name
             : null;
 
     public float Duration
@@ -141,8 +139,8 @@ public partial class SkeletalPoseEvaluator
 
         if (animation is UAnimMontage montage)
         {
-            _montageSections = BuildMontageSections(montage, animationSkeleton, _boneNames);
-            if (_montageSections.Count == 0)
+            MontageSections = BuildMontageSections(montage, animationSkeleton, _boneNames);
+            if (MontageSections.Count == 0)
                 throw new InvalidOperationException("Montage produced no playable sections.");
 
             ActivateMontageSection(0);
@@ -175,6 +173,44 @@ public partial class SkeletalPoseEvaluator
         Array.Fill(_skinMatrices, Matrix4.Identity);
     }
 
+    public void Pause() => IsPlaying = false;
+
+    public void Resume()
+    {
+        if (Sequence is not null)
+            IsPlaying = true;
+    }
+
+    public void Seek(float timeSeconds)
+    {
+        if (Sequence is null)
+            return;
+
+        var duration = Duration;
+        Time = duration > 1e-6f ? Math.Clamp(timeSeconds, 0f, duration) : 0f;
+        SampleCurrent();
+    }
+
+    public void JumpToSection(int index)
+    {
+        if (index < 0 || index >= MontageSections.Count)
+            return;
+
+        var wasPlaying = IsPlaying;
+        ActivateMontageSection(index);
+        IsPlaying = wasPlaying;
+        Time = 0f;
+        SampleCurrent();
+    }
+
+    public void JumpToSection(string name)
+    {
+        var index = MontageSections.FindIndex(section =>
+            section.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+        if (index >= 0)
+            JumpToSection(index);
+    }
+
     public void Update(float deltaTime)
     {
         if (!IsPlaying || Sequence is null)
@@ -192,7 +228,7 @@ public partial class SkeletalPoseEvaluator
             if (Time < 0f) Time += duration;
         }
         else if (Time >= duration
-                 && (_montageSections.Count == 0 || !TryAdvanceMontageSection()))
+                 && (MontageSections.Count == 0 || !TryAdvanceMontageSection()))
         {
             Time = duration;
             IsPlaying = false;
@@ -215,7 +251,16 @@ public partial class SkeletalPoseEvaluator
         sequenceTime = Math.Clamp(sequenceTime, AnimStartTime, AnimEndTime);
 
         var sequenceLength = AnimPlaybackRange.SequenceLength(Sequence);
-        var frame = sequenceTime / sequenceLength * Sequence.NumFrames;
+        if (sequenceLength <= 1e-6f || Sequence.NumFrames <= 0)
+        {
+            Evaluate(0f);
+            return;
+        }
+
+        // NumFrames is exclusive at the end — GetBoneTransform indexes keys with frame/frameCount*keyCount,
+        // so frame == NumFrames overflows the key array (common when non-looping playback hits Duration).
+        var maxFrame = Math.Max(Sequence.NumFrames - 1e-3f, 0f);
+        var frame = Math.Clamp(sequenceTime / sequenceLength * Sequence.NumFrames, 0f, maxFrame);
         Evaluate(frame);
     }
 

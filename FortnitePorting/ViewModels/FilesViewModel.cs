@@ -255,6 +255,9 @@ public partial class FilesViewModel(
             case ULevel:
                 ModelPreviewWindow.Preview([asset]);
                 break;
+            case UAnimationAsset animation:
+                PreviewAnimation(animation);
+                break;
             case USoundWave soundWave:
                 SoundPreviewWindow.Preview(soundWave);
                 break;
@@ -266,6 +269,51 @@ public partial class FilesViewModel(
                 break;
         }
     }
+
+    private void PreviewAnimation(UAnimationAsset animation)
+    {
+        if (ModelPreviewWindow.TryApplyAnimation(animation))
+            return;
+
+        _info.Dialog($"Preview {animation.Name}", "Choose a skeletal mesh to preview this animation.", buttons:
+        [
+            new DialogButton
+            {
+                Text = "Use Default Mannequin",
+                Action = () => TaskService.Run(async () =>
+                    await PreviewAnimationWithMeshAsync(animation, DefaultMannequinMeshPath))
+            },
+            new DialogButton
+            {
+                Text = "Select Mesh",
+                Action = () => TaskService.RunDispatcher(async () =>
+                {
+                    if (await FilePickerWindow.OpenBrowserAsync("Select Skeletal Mesh") is not { Length: > 0 } paths)
+                        return;
+
+                    await PreviewAnimationWithMeshAsync(animation, _exporter.FixPath(paths[0]));
+                })
+            }
+        ]);
+    }
+
+    private async Task PreviewAnimationWithMeshAsync(UAnimationAsset animation, string meshPath)
+    {
+        var mesh = await _ueParse.Provider.SafeLoadPackageObjectAsync<USkeletalMesh>(meshPath);
+        mesh ??= await _ueParse.Provider.SafeLoadPackageObjectAsync(meshPath) as USkeletalMesh;
+        if (mesh is null)
+        {
+            await TaskService.RunDispatcherAsync(() =>
+                _info.Message("Model Viewer", "Could not load the selected skeletal mesh.",
+                    severity: InfoBarSeverity.Warning));
+            return;
+        }
+
+        await TaskService.RunDispatcherAsync(() => ModelPreviewWindow.Preview([mesh], animation));
+    }
+
+    private const string DefaultMannequinMeshPath =
+        "FortniteGame/Content/Creative/Devices/Mannequin/Meshes/CP_Device_Mannequin";
 
     [RelayCommand]
     public async Task Export()

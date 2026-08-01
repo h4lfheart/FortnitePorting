@@ -112,14 +112,42 @@ public class SkeletalMeshRenderer : MeshRenderer
                                 ?? throw new RenderingXException("Could not resolve a skeleton for animation playback.");
 
         Pose.Play(animation, animationSkeleton, loop, speed);
+        UploadBoneMatrices(Pose.SkinMatrices);
     }
 
     public void Play(CAnimSequence sequence, bool loop = true, float speed = 1f)
     {
         Pose.Play(sequence, loop, speed);
+        UploadBoneMatrices(Pose.SkinMatrices);
     }
 
-    public void Stop() => Pose.Stop();
+    public void Stop()
+    {
+        Pose.Stop();
+        UploadBoneMatrices(Pose.SkinMatrices);
+    }
+
+    public void Pause() => Pose.Pause();
+
+    public void Resume() => Pose.Resume();
+
+    public void Seek(float timeSeconds)
+    {
+        Pose.Seek(timeSeconds);
+        UploadBoneMatrices(Pose.SkinMatrices);
+    }
+
+    public void JumpToSection(int index)
+    {
+        Pose.JumpToSection(index);
+        UploadBoneMatrices(Pose.SkinMatrices);
+    }
+
+    public void JumpToSection(string name)
+    {
+        Pose.JumpToSection(name);
+        UploadBoneMatrices(Pose.SkinMatrices);
+    }
 
     public override void Initialize()
     {
@@ -139,11 +167,17 @@ public class SkeletalMeshRenderer : MeshRenderer
     {
         base.Update(deltaTime);
 
-        if (Pose.Sequence is not null && Pose.IsPlaying)
+        if (Pose.Sequence is null)
         {
-            Pose.Update(deltaTime);
-            UploadBoneMatrices(Pose.SkinMatrices);
+            AfterAnimationUpdate?.Invoke(deltaTime);
+            return;
         }
+
+        if (Pose.IsPlaying)
+            Pose.Update(deltaTime);
+
+        // Always upload after sampling so scrub / section jumps (while paused) stay visible.
+        UploadBoneMatrices(Pose.SkinMatrices);
 
         AfterAnimationUpdate?.Invoke(deltaTime);
     }

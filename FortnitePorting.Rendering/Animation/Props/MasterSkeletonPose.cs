@@ -35,6 +35,16 @@ public sealed class MasterSkeletonPose
 
     public void Stop() => _poseEvaluator.Stop();
 
+    public void Pause() => _poseEvaluator.Pause();
+
+    public void Resume() => _poseEvaluator.Resume();
+
+    public void Seek(float timeSeconds) => _poseEvaluator.Seek(timeSeconds);
+
+    public void JumpToSection(int index) => _poseEvaluator.JumpToSection(index);
+
+    public void JumpToSection(string name) => _poseEvaluator.JumpToSection(name);
+
     public void Update(float deltaTime) => _poseEvaluator.Update(deltaTime);
 
     public bool TryGetSocketTransform(string socketName, out FTransform transform)

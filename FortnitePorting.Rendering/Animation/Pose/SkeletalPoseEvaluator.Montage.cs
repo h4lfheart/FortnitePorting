@@ -9,14 +9,14 @@ public partial class SkeletalPoseEvaluator
 {
     private void ClearMontageState()
     {
-        _montageSections = [];
+        MontageSections = [];
         _montageSectionIndex = 0;
     }
 
     private void ActivateMontageSection(int index)
     {
         _montageSectionIndex = index;
-        var montageSection = _montageSections[index];
+        var montageSection = MontageSections[index];
         Sequence = montageSection.Sequence;
         _trackRemap = montageSection.TrackRemap;
         AnimStartTime = montageSection.AnimStartTime;
@@ -25,12 +25,13 @@ public partial class SkeletalPoseEvaluator
         Loop = montageSection.Loop;
         Time = 0f;
         IsPlaying = true;
+        SampleCurrent();
     }
 
     private bool TryAdvanceMontageSection()
     {
         var nextSectionIndex = _montageSectionIndex + 1;
-        if (nextSectionIndex >= _montageSections.Count)
+        if (nextSectionIndex >= MontageSections.Count)
             return false;
 
         ActivateMontageSection(nextSectionIndex);

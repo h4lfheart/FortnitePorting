@@ -78,14 +78,64 @@ public class AnimationPropComponent : Component
         _masterSkeletonPose = null;
     }
 
+    public void Pause()
+    {
+        _masterSkeletonPose?.Pause();
+        ForEachPropSkeletal(component => component.Pause());
+    }
+
+    public void Resume()
+    {
+        _masterSkeletonPose?.Resume();
+        ForEachPropSkeletal(component => component.Resume());
+    }
+
+    public void Seek(float timeSeconds)
+    {
+        _masterSkeletonPose?.Seek(timeSeconds);
+        ForEachPropSkeletal(component => component.Seek(timeSeconds));
+        UpdateAttachmentTransforms();
+    }
+
+    public void JumpToSection(int index)
+    {
+        _masterSkeletonPose?.JumpToSection(index);
+        ForEachPropSkeletal(component => component.Seek(0f));
+        UpdateAttachmentTransforms();
+    }
+
+    public void JumpToSection(string name)
+    {
+        _masterSkeletonPose?.JumpToSection(name);
+        ForEachPropSkeletal(component => component.Seek(0f));
+        UpdateAttachmentTransforms();
+    }
+
     private void UpdateAttachments(float deltaTime)
     {
         if (_masterSkeletonPose is null)
             return;
 
         _masterSkeletonPose.Update(deltaTime);
+        UpdateAttachmentTransforms();
+    }
+
+    private void UpdateAttachmentTransforms()
+    {
+        if (_masterSkeletonPose is null)
+            return;
+
         foreach (var attachment in _propAttachments)
             attachment.UpdateTransform(_masterSkeletonPose);
+    }
+
+    private void ForEachPropSkeletal(Action<SkeletalMeshComponent> action)
+    {
+        foreach (var attachment in _propAttachments)
+        {
+            if (attachment.Actor.MeshComponent is SkeletalMeshComponent skeletalMeshComponent)
+                action(skeletalMeshComponent);
+        }
     }
 
     private static MeshActor? CreatePropMeshActor(AnimSpawnPropInfo spawnProp)
