@@ -21,6 +21,9 @@ public class RenderingXContext : GameWindow
     private bool _sizeChanged;
     private int _width;
     private int _height;
+
+    private bool _isLooking;
+    private bool _skipNextMouseDelta;
     
     private readonly ConcurrentQueue<Action> _commandQueue = new();
     
@@ -41,18 +44,34 @@ public class RenderingXContext : GameWindow
         MouseMove += delegate(MouseMoveEventArgs args)
         {
             if (_scene.ActiveCamera is null) return;
-            
-            var delta = args.Delta * _scene.ActiveCamera.Sensitivity;
-            if (MouseState[MouseButton.Left] || MouseState[MouseButton.Right])
+
+            var isLooking = MouseState[MouseButton.Left] || MouseState[MouseButton.Right];
+            if (isLooking)
             {
+                if (!_isLooking)
+                {
+                    Cursor = MouseCursor.Empty;
+                    CursorState = CursorState.Grabbed;
+                    _isLooking = true;
+                    _skipNextMouseDelta = true;
+                    return;
+                }
+
+                if (_skipNextMouseDelta)
+                {
+                    _skipNextMouseDelta = false;
+                    return;
+                }
+
+                var delta = args.Delta * _scene.ActiveCamera.Sensitivity;
                 _scene.ActiveCamera.UpdateDirection(delta.X, delta.Y);
-                Cursor = MouseCursor.Empty;
-                CursorState = CursorState.Grabbed;
             }
-            else
+            else if (_isLooking)
             {
                 Cursor = MouseCursor.Default;
                 CursorState = CursorState.Normal;
+                _isLooking = false;
+                _skipNextMouseDelta = false;
             }
         };
 
