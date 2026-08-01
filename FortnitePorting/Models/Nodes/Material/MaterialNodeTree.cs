@@ -17,9 +17,9 @@ using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.UE4.Objects.UObject;
 using DynamicData;
 using FluentAvalonia.UI.Controls;
+using FortnitePorting.Controls.Material;
 using FortnitePorting.Extensions;
 using Serilog;
-using ColorSpectrumShape = Avalonia.Controls.ColorSpectrumShape;
 
 namespace FortnitePorting.Models.Nodes.Material;
 
@@ -533,20 +533,13 @@ public class MaterialNodeTree : NodeTree
                 
                 
                 AddColorInputs(ref node);
-            
-                var normalizedColor = constantColor.ToFColor(false);    
-                node.Content = new ColorPicker
+
+                node.Content = new LinearColorViewer
                 {
-                    Color = new Color(normalizedColor.A, normalizedColor.R, normalizedColor.G, normalizedColor.B),
-                    ColorSpectrumShape = ColorSpectrumShape.Ring,
-                    IsColorPaletteVisible = false,
-                    IsAlphaEnabled = true,
-                    IsAlphaVisible = true,
+                    Value = constantColor,
                     Margin = SpaceExtension.Space(1),
-                    Width = 96,
-                    Height = 64,
                 };
-                
+
                 break;
             }
             case "MaterialExpressionParticleColor":

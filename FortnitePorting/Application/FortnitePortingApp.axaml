@@ -779,11 +779,36 @@
             <Setter Property="CornerRadius" Value="16" />
             <Setter Property="ClipToBounds" Value="False" />
             <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Transitions" Value="{x:Null}" />
 
             <Style Selector="^ /template/ Border#RootBorder">
+                <Setter Property="Background" Value="{DynamicResource FPButtonBackground}" />
                 <Setter Property="ClipToBounds" Value="False" />
                 <Setter Property="BackgroundSizing" Value="CenterBorder" />
                 <Setter Property="BoxShadow" Value="{DynamicResource FPCardShadow}" />
+                <Setter Property="Transitions" Value="{x:Null}" />
+            </Style>
+
+            <Style Selector="^:pointerover">
+                <Setter Property="Background" Value="{DynamicResource FPButtonBackgroundPointerOver}" />
+            </Style>
+
+            <Style Selector="^:pointerover /template/ Border#RootBorder">
+                <Setter Property="Background" Value="{DynamicResource FPButtonBackgroundPointerOver}" />
+                <Setter Property="Transitions" Value="{x:Null}" />
+            </Style>
+
+            <Style Selector="^:pressed">
+                <Setter Property="Background" Value="{DynamicResource FPButtonBackgroundPressed}" />
+            </Style>
+
+            <Style Selector="^:pressed /template/ Border#RootBorder">
+                <Setter Property="Background" Value="{DynamicResource FPButtonBackgroundPressed}" />
+                <Setter Property="Transitions" Value="{x:Null}" />
+            </Style>
+
+            <Style Selector="^:disabled">
+                <Setter Property="Opacity" Value="0.5" />
             </Style>
         </Style>
 
