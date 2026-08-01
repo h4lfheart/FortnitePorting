@@ -36,68 +36,7 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <Grid Grid.Column="0">
-                    <ContentControl Content="{Binding Control}" IsVisible="{Binding !IsLoading}" />
-
-                    <Grid IsVisible="{Binding IsLoading}">
-                        <Ellipse Width="600" Height="600" HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <Ellipse.Styles>
-                                <Style Selector="Ellipse">
-                                    <Style.Animations>
-                                        <Animation Duration="0:0:3" IterationCount="Infinite" PlaybackDirection="Alternate"
-                                                   Easing="SineEaseInOut">
-                                            <KeyFrame Cue="0%">
-                                                <Setter Property="Opacity" Value="0.2"/>
-                                            </KeyFrame>
-                                            <KeyFrame Cue="100%">
-                                                <Setter Property="Opacity" Value="0.5"/>
-                                            </KeyFrame>
-                                        </Animation>
-                                    </Style.Animations>
-                                </Style>
-                            </Ellipse.Styles>
-                            <Ellipse.Fill>
-                                <RadialGradientBrush>
-                                    <GradientStop Color="#33A855F7" Offset="0"/>
-                                    <GradientStop Color="#1AA855F7" Offset="0.5"/>
-                                    <GradientStop Color="#00A855F7" Offset="1"/>
-                                </RadialGradientBrush>
-                            </Ellipse.Fill>
-                        </Ellipse>
-
-                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
-                                    IsVisible="{Binding !IsLoadingWorld}">
-                            <ui:ProgressRing IsIndeterminate="True" Background="Transparent" Width="50" Height="50"
-                                             BorderThickness="5" />
-                            <TextBlock Text="Loading Assets"
-                                       Classes="BodyStrongTextBlockStyle" HorizontalAlignment="Center"
-                                       Margin="{ext:Space 0, 2, 0, 0}" />
-                        </StackPanel>
-
-                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
-                                    IsVisible="{Binding IsLoadingWorld}"
-                                    Spacing="{ext:Space 1}">
-                            <TextBlock Text="{Binding LoadName, StringFormat='Loading {0}'}"
-                                       Classes="BodyStrongTextBlockStyle" HorizontalAlignment="Center" />
-
-                            <TextBlock Classes="BodyTextBlockStyle TextFillColorSecondaryBrush" HorizontalAlignment="Center"
-                                       Margin="{ext:Space 0, 0, 0, 1}">
-                                <TextBlock.Text>
-                                    <MultiBinding StringFormat="{}{0} / {1}">
-                                        <Binding Path="LoadCount" />
-                                        <Binding Path="TotalCount" />
-                                    </MultiBinding>
-                                </TextBlock.Text>
-                            </TextBlock>
-
-                            <ProgressBar HorizontalAlignment="Center" VerticalAlignment="Center" Height="8"
-                                         MinWidth="400"
-                                         Value="{Binding LoadCount}"
-                                         Minimum="0"
-                                         Maximum="{Binding TotalCount}"/>
-                        </StackPanel>
-                    </Grid>
-                </Grid>
+                <ContentControl Grid.Column="0" Content="{Binding Control}" IsVisible="{Binding !IsLoading}" />
 
                 <GridSplitter Grid.Column="1" Background="Transparent"
                               IsVisible="{Binding HasPreviewContent}"/>
@@ -237,6 +176,65 @@
                                 IsVisible="{Binding HasAnimation}">
                             <controls:IconText Text="Clear Animation" Icon="Close"/>
                         </Button>
+                    </StackPanel>
+                </Grid>
+                
+                <Grid Grid.Column="0" Grid.ColumnSpan="3" IsVisible="{Binding IsLoading}">
+                    <Ellipse Width="600" Height="600" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Ellipse.Styles>
+                            <Style Selector="Ellipse">
+                                <Style.Animations>
+                                    <Animation Duration="0:0:3" IterationCount="Infinite" PlaybackDirection="Alternate"
+                                               Easing="SineEaseInOut">
+                                        <KeyFrame Cue="0%">
+                                            <Setter Property="Opacity" Value="0.2"/>
+                                        </KeyFrame>
+                                        <KeyFrame Cue="100%">
+                                            <Setter Property="Opacity" Value="0.5"/>
+                                        </KeyFrame>
+                                    </Animation>
+                                </Style.Animations>
+                            </Style>
+                        </Ellipse.Styles>
+                        <Ellipse.Fill>
+                            <RadialGradientBrush>
+                                <GradientStop Color="#33A855F7" Offset="0"/>
+                                <GradientStop Color="#1AA855F7" Offset="0.5"/>
+                                <GradientStop Color="#00A855F7" Offset="1"/>
+                            </RadialGradientBrush>
+                        </Ellipse.Fill>
+                    </Ellipse>
+
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                                IsVisible="{Binding !IsLoadingWorld}">
+                        <ui:ProgressRing IsIndeterminate="True" Background="Transparent" Width="50" Height="50"
+                                         BorderThickness="5" />
+                        <TextBlock Text="Loading Assets"
+                                   Classes="BodyStrongTextBlockStyle" HorizontalAlignment="Center"
+                                   Margin="{ext:Space 0, 2, 0, 0}" />
+                    </StackPanel>
+
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                                IsVisible="{Binding IsLoadingWorld}"
+                                Spacing="{ext:Space 1}">
+                        <TextBlock Text="{Binding LoadName, StringFormat='Loading {0}'}"
+                                   Classes="BodyStrongTextBlockStyle" HorizontalAlignment="Center" />
+
+                        <TextBlock Classes="BodyTextBlockStyle TextFillColorSecondaryBrush" HorizontalAlignment="Center"
+                                   Margin="{ext:Space 0, 0, 0, 1}">
+                            <TextBlock.Text>
+                                <MultiBinding StringFormat="{}{0} / {1}">
+                                    <Binding Path="LoadCount" />
+                                    <Binding Path="TotalCount" />
+                                </MultiBinding>
+                            </TextBlock.Text>
+                        </TextBlock>
+
+                        <ProgressBar HorizontalAlignment="Center" VerticalAlignment="Center" Height="8"
+                                     MinWidth="400"
+                                     Value="{Binding LoadCount}"
+                                     Minimum="0"
+                                     Maximum="{Binding TotalCount}"/>
                     </StackPanel>
                 </Grid>
             </Grid>
