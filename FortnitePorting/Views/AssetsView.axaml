@@ -13,6 +13,7 @@
              xmlns:base="clr-namespace:FortnitePorting.Models.Assets.Base"
              xmlns:views="clr-namespace:FortnitePorting.Views"
              xmlns:sidebar="clr-namespace:FortnitePorting.Controls.Navigation.Sidebar"
+             xmlns:loading="clr-namespace:FortnitePorting.Controls.Loading"
              xmlns:converters="clr-namespace:FortnitePorting.Converters"
              d:DesignHeight="720" d:DesignWidth="1280"
              x:Class="FortnitePorting.Views.AssetsView"
@@ -47,51 +48,12 @@
         <GridSplitter Grid.Column="0" HorizontalAlignment="Right" Opacity="0"
                       IsVisible="{Binding !AssetLoader.ActiveLoader.FinishedLoading, FallbackValue=True}" />
 
-        <Grid Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center"
-              IsVisible="{Binding !AssetLoader.ActiveLoader.FinishedLoading, FallbackValue=True}">
-
-            <Ellipse Width="600" Height="600" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Ellipse.Styles>
-                    <Style Selector="Ellipse">
-                        <Style.Animations>
-                            <Animation Duration="0:0:3" IterationCount="Infinite" PlaybackDirection="Alternate"
-                                       Easing="SineEaseInOut">
-                                <KeyFrame Cue="0%">
-                                    <Setter Property="Opacity" Value="0.2" />
-                                </KeyFrame>
-                                <KeyFrame Cue="100%">
-                                    <Setter Property="Opacity" Value="0.5" />
-                                </KeyFrame>
-                            </Animation>
-                        </Style.Animations>
-                    </Style>
-                </Ellipse.Styles>
-                <Ellipse.Fill>
-                    <RadialGradientBrush>
-                        <GradientStop Color="#33A855F7" Offset="0" />
-                        <GradientStop Color="#1AA855F7" Offset="0.5" />
-                        <GradientStop Color="#00A855F7" Offset="1" />
-                    </RadialGradientBrush>
-                </Ellipse.Fill>
-            </Ellipse>
-
-            <StackPanel Spacing="{ext:Space 1}" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <TextBlock Text="{Binding AssetLoader.ActiveLoader.LoadingStatus}"
-                           HorizontalAlignment="Center" VerticalAlignment="Center"
-                           FontFamily="{StaticResource SFDisplaySemibold}"
-                           FontSize="20" />
-
-                <TextBlock Text="{Binding AssetLoader.ActiveLoader.LoadingPercentageText}"
-                           HorizontalAlignment="Center" VerticalAlignment="Center"
-                           Classes="BodyTextBlockStyle TextFillColorSecondaryBrush" Margin="{ext:Space 0, 0, 0, 1}" />
-
-                <ProgressBar HorizontalAlignment="Center" VerticalAlignment="Center" Height="8"
-                             MinWidth="400"
-                             Value="{Binding AssetLoader.ActiveLoader.LoadedAssets}"
-                             Minimum="0"
-                             Maximum="{Binding AssetLoader.ActiveLoader.TotalAssets}" />
-            </StackPanel>
-        </Grid>
+        <loading:LoadingIndicator Grid.Column="1"
+                                IsVisible="{Binding !AssetLoader.ActiveLoader.FinishedLoading, FallbackValue=True}"
+                                Status="{Binding AssetLoader.ActiveLoader.LoadingStatus}"
+                                Subtitle="{Binding AssetLoader.ActiveLoader.LoadingPercentageText}"
+                                Value="{Binding AssetLoader.ActiveLoader.LoadedAssets}"
+                                Maximum="{Binding AssetLoader.ActiveLoader.TotalAssets}" />
 
         <Grid Grid.Column="1" Margin="{ext:Space 0, 1, 1, 1}"
               IsVisible="{Binding AssetLoader.ActiveLoader.FinishedLoading, FallbackValue=False}"
