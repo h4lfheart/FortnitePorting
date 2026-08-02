@@ -11,6 +11,8 @@ class BlenderExportProfile:
     uses_legacy_sequence_api: bool
     uses_id_property_geo_nodes_inputs: bool
     uses_legacy_materials: bool
+    # PoseBone.hide was added in Blender 5.0; older versions drive Bone.hide instead
+    uses_data_bone_hide: bool
 
 
 BLENDER_42_PROFILE = BlenderExportProfile(
@@ -21,6 +23,7 @@ BLENDER_42_PROFILE = BlenderExportProfile(
     uses_legacy_sequence_api=True,
     uses_id_property_geo_nodes_inputs=True,
     uses_legacy_materials=True,
+    uses_data_bone_hide=True,
 )
 
 BLENDER_50_PROFILE = BlenderExportProfile(
@@ -31,6 +34,7 @@ BLENDER_50_PROFILE = BlenderExportProfile(
     uses_legacy_sequence_api=False,
     uses_id_property_geo_nodes_inputs=True,
     uses_legacy_materials=False,
+    uses_data_bone_hide=False,
 )
 
 BLENDER_52_PROFILE = BlenderExportProfile(
@@ -41,6 +45,7 @@ BLENDER_52_PROFILE = BlenderExportProfile(
     uses_legacy_sequence_api=False,
     uses_id_property_geo_nodes_inputs=False,
     uses_legacy_materials=False,
+    uses_data_bone_hide=False,
 )
 
 

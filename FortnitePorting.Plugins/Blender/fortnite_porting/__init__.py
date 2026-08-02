@@ -58,7 +58,6 @@ def scene_load_handler(filepath):
 def register():
     global server
     profile = resolve_export_profile(bpy.app.version)
-    Log.info(f"Detected Blender {'.'.join(map(str, bpy.app.version))}; using {profile.name} export profile")
     server = Server.create()
     server.start()
 

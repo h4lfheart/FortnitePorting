@@ -1218,11 +1218,12 @@ class TastyImportContext:
             ('ik_hand_gun', hide_ik_hand_gun_driver)
         ]
 
-        for bone_name, driver in driver_hide_bones:
-            if not (bone := pose_bones.get(bone_name)): continue
-            driver.add_to(bone, 'hide')
-    
         bones = target_skeleton.data.bones
+        hide_bone_collection = bones if self.version_profile.uses_data_bone_hide else pose_bones
+
+        for bone_name, driver in driver_hide_bones:
+            if not (bone := hide_bone_collection.get(bone_name)): continue
+            driver.add_to(bone, 'hide')
     
         hide_bones = [
             "ik_foot_roll_inner_r",
@@ -1232,7 +1233,7 @@ class TastyImportContext:
             "ik_foot_target_r",
             "ik_foot_rot_ctrl_r",
             "ik_ball_roll_r",
-            "ik_ball_ctrl_r"
+            "ik_ball_ctrl_r",
             "ik_dog_ball_r",
             "ik_wolf_ball_r",
     
@@ -1243,7 +1244,7 @@ class TastyImportContext:
             "ik_foot_target_l",
             "ik_foot_rot_ctrl_l",
             "ik_ball_roll_l",
-            "ik_ball_ctrl_l"
+            "ik_ball_ctrl_l",
             "ik_dog_ball_l",
             "ik_wolf_ball_l",
     
