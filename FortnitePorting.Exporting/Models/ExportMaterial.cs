@@ -29,6 +29,8 @@ public record ExportMaterial : ParameterCollection
     public ETranslucencyLightingMode TranslucencyLightingMode => BaseMaterial?.TranslucencyLightingMode ?? ETranslucencyLightingMode.TLM_VolumetricDirectional;
     public EMaterialShadingModel ShadingModel => BaseMaterial?.ShadingModel ?? EMaterialShadingModel.MSM_DefaultLit;
 
+    public MaterialGraph? Graph;
+
     [JsonIgnore] public UMaterial? BaseMaterial;
 }
 

@@ -182,6 +182,13 @@
                                     <ToggleSwitch IsChecked="{Binding ExportMaterials}"/>
                                 </controls:SettingsItem.Footer>
                             </controls:SettingsItem>
+                            <controls:SettingsItem Title="Accurate Material Conversion"
+                                                   Description="Exports the actual Unreal material node graph and rebuilds an equivalent Blender node graph. Used automatically as a fallback for materials with no curated template; can be forced on for all materials. Slower and messier than the curated templates, but works on any material."
+                                                   IsEnabled="{Binding ExportMaterials}">
+                                <controls:SettingsItem.Footer>
+                                    <ToggleSwitch IsChecked="{Binding ExportMaterialGraph}"/>
+                                </controls:SettingsItem.Footer>
+                            </controls:SettingsItem>
                             <controls:SettingsItem Title="Ambient Occlusion"
                                                    Description="Adds darker details in the crevices of materials."
                                                    IsEnabled="{Binding ExportMaterials}">

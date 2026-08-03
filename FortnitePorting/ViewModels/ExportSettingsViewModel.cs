@@ -56,6 +56,7 @@ public partial class BaseExportSettings : ViewModelBase
 
     [ObservableProperty] private EImageFormat _imageFormat = EImageFormat.PNG;
     [ObservableProperty] private bool _exportMaterials = true;
+    [ObservableProperty] private bool _exportMaterialGraph = false;
     
     [ObservableProperty] private EMeshFormat _meshFormat = EMeshFormat.UEFormat;
     [ObservableProperty] private bool _exportNanite;
@@ -82,6 +83,7 @@ public partial class BaseExportSettings : ViewModelBase
         CompressionFormat = CompressionFormat,
         ImageFormat = ImageFormat,
         ExportMaterials = ExportMaterials,
+        ExportMaterialGraph = ExportMaterialGraph,
         MeshFormat = MeshFormat,
         ExportNanite = ExportNanite,
         ImportInstancedFoliage = ImportInstancedFoliage,

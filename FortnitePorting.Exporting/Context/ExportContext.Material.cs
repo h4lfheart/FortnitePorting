@@ -48,6 +48,9 @@ public partial class ExportContext
 
         AccumulateParameters(exportMat, ref exportMaterial);
 
+        if (Meta.Settings.ExportMaterialGraph && exportMaterial.BaseMaterial is { } baseMaterial)
+            exportMaterial.Graph = MaterialGraph(baseMaterial);
+
         exportMaterial.OverrideBlendMode = (exportMat as UMaterialInstanceConstant)?.BasePropertyOverrides?.BlendMode ?? exportMaterial.BaseBlendMode;
 
         MaterialCache.Add(exportMaterial);

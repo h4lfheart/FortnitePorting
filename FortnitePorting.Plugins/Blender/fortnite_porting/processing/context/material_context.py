@@ -481,44 +481,55 @@ class MaterialImportContext:
 
         all_mappings = find_all_matching_mappings(material_data)
 
-        set_param("AO", self.options.get("AmbientOcclusion"))
-        set_param("Cavity", self.options.get("Cavity"))
-        set_param("Subsurface Scale", self.options.get("Subsurface"))
+        # Accurate Material Conversion: rebuild the actual Unreal expression graph instead of
+        # matching it against the curated MappingCollection templates. Used when the user forces
+        # it on, or automatically as a fallback when no template recognizes this material at all.
+        graph_data = material_data.get("Graph")
+        use_material_graph = bool(graph_data) and (self.options.get("ExportMaterialGraph") or len(all_mappings) == 0)
 
-        node_position = -200
-        previous_node = shader_node
+        if use_material_graph:
+            nodes.remove(shader_node)
+            from ..material.graph import build as build_material_graph
+            build_material_graph(self, nodes, links, graph_data, output_node.inputs[0])
+        else:
+            set_param("AO", self.options.get("AmbientOcclusion"))
+            set_param("Cavity", self.options.get("Cavity"))
+            set_param("Subsurface Scale", self.options.get("Subsurface"))
 
-        if len(all_mappings) == 0 or all_mappings[-1].type != ENodeType.NT_Base:
-            all_mappings.append(DefaultMappings)
+            node_position = -200
+            previous_node = shader_node
 
-        def add_shader_module(mapping):
-            nonlocal node_position, previous_node
-            new_node = nodes.new(type="ShaderNodeGroup")
-            new_node.node_tree = bpy.data.node_groups.get(mapping.node_name)
-            new_node.location = (node_position, 0)
-            links.new(new_node.outputs[0], previous_node.inputs[0])
-            setup_params(mapping, new_node)
-            previous_node = new_node
-            node_position -= mapping.node_spacing
-            return new_node
+            if len(all_mappings) == 0 or all_mappings[-1].type != ENodeType.NT_Base:
+                all_mappings.append(DefaultMappings)
 
-        for mapping in all_mappings:
-            add_shader_module(mapping)
-            if mapping.surface_render_method is not None:
-                material.surface_render_method = mapping.surface_render_method
-                material.show_transparent_back = mapping.show_transparent_back
+            def add_shader_module(mapping):
+                nonlocal node_position, previous_node
+                new_node = nodes.new(type="ShaderNodeGroup")
+                new_node.node_tree = bpy.data.node_groups.get(mapping.node_name)
+                new_node.location = (node_position, 0)
+                links.new(new_node.outputs[0], previous_node.inputs[0])
+                setup_params(mapping, new_node)
+                previous_node = new_node
+                node_position -= mapping.node_spacing
+                return new_node
 
-        # TODO: MappingCollection.material_changes()?
-        # That wouldn't give us the toon outline though because we couldn't call self.add_toon_outline
-        if all_mappings[-1].node_name == "FPv4 Base Toon":
-            set_param("Brightness", self.options.get("ToonShadingBrightness"), previous_node)
-            self.add_toon_outline = True
+            for mapping in all_mappings:
+                add_shader_module(mapping)
+                if mapping.surface_render_method is not None:
+                    material.surface_render_method = mapping.surface_render_method
+                    material.show_transparent_back = mapping.show_transparent_back
 
-        # TODO: Part modifier handling? (fur, new toon outline, etc)
-        
-        add_unused_params()
+            # TODO: MappingCollection.material_changes()?
+            # That wouldn't give us the toon outline though because we couldn't call self.add_toon_outline
+            if all_mappings[-1].node_name == "FPv4 Base Toon":
+                set_param("Brightness", self.options.get("ToonShadingBrightness"), previous_node)
+                self.add_toon_outline = True
 
-        links.new(shader_node.outputs[0], output_node.inputs[0])
+            # TODO: Part modifier handling? (fur, new toon outline, etc)
+
+            add_unused_params()
+
+            links.new(shader_node.outputs[0], output_node.inputs[0])
 
         # post parameter handling
 

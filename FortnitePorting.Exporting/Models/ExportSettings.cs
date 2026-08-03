@@ -11,6 +11,7 @@ public class ExportSettings
     public EFileCompressionFormat CompressionFormat { get; set; } = EFileCompressionFormat.ZSTD;
     public EImageFormat ImageFormat { get; set; } = EImageFormat.PNG;
     public bool ExportMaterials { get; set; } = true;
+    public bool ExportMaterialGraph { get; set; } = false;
     public EMeshFormat MeshFormat { get; set; } = EMeshFormat.UEFormat;
     public bool ExportNanite { get; set; } = false;
     public bool ImportInstancedFoliage { get; set; } = true;
