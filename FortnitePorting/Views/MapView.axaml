@@ -393,7 +393,7 @@
                                           Height="{Binding Bounds.Width, ElementName=MapBorder}"/>
 
                     <Grid Height="{Binding Bounds.Width, ElementName=MapBorder}">
-                        <ToggleButton Content="{controls:IconText 'Include Main Level', Landscape}" IsCheckedChanged="OnMainLevelIncludeChanged"
+                        <ToggleButton Content="{controls:IconText 'Include Terrain', Landscape}" IsCheckedChanged="OnMainLevelIncludeChanged"
                                       HorizontalAlignment="Center" VerticalAlignment="Bottom" IsChecked="{Binding SelectedMap.IncludeMainLevel}"
                                       Margin="{ext:Space 0, 0, 0, 1}" IsVisible="{Binding !UseMapInfoCreator}"/>
                     </Grid>
