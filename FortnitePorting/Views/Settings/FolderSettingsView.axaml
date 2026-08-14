@@ -4,9 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
              xmlns:settings="clr-namespace:FortnitePorting.ViewModels.Settings"
-             xmlns:meshes="clr-namespace:CUE4Parse_Conversion.Meshes;assembly=CUE4Parse-Conversion"
-             xmlns:enums="clr-namespace:CUE4Parse_Conversion.UEFormat.Enums;assembly=CUE4Parse-Conversion"
-             xmlns:animations="clr-namespace:CUE4Parse_Conversion.Animations;assembly=CUE4Parse-Conversion"
+             xmlns:options="clr-namespace:CUE4Parse_Conversion.Options;assembly=CUE4Parse-Conversion"
+             xmlns:enums="clr-namespace:CUE4Parse_Conversion.Writers.UEFormat.Enums;assembly=CUE4Parse-Conversion"
              xmlns:fortnitePorting="clr-namespace:FortnitePorting"
              xmlns:fpExport="clr-namespace:FortnitePorting;assembly=FortnitePorting.Exporting"
              xmlns:controls="clr-namespace:FortnitePorting.Controls.Settings"
@@ -32,6 +31,13 @@
                                     <ToggleSwitch IsChecked="{Binding OpenFoldersOnExport}"/>
                                 </controls:SettingsItem.Footer>
                             </controls:SettingsItem>
+                            <controls:SettingsItem Title="Mesh and Animation Format"
+                                                   Description="The file type that meshes and animations should be exported as.">
+                                <controls:SettingsItem.Footer>
+                                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type options:EMeshFormat}}"
+                                              SelectedItem="{Binding MeshFormat, Converter={StaticResource EnumToRecord}}"/>
+                                </controls:SettingsItem.Footer>
+                            </controls:SettingsItem>
                             <controls:SettingsItem Title="Compression"
                                                    Description="The type of compression that should be used on 'UE Format' assets.">
                                 <controls:SettingsItem.Footer>
@@ -46,38 +52,17 @@
                 <sidebar:SidebarItemButton Text="Mesh" Icon="VectorSquare">
                     <sidebar:SidebarItemButton.Tag>
                         <StackPanel Spacing="{ext:Space 0, 0, 0, 1}">
-                            <controls:SettingsItem Title="Mesh Format"
-                                                   Description="The file type that meshes should be exported as.">
+                            <controls:SettingsItem Title="LOD Quality"
+                                                   Description="Which LOD models should be exported.">
                                 <controls:SettingsItem.Footer>
-                                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type meshes:EMeshFormat}}"
-                                              SelectedItem="{Binding MeshFormat, Converter={StaticResource EnumToRecord}}"/>
-                                </controls:SettingsItem.Footer>
-                            </controls:SettingsItem>
-                            <controls:SettingsItem Title="LOD Format"
-                                                   Description="The way in which LOD models should be exported.">
-                                <controls:SettingsItem.Footer>
-                                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type meshes:ELodFormat}}"
-                                              SelectedItem="{Binding LodFormat, Converter={StaticResource EnumToRecord}}"/>
+                                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type options:EMeshQuality}}"
+                                              SelectedItem="{Binding MeshQuality, Converter={StaticResource EnumToRecord}}"/>
                                 </controls:SettingsItem.Footer>
                             </controls:SettingsItem>
                             <controls:SettingsItem Title="Export Nanite"
                                                    Description="Determines whether nanite meshes should be exported if available.">
                                 <controls:SettingsItem.Footer>
                                     <ToggleSwitch IsChecked="{Binding ExportNanite}"/>
-                                </controls:SettingsItem.Footer>
-                            </controls:SettingsItem>
-                        </StackPanel>
-                    </sidebar:SidebarItemButton.Tag>
-                </sidebar:SidebarItemButton>
-
-                <sidebar:SidebarItemButton Text="Animation" Icon="Motion">
-                    <sidebar:SidebarItemButton.Tag>
-                        <StackPanel Spacing="{ext:Space 0, 0, 0, 1}">
-                            <controls:SettingsItem Title="Animation Format"
-                                                   Description="The file type that animations should be exported as.">
-                                <controls:SettingsItem.Footer>
-                                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type animations:EAnimFormat}}"
-                                              SelectedItem="{Binding AnimFormat, Converter={StaticResource EnumToRecord}}"/>
                                 </controls:SettingsItem.Footer>
                             </controls:SettingsItem>
                         </StackPanel>

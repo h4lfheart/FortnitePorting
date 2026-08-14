@@ -282,7 +282,7 @@ public partial class ExportContext
     {
         // TODO use uefn data and custom FPackageIndex resolver to start reading material tree 
         var parameters = new CMaterialParams2();
-        material.GetParams(parameters, EMaterialFormat.AllLayers);
+        material.GetParams(parameters, EMaterialDepth.AllLayers);
                 
         foreach (var (name, value) in parameters.Textures)
         {

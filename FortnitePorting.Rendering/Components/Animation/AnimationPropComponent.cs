@@ -193,7 +193,7 @@ public class AnimationPropComponent : Component
         {
             case UAnimMontage montage:
             {
-                foreach (var notify in montage.Notifies)
+                foreach (var notify in montage.Notifies ?? [])
                     yield return notify;
 
                 foreach (var notify in EnumerateMontageSectionNotifies(montage))
@@ -202,7 +202,7 @@ public class AnimationPropComponent : Component
             }
             case UAnimSequenceBase sequence:
             {
-                foreach (var notify in sequence.Notifies)
+                foreach (var notify in sequence.Notifies ?? [])
                     yield return notify;
                 break;
             }
