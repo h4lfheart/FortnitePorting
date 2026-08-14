@@ -20,7 +20,7 @@ class UFSettings(PropertyGroup):
     def get_props(self) -> dict[str, Any]:
         props = {}
 
-        for key in self.__annotations__.keys():
+        for key in getattr(type(self), '__annotations__', {}).keys():
             props[key] = getattr(self, key)
 
         return props

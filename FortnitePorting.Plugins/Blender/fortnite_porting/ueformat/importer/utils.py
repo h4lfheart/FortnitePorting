@@ -17,7 +17,7 @@ def first(target, expr, default=None):
     filtered = filter(expr, target)
 
     return next(filtered, default)
-
+    
 def best(target, expr, goal, default=None):
     if not target:
         return None

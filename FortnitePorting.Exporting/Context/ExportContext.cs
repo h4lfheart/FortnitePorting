@@ -13,6 +13,7 @@ using CUE4Parse_Conversion.Formats.PoseAsset;
 using CUE4Parse_Conversion.Options;
 using CUE4Parse_Conversion.PoseAsset;
 using CUE4Parse_Conversion.Textures;
+using CUE4Parse_Conversion.Writers.UEFormat.Enums;
 using CUE4Parse.FileProvider.Vfs;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Actor;
@@ -102,6 +103,7 @@ public partial class ExportContext
             UAnimSequence animSequence when animSequence.IsValidAdditive() => true,
             ALandscapeProxy => true,
             UStaticMesh or USkeletalMesh when NeedsNaniteFile(asset, path) => true,
+            _ when IsOutdatedUEFormat(path) => true,
             _ => !File.Exists(path)
         };
 
@@ -153,30 +155,33 @@ public partial class ExportContext
                     skeletalMesh.PopulateMorphTargetVerticesData();
 
                 using var dto = new SkeletalMeshDto(skeletalMesh, FileExportOptions.MeshQuality, FileExportOptions.NaniteMeshFormat);
-                WriteExportFiles(path, CreateMeshFormat().BuildSkeletalMesh(skeletalMesh.Name, FileExportOptions, dto));
+                WriteExportFiles(path, CreateMeshFormat().BuildSkeletalMesh(skeletalMesh.Name, skeletalMesh.GetPathName(), FileExportOptions, dto));
                 break;
             }
             case UStaticMesh staticMesh:
             {
                 using var dto = new StaticMeshDto(staticMesh, FileExportOptions.MeshQuality, FileExportOptions.NaniteMeshFormat);
-                WriteExportFiles(path, CreateMeshFormat().BuildStaticMesh(staticMesh.Name, FileExportOptions, dto));
+                WriteExportFiles(path, CreateMeshFormat().BuildStaticMesh(staticMesh.Name, staticMesh.GetPathName(), FileExportOptions, dto));
                 break;
             }
             case USplineMeshComponent splineMesh:
             {
                 using var dto = new StaticMeshDto(splineMesh, FileExportOptions.MeshQuality);
-                WriteExportFiles(path, CreateMeshFormat().BuildStaticMesh(splineMesh.Name, FileExportOptions, dto));
+                WriteExportFiles(path, CreateMeshFormat().BuildStaticMesh(splineMesh.Name, splineMesh.GetPathName(), FileExportOptions, dto));
                 break;
             }
             case USkeleton skeleton:
             {
                 using var dto = new SkeletonDto(skeleton);
-                WriteExportFiles(path, CreateMeshFormat().BuildSkeleton(skeleton.Name, FileExportOptions, dto));
+                WriteExportFiles(path, CreateMeshFormat().BuildSkeleton(skeleton.Name, skeleton.GetPathName(), FileExportOptions, dto));
                 break;
             }
             case UAnimStreamable animStreamable:
             {
-                WriteExportFiles(path, ((UEFormatAnimFormat)CreateAnimFormat()).BuildAnimStreamable(animStreamable.Name, FileExportOptions, animStreamable));
+                if (CreateAnimFormat() is not UEFormatAnimFormat ueAnimFormat)
+                    throw new NotSupportedException($"Anim streamable export is not supported for {FileExportOptions.MeshFormat}.");
+
+                WriteExportFiles(path, ueAnimFormat.BuildAnimStreamable(animStreamable.Name, animStreamable.GetPathName(), FileExportOptions, animStreamable));
                 break;
             }
             case UPoseAsset poseAsset:
@@ -187,13 +192,13 @@ public partial class ExportContext
                 if (!poseAsset.TryConvert(out var convertedPoseAsset))
                     throw new Exception($"Failed to convert pose asset '{poseAsset.Name}'");
 
-                var poseFile = new UEFormatPoseFormat().Build(poseAsset.Name, FileExportOptions, convertedPoseAsset);
+                var poseFile = new UEFormatPoseFormat().Build(poseAsset.Name, poseAsset.GetPathName(), FileExportOptions, convertedPoseAsset);
                 WriteExportFiles(path, [poseFile]);
                 break;
             }
             case UAnimationAsset animation:
             {
-                WriteExportFiles(path, CreateAnimFormat().Build(animation.Name, FileExportOptions, animation.ConvertAnims()));
+                WriteExportFiles(path, CreateAnimFormat().Build(animation.Name, animation.GetPathName(), FileExportOptions, animation.ConvertAnims()));
                 break;
             }
             case UTexture2DArray textureArray:
@@ -250,7 +255,7 @@ public partial class ExportContext
             case ALandscapeProxy landscapeProxy:
             {
                 using var dto = new LandscapeMeshDto(landscapeProxy, ELandscapeFlags.Mesh);
-                WriteExportFiles(path, CreateMeshFormat().BuildStaticMesh(landscapeProxy.Name, FileExportOptions, dto));
+                WriteExportFiles(path, CreateMeshFormat().BuildStaticMesh(landscapeProxy.Name, landscapeProxy.GetPathName(), FileExportOptions, dto));
                 break;
             }
             case UFontFace fontFace:
@@ -312,7 +317,8 @@ public partial class ExportContext
         var path = GetExportPath(asset, MeshExtension(Meta.Settings.MeshFormat), embeddedAsset, excludeGamePath: Meta.CustomPath is not null);
         var hasNaniteFile = files.Any(file => file.NameSuffix == "_Nanite");
         var nanitePath = hasNaniteFile ? ApplyNameSuffix(path, "_Nanite") : null;
-        var shouldExport = !File.Exists(path) || (nanitePath is not null && !File.Exists(nanitePath));
+        var shouldExport = !File.Exists(path) || IsOutdatedUEFormat(path)
+            || (nanitePath is not null && (!File.Exists(nanitePath) || IsOutdatedUEFormat(nanitePath)));
 
         if (shouldExport)
         {
@@ -365,7 +371,8 @@ public partial class ExportContext
 
     private bool NeedsNaniteFile(UObject asset, string path)
     {
-        if (!Meta.Settings.ExportNanite || File.Exists(ApplyNameSuffix(path, "_Nanite")))
+        var nanitePath = ApplyNameSuffix(path, "_Nanite");
+        if (!Meta.Settings.ExportNanite || (File.Exists(nanitePath) && !IsOutdatedUEFormat(nanitePath)))
             return false;
 
         return asset switch
@@ -384,6 +391,36 @@ public partial class ExportContext
         if (!string.IsNullOrEmpty(suffix))
             stem += suffix;
         return Path.Combine(directory, $"{stem}.{ext}");
+    }
+
+    private static bool IsOutdatedUEFormat(string path)
+    {
+        try
+        {
+            if (!File.Exists(path)) return false;
+            if (Path.GetExtension(path).ToLowerInvariant() is not (".uemodel" or ".ueanim" or ".uepose"))
+                return false;
+
+            using var file = File.OpenRead(path);
+            using var reader = new BinaryReader(file);
+
+            Span<byte> magic = stackalloc byte[8];
+            if (reader.Read(magic) != 8 || !magic.SequenceEqual("UEFORMAT"u8))
+                return true;
+
+            var identifierLength = reader.ReadInt32();
+            if (identifierLength is < 0 or > 255)
+                return true;
+
+            reader.ReadBytes(identifierLength);
+
+            var version = (EUEFormatVersion) reader.ReadByte();
+            return version < EUEFormatVersion.LatestVersion;
+        }
+        catch (Exception)
+        {
+            return true;
+        }
     }
 
     private bool IsTextureHigherResolutionThanExisting(UTexture texture, string path)

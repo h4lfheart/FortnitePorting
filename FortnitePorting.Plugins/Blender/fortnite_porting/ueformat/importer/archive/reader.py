@@ -2,12 +2,12 @@ from __future__ import annotations
 
 import io
 import struct
-import numpy as np
-import numpy.typing as npt
 from typing import TYPE_CHECKING, BinaryIO, Literal, TypeVar, overload
 
-from ..importer.utils import bytes_to_str
-from ..importer.classes import EUEFormatVersion
+import numpy as np
+import numpy.typing as npt
+
+from ..version import EUEFormatVersion
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -16,13 +16,17 @@ if TYPE_CHECKING:
 R = TypeVar("R")
 
 
+def bytes_to_str(in_bytes: bytes) -> str:
+    return in_bytes.rstrip(b"\x00").decode()
+
+
 class FArchiveReader:
     def __init__(self, data: bytes) -> None:
         self.data: BinaryIO = io.BytesIO(data)
         self.size = len(data)
         self.data.seek(0)
         self.file_version = EUEFormatVersion.BeforeCustomVersionWasAdded
-        self.metadata = {}
+        self.metadata: dict = {}
 
     def __enter__(self) -> FArchiveReader:
         self.data.seek(0)
@@ -55,8 +59,7 @@ class FArchiveReader:
     def read_fstring(self) -> str:
         (size,) = struct.unpack("i", self.data.read(4))
         string = self.data.read(size)
-        ret = bytes_to_str(string)
-        return ret
+        return bytes_to_str(string)
 
     def read_int(self) -> int:
         return struct.unpack("i", self.data.read(4))[0]
@@ -69,6 +72,9 @@ class FArchiveReader:
     def read_short(self) -> int:
         return struct.unpack("h", self.data.read(2))[0]
 
+    def read_ushort(self) -> int:
+        return struct.unpack("H", self.data.read(2))[0]
+
     def read_byte(self) -> bytes:
         return struct.unpack("c", self.data.read(1))[0]
 
@@ -76,17 +82,19 @@ class FArchiveReader:
         return struct.unpack("f", self.data.read(4))[0]
 
     @overload
-    def read_float_vector(self, size: Literal[1]) -> tuple[float]: ...
+    def read_float_vector(self, size: Literal[1]) -> npt.NDArray[np.floating]: ...
     @overload
-    def read_float_vector(self, size: Literal[2]) -> tuple[float, float]: ...
+    def read_float_vector(self, size: Literal[2]) -> npt.NDArray[np.floating]: ...
     @overload
-    def read_float_vector(self, size: Literal[3]) -> tuple[float, float, float]: ...
+    def read_float_vector(self, size: Literal[3]) -> npt.NDArray[np.floating]: ...
     @overload
-    def read_float_vector(self, size: Literal[4]) -> tuple[float, float, float, float]: ...
+    def read_float_vector(self, size: Literal[4]) -> npt.NDArray[np.floating]: ...
     @overload
-    def read_float_vector(self, size: int) -> tuple[float, ...]: ...
+    def read_float_vector(self, size: int) -> npt.NDArray[np.floating]: ...
 
-    def read_float_vector(self, size: int) -> npt.NDArray[float]:
+    def read_float_vector(self, size: int) -> npt.NDArray[np.floating]:
+        if size <= 0:
+            return np.zeros(0)
         return np.array(struct.unpack(str(size) + "f", self.data.read(size * 4)))
 
     def read_byte_vector(self, size: int) -> tuple[int, ...]:
@@ -110,5 +118,4 @@ class FArchiveReader:
         new_reader = FArchiveReader(self.read(size))
         new_reader.file_version = self.file_version
         new_reader.metadata = self.metadata
-        
         return new_reader

@@ -1,6 +1,6 @@
 
 import os.path
-from ...ueformat.importer.logic import UEFormatImport
+from ...ueformat.importer.import_context import UEFormatImport
 from ...ueformat.options import UEPoseOptions
 
 class PoseImportContext:
