@@ -1,16 +1,10 @@
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CUE4Parse_Conversion;
-using CUE4Parse_Conversion.Animations;
-using CUE4Parse_Conversion.Meshes;
-using CUE4Parse_Conversion.UEFormat.Enums;
-using CUE4Parse.UE4.Assets.Exports.Nanite;
-using CUE4Parse.UE4.Versions;
-using FluentAvalonia.UI.Controls;
+using CUE4Parse_Conversion.Options;
+using CUE4Parse_Conversion.Writers.UEFormat.Enums;
 using FortnitePorting.Application;
 using FortnitePorting.Exporting.Models;
 using FortnitePorting.Framework;
-using FortnitePorting.Providers;
 using FortnitePorting.ViewModels.Settings;
 
 namespace FortnitePorting.ViewModels;
@@ -61,21 +55,11 @@ public partial class BaseExportSettings : ViewModelBase
     [ObservableProperty] private bool _exportNanite;
     [ObservableProperty] private bool _importInstancedFoliage = true;
     
-    [ObservableProperty] private EAnimFormat _animFormat = EAnimFormat.UEFormat;
     [ObservableProperty] private bool _importLobbyPoses = false;
     
     [ObservableProperty] private ESoundFormat _soundFormat = ESoundFormat.WAV;
-    
-    public virtual ExporterOptions CreateExportOptions()
-    {
-        return new ExporterOptions()
-        {
-            MeshFormat = MeshFormat,
-            AnimFormat = AnimFormat,
-            CompressionFormat = CompressionFormat,
-            NaniteMeshFormat = ExportNanite ? ENaniteMeshFormat.NaniteSeparateFile : ENaniteMeshFormat.OnlyNormalLODs
-        };
-    }
+
+    public virtual ExportOptions CreateExportOptions() => ToExportSettings().CreateExportOptions();
 
     public virtual ExportSettings ToExportSettings() => new()
     {
@@ -83,11 +67,10 @@ public partial class BaseExportSettings : ViewModelBase
         ImageFormat = ImageFormat,
         ExportMaterials = ExportMaterials,
         MeshFormat = MeshFormat,
+        MeshQuality = EMeshQuality.All,
         ExportNanite = ExportNanite,
         ImportInstancedFoliage = ImportInstancedFoliage,
-        AnimFormat = AnimFormat,
         ImportLobbyPoses = ImportLobbyPoses,
         SoundFormat = SoundFormat
     };
 }
-

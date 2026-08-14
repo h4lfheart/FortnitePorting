@@ -1,5 +1,5 @@
-using CUE4Parse_Conversion.Meshes;
-using CUE4Parse_Conversion.Meshes.PSK;
+using CUE4Parse_Conversion.Dto;
+using CUE4Parse_Conversion.Options;
 using CUE4Parse.GameTypes.FN.Assets.Exports.DataAssets;
 using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
@@ -21,19 +21,20 @@ public class StaticMeshRenderer : MeshRenderer
 
     public StaticMeshRenderer(UStaticMesh staticMesh, List<KeyValuePair<UBuildingTextureData, int>>? textureData = null, int lodLevel = 0) : base(new ShaderProgram("shader"))
     {
-        if (!staticMesh.TryConvert(out var convertedMesh, out _))
+        using var convertedMesh = new StaticMeshDto(staticMesh, EMeshQuality.All, ENaniteMeshFormat.NoNanite);
+        if (convertedMesh.LODs.Count == 0)
         {
             throw new RenderingXException("Failed to convert static mesh.");
         }
 
-        BoundingBox = convertedMesh.BoundingBox;
+        BoundingBox = convertedMesh.Bounds;
         
         var lod = convertedMesh.LODs[Math.Min(lodLevel, convertedMesh.LODs.Count - 1)];
         
-        Indices = lod.Indices!.Value;
+        Indices = lod.Indices;
         
-        var vertices = lod.Verts;
-        var extraUVs = lod.ExtraUV.Value;
+        var vertices = lod.Vertices;
+        var extraUVs = lod.ExtraUvs;
         var buildVertices = new List<float>();
         for (var vertexIndex = 0; vertexIndex < vertices.Length; vertexIndex++)
         {
@@ -41,7 +42,7 @@ public class StaticMeshRenderer : MeshRenderer
             var position = vertex.Position * 0.01f;
             var normal = vertex.Normal;
             var tangent = vertex.Tangent;
-            var uv = vertex.UV;
+            var uv = vertex.Uv;
             var materialLayer = extraUVs.Length > 0 ? extraUVs[0][vertexIndex].U : 0;
 
             buildVertices.AddRange([
@@ -56,7 +57,7 @@ public class StaticMeshRenderer : MeshRenderer
 
         Vertices = buildVertices.ToArray();
         
-        var sections = lod.Sections.Value;
+        var sections = lod.Sections;
         Materials = new Material[sections.Length];
         if (Materials.Length == 0) return;
 

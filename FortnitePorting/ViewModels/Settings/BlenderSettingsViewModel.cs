@@ -1,9 +1,7 @@
 using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CUE4Parse_Conversion;
-using CUE4Parse_Conversion.Animations;
-using CUE4Parse_Conversion.Meshes;
-using CUE4Parse.UE4.Assets.Exports.Nanite;
+using CUE4Parse_Conversion.Options;
+using FortnitePorting.Exporting.Models;
 
 namespace FortnitePorting.ViewModels.Settings;
 
@@ -44,19 +42,13 @@ public partial class BlenderSettingsViewModel : BaseExportSettings
     [ObservableProperty] private bool _loopAnimation = false;
     [ObservableProperty] private bool _updateTimelineLength = false;
     [ObservableProperty] private bool _importSounds = false;
-    
-    public override ExporterOptions CreateExportOptions()
+
+    public override ExportSettings ToExportSettings()
     {
-        return new ExporterOptions
-        {
-            LodFormat = ELodFormat.AllLods,
-            MeshFormat = EMeshFormat.UEFormat,
-            AnimFormat = EAnimFormat.UEFormat,
-            NaniteMeshFormat = ExportNanite ? ENaniteMeshFormat.NaniteSeparateFile : ENaniteMeshFormat.OnlyNormalLODs,
-            CompressionFormat = CompressionFormat,
-            ExportMorphTargets = true,
-            ExportMaterials = false
-        };
+        var settings = base.ToExportSettings();
+        settings.MeshFormat = EMeshFormat.UEFormat;
+        settings.MeshQuality = EMeshQuality.All;
+        return settings;
     }
 }
 public enum ERigType

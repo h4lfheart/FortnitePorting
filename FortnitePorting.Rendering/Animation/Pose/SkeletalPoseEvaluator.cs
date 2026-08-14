@@ -1,9 +1,9 @@
 using CUE4Parse_Conversion.Animations;
-using CUE4Parse_Conversion.Animations.PSA;
-using CUE4Parse_Conversion.Meshes.PSK;
+using CUE4Parse_Conversion.Dto;
 using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Objects.Core.Math;
 using FortnitePorting.Rendering.Animation.Montage;
+using CUE4Parse_Conversion.Writers.ActorX.Structs.Animations;
 using FortnitePorting.Rendering.Extensions;
 
 namespace FortnitePorting.Rendering.Animation.Pose;
@@ -53,7 +53,7 @@ public partial class SkeletalPoseEvaluator
         }
     }
 
-    public SkeletalPoseEvaluator(List<CSkelMeshBone> refSkeleton, FTransform[]? refBonePose = null)
+    public SkeletalPoseEvaluator(IReadOnlyList<MeshBoneDto> refSkeleton, FTransform[]? refBonePose = null)
     {
         var boneCount = refSkeleton.Count;
         _boneNames = new string[boneCount];
@@ -71,14 +71,14 @@ public partial class SkeletalPoseEvaluator
         for (var i = 0; i < boneCount; i++)
         {
             var bone = refSkeleton[i];
-            _boneNames[i] = bone.Name.Text;
+            _boneNames[i] = bone.Name;
             _boneNameToIndex[_boneNames[i]] = i;
             _parentIndices[i] = bone.ParentIndex;
 
             if (refBonePose is not null && i < refBonePose.Length)
                 _refLocalPose[i] = (FTransform) refBonePose[i].Clone();
             else
-                _refLocalPose[i] = new FTransform(bone.Orientation, bone.Position, FVector.OneVector);
+                _refLocalPose[i] = (FTransform) bone.Transform.Clone();
 
             _refLocalPose[i].Normalize();
             _localPose[i] = (FTransform) _refLocalPose[i].Clone();

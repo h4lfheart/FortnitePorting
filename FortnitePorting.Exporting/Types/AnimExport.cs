@@ -110,7 +110,7 @@ public class AnimExport : BaseExport
 
         var notifies = new List<FAnimNotifyEvent>();
         notifies.AddRange(montage.GetOrDefault("Notifies", Array.Empty<FAnimNotifyEvent>()));
-        notifies.AddRange(Sections.SelectMany(section => section.AssetRef.Notifies));
+        notifies.AddRange(Sections.SelectMany(section => section.AssetRef?.Notifies ?? []));
         foreach (var notify in notifies)
         {
             HandleNotify(notify);

@@ -1,33 +1,18 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using CUE4Parse_Conversion;
-using CUE4Parse_Conversion.Meshes;
-using CUE4Parse.UE4.Assets.Exports.Nanite;
+using CUE4Parse_Conversion.Options;
 using FortnitePorting.Exporting.Models;
 
 namespace FortnitePorting.ViewModels.Settings;
 
 public partial class FolderSettingsViewModel : BaseExportSettings
 {
-    [ObservableProperty] private ELodFormat _lodFormat = ELodFormat.AllLods;
+    [ObservableProperty] private EMeshQuality _meshQuality = EMeshQuality.All;
     [ObservableProperty] private bool _openFoldersOnExport;
-    
-    public override ExporterOptions CreateExportOptions()
-    {
-        return new ExporterOptions
-        {
-            LodFormat = LodFormat,
-            MeshFormat = MeshFormat,
-            AnimFormat = AnimFormat,
-            NaniteMeshFormat = ExportNanite ? ENaniteMeshFormat.NaniteSeparateFile : ENaniteMeshFormat.OnlyNormalLODs,
-            CompressionFormat = CompressionFormat,
-            ExportMorphTargets = true,
-            ExportMaterials = false
-        };
-    }
 
     public override ExportSettings ToExportSettings()
     {
         var settings = base.ToExportSettings();
+        settings.MeshQuality = MeshQuality;
         settings.OpenFoldersOnExport = OpenFoldersOnExport;
         return settings;
     }

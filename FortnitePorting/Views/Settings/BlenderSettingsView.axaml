@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:ui="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
              xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
-             xmlns:enums="clr-namespace:CUE4Parse_Conversion.UEFormat.Enums;assembly=CUE4Parse-Conversion"
+             xmlns:enums="clr-namespace:CUE4Parse_Conversion.Writers.UEFormat.Enums;assembly=CUE4Parse-Conversion"
              xmlns:settings="clr-namespace:FortnitePorting.ViewModels.Settings"
              xmlns:fortnitePorting="clr-namespace:FortnitePorting"
              xmlns:fpExport="clr-namespace:FortnitePorting;assembly=FortnitePorting.Exporting"

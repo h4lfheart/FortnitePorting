@@ -3,7 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
-             xmlns:enums="clr-namespace:CUE4Parse_Conversion.UEFormat.Enums;assembly=CUE4Parse-Conversion"
+             xmlns:enums="clr-namespace:CUE4Parse_Conversion.Writers.UEFormat.Enums;assembly=CUE4Parse-Conversion"
              xmlns:controls="clr-namespace:FortnitePorting.Controls.Settings"
              xmlns:fortnitePorting="clr-namespace:FortnitePorting"
              xmlns:fpExport="clr-namespace:FortnitePorting;assembly=FortnitePorting.Exporting"
