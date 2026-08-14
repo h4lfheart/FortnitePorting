@@ -6,7 +6,7 @@ from bpy.types import Operator, OperatorFileListElement, FileHandler
 from bpy_extras.io_utils import ImportHelper, poll_file_object_drop
 
 from .panels import UEFORMAT_PT_Panel
-from ..importer.logic import UEFormatImport
+from ..importer.import_context import UEFormatImport
 from ..options import UEAnimOptions, UEFormatOptions, UEModelOptions, UEPoseOptions
 from ..typing import UFormatContext
 

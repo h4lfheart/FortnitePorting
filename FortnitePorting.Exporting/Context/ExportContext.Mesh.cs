@@ -50,7 +50,7 @@ public partial class ExportContext
             using var convertedMesh = new SkeletalMeshDto(mesh, FileExportOptions.MeshQuality, FileExportOptions.NaniteMeshFormat);
             if (convertedMesh.LODs.Count <= 0) return null;
 
-            var files = CreateMeshFormat().BuildSkeletalMesh(mesh.Name, FileExportOptions, convertedMesh);
+            var files = CreateMeshFormat().BuildSkeletalMesh(mesh.Name, mesh.GetPathName(), FileExportOptions, convertedMesh);
             var exportPart = new T
             {
                 Name = mesh.Name,
@@ -81,7 +81,7 @@ public partial class ExportContext
             using var convertedMesh = new StaticMeshDto(mesh, FileExportOptions.MeshQuality, FileExportOptions.NaniteMeshFormat);
             if (convertedMesh.LODs.Count <= 0) return null;
 
-            var files = CreateMeshFormat().BuildStaticMesh(mesh.Name, FileExportOptions, convertedMesh);
+            var files = CreateMeshFormat().BuildStaticMesh(mesh.Name, mesh.GetPathName(), FileExportOptions, convertedMesh);
             var exportPart = new T
             {
                 Name = mesh.Name,
@@ -203,7 +203,7 @@ public partial class ExportContext
             using var convertedMesh = new StaticMeshDto(mesh, FileExportOptions.MeshQuality);
             if (convertedMesh.LODs.Count <= 0) return null;
 
-            var files = CreateMeshFormat().BuildStaticMesh(mesh.Name, FileExportOptions, convertedMesh);
+            var files = CreateMeshFormat().BuildStaticMesh(mesh.Name, mesh.GetPathName(), FileExportOptions, convertedMesh);
             var exportPart = new T
             {
                 Name = mesh.Name,

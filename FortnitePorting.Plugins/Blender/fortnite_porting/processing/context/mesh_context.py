@@ -8,7 +8,7 @@ from ..enums import *
 from ..utils import *
 from ...utils import *
 from ...logger import Log
-from ...ueformat.importer.logic import UEFormatImport
+from ...ueformat.importer.import_context import UEFormatImport
 from ...ueformat.options import UEModelOptions
 
 VERTEX_CRUNCH_NAME = "FPv4 Vertex Crunch"
@@ -438,5 +438,4 @@ class MeshImportContext:
 
         mesh_path = os.path.join(self.assets_root, path.split(".")[0] + ".uemodel")
 
-        mesh, mesh_data = UEFormatImport(options).import_file(mesh_path)
-        return mesh
+        return UEFormatImport(options).import_file(mesh_path)

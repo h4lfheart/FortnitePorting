@@ -7,8 +7,8 @@ from ..utils import *
 from ..mappings import *
 from ...utils import *
 from ...logger import Log
-from ...ueformat.importer.logic import UEFormatImport
-from ...ueformat.importer.classes import UEAnim
+from ...ueformat.importer.dto.anim import AnimDto
+from ...ueformat.importer.import_context import UEFormatImport
 from ...ueformat.options import UEAnimOptions
 from ...server import Server
 
@@ -295,18 +295,20 @@ class AnimImportContext:
                 path = sound.get("Path")
                 self.import_sound(path, time_to_frame(sound.get("Time")))
 
-    def import_anim(self, path: str, override_skeleton=None) -> tuple[bpy.types.Action, UEAnim]:
+    def import_anim(self, path: str, override_skeleton=None) -> tuple[bpy.types.Action, AnimDto]:
         path = path[1:] if path.startswith("/") else path
         file_path, name = path.split(".")
         if (existing := bpy.data.actions.get(name)) and existing["Skeleton"] == override_skeleton.name and not existing["HasCurves"]:
-            return existing, UEAnim()
+            return existing, AnimDto()
 
         anim_path = os.path.join(self.assets_root, file_path + ".ueanim")
         options = UEAnimOptions(link=False,
                                 override_skeleton=override_skeleton,
                                 scale_factor=self.scale,
                                 import_curves=False)
-        action, anim_data = UEFormatImport(options).import_file(anim_path)
+        action, anim_data = UEFormatImport(options).import_file_with_dto(anim_path)
+        assert isinstance(action, bpy.types.Action)
+        assert isinstance(anim_data, AnimDto)
         action["Skeleton"] = override_skeleton.name
         action["HasCurves"] = len(anim_data.curves) > 0
         return action, anim_data
