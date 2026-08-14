@@ -1,11 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <UEFormatRoot>$(MSBuildThisFileDirectory)..\Dependencies\UEFormat</UEFormatRoot>
+        <UEFormatBlenderDest>$(MSBuildThisFileDirectory)Blender\fortnite_porting\ueformat</UEFormatBlenderDest>
+        <UEFormatUnrealDest>$(MSBuildThisFileDirectory)Unreal\UEFormat</UEFormatUnrealDest>
+        <UEFormatUnrealPlugin>$(UEFormatRoot)\plugins\unreal\UEFormat\UEFormat.uplugin</UEFormatUnrealPlugin>
+    </PropertyGroup>
+
     <ItemGroup>
         <PackageReference Include="Avalonia" />
     </ItemGroup>
 
     <ItemGroup>
-        <AvaloniaResource Include="Blender\**" />
-        <AvaloniaResource Include="Unreal\**" />
+        <AvaloniaResource Include="Blender\**" Exclude="Blender\fortnite_porting\ueformat\**" />
+        <AvaloniaResource Include="Unreal\**" Exclude="Unreal\UEFormat\**" />
     </ItemGroup>
 
     <ItemGroup>
@@ -15,7 +22,30 @@
     <ItemGroup>
         <Compile Remove="Unreal\FortnitePorting\Source\FortnitePorting\FortnitePorting.Build.cs" />
         <Content Include="Unreal\FortnitePorting\Source\FortnitePorting\FortnitePorting.Build.cs" />
-        <Compile Remove="Unreal\UEFormat\Source\UEFormat\UEFormat.Build.cs" />
-        <Content Include="Unreal\UEFormat\Source\UEFormat\UEFormat.Build.cs" />
+        <Compile Remove="Unreal\UEFormat\**\*.cs" />
     </ItemGroup>
+
+    <Target Name="SyncUEFormatPlugins" BeforeTargets="PrepareForBuild;GenerateAvaloniaResources">
+        <Error Condition="!Exists('$(UEFormatUnrealPlugin)')"
+               Text="UEFormat submodule is missing." />
+
+        <ItemGroup>
+            <UEFormatBlenderSource Include="$(UEFormatRoot)\plugins\blender\io_scene_ueformat\**\*" />
+            <UEFormatUnrealSource Include="$(UEFormatRoot)\plugins\unreal\UEFormat\**\*"
+                                  Exclude="$(UEFormatRoot)\plugins\unreal\UEFormat\Intermediate\**" />
+        </ItemGroup>
+
+        <Copy SourceFiles="@(UEFormatBlenderSource)"
+              DestinationFiles="@(UEFormatBlenderSource->'$(UEFormatBlenderDest)\%(RecursiveDir)%(Filename)%(Extension)')"
+              SkipUnchangedFiles="true" />
+        <Copy SourceFiles="@(UEFormatUnrealSource)"
+              DestinationFiles="@(UEFormatUnrealSource->'$(UEFormatUnrealDest)\%(RecursiveDir)%(Filename)%(Extension)')"
+              SkipUnchangedFiles="true" />
+
+        <ItemGroup>
+            <AvaloniaResource Include="Blender\fortnite_porting\ueformat\**\*" />
+            <AvaloniaResource Include="Unreal\UEFormat\**\*" Exclude="Unreal\UEFormat\Intermediate\**" />
+            <Compile Remove="Unreal\UEFormat\**\*.cs" />
+        </ItemGroup>
+    </Target>
 </Project>

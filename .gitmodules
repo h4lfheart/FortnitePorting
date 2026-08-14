@@ -4,3 +4,6 @@
 [submodule "Dependencies/FluentAvalonia.BreadcrumbBar"]
 	path = Dependencies/FluentAvalonia.BreadcrumbBar
 	url = https://github.com/h4lfheart/FluentAvalonia.BreadcrumbBar
+[submodule "Dependencies/UEFormat"]
+	path = Dependencies/UEFormat
+	url = https://github.com/h4lfheart/UEFormat
