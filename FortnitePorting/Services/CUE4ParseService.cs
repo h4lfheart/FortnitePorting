@@ -109,12 +109,17 @@ public partial class CUE4ParseService : ObservableObject, IService, IResettable
                 new DialogButton
                 {
                     Text = "Open Installation Settings",
+                    IsPrimary = true,
                     Action = () => TaskService.Run(async () =>
                     {
                         Navigation.App.Open<SettingsView>();
                         await Task.Delay(250);
                         Navigation.Settings.Open<InstallationSettingsView>();
                     })
+                },
+                new DialogButton
+                {
+                    Text = "Cancel"
                 }
             ]);
             

@@ -53,12 +53,18 @@ public partial class HomeViewModel(
                 new DialogButton
                 {
                     Text = "Donate",
+                    IsPrimary = true,
                     Action = LaunchKoFi
                 },
                 new DialogButton
                 {
                     Text = "Don't Ask Again",
                     Action = () => _settings.Application.DontAskAboutKofi = true
+                },
+                
+                new DialogButton
+                {
+                    Text = "Remind Me Later"
                 }
             ]);
         }

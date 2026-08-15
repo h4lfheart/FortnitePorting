@@ -238,11 +238,16 @@ public class AppService : IService
             new DialogButton
             {
                 Text = "Restart",
+                IsPrimary = true,
                 Action = () =>
                 {
                     onRestart?.Invoke();
                     Restart();
                 }
+            },
+            new DialogButton
+            {
+                Text = "Cancel"
             }
         ]);
     }

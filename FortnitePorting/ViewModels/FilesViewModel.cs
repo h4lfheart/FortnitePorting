@@ -279,6 +279,7 @@ public partial class FilesViewModel(
             new DialogButton
             {
                 Text = "Use Default Mannequin",
+                IsPrimary = true,
                 Action = () => TaskService.Run(async () =>
                     await PreviewAnimationWithMeshAsync(animation, DefaultMannequinMeshPath))
             },

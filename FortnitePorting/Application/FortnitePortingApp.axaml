@@ -1007,6 +1007,20 @@
             </Style>
         </Style>
 
+        <Style Selector="Button.Primary">
+            <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background" Value="{DynamicResource FPAccentBrush}" />
+            </Style>
+
+            <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background" Value="{DynamicResource FPAccentBrush}" />
+            </Style>
+
+            <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background" Value="{DynamicResource FPAccentBrush}" />
+            </Style>
+        </Style>
+
         <Style Selector="editing|SearchPanel[IsVisible=True] /template/ Border#PART_Border">
             <Setter Property="Background" Value="{DynamicResource FPPopupContentCardBackground}" />
             <Setter Property="Margin" Value="{ext:Space 0, 1, 0, 0}" />

@@ -38,9 +38,16 @@
                                                IsVisible="{Binding SupaBase.Permissions.Role, Converter={StaticResource EnumGreaterOrEqual}, ConverterParameter={x:Static tables:ESupabaseRole.Staff}}"/>
                 </sidebar:Sidebar.Items>
                 <sidebar:Sidebar.Footer>
-                    <ToggleButton HorizontalAlignment="Stretch" Content="{controls:IconText 'Map Creator', Paintbrush}"
-                                  IsChecked="{Binding UseMapInfoCreator}"
-                                  IsVisible="{Binding SupaBase.Permissions.Role, Converter={StaticResource EnumGreaterOrEqual}, ConverterParameter={x:Static tables:ESupabaseRole.Staff}}"/>
+                    <StackPanel Spacing="{ext:Space 1}">
+                        <Button HorizontalAlignment="Stretch" Content="{controls:IconText 'Reload Maps', Reload}"
+                                IsEnabled="{Binding !IsLoading}"
+                                Command="{Binding ReloadMapsCommand}"/>
+
+                        <ToggleButton HorizontalAlignment="Stretch" Content="{controls:IconText 'Map Creator', Paintbrush}"
+                                                                           IsChecked="{Binding UseMapInfoCreator}"
+                                                                           IsVisible="{Binding SupaBase.Permissions.Role, Converter={StaticResource EnumGreaterOrEqual}, ConverterParameter={x:Static tables:ESupabaseRole.Staff}}"/>
+                        
+                    </StackPanel>
                 </sidebar:Sidebar.Footer>
             </sidebar:Sidebar>
             

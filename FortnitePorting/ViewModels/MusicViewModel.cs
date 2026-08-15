@@ -192,11 +192,16 @@ public partial class MusicViewModel : ViewModelBase, IResettable
                 new DialogButton
                 {
                     Text = "Rename",
+                    IsPrimary = true,
                     Action = () =>
                     {
                         if (!string.IsNullOrWhiteSpace(textBox.Text))
                             ActivePlaylist.PlaylistName = textBox.Text;
                     }
+                },
+                new DialogButton
+                {
+                    Text = "Cancel"
                 }
             ]);
         });

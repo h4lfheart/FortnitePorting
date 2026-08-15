@@ -47,16 +47,18 @@ public partial class BlenderPluginViewModel : PluginInstallationViewModelBase<Bl
         }
 
         if (blenderVersion < BlenderInstallation.MinimumModernVersion)
-        {
+        { 
             Info.Dialog("Legacy Blender Plugin",
-                "You are using a legacy version of the blender plugin. Modern V4 features such as the modular material system will not be supported.",
+            "You are using a legacy version of the blender plugin. Modern V4 features such as the modular material system will not be supported.",
                 canClose: false,
                 buttons: [ 
                     new DialogButton
                     {
-                        Text = "I Understand"
+                        Text = "I Understand",
+                        IsPrimary = true
                     }
-                ]);
+                ]
+            );
         }
 
         if (TryGetBlenderProcess(blenderPath, out var blenderProcess))

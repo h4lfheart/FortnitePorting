@@ -130,7 +130,12 @@ public partial class AppWindowModel(
                 new DialogButton
                 {
                     Text = "Update",
+                    IsPrimary = true,
                     Action = () => TaskService.Run(Update)
+                },
+                new DialogButton
+                {
+                    Text = "Cancel"
                 }
             ]);
         }

@@ -69,6 +69,7 @@ public partial class ChatUser : ObservableObject
             new DialogButton
             {
                 Text = "Change Role",
+                IsPrimary = true,
                 Action = async () =>
                 {
                     var role = Enum.GetValues<ESupabaseRole>().FirstOrDefault(role => role.Description.Equals(comboBox.SelectedItem));
@@ -77,6 +78,10 @@ public partial class ChatUser : ObservableObject
                         Role = role,
                     });
                 }
+            },
+            new DialogButton
+            {
+                Text = "Cancel"
             }
         ]);
     }

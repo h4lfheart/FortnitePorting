@@ -73,12 +73,17 @@ public partial class InstallationSettingsViewModel : SettingsViewModelBase
                 new DialogButton
                 {
                     Text = "Reload",
+                    IsPrimary = true,
                     Action = () => TaskService.Run(async () =>
                     {
                         AppSettings.Save();
                         Navigation.App.Open<HomeView>();
                         await App.ReloadInstallationAsync();
                     })
+                },
+                new DialogButton
+                {
+                    Text = "Cancel"
                 }
             ]);
     }

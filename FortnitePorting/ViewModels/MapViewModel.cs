@@ -16,7 +16,7 @@ using FortnitePorting.CUE4Parse.Models.Fortnite.GameFeature;
 using FortnitePorting.Framework;
 using FortnitePorting.Models.Information;
 using FortnitePorting.Models.Map;
-
+using FortnitePorting.Models.Supabase.Tables;
 using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Views;
@@ -101,6 +101,11 @@ public partial class MapViewModel(
         await TaskService.RunDispatcherAsync(async () =>
         {
             IsLoading = true;
+            
+            Maps.Clear();
+            SelectedMap = null;
+            LoadedMaps = 0;
+            TotalMaps = int.MaxValue;
         
             var mapResponse = await _api.FortnitePorting.Maps();
             foreach (var map in mapResponse.Entries)
@@ -180,6 +185,29 @@ public partial class MapViewModel(
         });
 
     }
+
+    [RelayCommand]
+    public async Task ReloadMaps()
+    {
+        var extraStaffText = SupaBase.UserInfo?.Role >= ESupabaseRole.Staff ? "Additionally, any unsaved maps will be discarded." : string.Empty;
+        _info.Dialog("Reload Maps", $"Are you sure you want to reload maps? Any in progress exports will be cancelled. {extraStaffText}",
+            buttons: [
+                new DialogButton
+                {
+                    Text = "Reload",
+                    IsPrimary = true,
+                    Action = async () =>
+                    {
+                        SelectedMap.CancelExport();
+                        await LoadMapsAsync();
+                    }
+                },
+                new DialogButton
+                {
+                    Text = "Cancel"
+                }
+            ]);
+    }
     
     [RelayCommand]
     public async Task EditorPublish()
@@ -194,6 +222,7 @@ public partial class MapViewModel(
             new DialogButton
             {
                 Text = "Publish",
+                IsPrimary = true,
                 Action = () => TaskService.Run(async () =>
                 {
                     if (SelectedMap.MapInfo.Id is null)
@@ -206,6 +235,10 @@ public partial class MapViewModel(
                     
                     _info.Message("Publish Map", $"Successfully published {SelectedMap.MapInfo.Name}!");
                 })
+            },
+            new DialogButton
+            {
+                Text = "Cancel"
             }
         ]);
     }
@@ -217,6 +250,7 @@ public partial class MapViewModel(
             new DialogButton
             {
                 Text = "Delete",
+                IsPrimary = true,
                 Action = () =>
                 {
                     var targetMapInfo = SelectedMap.MapInfo;
@@ -234,6 +268,10 @@ public partial class MapViewModel(
                     
                     _info.Message("Delete Map", $"Successfully deleted {targetMapInfo.Name}!");
                 }
+            },
+            new DialogButton
+            {
+                Text = "Cancel"
             }
         ]);
     }

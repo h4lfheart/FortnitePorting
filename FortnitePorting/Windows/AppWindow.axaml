@@ -359,18 +359,19 @@
                                 <Button Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" ClipToBounds="False"
                                         HorizontalAlignment="Stretch"
                                         Content="{Binding Text}"
-                                        Command="{Binding ExecuteCommand}" />
+                                        Command="{Binding ExecuteCommand}"
+                                        Classes.Primary="{Binding IsPrimary}" />
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <StackPanel Spacing="{ext:Space 1.5}"/>
+                                <StackPanel Spacing="{ext:Space 1.5}" Orientation="Horizontal" FlowDirection="RightToLeft"/>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                     </ItemsControl>
 
                     <Button Grid.Row="0" Grid.RowSpan="2" Grid.Column="2" HorizontalAlignment="Right"
-                            IsVisible="{Binding CanClose}"
+                            IsVisible="{Binding ShowCloseButton}"
                             VerticalAlignment="Top"
                             Margin="{ext:Space -1}"
                             Content="{material:MaterialIconExt Close}" Command="{Binding CloseCommand}" />

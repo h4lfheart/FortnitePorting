@@ -94,6 +94,7 @@ public partial class HelpViewModel : ViewModelBase
             new DialogButton
             {
                 Text = "Upload",
+                IsPrimary = true,
                 Action = async () =>
                 {
                     var newArticle = BuilderArticle;
@@ -136,6 +137,10 @@ public partial class HelpViewModel : ViewModelBase
 
                     await UpdateArticles();
                 }
+            },
+            new DialogButton
+            {
+                Text = "Cancel"
             }
         ]);
     }
@@ -156,11 +161,16 @@ public partial class HelpViewModel : ViewModelBase
                 new DialogButton
                 {
                     Text = "Delete",
+                    IsPrimary = true,
                     Action = async () =>
                     {
                         await Api.FortnitePorting.DeleteArticle(article.Id);
                         await UpdateArticles();
                     }
+                },
+                new DialogButton
+                {
+                    Text = "Cancel"
                 }
             ]);
     }
