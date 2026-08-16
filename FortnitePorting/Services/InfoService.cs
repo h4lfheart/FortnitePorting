@@ -156,6 +156,10 @@ public partial class InfoService : ObservableObject, IService, ILogEventSink
             {
                 Text = "Open Logs Folder",
                 Action = () => App.LaunchSelected(LogFilePath)
+            },
+            new DialogButton
+            {
+                Text = "Continue"
             }
         ]);
     }

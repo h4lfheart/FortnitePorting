@@ -80,15 +80,15 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="{ext:Space 2}" />
-                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <TextBlock Grid.Row="0" Text="News &amp; Updates"
                        FontFamily="{StaticResource SFDisplaySemibold}" FontSize="20"
                        HorizontalAlignment="Center" />
             
-            <ItemsControl Grid.Row="2" ItemsSource="{Binding News}" HorizontalAlignment="Stretch" ClipToBounds="False">
-                <ItemsControl.DataTemplates>
+            <controls:CardCarousel Grid.Row="2" ItemsSource="{Binding News}" VisibleCount="3">
+                <controls:CardCarousel.ItemTemplate>
                     <DataTemplate DataType="responses:NewsEntry">
                         <controls:ContentCard Margin="{ext:Space 1}"
                                               HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -170,13 +170,8 @@
                             </Grid>
                         </controls:ContentCard>
                     </DataTemplate>
-                </ItemsControl.DataTemplates>
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <UniformGrid Columns="3" ColumnSpacing="16"/>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-            </ItemsControl>
+                </controls:CardCarousel.ItemTemplate>
+            </controls:CardCarousel>
             
 
         </Grid>
@@ -185,15 +180,20 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="{ext:Space 2}" />
-                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <TextBlock Grid.Row="0" Text="Featured Art"
                        FontFamily="{StaticResource SFDisplaySemibold}" FontSize="20"
                        HorizontalAlignment="Center" />
 
-            <ItemsControl Grid.Row="2" ItemsSource="{Binding FeaturedArt}" HorizontalAlignment="Stretch" ClipToBounds="False">
-                <ItemsControl.DataTemplates>
+            <controls:CardCarousel Grid.Row="2"
+                                   ItemsSource="{Binding FeaturedArt}"
+                                   Loop="True"
+                                   VisibleCount="3"
+                                   AutoScrollInterval="0:0:10"
+                                   AutoScrollStep="3">
+                <controls:CardCarousel.ItemTemplate>
                     <DataTemplate DataType="responses:FeaturedArtEntry">
                          <controls:ContentCard Margin="{ext:Space 1}"
                                               HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -242,13 +242,8 @@
                             </Grid>
                         </controls:ContentCard>
                     </DataTemplate>
-                </ItemsControl.DataTemplates>
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <UniformGrid Columns="3" ColumnSpacing="16"/>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-            </ItemsControl>
+                </controls:CardCarousel.ItemTemplate>
+            </controls:CardCarousel>
 
 
         </Grid>
