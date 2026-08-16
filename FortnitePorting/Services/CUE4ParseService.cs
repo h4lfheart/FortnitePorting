@@ -665,11 +665,14 @@ public partial class CUE4ParseService : ObservableObject, IService, IResettable
                 var obj = ((AbstractUePackage) package).ConstructObject(pointer.Class, package);
                 exportType = obj.ExportType;
 
-                if (obj is UTexture2D && pointer.TryLoad(out var textureObj) &&
-                    textureObj is UTexture2D texture &&
+                if (obj is UTexture && pointer.TryLoad(out var textureObj) &&
+                    textureObj is UTexture texture &&
                     texture.Decode(maxMipSize: 128) is { } decodedTexture)
                 {
-                    icon = decodedTexture.ToWriteableBitmap();
+                    if (texture is UTextureCube)
+                        decodedTexture = decodedTexture.ToPanorama();
+                    
+                    icon =  decodedTexture.ToWriteableBitmap();
                     break;
                 }
 
