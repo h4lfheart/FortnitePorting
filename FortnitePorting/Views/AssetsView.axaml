@@ -219,6 +219,9 @@
                                                     <MenuItem Header="Navigate To"
                                                               Icon="{material:MaterialIconExt ChevronRight}"
                                                               Command="{Binding NavigateToCommand}" />
+                                                    <MenuItem Header="View Properties"
+                                                              Icon="{material:MaterialIconExt CodeJson}"
+                                                              Command="{Binding PreviewPropertiesCommand}" />
                                                     <MenuItem Header="Copy Path"
                                                               Icon="{material:MaterialIconExt Clipboard}"
                                                               Command="{Binding CopyPathCommand}" />
