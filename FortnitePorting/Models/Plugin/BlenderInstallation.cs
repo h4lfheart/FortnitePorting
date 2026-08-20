@@ -15,7 +15,6 @@ namespace FortnitePorting.Models.Plugin;
 public partial class BlenderInstallation(string blenderExecutablePath) : ObservableObject
 {
     [ObservableProperty] private string _blenderPath = blenderExecutablePath;
-    [JsonIgnore] private bool IsValidInstallation => File.Exists(BlenderPath) && File.Exists(StartupPath);
 
     [ObservableProperty, NotifyPropertyChangedFor(nameof(ExtensionVersionString))]
     [property: JsonIgnore]
@@ -139,8 +138,9 @@ public partial class BlenderInstallation(string blenderExecutablePath) : Observa
 
         Status = EPluginStatusType.Modifying;
 
-        if (IsValidInstallation)
-            Directory.Delete(Path.Combine(StartupPath, "fortnite_porting"), true);
+        var pluginPath = Path.Combine(StartupPath, "fortnite_porting");
+        if (Directory.Exists(pluginPath))
+            Directory.Delete(pluginPath, true);
     }
 
     public async Task Launch()
