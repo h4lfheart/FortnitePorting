@@ -91,7 +91,7 @@ public partial class CUE4ParseService : ObservableObject, IService, IResettable
         "FortniteGame/Plugins/GameFeatures/BRCosmetics/Content/Animation/Game/MainPlayer/Menu/BR/Female_Commando_Idle_02_Rebirth_Montage"
     ];
 
-    private const EGame LATEST_GAME_VERSION = EGame.GAME_UE5_8;
+    private const EGame LATEST_GAME_VERSION = EGame.GAME_UE6_0;
     
     public DirectoryInfo CacheFolder => new(Path.Combine(App.ApplicationDataFolder.FullName, ".cache"));
 
