@@ -6,27 +6,24 @@
              x:Class="FortnitePorting.Controls.CardCarousel"
              HorizontalAlignment="Stretch"
              ClipToBounds="False">
-    <Grid ClipToBounds="False">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="{ext:Space 1}" />
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="{ext:Space 1}" />
-            <ColumnDefinition Width="Auto" />
-        </Grid.ColumnDefinitions>
+    <UserControl.Styles>
+        <Style Selector="Button.CarouselNav">
+            <Setter Property="Opacity" Value="0" />
+            <Setter Property="IsHitTestVisible" Value="False" />
+            <Setter Property="Transitions">
+                <Transitions>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.15" />
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="controls|CardCarousel:pointerover Button.CarouselNav">
+            <Setter Property="Opacity" Value="1" />
+            <Setter Property="IsHitTestVisible" Value="True" />
+        </Style>
+    </UserControl.Styles>
 
-        <Button Grid.Column="0"
-                VerticalAlignment="Center"
-                Padding="{ext:Space 1}"
-                IsVisible="{Binding HasItems, RelativeSource={RelativeSource AncestorType=controls:CardCarousel}}"
-                IsEnabled="{Binding CanGoPrevious, RelativeSource={RelativeSource AncestorType=controls:CardCarousel}}"
-                Command="{Binding PreviousCommand, RelativeSource={RelativeSource AncestorType=controls:CardCarousel}}"
-                ToolTip.Tip="Previous">
-            <material:MaterialIcon Kind="ChevronLeft" Width="20" Height="20" />
-        </Button>
-
+    <Grid Background="Transparent" ClipToBounds="False">
         <Border x:Name="ViewportBorder"
-                Grid.Column="2"
                 ClipToBounds="True"
                 SizeChanged="OnViewportSizeChanged">
             <Canvas Height="{Binding Bounds.Height, ElementName=StripItems}">
@@ -51,8 +48,22 @@
             </Canvas>
         </Border>
 
-        <Button Grid.Column="4"
+        <Button Classes="CarouselNav"
+                HorizontalAlignment="Left"
                 VerticalAlignment="Center"
+                Margin="{ext:Space 2, 0}"
+                Padding="{ext:Space 1}"
+                IsVisible="{Binding HasItems, RelativeSource={RelativeSource AncestorType=controls:CardCarousel}}"
+                IsEnabled="{Binding CanGoPrevious, RelativeSource={RelativeSource AncestorType=controls:CardCarousel}}"
+                Command="{Binding PreviousCommand, RelativeSource={RelativeSource AncestorType=controls:CardCarousel}}"
+                ToolTip.Tip="Previous">
+            <material:MaterialIcon Kind="ChevronLeft" Width="20" Height="20" />
+        </Button>
+
+        <Button Classes="CarouselNav"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Center"
+                Margin="{ext:Space 2, 0}"
                 Padding="{ext:Space 1}"
                 IsVisible="{Binding HasItems, RelativeSource={RelativeSource AncestorType=controls:CardCarousel}}"
                 IsEnabled="{Binding CanGoNext, RelativeSource={RelativeSource AncestorType=controls:CardCarousel}}"
