@@ -46,6 +46,18 @@ public partial class InstallationSettingsViewModel : SettingsViewModelBase
         Profiles.Add(profile);
         SelectedEditProfile = profile;
     }
+
+    public async Task DuplicateProfile()
+    {
+        if (SelectedEditProfile is null) return;
+
+        var duplicate = JsonConvert.DeserializeObject<InstallationProfile>(JsonConvert.SerializeObject(SelectedEditProfile))!;
+        duplicate.ProfileName = $"{SelectedEditProfile.ProfileName} Copy";
+        duplicate.IsSelected = false;
+
+        Profiles.Add(duplicate);
+        SelectedEditProfile = duplicate;
+    }
     
     public async Task RemoveProfile()
     {
