@@ -70,7 +70,7 @@ public class NavigatorContext(string name, NavigationTransitionInfo? transitionI
         
         AddTypeResolver<string>(name =>
         {
-            var targetMenuItem = sidebar.Items.OfType<SidebarItemButton>()
+            var targetMenuItem = sidebar.GetAllButtons()
                 .FirstOrDefault(item => item.Text.Replace(" ", string.Empty).Equals(name, StringComparison.OrdinalIgnoreCase));
             if (targetMenuItem is null) return null;
 

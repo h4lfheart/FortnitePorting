@@ -1,9 +1,13 @@
 using System;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Numerics;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
+using CommunityToolkit.Mvvm.Input;
 using Lucdem.Avalonia.SourceGenerators.Attributes;
 using Material.Icons;
 
@@ -17,10 +21,15 @@ public partial class SidebarItemButton : UserControl, ISidebarItem
     [AvaDirectProperty] private bool _isSelectable = true;
     [AvaDirectProperty] private Control? _footer;
     [AvaDirectProperty] private int _notificationCount = 0;
+    [AvaDirectProperty] private bool _isExpanded = false;
+    [AvaDirectProperty] private bool _hasItems = false;
+    [AvaDirectProperty] private MaterialIconKind _chevronIcon = MaterialIconKind.ChevronRight;
     
     [AvaStyledProperty] private bool _isSelected = false;
     [AvaStyledProperty] private bool _isDragOver = false;
     [AvaStyledProperty] private bool _canReorder = false;
+
+    public ObservableCollection<ISidebarItem> Items { get; } = [];
     
     public readonly RoutedEvent<RoutedEventArgs> ItemPressedEvent =
         RoutedEvent.Register<Sidebar, RoutedEventArgs>(
@@ -52,6 +61,10 @@ public partial class SidebarItemButton : UserControl, ISidebarItem
         AddHandler(DragDrop.DragOverEvent, OnDragOver);
         AddHandler(DragDrop.DragLeaveEvent, OnDragLeave);
         AddHandler(DragDrop.DropEvent, OnDrop);
+
+        Items.CollectionChanged += OnItemsCollectionChanged;
+        this.GetObservable(IsExpandedProperty).Subscribe(expanded =>
+            ChevronIcon = expanded ? MaterialIconKind.ChevronDown : MaterialIconKind.ChevronRight);
     }
     
     public SidebarItemButton(string text = "", MaterialIconKind icon = MaterialIconKind.Palette, Bitmap? iconBitmap = null, object? tag = null) : this()
@@ -71,6 +84,19 @@ public partial class SidebarItemButton : UserControl, ISidebarItem
         };
         
         RaiseEvent(args);
+    }
+
+    [RelayCommand]
+    private void ToggleExpanded() => IsExpanded = !IsExpanded;
+
+    private void OnChevronPointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        e.Handled = true;
+    }
+
+    private void OnItemsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        HasItems = Items.Count > 0;
     }
 
     private void OnPointerPressed(object? sender, PointerPressedEventArgs e)

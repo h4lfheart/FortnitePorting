@@ -122,16 +122,31 @@ public partial class Sidebar : UserControl
             switch (item)
             {
                 case SidebarItemButton button:
-                    yield return button;
+                    foreach (var nested in EnumerateButtons(button))
+                        yield return nested;
                     break;
                 
                 case SidebarItemGroup group:
                 {
                     foreach (var child in group.Items.OfType<SidebarItemButton>())
-                        yield return child;
+                    {
+                        foreach (var nested in EnumerateButtons(child))
+                            yield return nested;
+                    }
                     break;
                 }
             }
+        }
+    }
+
+    private static IEnumerable<SidebarItemButton> EnumerateButtons(SidebarItemButton button)
+    {
+        yield return button;
+
+        foreach (var child in button.Items.OfType<SidebarItemButton>())
+        {
+            foreach (var nested in EnumerateButtons(child))
+                yield return nested;
         }
     }
 
@@ -278,6 +293,7 @@ public partial class Sidebar : UserControl
 
     private void OnItemSelected(object? sender, PointerPressedEventArgs e)
     {
+        if (e.Handled) return;
         if (e.Source is not Control control) return;
         if (control.FindAncestorOfType<SidebarItemButton>() is not { } button) return;
 
@@ -301,6 +317,8 @@ public partial class Sidebar : UserControl
     {
         if (button is null) return;
 
+        ExpandAncestors(button);
+
         _selectedButton?.IsSelected = false;
 
         _selectedButton = button;
@@ -316,5 +334,21 @@ public partial class Sidebar : UserControl
 
             RaiseEvent(args);
         }
+    }
+
+    private void ExpandAncestors(SidebarItemButton button)
+    {
+        foreach (var candidate in GetAllButtons())
+        {
+            if (ContainsDescendant(candidate, button))
+                candidate.IsExpanded = true;
+        }
+    }
+
+    private static bool ContainsDescendant(SidebarItemButton parent, SidebarItemButton target)
+    {
+        return parent.Items
+            .OfType<SidebarItemButton>()
+            .Any(child => child == target || ContainsDescendant(child, target));
     }
 }
