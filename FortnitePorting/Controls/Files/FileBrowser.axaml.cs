@@ -232,6 +232,13 @@ public partial class FileBrowser : UserControl
         Context.FileViewJumpTo(item.Path);
     }
 
+    private void OnFlatItemPointerEntered(object? sender, PointerEventArgs e)
+    {
+        if (sender is not Control { DataContext: FlatItem item }) return;
+
+        TaskService.Run(item.LoadPreviewAsync);
+    }
+
     private void OnItemRealized(object? sender, ItemRealizedEventArgs e)
     {
         if (e.Item is not TreeItem { FileBitmap: null } item) return;

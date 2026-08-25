@@ -371,7 +371,39 @@
                                          AutoScrollToSelectedItem="True" DoubleTapped="OnFlatItemDoubleTapped">
                                     <ListBox.ItemTemplate>
                                         <DataTemplate DataType="files:FlatItem">
-                                            <ContentControl ToolTip.Tip="{Binding VfsName, StringFormat='Vfs: {0}'}">
+                                            <ContentControl PointerEntered="OnFlatItemPointerEntered">
+                                                <ToolTip.Tip>
+                                                    <Border ClipToBounds="True" MaxWidth="420">
+                                                        <Grid Margin="{ext:Space 0.5}"
+                                                              ColumnDefinitions="Auto,*"
+                                                              RowDefinitions="Auto,Auto">
+                                                            <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0"
+                                                                    Width="64" Height="64"
+                                                                    CornerRadius="8" ClipToBounds="True"
+                                                                    VerticalAlignment="Center"
+                                                                    IsVisible="{Binding PreviewIcon, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                                                <Image Source="{Binding PreviewIcon}" Stretch="Uniform"
+                                                                       RenderOptions.BitmapInterpolationMode="MediumQuality" />
+                                                            </Border>
+
+                                                            <TextBlock Grid.Row="0" Grid.Column="1"
+                                                                       Margin="{ext:Space 1.5, 0, 0, 0}"
+                                                                       Classes="BodyStrongTextBlockStyle"
+                                                                       VerticalAlignment="Bottom"
+                                                                       TextWrapping="NoWrap"
+                                                                       TextTrimming="CharacterEllipsis"
+                                                                       Text="{Binding ResolvedDisplayName}" />
+
+                                                            <TextBlock Grid.Row="1" Grid.Column="1"
+                                                                       Margin="{ext:Space 1.5, 0, 0, 0}"
+                                                                       Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"
+                                                                       VerticalAlignment="Top"
+                                                                       TextWrapping="NoWrap"
+                                                                       TextTrimming="CharacterEllipsis"
+                                                                       Text="{Binding ExportType}" />
+                                                        </Grid>
+                                                    </Border>
+                                                </ToolTip.Tip>
                                                 <ContentControl.ContextMenu>
                                                     <ContextMenu>
                                                         <MenuItem Header="Copy Path With Extension"
