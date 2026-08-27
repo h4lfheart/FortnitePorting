@@ -5,6 +5,7 @@
              xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:settings="clr-namespace:FortnitePorting.Views.Settings"
+             xmlns:views="clr-namespace:FortnitePorting.Views"
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
              xmlns:sidebar="clr-namespace:FortnitePorting.Controls.Navigation.Sidebar"
              xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
@@ -23,6 +24,7 @@
                 <sidebar:SidebarItemButton Text="Installation" Icon="Folder" Tag="{x:Type settings:InstallationSettingsView}"/>
                 <sidebar:SidebarItemButton Text="Account" Icon="User" Tag="{x:Type settings:AccountSettingsView}" IsVisible="{Binding SupaBase.IsLoggedIn}"/>
                 <sidebar:SidebarItemButton Text="Developer" Icon="Bug" Tag="{x:Type settings:DeveloperSettingsView}" IsVisible="{Binding Settings.Application.ShowDeveloperSettings}"/>
+                <sidebar:SidebarItemButton Text="Console" Icon="Console" Tag="{x:Type views:ConsoleView}"/>
             </sidebar:Sidebar.Items>
             <sidebar:Sidebar.Footer>
                 <DropDownButton HorizontalAlignment="Stretch">
