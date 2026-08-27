@@ -27,8 +27,13 @@ public partial class AppWindow : WindowBase<AppWindowModel>
     private void OnSidebarItemSelected(object? sender, SidebarItemSelectedArgs args)
     {
         if (!AppSettings.Installation.FinishedSetup) return;
-        
+
         Navigation.App.Open(args.Tag);
+    }
+
+    private void OnHelpPressed(object? sender, EventArgs e)
+    {
+        App.Launch(Globals.DOCS_URL);
     }
 
     protected override void OnClosed(EventArgs e)

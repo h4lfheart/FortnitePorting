@@ -61,6 +61,8 @@
                         <sidebar:SidebarItemButton Text="Home" Icon="Home" Tag="{x:Type views:HomeView}" />
                         <sidebar:SidebarItemButton Text="News &amp; Updates" Icon="Newspaper"
                                                    Tag="{x:Type views:NewsView}" />
+                        <sidebar:SidebarItemButton Text="Help" Icon="Help" IsSelectable="False"
+                                                   ItemPressed="OnHelpPressed" />
 
                         <sidebar:SidebarItemSeparator />
 
@@ -106,8 +108,7 @@
                         
                         <sidebar:SidebarItemText Text="INFO" />
                         <sidebar:SidebarItemButton Text="Console" Icon="Console" Tag="{x:Type views:ConsoleView}" />
-                        <sidebar:SidebarItemButton Text="Help" Icon="Help" Tag="{x:Type views:HelpView}" />
-
+                       
                     </sidebar:Sidebar.Items>
 
                     <sidebar:Sidebar.Footer>

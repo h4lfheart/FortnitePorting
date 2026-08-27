@@ -10,7 +10,6 @@ using DynamicData.Binding;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Controls;
 using FortnitePorting.Framework;
-using FortnitePorting.Models.Article;
 using FortnitePorting.Models.Information;
 using FortnitePorting.Models.Supabase.Tables;
 
