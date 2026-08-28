@@ -1118,7 +1118,7 @@ class TastyImportContext:
     
                 continue
     
-            if "twist_" in pose_bone.name and has_vertex_group:
+            if ("twist_" in pose_bone.name or "bend_" in pose_bone.name) and has_vertex_group:
                 twist_collection.assign(pose_bone)
     
                 pose_bone.custom_shape = bpy.data.objects.get("CTRL_Twist")
