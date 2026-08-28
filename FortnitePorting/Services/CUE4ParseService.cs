@@ -191,6 +191,8 @@ public partial class CUE4ParseService : ObservableObject, IService, IResettable
 
         await Files.Initialize();
         await FilesVM.Initialize();
+
+        App.TryFlushPendingUrlScheme();
     }
 
     public void UpdateStatus(string status)

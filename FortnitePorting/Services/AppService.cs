@@ -33,6 +33,7 @@ public class AppService : IService
     public IClipboard Clipboard => Lifetime.MainWindow!.Clipboard!;
 
     private readonly SemaphoreSlim _reloadSemaphore = new(1, 1);
+    private string? _pendingUrl;
 
     public DirectoryInfo ApplicationDataFolder => AppSettings.Application.UseAppDataPath && Directory.Exists(AppSettings.Application.AppDataPath)
         ? new DirectoryInfo(AppSettings.Application.AppDataPath) 
@@ -114,27 +115,83 @@ public class AppService : IService
 
     public void HandleUrlScheme(string url)
     {
-        var request = new RestRequest(url);
-        var path = url.Replace("fortniteporting://", string.Empty).SubstringBefore("?");
-        var queryParameters = request.Parameters.GetParameters(ParameterType.QueryString);
+        if (string.IsNullOrWhiteSpace(url)) return;
 
-        switch (path)
+        var path = GetUrlSchemePath(url);
+        if (!IsReadyForUrl(path))
         {
-            case "auth/callback":
-            {
-                var codeParameter = queryParameters.FirstOrDefault(param => param.Name?.Equals("code") ?? false);
-                if (codeParameter?.Value is not string code) break;
-                
-                TaskService.Run(async () => await SupaBase.ExchangeCode(code));
-                break;
-            }
-            case var _ when path.StartsWith("route"):
-            {
-                var routePath = path.Replace("route/", string.Empty);
-                Navigation.OpenRoute(routePath);
-                break;
-            }
+            _pendingUrl = url;
+            return;
         }
+
+        ProcessUrlScheme(url);
+    }
+
+    public void TryFlushPendingUrlScheme()
+    {
+        if (_pendingUrl is null) return;
+        
+        var schemePath = GetUrlSchemePath(_pendingUrl);
+        if (!IsReadyForUrl(schemePath)) return;
+
+        var pending = _pendingUrl;
+        _pendingUrl = null;
+        ProcessUrlScheme(pending);
+    }
+
+    private static string GetUrlSchemePath(string url)
+        => url.Replace($"{SCHEME_NAME}://", string.Empty).SubstringBefore("?");
+
+    private static bool IsReadyForUrl(string path)
+    {
+        if (path == "auth/callback")
+            return true;
+
+        if (path.StartsWith("file/", StringComparison.OrdinalIgnoreCase))
+            return UEParse.FinishedLoading && !Files.IsLoading;
+
+        return UEParse.FinishedLoading;
+    }
+
+    private void ProcessUrlScheme(string url)
+    {
+        TaskService.RunDispatcher(() =>
+        {
+            var request = new RestRequest(url);
+            var path = GetUrlSchemePath(url);
+            var queryParameters = request.Parameters.GetParameters(ParameterType.QueryString);
+
+            switch (path)
+            {
+                case "auth/callback":
+                {
+                    var codeParameter = queryParameters.FirstOrDefault(param => param.Name?.Equals("code") ?? false);
+                    if (codeParameter?.Value is not string code) break;
+
+                    TaskService.Run(async () => await SupaBase.ExchangeCode(code));
+                    break;
+                }
+                case var _ when path.StartsWith("file/", StringComparison.OrdinalIgnoreCase):
+                {
+                    var filePath = Uri.UnescapeDataString(path["file/".Length..]);
+                    if (string.IsNullOrWhiteSpace(filePath)) break;
+
+                    if (UEParse.Provider is not null)
+                        filePath = UEParse.Provider.FixPath(filePath);
+
+                    Navigation.App.Open<FilesView>();
+                    FilesVM.JumpTo(filePath);
+                    AppWM.Window.BringToTop();
+                    break;
+                }
+                case var _ when path.StartsWith("route"):
+                {
+                    var routePath = path.Replace("route/", string.Empty);
+                    Navigation.OpenRoute(routePath);
+                    break;
+                }
+            }
+        });
     }
 
     private void OnAppStart(object? sender, ControlledApplicationLifetimeStartupEventArgs e)
@@ -157,6 +214,12 @@ public class AppService : IService
         if (AppSettings.Installation.FinishedSetup)
         {
             Navigation.App.Open<HomeView>();
+        }
+
+        if (e.Args is { Length: > 0 } args
+            && args[0].StartsWith($"{SCHEME_NAME}://", StringComparison.OrdinalIgnoreCase))
+        {
+            HandleUrlScheme(args[0]);
         }
     }
 
