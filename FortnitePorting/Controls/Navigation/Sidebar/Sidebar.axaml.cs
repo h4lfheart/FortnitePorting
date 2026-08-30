@@ -294,6 +294,7 @@ public partial class Sidebar : UserControl
     private void OnItemSelected(object? sender, PointerPressedEventArgs e)
     {
         if (e.Handled) return;
+        if (e.GetCurrentPoint(this).Properties.PointerUpdateKind != PointerUpdateKind.LeftButtonPressed) return;
         if (e.Source is not Control control) return;
         if (control.FindAncestorOfType<SidebarItemButton>() is not { } button) return;
 

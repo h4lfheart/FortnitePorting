@@ -26,8 +26,9 @@ public class FortnitePortingAPI(RestClient client) : APIBase(client)
     public async Task<GalleryResponse> Gallery() => await ExecuteAsync<GalleryResponse>("content/gallery");
     
     // Fortnite
-    public async Task<AesResponse?> Aes() => await ExecuteAsync<AesResponse>("fortnite/aes");
-    public async Task<MappingsResponse?> Mappings() => await ExecuteAsync<MappingsResponse>("fortnite/mappings");
+    public async Task<FortniteVersionResponse?> FortniteVersion(string version = "latest")
+        => await ExecuteAsync<FortniteVersionResponse>($"fortnite/versions/{version}");
+
     
     // Auth
     public async Task<AuthResponse?> AuthInfo() => await ExecuteAsync<AuthResponse?>("auth/info");

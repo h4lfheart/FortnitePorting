@@ -50,7 +50,6 @@
         <SolidColorBrush x:Key="TextFillTertiaryBrush" Color="#686490" />
         <SolidColorBrush x:Key="TextFillTertiaryDisabledBrush" Color="#80686490" />
 
-        <!-- Matches Dark value hierarchy: window > content border > layer2 (each step darker inward) -->
         <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#0D0C12" />
         <SolidColorBrush x:Key="ContentBorderBackgroundBrush" Color="#09080D" />
         <SolidColorBrush x:Key="ContentBorderBorderBrush" Color="#1F1D2A" />

@@ -86,9 +86,23 @@
                                   SelectedItem="{Binding Profile.UnrealVersion, Converter={StaticResource EnumToRecord}}" />
                     </controls:SettingsItem.Footer>
                 </controls:SettingsItem>
-                <!-- TODO add fetch back when archive is finished -->
-                <controls:SettingsItem Title="Encryption Key" 
-                                     Description="The encryption key required to decrypt Fortnite's game files." 
+                <controls:SettingsItem Title="Fetch Data"
+                                       Description="Download encryption keys and mappings for a specific Fortnite version and apply them to this profile."
+                                       IsVisible="{Binding Profile.IsCustom}">
+                    <controls:SettingsItem.Footer>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox Text="{Binding Profile.FetchVersion}" Watermark="Ex. 32.10"/>
+                            <Button Margin="4 0 0 0"
+                                    ToolTip.Tip="Fetch"
+                                    IsEnabled="{Binding Profile.CanFetchVersion}"
+                                    Command="{Binding Profile.FetchVersionData}">
+                                <avalonia:MaterialIcon Kind="Download"/>
+                            </Button>
+                        </StackPanel>
+                    </controls:SettingsItem.Footer>
+                </controls:SettingsItem>
+                <controls:SettingsItem Title="Encryption Keys" 
+                                     Description="The encryption keys required to decrypt Fortnite's game files." 
                                      IsVisible="{Binding Profile.EncryptionKeyEnabled}">
                     <controls:SettingsItem.Footer>
                         <TextBox Text="{Binding Profile.MainKey.KeyString}" Watermark="Ex. 0x0000000000000000000000000000000000000000000000000000000000000000"/>

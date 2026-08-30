@@ -28,7 +28,7 @@
                 <ColumnDefinition Width="*" MinWidth="225" />
                 <ColumnDefinition Width="6*" />
             </Grid.ColumnDefinitions>
-            <!-- Sidebar -->
+            
             <Grid Grid.Column="0">
                 <sidebar:Sidebar x:Name="Sidebar" ItemSelected="OnSidebarItemSelected">
                     <sidebar:Sidebar.Header>

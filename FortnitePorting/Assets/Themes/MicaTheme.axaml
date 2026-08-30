@@ -50,7 +50,6 @@
         <SolidColorBrush x:Key="TextFillTertiaryBrush" Color="#6c6d72" />
         <SolidColorBrush x:Key="TextFillTertiaryDisabledBrush" Color="#806c6d72" />
         
-        <!-- Transparent window background for Mica -->
         <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#010e0e0e" />
         <SolidColorBrush x:Key="ContentBorderBackgroundBrush" Color="#300a0a0a" />
         <SolidColorBrush x:Key="ContentBorderBorderBrush" Color="#40212121" />

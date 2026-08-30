@@ -108,8 +108,12 @@ public partial class ExportContext
 
     public List<ExportOverrideParameters>? OverrideColors(ExportColorStyle colorStyle)
     {
-        var materialsToAlter = colorStyle.StyleData.Get<FSoftObjectPath[]>("MaterialsToAlter");
-        if (materialsToAlter.Any(mat => mat.AssetPathName.IsNone)) return null;
+        var materialsToAlter = colorStyle.StyleData.GetOrDefault<FSoftObjectPath[]>("MaterialsToAlter", [])
+            .Where(path => !path.AssetPathName.IsNone)
+            .ToArray();
+        
+        if (materialsToAlter.Length == 0) 
+            return null;
 
         return colorStyle.IsParamSet
             ? ProcessParamSetOverride(colorStyle, materialsToAlter)

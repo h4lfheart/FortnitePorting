@@ -95,6 +95,8 @@ public partial class CUE4ParseService : ObservableObject, IService, IResettable
     ];
 
     private const EGame LATEST_GAME_VERSION = EGame.GAME_UE6_0;
+
+    private FortniteVersionResponse? _resolvedVersion;
     
     public DirectoryInfo CacheFolder => new(Path.Combine(App.ApplicationDataFolder.FullName, ".cache"));
 
@@ -128,6 +130,8 @@ public partial class CUE4ParseService : ObservableObject, IService, IResettable
             
             return;
         }
+
+        _resolvedVersion = null;
         
         var stages = GetType()
             .GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
@@ -176,6 +180,7 @@ public partial class CUE4ParseService : ObservableObject, IService, IResettable
         MaleLobbyMontages.Clear();
         FemaleLobbyMontages.Clear();
         SetNames.Clear();
+        _resolvedVersion = null;
     }
 
     public async Task LoadCoreSessionAsync()
@@ -220,6 +225,15 @@ public partial class CUE4ParseService : ObservableObject, IService, IResettable
             EFortniteVersion.LatestInstalled => new HybridFileProvider(AppSettings.Installation.CurrentProfile.ArchiveDirectory, ExtraDirectories, new VersionContainer(LATEST_GAME_VERSION)),
             _ => new HybridFileProvider(AppSettings.Installation.CurrentProfile.ArchiveDirectory, [], new VersionContainer(AppSettings.Installation.CurrentProfile.UnrealVersion)),
         };
+
+        if (AppSettings.Installation.CurrentProfile.FortniteVersion is EFortniteVersion.LatestInstalled or EFortniteVersion.LatestOnDemand)
+        {
+            _resolvedVersion = await Api.FortnitePorting.FortniteVersion();
+            if (_resolvedVersion is not null)
+                Log.Information("Resolved Fortnite Version: {Version}", _resolvedVersion.Version);
+            else
+                Log.Warning("Failed to resolve latest Fortnite version keys/mappings from API");
+        }
         
         Log.Information("Installation Type: {Type}", AppSettings.Installation.CurrentProfile.FortniteVersion);
         Log.Information("Archive Path: {Path}", AppSettings.Installation.CurrentProfile.FortniteVersion is EFortniteVersion.LatestOnDemand ? "On-Demand" : AppSettings.Installation.CurrentProfile.ArchiveDirectory);
@@ -254,17 +268,17 @@ public partial class CUE4ParseService : ObservableObject, IService, IResettable
     {
         if (AppSettings.Installation.CurrentProfile.FortniteVersion is not EFortniteVersion.LatestInstalled) return;
         
-        var aes = await Api.FortnitePorting.Aes();
-        if (aes is null) return;
+        var mainKey = _resolvedVersion?.Keys?.MainKey;
+        if (mainKey is null) return;
         
         var mainPakPath = Path.Combine(AppSettings.Installation.CurrentProfile.ArchiveDirectory,
             "pakchunk0-WindowsClient.pak");
         if (!File.Exists(mainPakPath)) return;
 
         var mainPakReader = new PakFileReader(mainPakPath);
-        if (mainPakReader.TestAesKey(new FAesKey(aes.MainKey.Key)))
+        if (mainPakReader.TestAesKey(new FAesKey(mainKey.Key)))
         {
-            Log.Information("Main key {Key} succeeded on pak {PakName}", aes.MainKey.Key, mainPakPath);
+            Log.Information("Main key {Key} succeeded on pak {PakName}", mainKey.Key, mainPakPath);
             return;
         }
         
@@ -380,17 +394,17 @@ public partial class CUE4ParseService : ObservableObject, IService, IResettable
             case EFortniteVersion.LatestInstalled:
             case EFortniteVersion.LatestOnDemand:
             {
-                var aes = await Api.FortnitePorting.Aes();
-                if (aes is null)
+                var keys = _resolvedVersion?.Keys;
+                if (keys?.MainKey is null)
                 {
                     await LoadLocalKeys();
                     break;
                 }
 
-                Log.Information("Submitting Main Key {Key}", aes.MainKey.Key);
-                await Provider.SubmitKeyAsync(Globals.ZERO_GUID, new FAesKey(aes.MainKey.Key));
+                Log.Information("Submitting Main Key {Key}", keys.MainKey.Key);
+                await Provider.SubmitKeyAsync(Globals.ZERO_GUID, new FAesKey(keys.MainKey.Key));
                 
-                foreach (var key in aes.DynamicKeys)
+                foreach (var key in keys.ExtraKeys)
                 {
                     Log.Information("Submitting Dynamic Key {Key} with GUID {Guid}", key.Key, key.GUID);
                     await Provider.SubmitKeyAsync(new FGuid(key.GUID), new FAesKey(key.Key));
@@ -621,16 +635,17 @@ public partial class CUE4ParseService : ObservableObject, IService, IResettable
     
     private async Task<string?> GetEndpointMappings()
     {
-        var mappings = await Api.FortnitePorting.Mappings();
+        var mappings = _resolvedVersion?.Mappings;
         if (mappings?.Url is null) return null;
 
         var mappingsFilePath = Path.Combine(App.DataFolder.FullName, mappings.Url.SubstringAfterLast("/"));
-        if (File.Exists(mappingsFilePath) && new FileInfo(mappingsFilePath).GetFileHashMD5().Equals(mappings.HashMD5)) return mappingsFilePath;
+        if (File.Exists(mappingsFilePath) && new FileInfo(mappingsFilePath).GetFileHashMD5().Equals(mappings.Md5Hash))
+            return mappingsFilePath;
             
         var createdFile = await Api.DownloadFileAsync(mappings.Url, mappingsFilePath);
         if (createdFile is { Exists: false}) return null;
             
-        File.SetCreationTime(mappingsFilePath, mappings.GetCreationTime());
+        File.SetCreationTime(mappingsFilePath, DateTime.Now);
 
         return mappingsFilePath;
     }

@@ -9,9 +9,9 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FortnitePorting.Controls.Settings.SettingsItem"
              MinHeight="68" ClipToBounds="False">
-    <Grid RowDefinitions="* Auto">
-        <controls:ContentCard Grid.Row="0">
-            <Grid ColumnDefinitions="Auto * 2* 8 Auto" VerticalAlignment="Center" Margin="{ext:Space 2}">
+    <controls:ContentCard>
+        <Grid RowDefinitions="Auto Auto Auto">
+            <Grid Grid.Row="0" ColumnDefinitions="Auto * 2* 8 Auto" VerticalAlignment="Center" Margin="{ext:Space 2}">
                 <ContentPresenter Grid.Column="0" 
                                   Content="{Binding Header, RelativeSource={RelativeSource AncestorType=settings:SettingsItem} }"
                                   IsVisible="{Binding Header, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}, Converter={x:Static ObjectConverters.IsNotNull}}"
@@ -33,24 +33,33 @@
                     <TextBlock Text="{Binding Description, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}}"
                                TextWrapping="Wrap"
                                FontFamily="{StaticResource SFTextRegular}"
-                               Classes="CaptionTextBlockStyle TextFillColorSecondaryBrush"/>
+                               Classes="CaptionTextBlockStyle TextFillColorSecondaryBrush"
+                               IsVisible="{Binding Description, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
                 </StackPanel>
             
                 <ContentPresenter Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                  Margin="{ext:Space 1, 0, 0, 0}"
                                   Content="{Binding Footer, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}}"/>
                 
                 <ToggleButton Grid.Column="4" IsChecked="{Binding Model.IsExpanded, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}}"
-                        IsVisible="{Binding Content, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}, Converter={x:Static ObjectConverters.IsNotNull}}">
+                            Classes="GhostButton"
+                              IsVisible="{Binding Content, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}, Converter={x:Static ObjectConverters.IsNotNull}}">
                     <avalonia:MaterialIcon Kind="{Binding Model.ExpandButtonIcon, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}}"/>
                 </ToggleButton>
-
             </Grid>
-        </controls:ContentCard>
-        
-        <controls:ContentCard Grid.Row="1" Margin="{ext:Space 0, 1, 0, 0}"
-                              IsVisible="{Binding Model.IsExpanded, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}}">
-            <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="{ext:Space 2}"
+
+            <Border Grid.Row="1"
+                    Height="1"
+                    Background="{DynamicResource FPSeparatorColorLayer2}"
+                    Margin="{ext:Space 2, 0}"
+                    IsVisible="{Binding Model.IsExpanded, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}}" />
+
+            <ContentPresenter Grid.Row="2"
+                              HorizontalAlignment="Stretch"
+                              VerticalAlignment="Stretch"
+                              Margin="{ext:Space 2}"
+                              IsVisible="{Binding Model.IsExpanded, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}}"
                               Content="{Binding Content, RelativeSource={RelativeSource AncestorType=settings:SettingsItem}}"/>
-        </controls:ContentCard>
-    </Grid>
+        </Grid>
+    </controls:ContentCard>
 </UserControl>

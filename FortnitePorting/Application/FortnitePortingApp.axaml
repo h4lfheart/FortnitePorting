@@ -311,6 +311,52 @@
             </Style>
         </Style>
 
+        <Style Selector="ToggleButton.GhostButton">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="CornerRadius" Value="16" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="ClipToBounds" Value="False" />
+
+            <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="ClipToBounds" Value="False" />
+                <Setter Property="BackgroundSizing" Value="CenterBorder" />
+                <Setter Property="BoxShadow" Value="none" />
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="Transitions">
+                    <Setter.Value>
+                        <Transitions>
+                            <BrushTransition Property="Background" Duration="0:0:0.083" />
+                        </Transitions>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background" Value="#20FFFFFF" />
+            </Style>
+
+            <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background" Value="#12FFFFFF" />
+            </Style>
+
+            <Style Selector="^:checked /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background" Value="Transparent" />
+            </Style>
+
+            <Style Selector="^:checked:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background" Value="#20FFFFFF" />
+            </Style>
+
+            <Style Selector="^:checked:pressed /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background" Value="#12FFFFFF" />
+            </Style>
+
+            <Style Selector="^:disabled">
+                <Setter Property="Opacity" Value="0.3" />
+            </Style>
+        </Style>
+
 
         <Style Selector="ToggleSwitch[IsVisible=true]">
             <Setter Property="BorderThickness" Value="0" />
