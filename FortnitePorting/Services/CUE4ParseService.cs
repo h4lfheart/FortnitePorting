@@ -688,7 +688,10 @@ public partial class CUE4ParseService : ObservableObject, IService, IResettable
             var pointer = new FPackageIndex(package, i + 1).ResolvedObject;
             if (pointer?.Object is null) continue;
 
-            var isPackageRoot = pointer.Outer is null or ResolvedPackageObject;
+            var outer = pointer.Outer;
+            var isPackageRoot = outer is null
+                                || outer.ExportIndex < 0
+                                || !ReferenceEquals(outer.Package, package);
             if (isPackageRoot)
                 packageRootExport ??= pointer;
 
