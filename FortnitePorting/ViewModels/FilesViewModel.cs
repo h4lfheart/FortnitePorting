@@ -129,24 +129,45 @@ public partial class FilesViewModel(
     [RelayCommand]
     public async Task Properties()
     {
-        var selectedItemPath = Context.UseFlatView
-            ? Context.SelectedFlatViewItems.FirstOrDefault()?.Path
-            : Context.SelectedFileViewItems.FirstOrDefault(f => f.Type == ENodeType.File)?.FilePath;
-        if (selectedItemPath is null) return;
+        var selectedPaths = (Context.UseFlatView
+            ? Context.SelectedFlatViewItems.Select(f => f.Path)
+            : Context.SelectedFileViewItems.Where(f => f.Type == ENodeType.File).Select(f => f.FilePath)).ToList();
 
+        foreach (var path in selectedPaths)
+            await PreviewProperties(path);
+    }
+
+    private async Task PreviewProperties(string path)
+    {
         try
         {
-            if (_ueParse.Provider.TryLoadObjectExports(selectedItemPath, out var exports))
+            if (_ueParse.Provider.TryLoadObjectExports(path, out var exports))
             {
                 var json = JsonConvert.SerializeObject(exports, Formatting.Indented);
                 await TaskService.RunDispatcherAsync(() =>
                     PropertiesPreviewWindow.Preview(
-                        selectedItemPath.SubstringAfterLast("/").SubstringBefore("."), json));
+                        path.SubstringAfterLast("/").SubstringBefore("."), json));
             }
         }
         catch (Exception)
         {
-            _info.Message("Properties", $"Failed to preview {selectedItemPath}");
+            _info.Message("Properties", $"Failed to preview {path}");
+        }
+    }
+
+    private async Task PreviewProperties(UObject asset)
+    {
+        try
+        {
+            var path = _exporter.FixPath(asset.GetPathName());
+            var exports = await _ueParse.Provider.LoadAllObjectsAsync(path);
+            var json = JsonConvert.SerializeObject(exports, Formatting.Indented);
+            await TaskService.RunDispatcherAsync(() =>
+                PropertiesPreviewWindow.Preview(asset.Name, json));
+        }
+        catch (Exception)
+        {
+            _info.Message("Properties", $"Failed to preview {asset.Name}");
         }
     }
 
@@ -233,7 +254,7 @@ public partial class FilesViewModel(
                     new DialogButton
                     {
                         Text = "Material Properties",
-                        Action = () => TaskService.Run(Properties)
+                        Action = () => TaskService.Run(async () => await PreviewProperties(instance))
                     },
                     new DialogButton
                     {
@@ -264,7 +285,7 @@ public partial class FilesViewModel(
                 SoundCuePreviewWindow.Preview(soundCue);
                 break;
             default:
-                await Properties();
+                await PreviewProperties(asset);
                 break;
         }
     }
