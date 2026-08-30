@@ -15,6 +15,7 @@
              xmlns:sidebar="clr-namespace:FortnitePorting.Controls.Navigation.Sidebar"
              xmlns:loading="clr-namespace:FortnitePorting.Controls.Loading"
              xmlns:converters="clr-namespace:FortnitePorting.Converters"
+             xmlns:assetControls="clr-namespace:FortnitePorting.Controls.Assets"
              d:DesignHeight="720" d:DesignWidth="1280"
              x:Class="FortnitePorting.Views.AssetsView"
              x:DataType="viewModels:AssetsViewModel">
@@ -238,10 +239,17 @@
                                                         Converter={StaticResource Scale}, ConverterParameter='64'}"
                                                 Spacing="4">
                                                 <ToolTip.Tip>
-                                                    <StackPanel Spacing="{ext:Space 0.5}" Margin="{ext:Space 0.5}">
-                                                        <TextBlock Text="{Binding CreationData.DisplayName}" />
+                                                    <StackPanel Spacing="{ext:Space 0.5}" Margin="{ext:Space 0.5}"
+                                                                Width="220"
+                                                                HorizontalAlignment="Left">
+                                                        <TextBlock Text="{Binding CreationData.DisplayName}"
+                                                                   HorizontalAlignment="Left" />
                                                         <TextBlock Text="{Binding CreationData.ID}"
-                                                                   Classes="TextFillColorSecondaryBrush" />
+                                                                   Classes="TextFillColorSecondaryBrush"
+                                                                   HorizontalAlignment="Left" />
+                                                        
+                                                        <assetControls:AssetVideoPreview Width="220"
+                                                                                   CosmeticId="{Binding CreationData.ID}" />
                                                     </StackPanel>
                                                 </ToolTip.Tip>
                                                 <Grid>

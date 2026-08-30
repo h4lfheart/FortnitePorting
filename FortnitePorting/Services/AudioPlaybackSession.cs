@@ -23,8 +23,7 @@ public sealed partial class AudioPlaybackSession : ObservableObject, IDisposable
         get => _reader?.CurrentTime ?? TimeSpan.Zero;
         set
         {
-            if (_reader is not null)
-                _reader.CurrentTime = value;
+            _reader?.CurrentTime = value;
         }
     }
 

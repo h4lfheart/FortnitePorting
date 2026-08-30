@@ -58,6 +58,7 @@ public partial class ApplicationSettingsViewModel : SettingsViewModelBase
 
     [ObservableProperty] private ObservableCollection<MapInfo> _localMapInfos = [];
     [ObservableProperty] private bool _useTabTransitions = true;
+    [ObservableProperty] private bool _showVideoPreviews = true;
     [ObservableProperty] private float _assetScale = 1.0f;
     
     [ObservableProperty] private bool _dontAskAboutKofi;

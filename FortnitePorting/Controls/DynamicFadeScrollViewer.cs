@@ -161,10 +161,7 @@ public class DynamicFadeScrollViewer : TemplatedControl
         get => ScrollViewer?.Offset ?? default;
         set
         {
-            if (ScrollViewer != null)
-            {
-                ScrollViewer.Offset = value;
-            }
+            ScrollViewer?.Offset = value;
         }
     }
     

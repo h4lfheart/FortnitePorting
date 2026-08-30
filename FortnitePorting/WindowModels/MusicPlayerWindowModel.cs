@@ -209,8 +209,7 @@ public partial class MusicPlayerWindowModel(
         Session.CurrentTime = TimeSpan.Zero;
         Session.Play();
         IsPlaying = true;
-        if (ActiveItem is not null)
-            ActiveItem.IsPlaying = true;
+        ActiveItem?.IsPlaying = true;
     }
 
     public void Scrub(TimeSpan time) => Session.Scrub(time);

@@ -508,8 +508,8 @@ public partial class TimeWasterViewModel(AudioPlaybackService audio) : ViewModel
     private void OnVolumeChanged()
     {
         var volume = audio.Volume;
-        if (AmbientOutput is not null) AmbientOutput.Volume = volume;
-        if (GameOutput is not null) GameOutput.Volume = volume;
+        AmbientOutput?.Volume = volume;
+        GameOutput?.Volume = volume;
     }
 
     private static List<DispatcherTimer> Updaters = [];

@@ -27,6 +27,7 @@
         <PackageReference Include="EpicManifestParser" />
         <PackageReference Include="FFMpegCore" />
         <PackageReference Include="FluentAvaloniaUI" />
+        <PackageReference Include="LibVLCSharp.Avalonia" />
         <PackageReference Include="Mapster" />
         <PackageReference Include="Material.Icons.Avalonia" />
         <PackageReference Include="Microsoft.AspNetCore.DataProtection" />
@@ -42,6 +43,7 @@
         <PackageReference Include="Supabase" />
         <PackageReference Include="System.Security.Cryptography.ProtectedData" />
         <PackageReference Include="Tomlyn" />
+        <PackageReference Include="VideoLAN.LibVLC.Windows" />
         <PackageReference Include="z440.atl.core" />
     </ItemGroup>
 

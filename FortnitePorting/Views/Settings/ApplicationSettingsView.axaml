@@ -71,6 +71,13 @@
                     <ToggleSwitch IsChecked="{Binding UseTabTransitions}"/>
                 </controls:SettingsItem.Footer>
             </controls:SettingsItem>
+
+            <controls:SettingsItem Title="Video Previews"
+                                   Description="Shows Fortnite.gg video previews in asset tooltips when available.">
+                <controls:SettingsItem.Footer>
+                    <ToggleSwitch IsChecked="{Binding ShowVideoPreviews}"/>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
             <TextBlock Text="Audio"
                        Classes="BodyLargeTextBlockStyle"

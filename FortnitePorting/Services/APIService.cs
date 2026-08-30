@@ -15,6 +15,7 @@ public class APIService : IService
     public readonly FortnitePortingAPI FortnitePorting;
     public readonly EpicGamesAPI EpicGames;
     public readonly DillyAPI Dilly;
+    public readonly FortniteGGApi FortniteGG;
     
     public APIService()
     {
@@ -34,6 +35,7 @@ public class APIService : IService
         FortnitePorting = new FortnitePortingAPI(fpClient);
         EpicGames = new EpicGamesAPI(_client);
         Dilly = new DillyAPI(_client);
+        FortniteGG = new FortniteGGApi(_client);
     }
 
     protected readonly RestClient _client;

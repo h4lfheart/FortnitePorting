@@ -38,14 +38,12 @@ public partial class WindowTitleBar : UserControl
 
     private void OnMinimizePressed(object? sender, PointerPressedEventArgs e)
     {
-        if (HostWindow is null) return;
-        HostWindow.WindowState = WindowState.Minimized;
+        HostWindow?.WindowState = WindowState.Minimized;
     }
 
     private void OnMaximizePressed(object? sender, PointerPressedEventArgs e)
     {
-        if (HostWindow is null) return;
-        HostWindow.WindowState = HostWindow.WindowState == WindowState.Maximized
+        HostWindow?.WindowState = HostWindow.WindowState == WindowState.Maximized
             ? WindowState.Normal
             : WindowState.Maximized;
     }

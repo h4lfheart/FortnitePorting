@@ -13,6 +13,7 @@
     <PackageVersion Include="AsyncImageLoader.Avalonia" Version="3.2.1" />
     <PackageVersion Include="AvaSourceGenerators" Version="0.2.0" />
     <PackageVersion Include="FluentAvaloniaUI" Version="2.3.0" />
+    <PackageVersion Include="LibVLCSharp.Avalonia" Version="3.9.6" />
     <PackageVersion Include="Material.Icons" Version="2.1.9" />
     <PackageVersion Include="Material.Icons.Avalonia" Version="2.1.9" />
     <PackageVersion Include="NodifyAvalonia" Version="6.5.0" />
@@ -42,6 +43,7 @@
     <PackageVersion Include="Supabase" Version="1.1.1" />
     <PackageVersion Include="System.Security.Cryptography.ProtectedData" Version="8.0.0" />
     <PackageVersion Include="Tomlyn" Version="0.17.0" />
+    <PackageVersion Include="VideoLAN.LibVLC.Windows" Version="3.0.23.1" />
     <PackageVersion Include="z440.atl.core" Version="5.24.0" />
   </ItemGroup>
 </Project>
