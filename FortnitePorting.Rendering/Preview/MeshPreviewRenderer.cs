@@ -20,12 +20,19 @@ public static class MeshPreviewRenderer
 
     public static SKBitmap? TryRender(UObject asset)
     {
-        return asset switch
+        try
         {
-            UStaticMesh staticMesh => RenderStatic(staticMesh),
-            USkeletalMesh skeletalMesh => RenderSkeletal(skeletalMesh),
-            _ => null
-        };
+            return asset switch
+            {
+                UStaticMesh staticMesh => RenderStatic(staticMesh),
+                USkeletalMesh skeletalMesh => RenderSkeletal(skeletalMesh),
+                _ => null
+            };
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
 
     private static SKBitmap? RenderStatic(UStaticMesh mesh)
