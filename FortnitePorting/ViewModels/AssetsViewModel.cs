@@ -84,7 +84,7 @@ public partial class AssetsViewModel(
         {
             foreach (var (index, category) in _assetLoader.Categories.Index())
             {
-                var group = new SidebarItemGroup(category.Category.Description.ToUpper())
+                var group = new SidebarItemGroup(category.Category.Description)
                 {
                     IsExpanded = index == 0
                 };

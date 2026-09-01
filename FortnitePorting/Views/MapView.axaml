@@ -26,7 +26,7 @@
             <sidebar:Sidebar Grid.Column="0"
                              SelectedItem="{Binding SelectedMap, Mode=TwoWay}">
                 <sidebar:Sidebar.Items>
-                    <sidebar:SidebarItemText Text="MAPS"/>
+                    <sidebar:SidebarItemText Text="Maps"/>
                     <sidebar:SidebarItemsSource ItemsSource="{Binding Maps}">
                         <sidebar:SidebarItemsSource.ItemTemplate>
                             <DataTemplate x:DataType="map:WorldPartitionMap">

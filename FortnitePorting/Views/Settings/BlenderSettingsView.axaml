@@ -21,7 +21,7 @@
     <Grid ColumnDefinitions="* 5*">
         <sidebar:Sidebar x:Name="SettingsSidebar" Grid.Column="0" ItemSelected="OnItemSelected">
             <sidebar:Sidebar.Items>
-
+                <sidebar:SidebarItemText Text="Blender"/>
                 <sidebar:SidebarItemButton Text="General" Icon="Tune">
                     <sidebar:SidebarItemButton.Tag>
                         <StackPanel Spacing="{ext:Space 0, 0, 0, 1}">

@@ -22,8 +22,8 @@
         <sidebar:Sidebar Grid.Column="0"
                          SelectedItem="{Binding ActivePlaylist}">
             <sidebar:Sidebar.Header>
-                <TextBlock Text="PLAYLISTS"
-                           FontFamily="{StaticResource SFTextMedium}"
+                <TextBlock Text="Playlists"
+                           FontFamily="{StaticResource SFTextRegular}"
                            FontSize="13"
                            Classes="TextFillColorTertiaryBrush" />
             </sidebar:Sidebar.Header>

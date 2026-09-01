@@ -57,7 +57,7 @@
                         </Grid>
                     </sidebar:Sidebar.Header>
                     <sidebar:Sidebar.Items>
-                        <sidebar:SidebarItemText Text="GENERAL" />
+                        <sidebar:SidebarItemText Text="General" />
                         <sidebar:SidebarItemButton Text="Home" Icon="Home" Tag="{x:Type views:HomeView}" />
                         <sidebar:SidebarItemButton Text="News &amp; Updates" Icon="Newspaper"
                                                    Tag="{x:Type views:NewsView}" />
@@ -69,7 +69,7 @@
                         <sidebar:SidebarItemContent>
                             <Grid ColumnDefinitions="* 8 Auto">
                                 
-                                <sidebar:SidebarItemText Grid.Column="0" Text="EXPORT" />
+                                <sidebar:SidebarItemText Grid.Column="0" Text="Export" />
                                 
                                 <loading:ButtonPulseLoading Grid.Column="2" Width="64" Margin="{ext:Space -2, 0}" Opacity="0.5"
                                                             IsVisible="{Binding !UEParse.FinishedLoading}"/>
@@ -86,7 +86,7 @@
 
                         <sidebar:SidebarItemSeparator />
 
-                        <sidebar:SidebarItemText Text="ONLINE" />
+                        <sidebar:SidebarItemText Text="Online" />
                         <sidebar:SidebarItemButton Text="Chat" Icon="Message" Tag="{x:Type views:ChatView}"
                                                    IsEnabled="{Binding SupaBase.IsLoggedIn}"
                                                    NotificationCount="{Binding Chat.UnseenMessageCount}"/>
@@ -96,7 +96,7 @@
 
                         <sidebar:SidebarItemSeparator />
 
-                        <sidebar:SidebarItemText Text="SETTINGS" />
+                        <sidebar:SidebarItemText Text="Settings" />
                         <sidebar:SidebarItemButton Text="Plugin" Icon="Plug" Tag="{x:Type views:PluginView}" />
                         <sidebar:SidebarItemButton Text="Export Options" Icon="FileCog"
                                                    Tag="{x:Type views:ExportSettingsView}" />

@@ -19,7 +19,7 @@
         </Grid.ColumnDefinitions>
         <sidebar:Sidebar x:Name="Sidebar" Grid.Column="0" ItemSelected="OnItemSelected">
             <sidebar:Sidebar.Items>
-                <sidebar:SidebarItemText Text="APP SETTINGS"/>
+                <sidebar:SidebarItemText Text="App Settings"/>
                 <sidebar:SidebarItemButton Text="Application" Icon="ApplicationCog" Tag="{x:Type settings:ApplicationSettingsView}"/>
                 <sidebar:SidebarItemButton Text="Installation" Icon="Folder" Tag="{x:Type settings:InstallationSettingsView}"/>
                 <sidebar:SidebarItemButton Text="Account" Icon="User" Tag="{x:Type settings:AccountSettingsView}" IsVisible="{Binding SupaBase.IsLoggedIn}"/>

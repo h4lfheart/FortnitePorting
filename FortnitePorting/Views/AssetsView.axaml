@@ -125,7 +125,7 @@
                                         <DataTemplate DataType="filters:FilterCategory">
                                             <StackPanel IsVisible="{Binding IsVisible}" Margin="{ext:Space 0.5}">
                                                 <TextBlock Text="{Binding Title}" FontSize="13"
-                                                           FontFamily="{StaticResource SFTextMedium}"
+                                                           FontFamily="{StaticResource SFTextRegular}"
                                                            Classes="TextFillColorTertiaryBrush"
                                                            Margin="{ext:Space 0, 0, 0, 0.5}" />
                                                 <ItemsControl ItemsSource="{Binding Filters}">

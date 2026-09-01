@@ -1237,6 +1237,11 @@
             <Setter Property="FontFamily" Value="{StaticResource SFTextBold}" />
         </Style>
 
+        <Style Selector="TextBlock.SettingsSectionHeaderStyle">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontFamily" Value="{StaticResource SFTextRegular}" />
+        </Style>
+
         <Style Selector="TextBlock.SubtitleTextBlockStyle">
             <Setter Property="FontSize" Value="20" />
             <Setter Property="FontFamily" Value="{StaticResource SFTextBold}" />

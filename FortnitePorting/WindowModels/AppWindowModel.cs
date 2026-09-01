@@ -92,10 +92,11 @@ public partial class AppWindowModel(
         var args = new[]
         {
             "--skip-setup",
-            "--add-repository https://api.fortniteporting.app/v1/repository",
-            $"--import-profile \"Fortnite Porting\" \"{Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AppDomain.CurrentDomain.FriendlyName + ".exe")}\" \"FortnitePorting\"",
-            "--update-profile \"Fortnite Porting\" -force",
-            "--launch-profile \"Fortnite Porting\"",
+            "--silent",
+            "--add-repository https://api.fortniteporting.app/v2/repository",
+            $"--register \"{Environment.ProcessPath}\" \"FortnitePorting\"",
+            "--update FortnitePorting",
+            "--launch FortnitePorting",
         };
 
         _info.Message("Portle", $"Fortnite Porting {UpdateVersion!.Version} is currently being downloaded.");

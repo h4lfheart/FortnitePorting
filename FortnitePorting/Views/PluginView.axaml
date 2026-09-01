@@ -18,7 +18,7 @@
         
         <sidebar:Sidebar x:Name="Sidebar" Grid.Column="0" ItemSelected="OnItemSelected">
             <sidebar:Sidebar.Items>
-                <sidebar:SidebarItemText Text="PLUGIN"/>
+                <sidebar:SidebarItemText Text="Plugin"/>
                 <sidebar:SidebarItemButton Text="Blender" IconBitmap="/Assets/Icons/Blender.png" Tag="{x:Static fpExport:EExportLocation.Blender}"/>
                 <sidebar:SidebarItemButton Text="Unreal" IconBitmap="/Assets/Icons/Unreal.png" Tag="{x:Static fpExport:EExportLocation.Unreal}"/>
                 <sidebar:SidebarItemButton Text="Unity" IconBitmap="/Assets/Icons/Unity.png" Tag="{x:Static fpExport:EExportLocation.Unity}" IsEnabled="False"/>

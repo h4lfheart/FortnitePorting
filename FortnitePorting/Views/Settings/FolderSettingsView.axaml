@@ -21,7 +21,7 @@
     <Grid ColumnDefinitions="* 5*">
         <sidebar:Sidebar Grid.Column="0" ItemSelected="OnItemSelected">
             <sidebar:Sidebar.Items>
-
+                <sidebar:SidebarItemText Text="Folder"/>
                 <sidebar:SidebarItemButton Text="General" Icon="Tune">
                     <sidebar:SidebarItemButton.Tag>
                         <StackPanel Spacing="{ext:Space 0, 0, 0, 1}">

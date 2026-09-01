@@ -28,7 +28,7 @@
                          SelectedItem="{Binding SelectedEditProfile, Mode=TwoWay}"
                          ItemSelected="OnItemSelected">
             <sidebar:Sidebar.Items>
-                <sidebar:SidebarItemText Text="PROFILES"/>
+                <sidebar:SidebarItemText Text="Profiles"/>
                 <sidebar:SidebarItemsSource ItemsSource="{Binding Profiles}" CanReorder="True">
                     <sidebar:SidebarItemsSource.ItemTemplate>
                         <DataTemplate x:DataType="installation:InstallationProfile">
@@ -67,7 +67,7 @@
         <ScrollViewer Grid.Column="1">
             <StackPanel x:Name="ProfileContent" VerticalAlignment="Top" Margin="{ext:Space 1, 2, 1, 1}" Spacing="{ext:Space 0, 0, 0, 1}" DataContext="{Binding SelectedEditProfile}">
                 <TextBlock Text="General"
-                           Classes="BodyLargeTextBlockStyle"
+                           Classes="SettingsSectionHeaderStyle TextFillColorTertiaryBrush"
                            HorizontalAlignment="Left"
                            Margin="{ext:Space 1, 0, 0, 0}"/>
 
@@ -107,9 +107,9 @@
                 </controls:SettingsItem>
 
                 <TextBlock Text="Config"
-                           Classes="BodyLargeTextBlockStyle"
+                           Classes="SettingsSectionHeaderStyle TextFillColorTertiaryBrush"
                            HorizontalAlignment="Left"
-                           Margin="{ext:Space 1, 2, 0, 0}"/>
+                           Margin="{ext:Space 1, 1, 0, 0}"/>
 
                 <controls:SettingsItem Title="Fetch Data"
                                        Description="Download encryption keys and mappings for a specific Fortnite version and apply them to this profile."
@@ -193,9 +193,9 @@
                 </controls:SettingsItem>
 
                 <TextBlock Text="Options"
-                           Classes="BodyLargeTextBlockStyle"
+                           Classes="SettingsSectionHeaderStyle TextFillColorTertiaryBrush"
                            HorizontalAlignment="Left"
-                           Margin="{ext:Space 1, 2, 0, 0}"/>
+                           Margin="{ext:Space 1, 1, 0, 0}"/>
 
                 <controls:SettingsItem Title="Game Language"
                                        Description="The language used for in-game text strings such as names, descriptions, styles, etc.">

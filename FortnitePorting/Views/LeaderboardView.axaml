@@ -15,7 +15,7 @@
         </Grid.ColumnDefinitions>
         <sidebar:Sidebar x:Name="Sidebar" Grid.Column="0" ItemSelected="OnItemSelected">
             <sidebar:Sidebar.Items>
-                <sidebar:SidebarItemText Text="LEADERBOARD"/>
+                <sidebar:SidebarItemText Text="Leaderboard"/>
                 <sidebar:SidebarItemButton Text="Personal" Icon="Account" Tag="{x:Type leaderboard:LeaderboardPersonalView}"/>
                 <sidebar:SidebarItemButton Text="Levels" Icon="Poll" Tag="{x:Type leaderboard:LeaderboardLevelsView}"/>
                 <sidebar:SidebarItemButton Text="Assets" Icon="Folder" Tag="{x:Type leaderboard:LeaderboardExportsView}"/>

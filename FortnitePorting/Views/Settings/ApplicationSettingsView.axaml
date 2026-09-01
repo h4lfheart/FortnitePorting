@@ -18,7 +18,7 @@
     <ScrollViewer>
         <StackPanel VerticalAlignment="Top" Margin="{ext:Space 1, 2, 1, 1}" Spacing="{ext:Space 0, 0, 0, 1}">
             <TextBlock Text="General"
-                       Classes="BodyLargeTextBlockStyle"
+                       Classes="SettingsSectionHeaderStyle TextFillColorTertiaryBrush"
                        HorizontalAlignment="Left"
                        Margin="{ext:Space 1, 0, 0, 0}"/>
             
@@ -47,9 +47,9 @@
             </controls:SettingsItem>
             
             <TextBlock Text="Display"
-                       Classes="BodyLargeTextBlockStyle"
+                       Classes="SettingsSectionHeaderStyle TextFillColorTertiaryBrush"
                        HorizontalAlignment="Left"
-                       Margin="{ext:Space 1, 2, 0, 0}"/>
+                       Margin="{ext:Space 1, 1, 0, 0}"/>
             
             <controls:SettingsItem Title="Theme"
                                    Description="The theme that should be used for Fortnite Porting.">
@@ -80,9 +80,9 @@
             </controls:SettingsItem>
             
             <TextBlock Text="Audio"
-                       Classes="BodyLargeTextBlockStyle"
+                       Classes="SettingsSectionHeaderStyle TextFillColorTertiaryBrush"
                        HorizontalAlignment="Left"
-                       Margin="{ext:Space 1, 2, 0, 0}"/>
+                       Margin="{ext:Space 1, 1, 0, 0}"/>
             
             <controls:SettingsItem Title="Audio Device" Description="The device that should be used for audio playback.">
                 <controls:SettingsItem.Footer>
@@ -115,9 +115,9 @@
             </controls:SettingsItem>
             
             <TextBlock Text="Loading"
-                       Classes="BodyLargeTextBlockStyle"
+                       Classes="SettingsSectionHeaderStyle TextFillColorTertiaryBrush"
                        HorizontalAlignment="Left"
-                       Margin="{ext:Space 1, 2, 0, 0}"/>
+                       Margin="{ext:Space 1, 1, 0, 0}"/>
             
             <controls:SettingsItem Title="Default Asset Type" Description="The asset type that should be automatically preloaded and selected.">
                 <controls:SettingsItem.Footer>
@@ -161,9 +161,9 @@
             </controls:SettingsItem>
             
             <TextBlock Text="Other"
-                       Classes="BodyLargeTextBlockStyle"
+                       Classes="SettingsSectionHeaderStyle TextFillColorTertiaryBrush"
                        HorizontalAlignment="Left"
-                       Margin="{ext:Space 1, 2, 0, 0}"/>
+                       Margin="{ext:Space 1, 1, 0, 0}"/>
             
             <controls:SettingsItem Title="Show Developer Settings" Description="Enables the developer settings tab.">
                 <controls:SettingsItem.Footer>
