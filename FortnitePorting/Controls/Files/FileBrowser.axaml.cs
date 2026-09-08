@@ -7,6 +7,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using Avalonia.VisualTree;
 using FluentAvalonia.UI.Controls;
 using FortnitePorting.Application;
 using FortnitePorting.Controls;
@@ -48,6 +49,9 @@ public partial class FileBrowser : UserControl
         if (!Context.IsDragDropEnabled) return;
         if (e.Source is not Control source) return;
 
+        // Prevent drag/drop functionality from triggering on non-file items (like the search bar text)
+        if (!IsDraggableItemSource(source)) return;
+
         if (IsSourceAlreadySelected(source))
         {
             e.Handled = true;
@@ -56,6 +60,12 @@ public partial class FileBrowser : UserControl
 
         _dragPressArgs = e;
         _dragStartPosition = e.GetPosition(this);
+    }
+
+    private static bool IsDraggableItemSource(Control source)
+    {
+        return source.FindAncestorOfType<ListBoxItem>() is not null
+            || source.FindAncestorOfType<TreeViewItem>() is not null;
     }
 
     private bool TryHandleNavigationButton(PointerPressedEventArgs e)
