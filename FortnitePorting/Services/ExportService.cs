@@ -195,6 +195,7 @@ public class ExportService(
             exportType = asset.ExportType switch
             {
                 "CustomCharacterPart" => EExportType.CharacterPart,
+                "FortBuildingInstructions" => EExportType.Mesh,
                 _ => EExportType.None
             };
         }
