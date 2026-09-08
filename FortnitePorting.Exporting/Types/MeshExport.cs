@@ -297,7 +297,7 @@ public class MeshExport : BaseExport
                 {
                     AddObjects(Context.Blueprint(blueprintGeneratedClass));
                 }
-                else if (asset is FortBuildingInstructions buildingInstructions)
+                else if (asset is UFortBuildingInstructions buildingInstructions)
                 {
                     Meshes.AddIfNotNull(Context.FortBuildingInstructions(buildingInstructions));
                 }
