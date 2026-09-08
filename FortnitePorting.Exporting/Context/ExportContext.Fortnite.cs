@@ -17,6 +17,7 @@ using CUE4Parse.UE4.Objects.UObject;
 using FortnitePorting.CUE4Parse.Extensions;
 using FortnitePorting.CUE4Parse.Models.Fortnite;
 using FortnitePorting.CUE4Parse.Models.Fortnite.Enums;
+using FortnitePorting.CUE4Parse.Models.Fortnite.Instructions;
 using FortnitePorting.Exporting.Models;
 using FortnitePorting.Shared.Extensions;
 
@@ -228,6 +229,44 @@ public partial class ExportContext
     }
     
     
+    public ExportMesh FortBuildingInstructions(FortBuildingInstructions buildingInstructions)
+    {
+        var exportMesh = new ExportMesh
+        {
+            Name = buildingInstructions.Name,
+            IsEmpty = true
+        };
+
+        var instructions = buildingInstructions.Instructions;
+        if (instructions is null || instructions.Length == 0) return exportMesh;
+
+        var totalInstructions = instructions.Length;
+        for (var i = 0; i < totalInstructions; i++)
+        {
+            if (CancellationToken.IsCancellationRequested) break;
+
+            var actorRecord = instructions[i].ActorRecord;
+            if (actorRecord is null) continue;
+
+            var actorClass = actorRecord.ActorClass.Load<UBlueprintGeneratedClass>();
+            if (actorClass is null) continue;
+
+            var objects = Blueprint(actorClass);
+            var transform = actorRecord.Transform;
+            foreach (var obj in objects)
+            {
+                obj.Location += transform.Translation;
+                obj.Rotation += transform.Rotator();
+                obj.Scale *= transform.Scale3D;
+            }
+
+            Meta.OnUpdateProgress(objects.OfType<ExportMesh>().FirstOrDefault()?.Name ?? actorClass.Name, i + 1, totalInstructions);
+            exportMesh.AddChildren(objects);
+        }
+
+        return exportMesh;
+    }
+
     public List<ExportObject> LevelSaveRecord(ULevelSaveRecord levelSaveRecord)
     {
         var objects = new List<ExportObject>();
