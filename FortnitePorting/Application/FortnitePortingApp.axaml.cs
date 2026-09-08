@@ -22,9 +22,11 @@ public partial class FortnitePortingApp : Avalonia.Application
         Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
         BindingPlugins.DataValidators.RemoveAll(validator => validator is DataAnnotationsValidationPlugin);
 
-        if (Styles.OfType<FluentAvaloniaTheme>().FirstOrDefault() is { } fluentTheme)
+        if (Styles.OfType<FluentAvaloniaTheme>().FirstOrDefault() is { } fluentTheme
+            && TryGetResource("FPAccentColor", ActualThemeVariant, out var accent)
+            && accent is Color accentColor)
         {
-            fluentTheme.CustomAccentColor = Color.Parse("#953bf8");
+            fluentTheme.CustomAccentColor = accentColor;
         }
         
         AppServices.Initialize();
