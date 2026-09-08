@@ -4,7 +4,7 @@ using CUE4Parse.UE4.Assets.Utils;
 
 namespace FortnitePorting.CUE4Parse.Models.Fortnite.Instructions;
 
-public class FortBuildingInstructions : UObject
+public class UFortBuildingInstructions : UObject
 {
     [UProperty] public FFortBuildingInstruction[]? Instructions;
 }

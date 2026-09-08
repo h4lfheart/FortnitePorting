@@ -229,7 +229,7 @@ public partial class ExportContext
     }
     
     
-    public ExportMesh FortBuildingInstructions(FortBuildingInstructions buildingInstructions)
+    public ExportMesh FortBuildingInstructions(UFortBuildingInstructions buildingInstructions)
     {
         var exportMesh = new ExportMesh
         {
