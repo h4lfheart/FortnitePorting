@@ -538,7 +538,7 @@ class MaterialImportContext:
         is_object_import = EMaterialImportMethod.OBJECT == EMaterialImportMethod(self.options.get("MaterialImportMethod"))
         materials = data.get("Materials")
 
-        if materials is None:
+        if not materials:
             return
 
         if is_object_import:

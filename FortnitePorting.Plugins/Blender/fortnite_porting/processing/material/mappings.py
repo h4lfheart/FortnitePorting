@@ -82,14 +82,14 @@ class DefaultMappings(MappingCollection):
         SlotMapping("OpacityMask", "MaskTexture"),
         SlotMapping("MessHairMask", "MaskTexture"),
 
-        SlotMapping("FX Mask"),
-        SlotMapping("FX", "FX Mask"),
-        SlotMapping("SkinFX_Mask", "FX Mask"),
-        SlotMapping("SkinFX Mask", "FX Mask"),
-        SlotMapping("TechArtMask", "FX Mask"),
-        SlotMapping("FxMask", "FX Mask"),
-        SlotMapping("FX_Mask", "FX Mask"),
-        SlotMapping("Input FX", "FX Mask"),
+        SlotMapping("FX Mask", alpha_slot="FX Mask Alpha"),
+        SlotMapping("FX", "FX Mask", alpha_slot="FX Mask Alpha"),
+        SlotMapping("SkinFX_Mask", "FX Mask", alpha_slot="FX Mask Alpha"),
+        SlotMapping("SkinFX Mask", "FX Mask", alpha_slot="FX Mask Alpha"),
+        SlotMapping("TechArtMask", "FX Mask", alpha_slot="FX Mask Alpha"),
+        SlotMapping("FxMask", "FX Mask", alpha_slot="FX Mask Alpha"),
+        SlotMapping("FX_Mask", "FX Mask", alpha_slot="FX Mask Alpha"),
+        SlotMapping("Input FX", "FX Mask", alpha_slot="FX Mask Alpha"),
     )
 
     scalars=(
@@ -1056,6 +1056,7 @@ class MetalLUTMappings(MappingCollection):
     colors=(
         SlotMapping("MetalLUTMaskChannel"),
         SlotMapping("MetalLUT_Channel", "MetalLUTMaskChannel"),
+        SlotMapping("MetalMaskChannel", "MetalLUTMaskChannel"),
 
         SlotMapping("LUTChannel"),
     )
