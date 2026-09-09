@@ -924,8 +924,8 @@ class TastyImportContext:
             CustomShape("ik_foot_pole_l", "CTRL_Pole_Leg", "THEME04"),
             CustomShape("ik_hand_pole_r", "CTRL_Pole_Arm", "THEME01"),
             CustomShape("ik_hand_pole_l", "CTRL_Pole_Arm", "THEME04"),
-            CustomShape("ik_foot_ctrl_r", "CTRL_Foot_Ctrl", "THEME01"),
-            CustomShape("ik_foot_ctrl_l", "CTRL_Foot_Ctrl", "THEME04"),
+            CustomShape("ik_foot_ctrl_r", "CTRL_Modify", "THEME01"),
+            CustomShape("ik_foot_ctrl_l", "CTRL_Modify", "THEME04"),
     
             CustomShape("ik_finger_thumb_r", "CTRL_Box", "THEME01", scale=0.2),
             CustomShape("ik_finger_index_r", "CTRL_Box", "THEME01", scale=0.2),

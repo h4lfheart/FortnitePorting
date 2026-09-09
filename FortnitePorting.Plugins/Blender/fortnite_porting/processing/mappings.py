@@ -175,5 +175,13 @@ extra_deform_mappings = {
     "l_thigh_ret": "thigh_l",
     "l_calf_ret": "calf_l",
     "l_foot_ret": "foot_l",
+    "dyn_arm_r": "upperarm_r",
+    "dyn_arm_l": "upperarm_l",
+    "thighRet_r": "thigh_r",
+    "thighRet_l": "thigh_l",
+    "calfRet_r": "calf_r",
+    "calfRet_l": "calf_l",
+    "metaTarsoRet_l": "foot_l",
+    "metaTarsoRet_r": "foot_r",
     
 }
