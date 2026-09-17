@@ -1,6 +1,6 @@
 <div align="center">
 
-# <img src="FortnitePorting/Assets/LogoRebrand.png" width="48" height="48" style="margin-bottom: 6px; margin-right: 4px;" alt="Fortnite Porting logo" align="center" /> Fortnite Porting
+# Fortnite Porting
 
 
 [![Discord](https://img.shields.io/discord/866821077769781249?logo=discord&logoColor=white&label=Discord&color=7289da)](https://discord.gg/fortniteporting)
