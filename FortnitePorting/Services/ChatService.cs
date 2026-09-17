@@ -22,6 +22,7 @@ using Serilog;
 using Supabase.Realtime;
 using Supabase.Realtime.Interfaces;
 using Supabase.Realtime.Models;
+using Supabase.Realtime.Presence;
 
 namespace FortnitePorting.Services;
 
@@ -223,12 +224,13 @@ public partial class ChatService : ObservableObject, IService
             _messageFetchLock.Release();
         }
     }
+    
 
     private async Task InitializePresence()
     {
         if (ChatPresence is not null) return;
 
-        ChatPresence = _chatChannel.Register<ChatUserPresence>(SupaBase.UserInfo.UserId);
+        ChatPresence = _chatChannel.Register<ChatUserPresence>(PresenceOptions.WithPresence(SupaBase.UserInfo.UserId));
 
         TypingUsers.CollectionChanged += (sender, args) => OnPropertyChanged(nameof(TypingUsersText));
         ChatPresence.AddPresenceEventHandler(IRealtimePresence.EventType.Sync, (sender, type) =>
@@ -294,7 +296,7 @@ public partial class ChatService : ObservableObject, IService
         {
             if (!SupaBase.IsLoggedIn) return;
 
-            var currentState = ChatPresence.CurrentState;
+            var currentState = ChatPresence.CurrentState.ToDictionary();
             var removedUsers = 0;
             foreach (var user in Users.ToArray())
             {

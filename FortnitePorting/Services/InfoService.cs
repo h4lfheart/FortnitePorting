@@ -18,7 +18,6 @@ using Serilog;
 using Serilog.Core;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
-using Supabase.Postgrest.Exceptions;
 using MessageData = FortnitePorting.Models.Information.MessageData;
 
 namespace FortnitePorting.Services;

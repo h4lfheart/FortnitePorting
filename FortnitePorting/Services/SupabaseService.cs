@@ -168,7 +168,8 @@ public partial class SupabaseService : ObservableObject, IService
     {
         IsLoggedIn = true;
         
-        Permissions = (await Client.Rpc<Permissions>("permissions", new { })).Adapt<UserPermissions>();
+        if (await Client.Rpc<Permissions>("permissions", new { }) is { } permissions)
+            Permissions = permissions.Adapt<UserPermissions>();
         
         await Client.From<Permissions>().On(PostgresChangesOptions.ListenType.All, (channel, response) =>
         {

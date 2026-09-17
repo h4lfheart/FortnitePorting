@@ -40,7 +40,7 @@
     <PackageVersion Include="FFMpegCore" Version="5.1.0" />
     <PackageVersion Include="Mapster" Version="7.4.2-pre02" />
     <PackageVersion Include="ReactiveUI" Version="20.0.1" />
-    <PackageVersion Include="Supabase" Version="1.1.1" />
+    <PackageVersion Include="Supabase" Version="8.1.1" />
     <PackageVersion Include="System.Security.Cryptography.ProtectedData" Version="8.0.0" />
     <PackageVersion Include="Tomlyn" Version="0.17.0" />
     <PackageVersion Include="VideoLAN.LibVLC.Windows" Version="3.0.23.1" />

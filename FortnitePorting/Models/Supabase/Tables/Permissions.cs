@@ -1,13 +1,11 @@
+using System;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using FortnitePorting.Extensions;
 using FortnitePorting.Models.Supabase.User;
 using Mapster;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using Supabase.Postgrest.Attributes;
 using Supabase.Postgrest.Models;
-using JsonException = Newtonsoft.Json.JsonException;
-using JsonSerializer = Newtonsoft.Json.JsonSerializer;
 
 namespace FortnitePorting.Models.Supabase.Tables;
 
@@ -15,9 +13,9 @@ namespace FortnitePorting.Models.Supabase.Tables;
 [AdaptTo(nameof(UserPermissions)), GenerateMapper]
 public class Permissions : BaseModel
 {
-    [JsonProperty("role")] public ESupabaseRole Role;
-    [JsonProperty("uefn_export")] public bool CanExportUEFN;
-    [JsonProperty("is_muted")] public bool IsMuted;
+    [JsonPropertyName("role")] public ESupabaseRole Role { get; set; }
+    [JsonPropertyName("uefn_export")] public bool CanExportUEFN { get; set; }
+    [JsonPropertyName("is_muted")] public bool IsMuted { get; set; }
 }
 
 [JsonConverter(typeof(SupabaseRoleStringEnumConverter))]
@@ -32,22 +30,21 @@ public enum ESupabaseRole
     System
 }
 
-
-public class SupabaseRoleStringEnumConverter : StringEnumConverter
+public class SupabaseRoleStringEnumConverter : JsonConverter<ESupabaseRole>
 {
-    public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+    public override ESupabaseRole Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        writer.WriteValue(value?.ToString()?.ToLowerInvariant());
+        if (reader.TokenType == JsonTokenType.Number)
+            return (ESupabaseRole) reader.GetInt32();
+
+        if (reader.GetString() is { } str && Enum.TryParse(str, true, out ESupabaseRole result))
+            return result;
+
+        throw new JsonException($"Unable to convert '{reader.GetString()}' to {nameof(ESupabaseRole)}.");
     }
 
-    public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+    public override void Write(Utf8JsonWriter writer, ESupabaseRole value, JsonSerializerOptions options)
     {
-        if (reader.Value is string str &&
-            Enum.TryParse(objectType, str, true, out var result))
-        {
-            return result;
-        }
-
-        throw new JsonSerializationException($"Unable to convert '{reader.Value}' to {objectType.Name}.");
+        writer.WriteStringValue(value.ToString().ToLowerInvariant());
     }
 }

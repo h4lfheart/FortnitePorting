@@ -8,15 +8,15 @@ using CUE4Parse_Conversion.Textures;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.Utils;
 using FortnitePorting.Extensions;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace FortnitePorting.Models.Leaderboard;
 
 public partial class LeaderboardExport : ObservableObject
 {
-    [ObservableProperty] [JsonProperty("rank")] private int _ranking;
-    [ObservableProperty] [JsonProperty("total")] private int _exportCount;
-    [ObservableProperty] [JsonProperty("path")] private string _objectPath;
+    [ObservableProperty] [property: JsonPropertyName("rank")] private int _ranking;
+    [ObservableProperty] [property: JsonPropertyName("total")] private int _exportCount;
+    [ObservableProperty] [property: JsonPropertyName("path")] private string _objectPath;
     
     [ObservableProperty] private string _objectName;
     [ObservableProperty] private string _category;

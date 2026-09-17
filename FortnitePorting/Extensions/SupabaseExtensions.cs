@@ -1,7 +1,8 @@
-using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
 using Supabase;
 using Supabase.Realtime.Models;
 
@@ -9,37 +10,28 @@ namespace FortnitePorting.Extensions;
 
 public static class SupabaseExtensions
 {
+    private static readonly JsonSerializerOptions PayloadSerializerOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        NumberHandling = JsonNumberHandling.AllowReadingFromString,
+        Converters = { new JsonStringEnumConverter() }
+    };
+
     extension(BaseBroadcast broadcast)
     {
         public T Get<T>(string propertyName)
         {
-            var property = broadcast.Payload![propertyName];
-            if (property is JObject jsonObject)
-            {
-                return jsonObject.ToObject<T>()!;
-            }
+            var value = broadcast.Payload?.GetValueOrDefault(propertyName);
+            if (value is null) return default!;
+            if (value is T typedValue) return typedValue;
 
-            if (property is string stringValue && typeof(T).IsAssignableTo(typeof(Enum)))
-            {
-                var enumValues = (T[]) Enum.GetValues(typeof(T));
-                return enumValues.First(enumValue => enumValue!.ToString()!.Equals(stringValue, StringComparison.OrdinalIgnoreCase));
-            }
-        
-            return (T) property;
+            var json = JsonSerializer.Serialize(value, PayloadSerializerOptions);
+            return JsonSerializer.Deserialize<T>(json, PayloadSerializerOptions)!;
         }
-        
+
         public T[] GetArray<T>(string propertyName)
         {
-            var property = broadcast.Payload![propertyName];
-            if (property is not JArray jsonArray)
-                return [];
-
-            var tokens = jsonArray.ToArray();
-            
-            return [..tokens
-                .Select(token => token.Type == JTokenType.Object ? token.ToObject<T>() : token.Value<T>())
-                .Where(item => item is not null)!
-            ];
+            return broadcast.Get<T[]>(propertyName) ?? [];
         }
     }
 
@@ -49,17 +41,17 @@ public static class SupabaseExtensions
         {
             return await client.Rpc<T[]>(name, args ?? new { }) ?? [];
         }
-        
+
         public async Task<T?> CallPrimitiveFunction<T>(string name, object? args = null)
         {
             return await client.Rpc<T>(name, args ?? new { }) ?? default;
         }
-        
+
         public async Task<T?> CallObjectFunction<T>(string name, object? args = null)
         {
             var result = await client.Rpc<T[]>(name, args ?? new { });
             return result is null ? default : result.FirstOrDefault();
         }
     }
-    
+
 }

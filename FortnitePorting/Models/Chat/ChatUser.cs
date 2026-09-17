@@ -11,7 +11,7 @@ using FortnitePorting.Extensions;
 using FortnitePorting.Models.API.Requests;
 using FortnitePorting.Models.Information;
 using FortnitePorting.Models.Supabase.Tables;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 using Supabase.Realtime.Models;
 
 namespace FortnitePorting.Models.Chat;
@@ -89,8 +89,8 @@ public partial class ChatUser : ObservableObject
 
 public class ChatUserPresence : BasePresence
 {
-    [JsonProperty("user_id")] public string UserId;
-    [JsonProperty("application")] public string Application;
-    [JsonProperty("version")] public string Version;
-    [JsonProperty("is_typing")] public bool IsTyping;
+    [JsonPropertyName("user_id")] public string UserId;
+    [JsonPropertyName("application")] public string Application;
+    [JsonPropertyName("version")] public string Version;
+    [JsonPropertyName("is_typing")] public bool IsTyping;
 }

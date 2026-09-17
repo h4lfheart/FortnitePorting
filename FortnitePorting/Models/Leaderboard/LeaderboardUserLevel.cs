@@ -4,17 +4,17 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using FortnitePorting.Extensions;
 using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.Supabase.Tables;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace FortnitePorting.Models.Leaderboard;
 
 public partial class LeaderboardUserLevel : ObservableObject
 {
-    [ObservableProperty] [JsonProperty("rank")] private int _ranking;
-    [ObservableProperty] [JsonProperty("user_id")] private string _userId;
+    [ObservableProperty] [property: JsonPropertyName("rank")] private int _ranking;
+    [ObservableProperty] [property: JsonPropertyName("user_id")] private string _userId;
 
-    [ObservableProperty] [JsonProperty("level")] private int _level;
-    [ObservableProperty] [JsonProperty("total_xp")] private int _totalXP;
+    [ObservableProperty] [property: JsonPropertyName("level")] private int _level;
+    [ObservableProperty] [property: JsonPropertyName("total_xp")] private int _totalXP;
 
     [ObservableProperty, NotifyPropertyChangedFor(nameof(UserBrush))]
     private UserInfoResponse? _userInfo;
