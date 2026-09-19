@@ -1,0 +1,65 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <Version>4.0.0-dev</Version>
+        <OutputType>WinExe</OutputType>
+        <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+        <ApplicationManifest>Application/app.manifest</ApplicationManifest>
+        <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+        <ApplicationIcon>Assets/LogoRebrand.ico</ApplicationIcon>
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+        <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+        <SelfContained>true</SelfContained>
+        <PublishSingleFile>true</PublishSingleFile>
+        <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Avalonia" />
+        <PackageReference Include="Avalonia.Desktop" />
+        <PackageReference Include="Avalonia.Markup.Xaml.Loader" />
+        <PackageReference Include="Avalonia.Themes.Fluent" />
+        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" />
+        <PackageReference Include="Avalonia_Gif" />
+        <PackageReference Include="AvaSourceGenerators" />
+        <PackageReference Include="ConcurrentHashSet" />
+        <PackageReference Include="DiscordRichPresence" />
+        <PackageReference Include="DynamicData" />
+        <PackageReference Include="EpicManifestParser" />
+        <PackageReference Include="FFMpegCore" />
+        <PackageReference Include="FluentAvaloniaUI" />
+        <PackageReference Include="LibVLCSharp.Avalonia" />
+        <PackageReference Include="Mapster" />
+        <PackageReference Include="Material.Icons.Avalonia" />
+        <PackageReference Include="Microsoft.AspNetCore.DataProtection" />
+        <PackageReference Include="Microsoft.AspNetCore.DataProtection.Extensions" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+        <PackageReference Include="NAudio" />
+        <PackageReference Include="NAudio.Vorbis" />
+        <PackageReference Include="NodifyAvalonia" />
+        <PackageReference Include="ReactiveUI" />
+        <PackageReference Include="RestSharp" />
+        <PackageReference Include="RestSharp.Serializers.NewtonsoftJson" />
+        <PackageReference Include="Serilog.Sinks.File" />
+        <PackageReference Include="Supabase" />
+        <PackageReference Include="System.Security.Cryptography.ProtectedData" />
+        <PackageReference Include="Tomlyn" />
+        <PackageReference Include="VideoLAN.LibVLC.Windows" />
+        <PackageReference Include="z440.atl.core" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <AvaloniaResource Include="Assets\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\external\CUE4Parse\CUE4Parse-Conversion\CUE4Parse-Conversion.csproj" />
+        <ProjectReference Include="..\..\external\CUE4Parse\CUE4Parse\CUE4Parse.csproj" />
+        <ProjectReference Include="..\..\external\FluentAvalonia.BreadcrumbBar\FluentAvalonia.BreadcrumbBar\FluentAvalonia.BreadcrumbBar.csproj" />
+        
+        <ProjectReference Include="..\FortnitePorting.CUE4Parse\FortnitePorting.CUE4Parse.csproj" />
+        <ProjectReference Include="..\FortnitePorting.Exporting\FortnitePorting.Exporting.csproj" />
+        <ProjectReference Include="..\FortnitePorting.Plugins\FortnitePorting.Plugins.csproj" />
+        <ProjectReference Include="..\FortnitePorting.Rendering\FortnitePorting.Rendering.csproj" />
+        <ProjectReference Include="..\FortnitePorting.Shared\FortnitePorting.Shared.csproj" />
+    </ItemGroup>
+</Project>

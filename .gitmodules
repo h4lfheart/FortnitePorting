@@ -1,9 +1,9 @@
-[submodule "Dependencies/CUE4Parse"]
-	path = Dependencies/CUE4Parse
+[submodule "external/CUE4Parse"]
+	path = external/CUE4Parse
 	url = https://github.com/h4lfheart/CUE4Parse
-[submodule "Dependencies/FluentAvalonia.BreadcrumbBar"]
-	path = Dependencies/FluentAvalonia.BreadcrumbBar
+[submodule "external/FluentAvalonia.BreadcrumbBar"]
+	path = external/FluentAvalonia.BreadcrumbBar
 	url = https://github.com/h4lfheart/FluentAvalonia.BreadcrumbBar
-[submodule "Dependencies/UEFormat"]
-	path = Dependencies/UEFormat
+[submodule "external/UEFormat"]
+	path = external/UEFormat
 	url = https://github.com/h4lfheart/UEFormat
