@@ -253,11 +253,7 @@ class MeshImportContext:
             if index >= len(imported_mesh.material_slots):
                 continue
 
-            overridden_material = imported_mesh.material_slots[index]
-            slots = where(imported_mesh.material_slots,
-                          lambda slot: slot.name == overridden_material.name)
-            for slot in slots:
-                self.import_material(slot, override_material, meta)
+            self.import_material(imported_mesh.material_slots[index], override_material, meta)
 
         for variant_override_material in self.override_materials:
             material_name_to_swap = variant_override_material.get("MaterialNameToSwap")
