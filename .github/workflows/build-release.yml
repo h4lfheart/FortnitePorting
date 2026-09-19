@@ -25,7 +25,7 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: .NET Restore
-        run: dotnet restore FortnitePorting
+        run: dotnet restore ./src/FortnitePorting
 
       - name: Get Version
         shell: bash
@@ -33,7 +33,7 @@ jobs:
 
       - name: .NET Publish
         run: |
-          dotnet publish FortnitePorting -c Release --self-contained -r win-x64 -o "./Release" `
+          dotnet publish ./src/FortnitePorting -c Release --self-contained -r win-x64 -o "./Release" `
             -p:PublishSingleFile=true `
             -p:DebugType=None `
             -p:DebugSymbols=false `

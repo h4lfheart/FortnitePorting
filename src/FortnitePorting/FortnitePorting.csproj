@@ -58,8 +58,9 @@
         
         <ProjectReference Include="..\FortnitePorting.CUE4Parse\FortnitePorting.CUE4Parse.csproj" />
         <ProjectReference Include="..\FortnitePorting.Exporting\FortnitePorting.Exporting.csproj" />
-        <ProjectReference Include="..\FortnitePorting.Plugins\FortnitePorting.Plugins.csproj" />
         <ProjectReference Include="..\FortnitePorting.Rendering\FortnitePorting.Rendering.csproj" />
         <ProjectReference Include="..\FortnitePorting.Shared\FortnitePorting.Shared.csproj" />
     </ItemGroup>
+
+    <Import Project="..\..\plugins\Resources.props" />
 </Project>

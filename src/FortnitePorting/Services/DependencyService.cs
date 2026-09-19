@@ -62,7 +62,7 @@ public class DependencyService : IService
         if (blenderFolder.Exists)
             blenderFolder.Delete(true);
 
-        var assets = AssetLoader.GetAssets(new Uri("avares://FortnitePorting.Plugins/Blender"), null);
+        var assets = AssetLoader.GetAssets(new Uri("avares://FortnitePorting/Blender"), null);
         foreach (var asset in assets)
         {
             var assetStream = AssetLoader.Open(asset);
@@ -79,7 +79,7 @@ public class DependencyService : IService
         if (unrealFolder.Exists)
             unrealFolder.Delete(true);
 
-        var assets = AssetLoader.GetAssets(new Uri("avares://FortnitePorting.Plugins/Unreal"), null);
+        var assets = AssetLoader.GetAssets(new Uri("avares://FortnitePorting/Unreal"), null);
         foreach (var asset in assets)
         {
             var assetStream = AssetLoader.Open(asset);
