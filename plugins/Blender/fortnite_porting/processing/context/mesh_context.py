@@ -1,0 +1,437 @@
+import os.path
+import bpy
+import numpy as np
+from math import radians
+
+from ..mappings import *
+from ..enums import *
+from ..utils import *
+from ...utils import *
+from ...logger import Log
+from ...ueformat.importer.import_context import UEFormatImport
+from ...ueformat.options import UEModelOptions
+
+VERTEX_CRUNCH_NAME = "FPv4 Vertex Crunch"
+FULL_VERTEX_CRUNCH_NAME = "FPv4 Full Vertex Crunch"
+
+class MeshImportContext:
+    def import_mesh_data(self, data):
+        rig_type = ERigType(self.options.get("RigType"))
+        
+        if rig_type == ERigType.TASTY:
+            self.options["MergeArmatures"] = True
+            self.options["ReorientBones"] = True
+        
+        self.override_materials = data.get("OverrideMaterials")
+        self.override_parameters = data.get("OverrideParameters")
+        self.override_morph_targets = data.get("OverrideMorphTargets")
+
+        pre_import_selected_armature = get_selected_armature()
+        pre_import_selected_armature_active = pre_import_selected_armature is not None and pre_import_selected_armature.select_get()
+        
+        self.collection = create_or_get_collection(self.name) if self.options.get("ImportIntoCollection") else bpy.context.scene.collection
+
+        if self.type in [EExportType.OUTFIT, EExportType.BACKPACK, EExportType.PICKAXE, EExportType.FALL_GUYS_OUTFIT]:
+            target_meshes = data.get("OverrideMeshes")
+            normal_meshes = data.get("Meshes")
+            for mesh in normal_meshes:
+                if not any(target_meshes, lambda target_mesh: target_mesh.get("Type") == mesh.get("Type")):
+                    target_meshes.append(mesh)
+        else:
+            target_meshes = data.get("Meshes")
+
+        self.meshes = target_meshes
+        for mesh in target_meshes:
+            self.import_model(mesh, can_spawn_at_3d_cursor=True)
+
+        self.import_light_data(data.get("Lights"))
+                
+        if self.type in [EExportType.OUTFIT]:
+            for imported_mesh in self.imported_meshes:
+                self.parent_deform_bones(imported_mesh["Skeleton"], ["dfrm_", "deform_"])
+                self.parent_bones(imported_mesh["Skeleton"], extra_deform_mappings)
+            
+        if self.type in [EExportType.OUTFIT, EExportType.FALL_GUYS_OUTFIT] and self.options.get("MergeArmatures"):
+            master_skeleton = merge_parts(self.imported_meshes)
+            master_mesh = get_armature_mesh(master_skeleton)
+            # Update attribute to account for joined mesh
+            self.update_preskinned_bounds(master_mesh)
+            
+            for material, elements in self.partial_vertex_crunch_materials.items():
+                vertex_crunch_modifier = master_mesh.modifiers.new(VERTEX_CRUNCH_NAME, type="NODES")
+                vertex_crunch_modifier.node_group = bpy.data.node_groups.get(VERTEX_CRUNCH_NAME)
+
+                set_geo_nodes_param(vertex_crunch_modifier, "Material", material, self.version_profile)
+                for name, value in elements.items():
+                    set_geo_nodes_param(vertex_crunch_modifier, name, value == 1, self.version_profile)
+                    
+            for material in self.full_vertex_crunch_materials:
+                vertex_crunch_modifier = master_mesh.modifiers.new(FULL_VERTEX_CRUNCH_NAME, type="NODES")
+                vertex_crunch_modifier.node_group = bpy.data.node_groups.get(FULL_VERTEX_CRUNCH_NAME)
+                set_geo_nodes_param(vertex_crunch_modifier, "Material", material, self.version_profile)
+
+            if self.add_toon_outline:
+                master_mesh.data.materials.append(bpy.data.materials.get("M_FP_Outline"))
+
+                solidify = master_mesh.modifiers.new(name="Outline", type='SOLIDIFY')
+                solidify.thickness = 0.001
+                solidify.offset = 1
+                solidify.thickness_clamp = 5.0
+                solidify.use_rim = False
+                solidify.use_flip_normals = True
+                solidify.material_offset = len(master_mesh.data.materials) - 1
+                
+            if rig_type == ERigType.TASTY:
+                self.create_tasty_rig(master_skeleton, self.get_metadata("MasterSkeletalMesh"))
+
+            if anim_data := data.get("Animation"):
+                self.import_anim_data(anim_data, master_skeleton)
+
+        if self.type in [EExportType.SIDEKICK]:
+            master_mesh = self.imported_meshes[0]["Mesh"]
+            for material in self.full_vertex_crunch_materials:
+                vertex_crunch_modifier = master_mesh.modifiers.new(FULL_VERTEX_CRUNCH_NAME, type="NODES")
+                vertex_crunch_modifier.node_group = bpy.data.node_groups.get(FULL_VERTEX_CRUNCH_NAME)
+                set_geo_nodes_param(vertex_crunch_modifier, "Material", material, self.version_profile)
+
+            for material, elements in self.partial_vertex_crunch_materials.items():
+                vertex_crunch_modifier = master_mesh.modifiers.new(VERTEX_CRUNCH_NAME, type="NODES")
+                vertex_crunch_modifier.node_group = bpy.data.node_groups.get(VERTEX_CRUNCH_NAME)
+                set_geo_nodes_param(vertex_crunch_modifier, "Material", material, self.version_profile)
+                for name, value in elements.items():
+                    set_geo_nodes_param(vertex_crunch_modifier, name, value == 1, self.version_profile)
+
+            shape_keys = master_mesh.data.shape_keys
+            if (len(self.override_morph_targets) > 0) and shape_keys is not None:
+                for morph_target in self.override_morph_targets:
+                    if key := best(shape_keys.key_blocks, lambda block: block.name.lower(), morph_target.get("Name").lower()):
+                        key.value = morph_target.get("Value")
+                        
+        if self.type in [EExportType.KICKS]:
+
+            kick_armature = get_selected_armature()
+            kick_armature["is_kicks"] = True
+            
+            if pre_import_selected_armature_active and "pelvis" in pre_import_selected_armature.data.bones and not pre_import_selected_armature.get("is_kicks"):
+                merge_armatures(pre_import_selected_armature, [kick_armature])
+                bpy.data.collections.remove(self.collection)
+            
+            
+            
+
+    def import_model(self, mesh, parent=None, can_reorient=True, can_spawn_at_3d_cursor=False):
+        path = mesh.get("Path")
+        name = mesh.get("Name")
+        part_type = EFortCustomPartType(mesh.get("Type"))
+        
+        if mesh.get("IsEmpty"):
+            empty_object = bpy.data.objects.new(name, None)
+
+            empty_object.parent = parent
+            empty_object.rotation_euler = make_euler(mesh.get("Rotation"))
+            empty_object.location = make_vector(mesh.get("Location"), unreal_coords_correction=True) * self.scale
+            empty_object.scale = make_vector(mesh.get("Scale"))
+            
+            self.collection.objects.link(empty_object)
+            
+            for child in mesh.get("Children"):
+                self.import_model(child, parent=empty_object)
+                
+            return
+        
+        if self.type in [EExportType.PREFAB, EExportType.WORLD] and mesh in self.meshes:
+            Log.info(f"Importing Actor: {name} {self.meshes.index(mesh)} / {len(self.meshes)}")
+
+        mesh_name = path.split(".")[1]
+        if self.type in [EExportType.PREFAB, EExportType.WORLD] and (existing_mesh_data := bpy.data.meshes.get(mesh_name + "_LOD0")):
+            imported_object = bpy.data.objects.new(name, existing_mesh_data)
+            self.collection.objects.link(imported_object)
+            
+            imported_mesh = get_armature_mesh(imported_object)
+        else:
+            imported_object = self.import_mesh(path, can_reorient=can_reorient)
+            if imported_object is None:
+                Log.warn(f"Import failed for object at path: {path}")
+                return imported_object
+            imported_object.name = name
+
+            imported_mesh = get_armature_mesh(imported_object)
+
+            if EPolygonType(self.options.get("PolygonType")) == EPolygonType.QUADS and imported_mesh is not None:
+                bpy.context.view_layer.objects.active = imported_mesh
+                bpy.ops.object.mode_set(mode='EDIT')
+                bpy.ops.mesh.tris_convert_to_quads(uvs=True)
+                bpy.ops.object.mode_set(mode='OBJECT')
+                bpy.context.view_layer.objects.active = imported_object
+
+        if (override_vertex_colors := mesh.get("OverrideVertexColors")) and len(override_vertex_colors) > 0:
+            imported_mesh.data = imported_mesh.data.copy()
+
+            vertex_color = imported_mesh.data.color_attributes.new(
+                domain="CORNER",
+                type="BYTE_COLOR",
+                name="INSTCOL0",
+            )
+
+            color_data = []
+            for col in override_vertex_colors:
+                color_data.append((col["R"], col["G"], col["B"], col["A"]))
+
+            for polygon in imported_mesh.data.polygons:
+                for vertex_index, loop_index in zip(polygon.vertices, polygon.loop_indices):
+                    if vertex_index >= len(color_data):
+                        continue
+                        
+                    color = color_data[vertex_index]
+                    vertex_color.data[loop_index].color = color[0] / 255, color[1] / 255, color[2] / 255, color[3] / 255
+
+        # Only add preskinned attributes if they don't already exist
+        if imported_mesh is not None and imported_mesh.data.attributes.get("PS_LOCAL_POSITION") is None:
+            mesh_data = imported_mesh.data
+            vert_count = len(mesh_data.vertices)
+            positions = np.empty(vert_count * 3, dtype=np.float32)
+            normals = np.empty(vert_count * 3, dtype=np.float32)
+            mesh_data.vertices.foreach_get("co", positions)
+            mesh_data.vertices.foreach_get("normal", normals)
+
+            # Bulk foreach_set — per-vertex bpy writes are multi-minute on large meshes.
+            preskinned_pos = mesh_data.attributes.new(domain="POINT", type="FLOAT_VECTOR", name="PS_LOCAL_POSITION")
+            preskinned_normal = mesh_data.attributes.new(domain="POINT", type="FLOAT_VECTOR", name="PS_LOCAL_NORMAL")
+            preskinned_pos.data.foreach_set("vector", positions)
+            preskinned_normal.data.foreach_set("vector", normals)
+
+            self.update_preskinned_bounds(imported_mesh, True)
+
+        imported_object.parent = parent
+        imported_object.rotation_euler = make_euler(mesh.get("Rotation"))
+        imported_object.location = make_vector(mesh.get("Location"), unreal_coords_correction=True) * self.scale
+        imported_object.scale = make_vector(mesh.get("Scale"))
+        
+        if self.options.get("ImportAt3DCursor") and can_spawn_at_3d_cursor:
+            imported_object.location += bpy.context.scene.cursor.location
+
+        self.imported_meshes.append({
+            "Skeleton": imported_object,
+            "Mesh": imported_mesh,
+            "Type": part_type,
+            "Meta": mesh.get("Meta")
+        })
+
+        # metadata handling
+        meta = self.gather_metadata("PoseAsset")
+
+        # pose asset
+        if imported_mesh is not None:
+            bpy.context.view_layer.objects.active = imported_mesh
+            self.import_pose_asset_data(meta, get_selected_armature(), part_type)
+
+        # end
+
+        match part_type:
+            case EFortCustomPartType.BODY:
+                meta.update(self.gather_metadata("SkinColor"))
+            case EFortCustomPartType.HEAD:
+                meta.update(self.gather_metadata("MorphNames", "HatType"))
+                meta["IsHead"] = True
+                shape_keys = imported_mesh.data.shape_keys
+                if (morphs := meta.get("MorphNames")) and (morph_name := morphs.get(meta.get("HatType"))) and shape_keys is not None:
+                    for key in shape_keys.key_blocks:
+                        if key.name.casefold() == morph_name.casefold():
+                            key.value = 1.0
+
+        meta["TextureData"] = mesh.get("TextureData")
+        
+        for material in mesh.get("Materials"):
+            index = material.get("Slot")
+            if index >= len(imported_mesh.material_slots):
+                continue
+
+            self.import_material(imported_mesh.material_slots[index], material, meta)
+
+        for override_material in mesh.get("OverrideMaterials"):
+            index = override_material.get("Slot")
+            if index >= len(imported_mesh.material_slots):
+                continue
+
+            self.import_material(imported_mesh.material_slots[index], override_material, meta)
+
+        for variant_override_material in self.override_materials:
+            material_name_to_swap = variant_override_material.get("MaterialNameToSwap")
+            
+            slots = where(imported_mesh.material_slots,
+                          lambda slot: slot.material.get("OriginalName") == material_name_to_swap)
+            for slot in slots:
+                self.import_material(slot, variant_override_material.get("Material"), meta)
+                
+        for texture_data in mesh.get("TextureData"):
+            if not (td_override_material := texture_data.get("OverrideMaterial")):
+                continue
+                
+            Log.info(f"TextureData Override {td_override_material.get('Path')}")
+
+            index = td_override_material.get("Slot")
+            if index >= len(imported_mesh.material_slots):
+                continue
+
+            overridden_material = imported_mesh.material_slots[index]
+            slots = where(imported_mesh.material_slots,
+                          lambda slot: slot.name == overridden_material.name)
+            for slot in slots:
+                self.import_material(slot, td_override_material, meta)
+                
+        self.import_light_data(mesh.get("Lights"), imported_object)
+
+        for child in mesh.get("Children"):
+            self.import_model(child, parent=imported_object)
+            
+        instances = mesh.get("Instances")
+        if len(instances) > 0:
+            mesh_data = imported_mesh.data
+
+            instance_materials = []
+            for slot_mat in imported_mesh.material_slots:
+                instance_materials.append(slot_mat.material)
+
+            imported_object.select_set(True)
+            bpy.ops.object.delete()
+            
+            instance_parent = bpy.data.objects.new("InstanceParent_" + name, None)
+            instance_parent.parent = parent
+            instance_parent.rotation_euler = make_euler(mesh.get("Rotation"))
+            instance_parent.location = make_vector(mesh.get("Location"), unreal_coords_correction=True) * self.scale
+            instance_parent.scale = make_vector(mesh.get("Scale"))
+            bpy.context.collection.objects.link(instance_parent)
+            
+            for instance_index, instance_transform in enumerate(instances):
+                instance_name = f"Instance_{instance_index}_" + name
+                
+                Log.info(f"Importing Instance: {instance_name} {instance_index} / {len(instances)}")
+                
+                instance_object = bpy.data.objects.new(f"Instance_{instance_index}_" + name, mesh_data)
+                self.collection.objects.link(instance_object)
+    
+                instance_object.parent = instance_parent
+                instance_object.rotation_euler = make_euler(instance_transform.get("Rotation"))
+                instance_object.location = make_vector(instance_transform.get("Location"), unreal_coords_correction=True) * self.scale
+                instance_object.scale = make_vector(instance_transform.get("Scale"))
+            
+                for i, slot_mat in enumerate(instance_materials):
+                    instance_object.material_slots[i].material = slot_mat
+
+
+        return imported_object
+    
+
+    def update_preskinned_bounds(self, imported_mesh, new_attribute=False):
+        mesh_data = imported_mesh.data
+        vert_count = len(mesh_data.vertices)
+        if vert_count == 0:
+            return
+
+        corners = imported_mesh.bound_box
+        x_coords, y_coords, z_coords = zip(*corners)
+        bbox_min = np.array(
+            (min(x_coords), min(y_coords), min(z_coords)),
+            dtype=np.float32,
+        )
+        bbox_max = np.array(
+            (max(x_coords), max(y_coords), max(z_coords)),
+            dtype=np.float32,
+        )
+        ranges = bbox_max - bbox_min
+        safe_ranges = np.where(ranges != 0.0, ranges, 1.0)
+
+        positions = np.empty(vert_count * 3, dtype=np.float32)
+        mesh_data.vertices.foreach_get("co", positions)
+        pts = positions.reshape(vert_count, 3)
+        mapped = (pts - bbox_min) / safe_ranges
+        mapped = np.where(ranges != 0.0, mapped, 0.0).astype(np.float32, copy=False)
+
+        if new_attribute:
+            preskinned_bounds = mesh_data.attributes.new(
+                domain="POINT", type="FLOAT_VECTOR", name="PS_LOCAL_BOUNDS"
+            )
+        else:
+            preskinned_bounds = mesh_data.attributes.get("PS_LOCAL_BOUNDS")
+            if preskinned_bounds is None:
+                return
+
+        preskinned_bounds.data.foreach_set("vector", mapped.ravel())
+            
+    def parent_deform_bones(self, skeleton, prefixes):
+        bpy.context.view_layer.objects.active = skeleton
+        bpy.ops.object.mode_set(mode='EDIT')
+    
+        edit_bones = skeleton.data.edit_bones
+    
+        for bone in edit_bones:
+            for prefix in prefixes:
+                if bone.name.startswith(prefix):
+                    parent_name = bone.name[len(prefix):]
+    
+                    if parent_bone := edit_bones.get(parent_name):
+                        bone.parent = parent_bone
+                        bone.use_connect = False
+                    break
+    
+        bpy.ops.object.mode_set(mode='OBJECT')
+
+    def parent_bones(self, skeleton, mappings):
+        bpy.context.view_layer.objects.active = skeleton
+        bpy.ops.object.mode_set(mode='EDIT')
+
+        edit_bones = skeleton.data.edit_bones
+
+        for target_name, parent_name in mappings.items():
+            if not (target_bone := edit_bones.get(target_name)):
+                continue
+                
+            if not (parent_bone := edit_bones.get(parent_name)):
+                continue
+
+            target_bone.parent = parent_bone
+            target_bone.use_connect = False
+
+        bpy.ops.object.mode_set(mode='OBJECT')
+    
+    def import_light_data(self, lights, parent=None):
+        if not lights:
+            return
+        
+        for point_light in lights.get("PointLights"):
+            self.import_point_light(point_light, parent)
+    
+    def import_point_light(self, point_light, parent=None):
+        name = point_light.get("Name")
+        light_data = bpy.data.lights.new(name=name, type='POINT')
+        light = bpy.data.objects.new(name=name, object_data=light_data)
+        self.collection.objects.link(light)
+        
+        light.parent = parent
+        light.rotation_euler = make_euler(point_light.get("Rotation"))
+        light.location = make_vector(point_light.get("Location"), unreal_coords_correction=True) * self.scale
+        light.scale = make_vector(point_light.get("Scale"))
+        
+        color = point_light.get("Color")
+        light_data.color = (color["R"], color["G"], color["B"])
+        light_data.energy = point_light.get("Intensity")
+        light_data.use_custom_distance = True
+        light_data.cutoff_distance = point_light.get("AttenuationRadius") * self.scale
+        light_data.shadow_soft_size = point_light.get("Radius") * self.scale
+        light_data.use_shadow = point_light.get("CastShadows")
+
+    def import_mesh(self, path: str, can_reorient=True):
+        options = UEModelOptions(scale_factor=self.scale,
+                                 reorient_bones=self.options.get("ReorientBones") and can_reorient,
+                                 bone_length=self.options.get("BoneLength"),
+                                 import_sockets=self.options.get("ImportSockets"),
+                                 import_virtual_bones=self.options.get("ImportVirtualBones"),
+                                 import_collision=self.options.get("ImportCollision"),
+                                 target_lod=self.options.get("TargetLOD"),
+                                 allowed_reorient_children=allowed_reorient_children)
+
+        path = path[1:] if path.startswith("/") else path
+
+        mesh_path = os.path.join(self.assets_root, path.split(".")[0] + ".uemodel")
+
+        return UEFormatImport(options).import_file(mesh_path)

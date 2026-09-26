@@ -1,0 +1,47 @@
+<Project>
+    <PropertyGroup>
+        <PluginRoot>$(MSBuildThisFileDirectory)</PluginRoot>
+        <UEFormatRoot>$(PluginRoot)..\external\UEFormat</UEFormatRoot>
+        <UEFormatBlenderDest>$(PluginRoot)Blender\fortnite_porting\ueformat</UEFormatBlenderDest>
+        <UEFormatUnrealDest>$(PluginRoot)Unreal\UEFormat</UEFormatUnrealDest>
+        <UEFormatUnrealPlugin>$(UEFormatRoot)\plugins\unreal\UEFormat\UEFormat.uplugin</UEFormatUnrealPlugin>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <AvaloniaResource Include="$(PluginRoot)Blender\**\*"
+                          Exclude="$(PluginRoot)Blender\fortnite_porting\ueformat\**"
+                          Link="Blender\%(RecursiveDir)%(Filename)%(Extension)"
+                          Visible="false"/>
+        <AvaloniaResource Include="$(PluginRoot)Unreal\**\*"
+                          Exclude="$(PluginRoot)Unreal\UEFormat\**"
+                          Link="Unreal\%(RecursiveDir)%(Filename)%(Extension)"
+                          Visible="false"/>
+    </ItemGroup>
+
+    <Target Name="SyncUEFormatPlugins" BeforeTargets="PrepareForBuild;GenerateAvaloniaResources">
+        <Error Condition="!Exists('$(UEFormatUnrealPlugin)')"
+               Text="UEFormat submodule is missing." />
+
+        <ItemGroup>
+            <UEFormatBlenderSource Include="$(UEFormatRoot)\plugins\blender\io_scene_ueformat\**\*" />
+            <UEFormatUnrealSource Include="$(UEFormatRoot)\plugins\unreal\UEFormat\**\*"
+                                  Exclude="$(UEFormatRoot)\plugins\unreal\UEFormat\Intermediate\**" />
+        </ItemGroup>
+
+        <Copy SourceFiles="@(UEFormatBlenderSource)"
+              DestinationFiles="@(UEFormatBlenderSource->'$(UEFormatBlenderDest)\%(RecursiveDir)%(Filename)%(Extension)')"
+              SkipUnchangedFiles="true" />
+        <Copy SourceFiles="@(UEFormatUnrealSource)"
+              DestinationFiles="@(UEFormatUnrealSource->'$(UEFormatUnrealDest)\%(RecursiveDir)%(Filename)%(Extension)')"
+              SkipUnchangedFiles="true" />
+
+        <ItemGroup>
+            <AvaloniaResource Include="@(UEFormatBlenderSource->'$(UEFormatBlenderDest)\%(RecursiveDir)%(Filename)%(Extension)')"
+                              Link="Blender\fortnite_porting\ueformat\%(RecursiveDir)%(Filename)%(Extension)"
+                              Visible="false"/>
+            <AvaloniaResource Include="@(UEFormatUnrealSource->'$(UEFormatUnrealDest)\%(RecursiveDir)%(Filename)%(Extension)')"
+                              Link="Unreal\UEFormat\%(RecursiveDir)%(Filename)%(Extension)"
+                              Visible="false"/>
+        </ItemGroup>
+    </Target>
+</Project>

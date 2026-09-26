@@ -1,0 +1,34 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
+             xmlns:assets="clr-namespace:FortnitePorting.Controls.Assets"
+             x:Class="FortnitePorting.Controls.Assets.AssetVideoPreview"
+             IsVisible="{Binding IsVideoReady, RelativeSource={RelativeSource Self}}">
+    <StackPanel Margin="{ext:Space 0, 0.5, 0, 0}">
+        <Border ClipToBounds="True"
+                CornerRadius="8"
+                Width="220"
+                Cursor="Hand"
+                Background="Transparent"
+                PointerPressed="OnFortniteGGPressed">
+            <Image x:Name="FrameImage"
+                   Width="220"
+                   Stretch="Uniform" />
+        </Border>
+        <StackPanel Orientation="Horizontal"
+                    HorizontalAlignment="Left"
+                    Margin="{ext:Space 0,0.5,0,0}"
+                    Cursor="Hand"
+                    Background="Transparent"
+                    PointerPressed="OnFortniteGGPressed">
+            <TextBlock Text="Powered by"
+                       Classes="TextFillColorSecondaryBrush"
+                       VerticalAlignment="Center"
+                       FontSize="11" />
+            <Image Source="/Assets/Icons/FortniteGG.png"
+                   Height="16"
+                   Stretch="Uniform"
+                   VerticalAlignment="Center" />
+        </StackPanel>
+    </StackPanel>
+</UserControl>

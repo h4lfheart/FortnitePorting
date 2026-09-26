@@ -1,0 +1,43 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
+             xmlns:material="clr-namespace:FortnitePorting.Controls.Material"
+             x:Class="FortnitePorting.Controls.Material.LinearColorViewer"
+             x:Name="Root">
+
+    <DropDownButton Padding="{ext:Space 0.5}"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    ToolTip.Tip="View Vector">
+        <DropDownButton.Flyout>
+            <Flyout Placement="BottomEdgeAlignedLeft">
+                <ItemsControl ItemsSource="{Binding Channels, ElementName=Root}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Spacing="{ext:Space 0.5}"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="material:LinearColorChannel">
+                            <Grid ColumnDefinitions="Auto,*">
+                                <TextBlock Text="{Binding Name}"
+                                           VerticalAlignment="Center"
+                                           Margin="{ext:Space 0, 0, 1, 0}"
+                                           Classes="CaptionTextBlockStyle TextFillColorSecondaryBrush"/>
+                                <TextBox Grid.Column="1"
+                                         IsReadOnly="True"
+                                         Text="{Binding Value}"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Flyout>
+        </DropDownButton.Flyout>
+
+        <Border Width="{ext:Space 6}"
+                Height="{ext:Space 6}"
+                CornerRadius="12"
+                ClipToBounds="True"
+                Background="{Binding PreviewBrush, ElementName=Root}"/>
+    </DropDownButton>
+</UserControl>

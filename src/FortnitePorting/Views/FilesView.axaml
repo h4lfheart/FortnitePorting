@@ -1,0 +1,161 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:viewModels="clr-namespace:FortnitePorting.ViewModels"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:files="clr-namespace:FortnitePorting.Models.Files"
+             xmlns:views="clr-namespace:FortnitePorting.Views"
+             xmlns:fortnitePorting="clr-namespace:FortnitePorting"
+             xmlns:fpExport="clr-namespace:FortnitePorting;assembly=FortnitePorting.Exporting"
+             xmlns:wrapPanel="clr-namespace:FortnitePorting.Controls.WrapPanel"
+             xmlns:files1="clr-namespace:FortnitePorting.Controls.Files"
+             xmlns:loading="clr-namespace:FortnitePorting.Controls.Loading"
+             d:DesignHeight="770" d:DesignWidth="1160"
+             x:Class="FortnitePorting.Views.FilesView"
+             x:DataType="viewModels:FilesViewModel">
+    <Grid>
+        <Grid Margin="{ext:Space 1}" IsVisible="{Binding !Files.IsLoading}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="{ext:Space 1}" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <files1:FileBrowser Grid.Row="0" 
+                                Context="{Binding Context}"
+                                FileItemDoubleTapped="OnFileItemTapped">
+                <files1:FileBrowser.KeyBindings>
+                    <KeyBinding Gesture="Ctrl+P" Command="{Binding PreviewCommand}" />
+                    <KeyBinding Gesture="Ctrl+E" Command="{Binding ExportCommand}" />
+                    <KeyBinding Gesture="Ctrl+O" Command="{Binding PropertiesCommand}" />
+                </files1:FileBrowser.KeyBindings>
+            </files1:FileBrowser>
+
+            <Grid Grid.Row="2" HorizontalAlignment="Stretch">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="{ext:Space 1}" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="{ext:Space 1}" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="{ext:Space 1}" />
+                    <ColumnDefinition Width="0.75*" />
+                    <ColumnDefinition Width="{ext:Space 1}" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="0" HorizontalAlignment="Stretch" Command="{Binding PropertiesCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <material:MaterialIcon Kind="Xml" Margin="{ext:Space 0, 0, 1, 0}" />
+                        <TextBlock Text="Properties" />
+                    </StackPanel>
+                </Button>
+
+                <Button Grid.Column="2" HorizontalAlignment="Stretch" Command="{Binding PreviewCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <material:MaterialIcon Kind="CubeScan" Margin="{ext:Space 0, 0, 1, 0}" />
+                        <TextBlock Text="Preview" />
+                    </StackPanel>
+                </Button>
+
+                <SplitButton Grid.Column="4" HorizontalAlignment="Stretch" Command="{Binding ExportCommand}"
+                             IsVisible="{Binding ShowAssetExportButton}">
+                    <SplitButton.Flyout>
+                        <MenuFlyout ItemsSource="{ext:EnumToItemsSource {x:Type fpExport:EExportLocation}}">
+                            <MenuFlyout.ItemContainerTheme>
+                                <ControlTheme x:DataType="ext:EnumRecord" TargetType="MenuItem"
+                                              BasedOn="{StaticResource {x:Type MenuItem}}">
+                                    <Setter Property="Header" Value="{Binding Description}" />
+                                    <Setter Property="IsEnabled" Value="{Binding !IsDisabled}" />
+                                    <Setter Property="Command"
+                                            Value="{Binding $parent[views:FilesView].((viewModels:FilesViewModel)DataContext).SetAssetExportLocation}" />
+                                    <Setter Property="CommandParameter" Value="{Binding Value}" />
+
+                                    <Setter Property="StaysOpenOnClick" Value="False" />
+                                    <Setter Property="Icon">
+                                        <Template>
+                                            <material:MaterialIcon Kind="{Binding Icon}" />
+                                        </Template>
+                                    </Setter>
+                                </ControlTheme>
+                            </MenuFlyout.ItemContainerTheme>
+                        </MenuFlyout>
+                    </SplitButton.Flyout>
+                    <ContentControl Content="{Binding AssetExportLocation, Converter={StaticResource EnumToRecord}}">
+                        <ContentControl.ContentTemplate>
+                            <DataTemplate x:DataType="ext:EnumRecord">
+                                <controls:IconText Text="{Binding Description, StringFormat='Export to {0}'}"
+                                                   Icon="{Binding Icon}" />
+                            </DataTemplate>
+                        </ContentControl.ContentTemplate>
+                    </ContentControl>
+                </SplitButton>
+
+                <SplitButton Grid.Column="4" HorizontalAlignment="Stretch" Command="{Binding ExportCommand}"
+                             IsVisible="{Binding ShowDataExportButton}">
+                    <SplitButton.Flyout>
+                        <MenuFlyout ItemsSource="{Binding FolderExportLocations}">
+                            <MenuFlyout.ItemContainerTheme>
+                                <ControlTheme x:DataType="ext:EnumRecord" TargetType="MenuItem"
+                                              BasedOn="{StaticResource {x:Type MenuItem}}">
+                                    <Setter Property="Header" Value="{Binding Description}" />
+                                    <Setter Property="IsEnabled" Value="{Binding !IsDisabled}" />
+                                    <Setter Property="Command"
+                                            Value="{Binding $parent[views:FilesView].((viewModels:FilesViewModel)DataContext).SetDataExportLocation}" />
+                                    <Setter Property="CommandParameter" Value="{Binding Value}" />
+
+                                    <Setter Property="StaysOpenOnClick" Value="False" />
+                                    <Setter Property="Icon">
+                                        <Template>
+                                            <material:MaterialIcon Kind="{Binding Icon}" />
+                                        </Template>
+                                    </Setter>
+                                </ControlTheme>
+                            </MenuFlyout.ItemContainerTheme>
+                        </MenuFlyout>
+                    </SplitButton.Flyout>
+                    <ContentControl Content="{Binding DataExportLocation, Converter={StaticResource EnumToRecord}}">
+                        <ContentControl.ContentTemplate>
+                            <DataTemplate x:DataType="ext:EnumRecord">
+                                <controls:IconText Text="{Binding Description, StringFormat='Export to {0}'}"
+                                                   Icon="{Binding Icon}" />
+                            </DataTemplate>
+                        </ContentControl.ContentTemplate>
+                    </ContentControl>
+                </SplitButton>
+
+                <Button Grid.Column="4" HorizontalAlignment="Stretch" Margin="{ext:Space 0, 0.25}"
+                        Command="{Binding CancelExportCommand}"
+                        IsVisible="{Binding IsExporting}">
+                    <StackPanel Orientation="Horizontal">
+                        <material:MaterialIcon Kind="Cancel" Margin="{ext:Space 0, 0, 1, 0}" />
+                        <TextBlock Text="Cancel" />
+                    </StackPanel>
+                </Button>
+
+                <ComboBox Grid.Column="6" ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EExportTarget}}"
+                          SelectedItem="{Binding ExportTarget, Converter={StaticResource EnumToRecord}}"
+                          HorizontalAlignment="Stretch">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate DataType="ext:EnumRecord">
+                            <controls:IconText Text="{Binding Description, StringFormat='Export as {0}'}"
+                                               Icon="{Binding Icon}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+
+                <Button Grid.Column="8" ToolTip.Tip="Export Settings" Content="{material:MaterialIconExt Settings}"
+                        Command="{Binding OpenSettingsCommand}" />
+
+            </Grid>
+        </Grid>
+        <loading:LoadingIndicator IsVisible="{Binding Files.IsLoading}"
+                                Status="Loading Files"
+                                Subtitle="{Binding Files.LoadingPercentageText}"
+                                Value="{Binding Files.LoadedFiles}"
+                                Maximum="{Binding Files.TotalFiles}" />
+    </Grid>
+</UserControl>

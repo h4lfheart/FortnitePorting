@@ -1,0 +1,776 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net.Http.Headers;
+using System.Reflection;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
+using CUE4Parse_Conversion.Textures;
+using CUE4Parse_Conversion.Textures.BC;
+using CUE4Parse.Compression;
+using CUE4Parse.Encryption.Aes;
+using CUE4Parse.MappingsProvider;
+using CUE4Parse.MappingsProvider.Usmap;
+using CUE4Parse.UE4.AssetRegistry;
+using CUE4Parse.UE4.AssetRegistry.Objects;
+using CUE4Parse.UE4.Assets;
+using CUE4Parse.UE4.Assets.Exports;
+using CUE4Parse.UE4.Assets.Exports.Texture;
+using CUE4Parse.UE4.Assets.Exports.Animation;
+using CUE4Parse.UE4.Assets.Exports.Engine;
+using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
+using CUE4Parse.UE4.Assets.Exports.StaticMesh;
+using CUE4Parse.UE4.IO;
+using CUE4Parse.UE4.Objects.Core.i18N;
+using CUE4Parse.UE4.Objects.Core.Math;
+using CUE4Parse.UE4.Objects.Engine;
+using CUE4Parse.UE4.Objects.UObject;
+using CUE4Parse.UE4.Pak;
+using CUE4Parse.UE4.Readers;
+using CUE4Parse.UE4.Versions;
+using CUE4Parse.UE4.VirtualFileSystem;
+using CUE4Parse.Utils;
+using EpicManifestParser;
+using EpicManifestParser.UE;
+using FortnitePorting.CUE4Parse.Models.Fortnite;
+using FortnitePorting.CUE4Parse.Models.Fortnite.GameFeature;
+using FortnitePorting.CUE4Parse.Models.Fortnite.Styles;
+using FortnitePorting.Exporting;
+using FortnitePorting.Extensions;
+using FortnitePorting.Framework;
+using FortnitePorting.Models.API.Responses;
+using FortnitePorting.Models.CUE4Parse;
+using FortnitePorting.Models.Information;
+using FortnitePorting.Rendering.Preview;
+using FortnitePorting.Shared.Extensions;
+using FortnitePorting.Views;
+using FortnitePorting.Views.Settings;
+using Serilog;
+using UE4Config.Parsing;
+using FGuid = CUE4Parse.UE4.Objects.Core.Misc.FGuid;
+
+namespace FortnitePorting.Services;
+
+public partial class CUE4ParseService : ObservableObject, IService, IResettable
+{
+    [ObservableProperty] private string _status = "Loading Files";
+    [ObservableProperty] private bool _finishedLoading;
+    [ObservableProperty] private float _progress = 0.0f;
+    [ObservableProperty] private bool _isLoading;
+    public HybridFileProvider? Provider;
+
+    public FBuildPatchAppManifest? LiveManifest;
+    
+    public readonly List<FPartialAssetData> AssetRegistry = [];
+    public readonly List<FRarityCollection> RarityColors = [];
+    public readonly Dictionary<int, FColor> BeanstalkColors = [];
+    public readonly Dictionary<int, FLinearColor> BeanstalkMaterialProps = [];
+    public readonly Dictionary<int, FVector> BeanstalkAtlasTextureUVs = [];
+    public readonly List<UAnimMontage> MaleLobbyMontages = [];
+    public readonly List<UAnimMontage> FemaleLobbyMontages = [];
+    public readonly Dictionary<string, string> SetNames = [];
+    
+    private static readonly List<DirectoryInfo> ExtraDirectories = 
+    [
+        new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "FortniteGame", "Saved", "PersistentDownloadDir", "GameCustom", "InstalledBundles"))
+    ];
+    
+    private static readonly List<string> MaleLobbyMontagePaths = 
+    [
+        "FortniteGame/Content/Animation/Game/MainPlayer/Menu/BR/Male_Commando_Idle_01_M",
+        "FortniteGame/Content/Animation/Game/MainPlayer/Menu/BR/Male_commando_Idle_2_M",
+        "FortniteGame/Plugins/GameFeatures/BRCosmetics/Content/Animation/Game/MainPlayer/Menu/BR/Male_commando_Idle_01_M",
+        "FortniteGame/Plugins/GameFeatures/BRCosmetics/Content/Animation/Game/MainPlayer/Menu/BR/Male_commando_Idle_2_M"
+    ];
+    
+    private static readonly List<string> FemaleLobbyMontagePaths = 
+    [
+        "FortniteGame/Content/Animation/Game/MainPlayer/Menu/BR/Female_Commando_Idle_02_Rebirth_Montage",
+        "FortniteGame/Content/Animation/Game/MainPlayer/Menu/BR/Female_Commando_Idle_03_Montage",
+        "FortniteGame/Plugins/GameFeatures/BRCosmetics/Content/Animation/Game/MainPlayer/Menu/BR/Female_Commando_Idle_02_Rebirth_Montage"
+    ];
+
+    private const EGame LATEST_GAME_VERSION = EGame.GAME_UE6_0;
+
+    private FortniteVersionResponse? _resolvedVersion;
+    
+    public DirectoryInfo CacheFolder => new(Path.Combine(App.ApplicationDataFolder.FullName, ".cache"));
+
+    public CUE4ParseService()
+    {
+        CacheFolder.Create();
+    }
+
+    public async Task Initialize()
+    {
+        if (!HasValidArchivePath())
+        {
+            Info.Dialog("Invalid Installation Settings", "The archive directory set in Installation Settings does not exist or is empty. Please set it to your Fortnite installation's archive directory (generally located at FortniteGame/Content/Paks).", buttons:
+            [
+                new DialogButton
+                {
+                    Text = "Open Installation Settings",
+                    IsPrimary = true,
+                    Action = () => TaskService.Run(async () =>
+                    {
+                        Navigation.App.Open<SettingsView>();
+                        await Task.Delay(250);
+                        Navigation.Settings.Open<InstallationSettingsView>();
+                    })
+                },
+                new DialogButton
+                {
+                    Text = "Cancel"
+                }
+            ]);
+            
+            return;
+        }
+
+        _resolvedVersion = null;
+        
+        var stages = GetType()
+            .GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+            .Select(m => (Method: m, Attr: m.GetCustomAttribute<LoadingStageAttribute>()))
+            .Where(x => x.Attr is not null)
+            .OrderBy(x => x.Attr!.Stage)
+            .Select(x => new LoadingStage(x.Method, x.Attr!))
+            .ToList();
+        
+        var totalWeight = stages.Sum(x => x.Attr.Weight);
+        var completedWeight = 0.0f;
+
+        foreach (var stage in stages)
+        {
+            UpdateStatus(stage.Attr.Name);
+            
+            completedWeight += stage.Attr.Weight;
+            Progress = (completedWeight / totalWeight) * 100.0f;
+            
+            if (stage.Method.Invoke(this, null) is not Task stageTask)
+                continue;
+
+            await stageTask;
+        }
+
+        UpdateStatus(string.Empty);
+        FinishedLoading = true;
+        Progress = 0;
+    }
+
+    public void Reset()
+    {
+        FinishedLoading = false;
+        Progress = 0;
+        Status = "Loading Files";
+
+        Provider?.Dispose();
+        Provider = null;
+        LiveManifest = null;
+
+        AssetRegistry.Clear();
+        RarityColors.Clear();
+        BeanstalkColors.Clear();
+        BeanstalkMaterialProps.Clear();
+        BeanstalkAtlasTextureUVs.Clear();
+        MaleLobbyMontages.Clear();
+        FemaleLobbyMontages.Clear();
+        SetNames.Clear();
+        _resolvedVersion = null;
+    }
+
+    public async Task LoadCoreSessionAsync()
+    {
+        IsLoading = true;
+        await Initialize();
+        IsLoading = false;
+
+        if (!FinishedLoading) return;
+
+        if (AppSettings.Application.UseDefaultExportLoadType)
+            await AssetLoading.Load(AppSettings.Application.DefaultExportLoadType);
+
+        await Files.Initialize();
+        await FilesVM.Initialize();
+
+        App.TryFlushPendingUrlScheme();
+    }
+
+    public void UpdateStatus(string status)
+    {
+        Status = status;
+        if (!string.IsNullOrEmpty(status))
+            Log.Information("[STATUS] {status}", status);
+    }
+
+    private bool HasValidArchivePath()
+    {
+        return AppSettings.Installation.CurrentProfile.FortniteVersion switch
+        {
+            EFortniteVersion.LatestInstalled or EFortniteVersion.Custom => Directory.Exists(AppSettings.Installation.CurrentProfile.ArchiveDirectory),
+            _ => true
+        };
+    }
+
+    [LoadingStage("Initializing CUE4Parse", stage: 0, weight: 5)]
+    private async Task InitializeProviderSetup()
+    {
+        Provider = AppSettings.Installation.CurrentProfile.FortniteVersion switch
+        {
+            EFortniteVersion.LatestOnDemand => new HybridFileProvider(new VersionContainer(LATEST_GAME_VERSION)),
+            EFortniteVersion.LatestInstalled => new HybridFileProvider(AppSettings.Installation.CurrentProfile.ArchiveDirectory, ExtraDirectories, new VersionContainer(LATEST_GAME_VERSION)),
+            _ => new HybridFileProvider(AppSettings.Installation.CurrentProfile.ArchiveDirectory, [], new VersionContainer(AppSettings.Installation.CurrentProfile.UnrealVersion)),
+        };
+
+        if (AppSettings.Installation.CurrentProfile.FortniteVersion is EFortniteVersion.LatestInstalled or EFortniteVersion.LatestOnDemand)
+        {
+            _resolvedVersion = await Api.FortnitePorting.FortniteVersion();
+            if (_resolvedVersion is not null)
+                Log.Information("Resolved Fortnite Version: {Version}", _resolvedVersion.Version);
+            else
+                Log.Warning("Failed to resolve latest Fortnite version keys/mappings from API");
+        }
+        
+        Log.Information("Installation Type: {Type}", AppSettings.Installation.CurrentProfile.FortniteVersion);
+        Log.Information("Archive Path: {Path}", AppSettings.Installation.CurrentProfile.FortniteVersion is EFortniteVersion.LatestOnDemand ? "On-Demand" : AppSettings.Installation.CurrentProfile.ArchiveDirectory);
+        Log.Information("Unreal Version: {Version}", Provider.Versions.Game.ToString());
+        Log.Information("Texture Streaming: {UseTextureStreaming}", AppSettings.Installation.CurrentProfile.UseTextureStreaming);
+        
+        ObjectTypeRegistry.RegisterEngine(typeof(UFortGameFeatureData).Assembly);
+
+        Provider.LoadOnDemandTocs = AppSettings.Installation.CurrentProfile is { TextureStreamingEnabled: true, UseTextureStreaming: true };
+        Provider.LoadExtraDirectories = AppSettings.Installation.CurrentProfile.LoadInstalledBundles;
+        Provider.ReadNaniteData = AppSettings.Installation.CurrentProfile.LoadNaniteData;
+        Provider.OnDemandOptions = new IoStoreOnDemandOptions
+        {
+            ChunkHostUri = new Uri("https://egdownload.fastly-edge.com/", UriKind.Absolute),
+            ChunkCacheDirectory = CacheFolder,
+            Authorization = new AuthenticationHeaderValue("Bearer", AppSettings.Application.EpicAuth?.Token),
+            Timeout = TimeSpan.FromSeconds(AppSettings.Developer.RequestTimeoutSeconds)
+        };
+
+        Provider.VfsMounted += (sender, _) =>
+        {
+            if (sender is not IAesVfsReader reader) return;
+
+            UpdateStatus(reader.Name.Equals("plugin.utoc")
+                ? $"Loading GameFeature {reader.Path.SubstringBeforeLast("\\").SubstringAfterLast("\\")}"
+                : $"Loading {reader.Name}");
+        };
+    }
+
+    [LoadingStage("Checking for Valid Keys", stage: 1, weight: 1)]
+    private async Task CheckBlackHole()
+    {
+        if (AppSettings.Installation.CurrentProfile.FortniteVersion is not EFortniteVersion.LatestInstalled) return;
+        
+        var mainKey = _resolvedVersion?.Keys?.MainKey;
+        if (mainKey is null) return;
+        
+        var mainPakPath = Path.Combine(AppSettings.Installation.CurrentProfile.ArchiveDirectory,
+            "pakchunk0-WindowsClient.pak");
+        if (!File.Exists(mainPakPath)) return;
+
+        var mainPakReader = new PakFileReader(mainPakPath);
+        if (mainPakReader.TestAesKey(new FAesKey(mainKey.Key)))
+        {
+            Log.Information("Main key {Key} succeeded on pak {PakName}", mainKey.Key, mainPakPath);
+            return;
+        }
+        
+        BlackHole.Open(isMinigame: false);
+    }
+    
+    [LoadingStage("Removing Outdated Cache Files", stage: 2, weight: 1)]
+    private async Task CleanupCache()
+    {
+        var files = CacheFolder.GetFiles();
+
+        var cutoffDate = DateTime.Now - TimeSpan.FromDays(AppSettings.Developer.ChunkCacheLifetime);
+        foreach (var file in files)
+        {
+            if (file.LastWriteTime >= cutoffDate) continue;
+            
+            file.Delete();
+        }
+    }
+    
+    [LoadingStage("Loading Detex", stage: 3, weight: 1)]
+    private async Task InitializeDetex()
+    {
+        var detexPath = Path.Combine(App.DataFolder.FullName, DetexHelper.DLL_NAME);
+        if (!File.Exists(detexPath)) await DetexHelper.LoadDllAsync(detexPath);
+        DetexHelper.Initialize(detexPath);
+    }
+    
+    [LoadingStage("Initializing Provider", stage: 4, weight: 10)]
+    private async Task InitializeProvider()
+    {
+        if (AppSettings.Installation.CurrentProfile.FortniteVersion is EFortniteVersion.LatestInstalled or EFortniteVersion.LatestOnDemand)
+        {
+            await Api.EpicGames.VerifyAuthAsync();
+        }
+        
+        switch (AppSettings.Installation.CurrentProfile.FortniteVersion)
+        {
+            case EFortniteVersion.LatestOnDemand:
+            {
+                var manifestInfo = await Api.EpicGames.GetManifestInfoAsync();
+                if (manifestInfo is null) break;
+
+                var options = new ManifestParseOptions
+                {
+                    ChunkBaseUrl = "https://egdownload.fastly-edge.com/Builds/Fortnite/CloudDir/",
+                    ChunkCacheDirectory = CacheFolder.FullName,
+                    ManifestCacheDirectory = CacheFolder.FullName,
+                    Decompressor = Compression.Decompressor,
+                    CacheChunksAsIs = true
+                };
+                
+                var (manifest, element) = await manifestInfo.DownloadAndParseAsync(options);
+                LiveManifest = manifest;
+                await Provider.RegisterFiles(manifest);
+                
+                var manifests = await Api.Dilly.Manifests();
+                if (manifests.FirstOrDefault(x => x.AppName == "Fortnite_Studio")?.DownloadUrl is { } studioDownloadUrl
+                    && await Api.DownloadFileAsync(studioDownloadUrl, CacheFolder) is { } studioManifestFile)
+                {
+                    var studioManifestBytes = await File.ReadAllBytesAsync(studioManifestFile.FullName);
+                    var studioManifest = FBuildPatchAppManifest.Deserialize(studioManifestBytes, options);
+                    await Provider.RegisterFiles(studioManifest);
+                }
+
+                
+                break;
+            }
+            default:
+            {
+                await Provider.InitializeAsync();
+                break;
+            }
+        }
+    }
+
+    [LoadingStage("Loading Texture Streaming", stage: 5, weight: 5)]
+    private async Task InitializeTextureStreaming()
+    {
+        if (AppSettings.Installation.CurrentProfile.FortniteVersion is not (EFortniteVersion.LatestInstalled or EFortniteVersion.LatestOnDemand)) return;
+        if (AppSettings.Installation.CurrentProfile.FortniteVersion is EFortniteVersion.LatestInstalled  
+            && !AppSettings.Installation.CurrentProfile.UseTextureStreaming) return;
+
+        try
+        {
+            var tocPath = await GetTocPath(AppSettings.Installation.CurrentProfile.FortniteVersion);
+            if (string.IsNullOrEmpty(tocPath)) return;
+            
+            Log.Information("Found toc path: {tocPath}", tocPath);
+
+            var tocName = tocPath.SubstringAfterLast("/");
+            var onDemandFile = new FileInfo(Path.Combine(CacheFolder.FullName, tocName));
+            if (!onDemandFile.Exists || onDemandFile.Length == 0)
+            {
+                await Api.DownloadFileAsync($"https://download.epicgames.com/{tocPath}", onDemandFile.FullName);
+            }
+            
+            await Provider.RegisterVfsAsync(new IoChunkToc(onDemandFile.FullName, Provider.Versions));
+            await Provider.MountAsync();
+        }
+        catch (Exception e)
+        {
+            Info.Message("Failed to Initialize Texture Streaming", 
+                $"Please enable the \"Pre-Download Streamed Assets\" option for Fortnite in the Epic Games Launcher and disable texture streaming in installation settings to remove this popup.");
+        }
+    }
+    
+    [LoadingStage("Submitting Keys", stage: 6, weight: 20)]
+    private async Task LoadKeys()
+    {
+        switch (AppSettings.Installation.CurrentProfile.FortniteVersion)
+        {
+            case EFortniteVersion.LatestInstalled:
+            case EFortniteVersion.LatestOnDemand:
+            {
+                var keys = _resolvedVersion?.Keys;
+                if (keys?.MainKey is null)
+                {
+                    await LoadLocalKeys();
+                    break;
+                }
+
+                Log.Information("Submitting Main Key {Key}", keys.MainKey.Key);
+                await Provider.SubmitKeyAsync(Globals.ZERO_GUID, new FAesKey(keys.MainKey.Key));
+                
+                foreach (var key in keys.ExtraKeys)
+                {
+                    Log.Information("Submitting Dynamic Key {Key} with GUID {Guid}", key.Key, key.GUID);
+                    await Provider.SubmitKeyAsync(new FGuid(key.GUID), new FAesKey(key.Key));
+                }
+
+                await LoadLocalExtraKeys();
+                
+                break;
+            }
+            default:
+            {
+                await LoadLocalKeys();
+                break;
+            }
+        }
+    }
+    
+    [LoadingStage("Loading Virtual Paths", stage: 7, weight: 15)]
+    private async Task LoadVirtualPaths()
+    {
+        Provider.LoadVirtualPaths();
+        Provider.PostMount();
+        
+        if (AppSettings.Installation.CurrentProfile.GameLanguage is not ELanguage.English 
+            && !Provider.TryChangeCulture(Provider.GetLanguageCode(AppSettings.Installation.CurrentProfile.GameLanguage)))
+        {
+            Info.Message("Internationalization", $"Failed to load language \"{AppSettings.Installation.CurrentProfile.GameLanguage.Description}\"");
+        }
+    }
+
+    [LoadingStage("Loading Mappings", stage: 8, weight: 1)]
+    private async Task LoadMappings()
+    {
+        var mappingsPath = AppSettings.Installation.CurrentProfile.FortniteVersion switch
+        {
+            EFortniteVersion.LatestInstalled or EFortniteVersion.LatestOnDemand => await GetEndpointMappings() ?? GetLocalMappings(),
+            _ when AppSettings.Installation.CurrentProfile.UseMappingsFile && File.Exists(AppSettings.Installation.CurrentProfile.MappingsFile) => AppSettings.Installation.CurrentProfile.MappingsFile,
+            _ => string.Empty
+        };
+
+        if (string.IsNullOrEmpty(mappingsPath))
+        {
+            Log.Information("Failed to load mappings, path is empty");
+            return;
+        }
+        
+        Provider.MappingsContainer = new FileUsmapTypeMappingsProvider(mappingsPath, StringComparer.Ordinal);
+        Log.Information("Loaded Mappings: {Path}", mappingsPath);
+    }
+    
+    [LoadingStage("Loading Required Assets", stage: 9, weight: 5)]
+    private async Task LoadApplicationAssets()
+    {
+        if (await Provider.SafeLoadPackageObjectAsync("FortniteGame/Content/Balance/RarityData") is { } rarityData)
+        {
+            for (var i = 0; i < rarityData.Properties.Count; i++)
+                RarityColors.Add(rarityData.GetByIndex<FRarityCollection>(i));
+        }
+
+        if (await Provider.SafeLoadPackageObjectAsync("/BeanstalkCosmetics/Cosmetics/DataTables/DT_BeanstalkCosmetics_Colors") is UDataTable beanstalkColorTable)
+        {
+            foreach (var (name, fallback) in beanstalkColorTable.RowMap)
+            {
+                var index = int.Parse(name.Text);
+                BeanstalkColors[index] = fallback.GetOrDefault<FColor>("Color");
+            }
+        }
+        
+        if (await Provider.SafeLoadPackageObjectAsync("/BeanstalkCosmetics/Cosmetics/DataTables/DT_BeanstalkCosmetics_MaterialTypes") is UDataTable beanstalkMaterialTypesTable)
+        {
+            foreach (var (name, fallback) in beanstalkMaterialTypesTable.RowMap)
+            {
+                var index = int.Parse(name.Text);
+                var color = new FLinearColor();
+                foreach (var property in fallback.Properties)
+                {
+                    if (property.Tag is null) continue;
+                    
+                    var actualName = property.Name.Text.SubstringBefore("_");
+                    switch (actualName)
+                    {
+                        case "Metallic":
+                        {
+                            color.R = (float) property.Tag.GetValue<double>();
+                            break;
+                        }
+                        case "Roughness":
+                        {
+                            color.G = (float) property.Tag.GetValue<double>();
+                            break;
+                        }
+                        case "Emissive":
+                        {
+                            color.B = (float) property.Tag.GetValue<double>();
+                            break;
+                        }
+                    }
+                }
+                
+                BeanstalkMaterialProps[index] = color;
+            }
+        }
+        
+        if (await Provider.SafeLoadPackageObjectAsync("/BeanstalkCosmetics/Cosmetics/DataTables/DT_PatternAtlasTextureSlots") is UDataTable beanstalkAtlasSlotsTable)
+        {
+            foreach (var (name, fallback) in beanstalkAtlasSlotsTable.RowMap)
+            {
+                var index = int.Parse(name.Text);
+                foreach (var property in fallback.Properties)
+                {
+                    if (property.Tag is null) continue;
+                    
+                    var actualName = property.Name.Text.SubstringBefore("_");
+                    if (!actualName.Equals("UV")) continue;
+                    
+                    BeanstalkAtlasTextureUVs[index] = property.Tag.GetValue<FVector>();
+                }
+            }
+        }
+
+        if (await Provider.SafeLoadPackageObjectAsync(
+                "FortniteGame/Content/Athena/Items/Cosmetics/Metadata/CosmeticSets") is UDataTable cosmeticSetsTable)
+        {
+            foreach (var (tagName, data) in cosmeticSetsTable.RowMap)
+            {
+                if (data.GetOrDefault<FText?>("DisplayName") is not { } displayName) continue;
+                SetNames[tagName.Text] = displayName.Text;
+            }
+        }
+        
+        foreach (var path in MaleLobbyMontagePaths)
+        {
+            MaleLobbyMontages.AddIfNotNull(await Provider.SafeLoadPackageObjectAsync<UAnimMontage>(path));
+        }
+        
+        foreach (var path in FemaleLobbyMontagePaths)
+        {
+            FemaleLobbyMontages.AddIfNotNull(await Provider.SafeLoadPackageObjectAsync<UAnimMontage>(path));
+        }
+    }
+    
+    
+    [LoadingStage("Loading Asset Registries", stage: 10, weight: 10)]
+    private async Task LoadAssetRegistries()
+    {
+        var assetRegistries = Provider.Files
+            .Where(x => x.Key.Contains("AssetRegistry", StringComparison.OrdinalIgnoreCase))
+            .ToArray();
+        
+        foreach (var (path, file) in assetRegistries)
+        {
+            if (!path.EndsWith(".bin")) continue;
+            if (path.Contains("Editor", StringComparison.OrdinalIgnoreCase)) continue;
+
+            UpdateStatus($"Loading {file.Path}");
+            var assetArchive = await file.SafeCreateReaderAsync();
+            if (assetArchive is null) continue;
+
+            try
+            {
+                var assetRegistry = new FPartialAssetRegistryState(assetArchive);
+                AssetRegistry.AddRange(assetRegistry.PreallocatedAssetDataBuffers);
+                Log.Information("Loaded Asset Registry: {FilePath}", file.Path);
+            }
+            catch (Exception e)
+            {
+                Log.Warning("Failed to load asset registry: {FilePath}", file.Path);
+                Log.Error(e.ToString());
+            }
+        }
+    }
+
+    private async Task<string> GetTocPath(EFortniteVersion loadingType)
+    {
+        var onDemandText = string.Empty;
+        switch (loadingType)
+        {
+            case EFortniteVersion.LatestInstalled:
+            {
+                var onDemandPath = Path.Combine(AppSettings.Installation.CurrentProfile.ArchiveDirectory, @"..\..\..\Cloud\IoStoreOnDemand.ini");
+                if (File.Exists(onDemandPath)) onDemandText = await File.ReadAllTextAsync(onDemandPath);
+                break;
+            }
+            case EFortniteVersion.LatestOnDemand:
+            {
+                var onDemandFile = LiveManifest?.Files.FirstOrDefault(x => x.FileName.Equals("Cloud/IoStoreOnDemand.ini", StringComparison.OrdinalIgnoreCase));
+                if (onDemandFile is not null) onDemandText = onDemandFile.GetStream().ReadToEnd().BytesToString();
+                break;
+            }
+        }
+
+        if (string.IsNullOrEmpty(onDemandText)) return string.Empty;
+
+        var onDemandIni = new ConfigIni();
+        onDemandIni.Read(new StringReader(onDemandText));
+        return onDemandIni
+            .Sections.FirstOrDefault(section => section.Name?.Equals("Endpoint") ?? false)?
+            .Tokens.OfType<InstructionToken>().FirstOrDefault(token => token.Key.Equals("TocPath"))?
+            .Value.Replace("\"", string.Empty) ?? string.Empty;
+    }
+    
+    private async Task LoadLocalKeys()
+    {
+        var mainKey = AppSettings.Installation.CurrentProfile.MainKey;
+        if (mainKey.IsEmpty) mainKey = FileEncryptionKey.Empty;
+                
+        
+        Log.Information("Submitting Local Main Key {Key}", mainKey.KeyString);
+        await Provider.SubmitKeyAsync(Globals.ZERO_GUID, mainKey.EncryptionKey);
+
+        await LoadLocalExtraKeys();
+    }
+    
+    private async Task LoadLocalExtraKeys()
+    {
+        foreach (var vfs in Provider.UnloadedVfs.ToArray())
+        {
+            foreach (var extraKey in AppSettings.Installation.CurrentProfile.ExtraKeys)
+            {
+                if (extraKey.IsEmpty) continue;
+                if (!vfs.TestAesKey(extraKey.EncryptionKey)) continue;
+                        
+                Log.Information("Submitting Local Extra Key {Key} with GUID {Guid} for {FileName}", extraKey.EncryptionKey, vfs.EncryptionKeyGuid, vfs.Name);
+                await Provider.SubmitKeyAsync(vfs.EncryptionKeyGuid, extraKey.EncryptionKey);
+            }
+        }
+    }
+    
+    private async Task<string?> GetEndpointMappings()
+    {
+        var mappings = _resolvedVersion?.Mappings;
+        if (mappings?.Url is null) return null;
+
+        var mappingsFilePath = Path.Combine(App.DataFolder.FullName, mappings.Url.SubstringAfterLast("/"));
+        if (File.Exists(mappingsFilePath) && new FileInfo(mappingsFilePath).GetFileHashMD5().Equals(mappings.Md5Hash))
+            return mappingsFilePath;
+            
+        var createdFile = await Api.DownloadFileAsync(mappings.Url, mappingsFilePath);
+        if (createdFile is { Exists: false}) return null;
+            
+        File.SetCreationTime(mappingsFilePath, DateTime.Now);
+
+        return mappingsFilePath;
+    }
+
+    private string? GetLocalMappings()
+    {
+        var usmapFiles = App.DataFolder.GetFiles("*.usmap");
+        if (usmapFiles.Length <= 0) return null;
+
+        var latestUsmap = usmapFiles.MaxBy(x => x.CreationTime);
+        return latestUsmap?.FullName;
+    }
+
+    public async Task<(Bitmap Icon, string? DisplayName, string? ExportType)> ResolveGameFileAsync(string gameFilePath)
+    {
+        return await Task.Run(() =>
+        {
+            var fileName = gameFilePath.SubstringAfterLast("/").SubstringBefore(".");
+            var fallbackIcon = ImageExtensions.AvaresBitmap("avares://FortnitePorting/Assets/Unreal/DataAsset_64x.png");
+
+            if (!Provider.TryLoadPackage(Provider.FixPath(gameFilePath), out var package))
+                return (fallbackIcon, fileName, null);
+
+            var export = FindPrimaryExport(package, fileName);
+            if (export is null)
+                return (fallbackIcon, fileName, (string?) null);
+
+            var (icon, displayName, exportType) = ResolveExportPreview(package, export);
+            return (icon ?? fallbackIcon, displayName ?? fileName, exportType);
+        });
+    }
+
+    private static ResolvedObject? FindPrimaryExport(IPackage package, string fileName)
+    {
+        ResolvedObject? namedExport = null;
+        ResolvedObject? packageRootExport = null;
+
+        for (var i = 0; i < package.ExportMapLength; i++)
+        {
+            var pointer = new FPackageIndex(package, i + 1).ResolvedObject;
+            if (pointer?.Object is null) continue;
+
+            var outer = pointer.Outer;
+            var isPackageRoot = outer is null
+                                || outer.ExportIndex < 0
+                                || !ReferenceEquals(outer.Package, package);
+            if (isPackageRoot)
+                packageRootExport ??= pointer;
+
+            var nameMatches = pointer.Name.Text.Equals(fileName, StringComparison.OrdinalIgnoreCase)
+                              || pointer.Name.Text.Equals(fileName + "_C", StringComparison.OrdinalIgnoreCase);
+            if (!nameMatches) continue;
+
+            if (isPackageRoot)
+                return pointer;
+
+            namedExport ??= pointer;
+        }
+
+        return namedExport ?? packageRootExport;
+    }
+
+    private static (Bitmap? Icon, string? DisplayName, string? ExportType) ResolveExportPreview(
+        IPackage package, ResolvedObject pointer)
+    {
+        var obj = ((AbstractUePackage) package).ConstructObject(pointer.Class, package);
+        var exportType = obj.ExportType;
+        string? displayName = null;
+        Bitmap? icon = null;
+
+        if (obj is UTexture && pointer.TryLoad(out var textureObj) &&
+            textureObj is UTexture texture &&
+            texture.Decode(maxMipSize: 128) is { } decodedTexture)
+        {
+            if (texture is UTextureCube)
+                decodedTexture = decodedTexture.ToPanorama();
+
+            return (decodedTexture.ToWriteableBitmap(), displayName, exportType);
+        }
+
+        if (obj.ExportType is "StaticMesh" or "SkeletalMesh"
+            && pointer.TryLoad(out var meshObj)
+            && MeshPreviewRenderer.TryRender(meshObj) is { } meshPreview)
+        {
+            return (meshPreview.ToWriteableBitmap(), displayName, exportType);
+        }
+
+        var assetLoader = AssetLoading.Categories
+            .SelectMany(category => category.Loaders)
+            .FirstOrDefault(loader => loader.ClassNames.Contains(obj.ExportType));
+        if (assetLoader is not null && pointer.TryLoad(out var assetObj))
+        {
+            icon = (assetLoader.LowResIconHandler(assetObj) ?? assetLoader.HighResIconHandler(assetObj))
+                ?.Decode(maxMipSize: 128)?.ToWriteableBitmap();
+            displayName = assetLoader.DisplayNameHandler(assetObj);
+            return (icon, displayName, exportType);
+        }
+
+        displayName = obj.GetAnyOrDefault<FText?>("DisplayName", "ItemName")?.Text;
+
+        if (obj.GetEditorIconBitmap() is { } editorIcon)
+            return (editorIcon, displayName, exportType);
+
+        if (Exporter.DetermineExportType(obj) is var fnExportType and not EExportType.None
+            && $"avares://FortnitePorting/Assets/FN/{fnExportType}.png" is { } exportIconPath
+            && AssetLoader.Exists(new Uri(exportIconPath)))
+        {
+            return (ImageExtensions.AvaresBitmap(exportIconPath), displayName, exportType);
+        }
+
+        return (icon, displayName, exportType);
+    }
+}
+
+public class LoadingStageAttribute : Attribute
+{
+    public string Name { get; }
+    public int Stage { get; }
+    public float Weight { get; }
+
+    public LoadingStageAttribute(string name, int stage, float weight)
+    {
+        Name = name;
+        Stage = stage;
+        Weight = weight;
+    }
+}
+record LoadingStage(MethodInfo Method, LoadingStageAttribute Attr);

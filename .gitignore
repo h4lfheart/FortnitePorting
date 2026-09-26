@@ -400,3 +400,7 @@ FodyWeavers.xsd
 
 # Blender Extensions
 *.blender_ext
+
+# UEFormat plugins copied from external/UEFormat at build time
+plugins/Blender/fortnite_porting/ueformat/
+plugins/Unreal/UEFormat/

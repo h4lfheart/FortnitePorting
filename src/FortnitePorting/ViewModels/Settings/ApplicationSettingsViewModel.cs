@@ -1,0 +1,138 @@
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using Avalonia.Controls;
+using Avalonia.Markup.Xaml;
+using Avalonia.Media;
+using Avalonia.Styling;
+using CommunityToolkit.Mvvm.ComponentModel;
+using FluentAvalonia.Styling;
+using FluentAvalonia.UI.Media.Animation;
+using FortnitePorting.Controls;
+using FortnitePorting.Extensions;
+using FortnitePorting.Framework;
+using FortnitePorting.Models;
+using FortnitePorting.Models.API.Responses;
+using FortnitePorting.Models.Assets.Base;
+using FortnitePorting.Models.Map;
+using FortnitePorting.Models.Radio;
+using FortnitePorting.Shared.Extensions;
+using FortnitePorting.Validators;
+using Material.Icons;
+using NAudio.Wave;
+using Newtonsoft.Json;
+
+namespace FortnitePorting.ViewModels.Settings;
+
+public partial class ApplicationSettingsViewModel : SettingsViewModelBase
+{
+    [NotifyDataErrorInfo] [DirectoryExists("Application Data Path")] [ObservableProperty]
+    private string _appDataPath;
+    
+    [ObservableProperty] private bool _useAppDataPath;
+    
+    [NotifyDataErrorInfo] [DirectoryExists("Assets Path")] [ObservableProperty]
+    private string _assetsPath;
+    
+    [ObservableProperty] private bool _useAssetsPath;
+
+    [ObservableProperty] private bool _showDeveloperSettings = false;
+    
+    [ObservableProperty] private HashSet<string> _favoriteAssets = [];
+
+    [ObservableProperty] private int _audioDeviceIndex = 0;
+    [ObservableProperty] private RadioPlaylistSerializeData[] _playlists = [];
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(VolumeIconKind))] private float _volume = 1.0f;
+
+    [JsonIgnore]
+    public MaterialIconKind VolumeIconKind => Volume switch
+    {
+        0.0f => MaterialIconKind.VolumeMute,
+        < 0.3f => MaterialIconKind.VolumeLow,
+        < 0.66f => MaterialIconKind.VolumeMedium,
+        _ => MaterialIconKind.VolumeHigh
+    };
+
+    [ObservableProperty] private FPVersion _lastOnlineVersion = Globals.Version;
+
+    [ObservableProperty] private ObservableCollection<MapInfo> _localMapInfos = [];
+    [ObservableProperty] private bool _useTabTransitions = true;
+    [ObservableProperty] private bool _showVideoPreviews = true;
+    [ObservableProperty] private float _assetScale = 1.0f;
+    
+    [ObservableProperty] private bool _dontAskAboutKofi;
+    [ObservableProperty] private DateTime _nextKofiAskDate = DateTime.Today;
+    [ObservableProperty] private bool _showAssetNames;
+    
+    [ObservableProperty] private bool _useDefaultExportLoadType = false;
+    [ObservableProperty] private EExportType _defaultExportLoadType = EExportType.Outfit;
+    [ObservableProperty] private EExportLocation _defaultExportLocation = EExportLocation.Blender;
+    [ObservableProperty] private EpicAuthResponse? _epicAuth;
+    
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(TransparencyHints))] private EThemeType _theme = EThemeType.Amethyst;
+    
+    [JsonIgnore]
+    public ObservableCollection<WindowTransparencyLevel> TransparencyHints => Theme is EThemeType.Mica ? [WindowTransparencyLevel.Mica, WindowTransparencyLevel.AcrylicBlur] : [WindowTransparencyLevel.AcrylicBlur];
+    
+    public string AssetPath => UseAssetsPath && Directory.Exists(AssetsPath) ? AssetsPath : App.AssetsFolder.FullName;
+    
+    [JsonIgnore]
+    public DirectSoundDeviceInfo[] AudioDevices => Audio.Devices;
+
+    [JsonIgnore]
+    public EExportType[] AssetTypes => Enum.GetValues<EExportType>().Where(type => !type.IsDisabled && type.IsAssetType).ToArray();
+
+    public async Task BrowseAppDataPath()
+    {
+        if (await App.BrowseFolderDialog() is { } path) AppDataPath = path;
+        
+    }
+    public async Task BrowseAssetsPath()
+    {
+        if (await App.BrowseFolderDialog() is { } path) AssetsPath = path;
+    }
+    
+    partial void OnAudioDeviceIndexChanged(int value)
+    {
+        if (!ReferenceEquals(this, AppSettings.Application)) return;
+
+        Audio.NotifyOutputDeviceChanged();
+    }
+
+    partial void OnVolumeChanged(float value)
+    {
+        if (!ReferenceEquals(this, AppSettings.Application)) return;
+
+        Audio.NotifyVolumeChanged();
+    }
+    
+    partial void OnThemeChanged(EThemeType value)
+    {
+        if (Avalonia.Application.Current is not { } app) return;
+
+        app.Styles.RemoveAll(style => style is FPStyles);
+
+        var themeUri = new Uri($"avares://FortnitePorting/Assets/Themes/{value.ToString()}Theme.axaml");
+        if (AvaloniaXamlLoader.Load(themeUri) is not FPStyles newTheme)
+            return;
+
+        app.Styles.Add(newTheme);
+        SyncAccentColor(app, newTheme);
+    }
+    
+    private static void SyncAccentColor(Avalonia.Application app, Styles theme)
+    {
+        if (app.Styles.OfType<FluentAvaloniaTheme>().FirstOrDefault() is not { } fluentTheme)
+            return;
+
+        if (!theme.TryGetResource("FPAccentColor", app.ActualThemeVariant, out var resource)
+            || resource is not Color accentColor)
+            return;
+
+        fluentTheme.CustomAccentColor = accentColor;
+    }
+}

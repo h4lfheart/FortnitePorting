@@ -1,0 +1,75 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             x:Class="FortnitePorting.Controls.CardCarousel"
+             HorizontalAlignment="Stretch"
+             ClipToBounds="False">
+    <UserControl.Styles>
+        <Style Selector="Button.CarouselNav">
+            <Setter Property="Opacity" Value="0" />
+            <Setter Property="IsHitTestVisible" Value="False" />
+            <Setter Property="Transitions">
+                <Transitions>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.15" />
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="controls|CardCarousel:pointerover Button.CarouselNav">
+            <Setter Property="Opacity" Value="1" />
+            <Setter Property="IsHitTestVisible" Value="True" />
+        </Style>
+    </UserControl.Styles>
+
+    <Grid Background="Transparent" ClipToBounds="False">
+        <Border x:Name="ViewportBorder"
+                ClipToBounds="True"
+                SizeChanged="OnViewportSizeChanged">
+            <Canvas Height="{Binding Bounds.Height, ElementName=StripItems}">
+                <ItemsControl x:Name="StripItems"
+                              ItemsSource="{Binding DisplayItems, RelativeSource={RelativeSource AncestorType=controls:CardCarousel}}"
+                              ItemTemplate="{Binding ItemTemplate, RelativeSource={RelativeSource AncestorType=controls:CardCarousel}}"
+                              Width="{Binding StripWidth, RelativeSource={RelativeSource AncestorType=controls:CardCarousel}}"
+                              HorizontalAlignment="Left"
+                              VerticalAlignment="Top"
+                              ClipToBounds="False">
+                    <ItemsControl.RenderTransform>
+                        <TranslateTransform />
+                    </ItemsControl.RenderTransform>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Rows="1"
+                                         Columns="{Binding StripColumns, RelativeSource={RelativeSource AncestorType=controls:CardCarousel}}"
+                                         ColumnSpacing="16" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </Canvas>
+        </Border>
+
+        <Button Classes="CarouselNav"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                Margin="{ext:Space 2, 0}"
+                Padding="{ext:Space 1}"
+                IsVisible="{Binding HasItems, RelativeSource={RelativeSource AncestorType=controls:CardCarousel}}"
+                IsEnabled="{Binding CanGoPrevious, RelativeSource={RelativeSource AncestorType=controls:CardCarousel}}"
+                Command="{Binding PreviousCommand, RelativeSource={RelativeSource AncestorType=controls:CardCarousel}}"
+                ToolTip.Tip="Previous">
+            <material:MaterialIcon Kind="ChevronLeft" Width="20" Height="20" />
+        </Button>
+
+        <Button Classes="CarouselNav"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Center"
+                Margin="{ext:Space 2, 0}"
+                Padding="{ext:Space 1}"
+                IsVisible="{Binding HasItems, RelativeSource={RelativeSource AncestorType=controls:CardCarousel}}"
+                IsEnabled="{Binding CanGoNext, RelativeSource={RelativeSource AncestorType=controls:CardCarousel}}"
+                Command="{Binding NextCommand, RelativeSource={RelativeSource AncestorType=controls:CardCarousel}}"
+                ToolTip.Tip="Next">
+            <material:MaterialIcon Kind="ChevronRight" Width="20" Height="20" />
+        </Button>
+    </Grid>
+</UserControl>

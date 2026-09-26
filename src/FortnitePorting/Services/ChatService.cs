@@ -1,0 +1,531 @@
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Reactive.Linq;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
+using DynamicData;
+using DynamicData.Binding;
+using FortnitePorting.Extensions;
+using FortnitePorting.Framework;
+using FortnitePorting.Models.API.Responses;
+using FortnitePorting.Models.Chat;
+using FortnitePorting.Models.Supabase.Tables;
+using FortnitePorting.Shared.Extensions;
+using FortnitePorting.Views;
+using Mapster;
+using ReactiveUI;
+using Serilog;
+using Supabase.Realtime;
+using Supabase.Realtime.Interfaces;
+using Supabase.Realtime.Models;
+using Supabase.Realtime.Presence;
+
+namespace FortnitePorting.Services;
+
+public partial class ChatService : ObservableObject, IService
+{
+    [ObservableProperty] private SupabaseService _supaBase;
+
+    public ChatService(SupabaseService supaBase)
+    {
+        SupaBase = supaBase;
+    }
+
+    public event EventHandler<ChatMessage>? MessageReceived;
+
+    [ObservableProperty] private ReadOnlyObservableCollection<ChatMessage> _messages = new([]);
+    [ObservableProperty] private ObservableCollection<IChatFeedItem> _feedItems = [];
+
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(UsersByGroup)),
+     NotifyPropertyChangedFor(nameof(UserMentionNames))]
+    private ObservableDictionary<string, ChatUser> _users = [];
+
+    public IEnumerable<string> UserMentionNames
+    {
+        get
+        {
+            var baseUsers = Users.Select(user => $"@{user.Value.UserName}");
+            if (SupaBase.UserInfo?.Role >= ESupabaseRole.Staff)
+                baseUsers = baseUsers.Concat(["@everyone"]);
+
+            return baseUsers;
+        }
+    }
+
+    [ObservableProperty] private ObservableCollection<ChatUser> _typingUsers = [];
+
+    public string? TypingUsersText => TypingUsers.Count > 0
+        ? $"{(TypingUsers.Count > 4 ? "Several users" : TypingUsers.Select(user => user.DisplayName).CommaJoin())} {(TypingUsers.Count > 1 ? "are" : "is")} typing..."
+        : null;
+
+    public ObservableDictionary<ESupabaseRole, List<ChatUser>> UsersByGroup => new(Users
+        .Select(user => user.Value)
+        .OrderBy(user => user.DisplayName)
+        .GroupBy(user => user.Role)
+        .OrderByDescending(group => group.Key)
+        .ToDictionary(group => group.Key, group => group.ToList())
+    );
+
+    [ObservableProperty] private ObservableDictionary<string, ChatUser> _userCache = [];
+
+    [ObservableProperty] private ChatUserPresence _presence;
+
+    [ObservableProperty] private int _unseenMessageCount = 0;
+
+    private RealtimeChannel _chatChannel;
+    public RealtimePresence<ChatUserPresence> ChatPresence;
+    private RealtimeBroadcast<BaseBroadcast> _chatBroadcast;
+
+    private SourceCache<ChatMessage, string> _messageCache = new(message => message.Id);
+    private readonly Dictionary<DateTime, ChatDaySeparator> _separatorCache = new();
+
+    private readonly SemaphoreSlim _userGetLock = new(1, 1);
+    private readonly SemaphoreSlim _messageFetchLock = new(1, 1);
+
+    private const int PageSize = 20;
+    [ObservableProperty] private bool _isLoadingMessages = false;
+    [ObservableProperty] private bool _hasMoreMessages = true;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(IsEmpty))] private bool _hasFetchedMessages = false;
+    private DateTime? _oldestFetchedTimestamp = null;
+
+    public bool IsEmpty => HasFetchedMessages && Messages.Count == 0;
+
+    public async Task Initialize()
+    {
+        _chatChannel = SupaBase.Client.Realtime.Channel("chat");
+
+        _messageCache.Connect()
+            .ObserveOn(RxApp.MainThreadScheduler)
+            .Sort(SortExpressionComparer<ChatMessage>.Ascending(item => item.Timestamp))
+            .Bind(out var messageCollection)
+            .Subscribe(_ =>
+            {
+                RebuildFeedItems();
+                OnPropertyChanged(nameof(IsEmpty));
+            });
+
+        Messages = messageCollection;
+
+        await InitializePresence();
+        await InitializeBroadcasts();
+
+        await _chatChannel.Subscribe();
+
+        Presence = new ChatUserPresence
+        {
+            UserId = SupaBase.UserInfo!.UserId,
+            Application = Globals.ApplicationTag,
+            Version = Globals.VersionString
+        };
+
+        await ChatPresence.Track(Presence);
+
+        MessageReceived += (sender, message) =>
+        {
+            if (Navigation.App.IsTabOpen<ChatView>())
+                return;
+            
+            if (message.IsPing)
+                Info.Message($"Chat Message from {message.User.DisplayName}", ConvertIdsToMentions(message.Text), autoClose: false);
+
+            UnseenMessageCount++;
+        };
+
+        Users.CollectionChanged += (sender, args) =>
+        {
+            OnPropertyChanged(nameof(UserMentionNames));
+            OnPropertyChanged(nameof(UsersByGroup));
+        };
+    }
+
+    public async Task Uninitialize()
+    {
+        await ChatPresence.Untrack();
+        _chatChannel.Unsubscribe();
+    }
+
+    public async Task<bool> LoadMoreMessages()
+    {
+        if (IsLoadingMessages || !HasMoreMessages)
+            return false;
+
+        await _messageFetchLock.WaitAsync();
+        try
+        {
+            IsLoadingMessages = true;
+
+            var response = await Api.FortnitePorting.GetMessages(before: _oldestFetchedTimestamp, limit: PageSize);
+
+            if (response is null)
+                return false;
+
+            var entries = response.Messages;
+            if (entries.Count == 0)
+            {
+                HasMoreMessages = false;
+                return false;
+            }
+
+            _oldestFetchedTimestamp = response.NextCursor;
+            HasMoreMessages = response.NextCursor.HasValue;
+
+            var prepared = new List<ChatMessage>();
+            foreach (var entry in entries.OrderBy(x => x.ReplyId is not null))
+            {
+                if (_messageCache.Lookup(entry.Id).HasValue) continue;
+
+                var chatMessage = entry.Adapt<ChatMessage>();
+                chatMessage.Timestamp = entry.CreatedAt.ToLocalTime();
+                chatMessage.User = await GetUser(entry.UserId);
+                chatMessage.GameFilePath = entry.GameFilePath;
+                if (!string.IsNullOrEmpty(entry.GameFilePath))
+                    chatMessage.LoadGameFileData();
+
+                if (chatMessage.Text.Contains($"<@{SupaBase.UserInfo?.UserId}>") ||
+                    (chatMessage.Text.Contains("<@everyone>") && chatMessage.User?.Role >= ESupabaseRole.Staff))
+                    chatMessage.IsPing = true;
+
+                prepared.Add(chatMessage);
+            }
+
+            if (prepared.Count == 0) return false;
+
+            var topLevel = prepared.Where(m => m.ReplyId is null).ToList();
+            if (topLevel.Count > 0)
+            {
+                _messageCache.Edit(updater =>
+                {
+                    foreach (var msg in topLevel)
+                        updater.AddOrUpdate(msg);
+                });
+            }
+
+            foreach (var msg in prepared.Where(m => m.ReplyId is not null))
+            {
+                var replyParent = _messageCache.Lookup(msg.ReplyId!);
+                if (replyParent.HasValue)
+                    replyParent.Value.ReplyMessages.InsertSorted(msg, SortExpressionComparer<ChatMessage>.Ascending(x => x.Timestamp));
+            }
+
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+        finally
+        {
+            IsLoadingMessages = false;
+            HasFetchedMessages = true;
+            _messageFetchLock.Release();
+        }
+    }
+    
+
+    private async Task InitializePresence()
+    {
+        if (ChatPresence is not null) return;
+
+        ChatPresence = _chatChannel.Register<ChatUserPresence>(PresenceOptions.WithPresence(SupaBase.UserInfo.UserId));
+
+        TypingUsers.CollectionChanged += (sender, args) => OnPropertyChanged(nameof(TypingUsersText));
+        ChatPresence.AddPresenceEventHandler(IRealtimePresence.EventType.Sync, (sender, type) =>
+        {
+            if (!SupaBase.IsLoggedIn) return;
+
+            TaskService.Run(async () =>
+            {
+                var newTypingUsers = new List<ChatUser>();
+                var currentState = ChatPresence.CurrentState.ToDictionary();
+                foreach (var (presenceId, presences) in currentState)
+                {
+                    var targetPresence = presences.Last();
+
+                    var targetUser = await GetUser(targetPresence.UserId) ?? await GetUser(presenceId);
+                    if (targetUser?.UserId is null || targetUser.UserId.Equals(SupaBase.UserInfo.UserId)) continue;
+
+                    if (targetPresence.IsTyping)
+                        newTypingUsers.Add(targetUser);
+                }
+
+
+                TypingUsers = [..newTypingUsers];
+            });
+        });
+
+        ChatPresence.AddPresenceEventHandler(IRealtimePresence.EventType.Join, (sender, type) =>
+        {
+            if (!SupaBase.IsLoggedIn) return;
+
+            TaskService.Run(async () =>
+            {
+                var currentState = ChatPresence.CurrentState.ToDictionary();
+                var newUsers = 0;
+                foreach (var (presenceId, presences) in currentState)
+                {
+                    var targetPresence = presences.Last();
+
+                    var targetUser = await GetUser(targetPresence.UserId) ?? await GetUser(presenceId);
+                    if (targetUser?.UserId is null) continue;
+
+                    targetUser.Tag = targetPresence.Application;
+                    targetUser.Version = targetPresence.Version;
+
+                    if (Users.ContainsKey(targetUser.UserId)) continue;
+
+                    Users.AddOrUpdate(targetPresence.UserId, targetUser);
+                    newUsers++;
+                }
+
+                if (newUsers > 0)
+                {
+                    OnPropertyChanged(nameof(UserMentionNames));
+                    OnPropertyChanged(nameof(UsersByGroup));
+                }
+
+                if (Navigation.App.IsTabOpen<ChatView>())
+                    Discord.Update($"Chatting with {Users.Count} {(Users.Count > 1 ? "Users" : "User")}");
+            });
+        });
+
+        ChatPresence.AddPresenceEventHandler(IRealtimePresence.EventType.Leave, (sender, type) =>
+        {
+            if (!SupaBase.IsLoggedIn) return;
+
+            var currentState = ChatPresence.CurrentState.ToDictionary();
+            var removedUsers = 0;
+            foreach (var user in Users.ToArray())
+            {
+                if (!currentState.ContainsKey(user.Key))
+                {
+                    Users.Remove(user.Key);
+                    removedUsers++;
+                }
+            }
+
+            if (removedUsers > 0)
+                OnPropertyChanged(nameof(UsersByGroup));
+        });
+    }
+
+    private async Task InitializeBroadcasts()
+    {
+        if (_chatBroadcast is not null) return;
+
+        _chatBroadcast = _chatChannel.Register<BaseBroadcast>();
+        _chatBroadcast.AddBroadcastEventHandler(async (sender, broadcast) =>
+        {
+            if (!SupaBase.IsLoggedIn) return;
+            if (broadcast is null) return;
+
+            switch (broadcast.Event)
+            {
+                case "insert_message":
+                {
+                    var message = broadcast.Get<BroadcastMessage>("message");
+                    await AddMessage(message);
+
+                    break;
+                }
+                case "update_message":
+                {
+                    var updatedMessage = broadcast.Get<BroadcastMessage>("message");
+
+                    var parentLookup = updatedMessage.ReplyId is not null
+                        ? _messageCache.Lookup(updatedMessage.ReplyId)
+                        : _messageCache.Lookup(updatedMessage.Id);
+
+                    if (!parentLookup.HasValue) break;
+
+                    var targetMessage = updatedMessage.ReplyId is not null
+                        ? parentLookup.Value.ReplyMessages.FirstOrDefault(reply => reply.Id.Equals(updatedMessage.Id))
+                        : parentLookup.Value;
+
+                    if (targetMessage is null) break;
+
+                    targetMessage.Text = updatedMessage.Text;
+                    targetMessage.ReactorIds = updatedMessage.ReactorIds;
+                    targetMessage.WasEdited = updatedMessage.WasEdited;
+                    break;
+                }
+                case "delete_message":
+                {
+                    var messageId = broadcast.Get<string>("message_id");
+                    var replyId = broadcast.Get<string?>("reply_id");
+
+                    if (replyId is not null)
+                    {
+                        var parentLookup = _messageCache.Lookup(replyId);
+                        if (parentLookup.HasValue)
+                            parentLookup.Value.ReplyMessages.RemoveAll(reply => reply.Id.Equals(messageId));
+                    }
+                    else
+                    {
+                        _messageCache.Remove(messageId);
+                    }
+
+                    break;
+                }
+                case "update_permissions":
+                {
+                    var userId = broadcast.Get<string>("user_id");
+                    var role = broadcast.Get<ESupabaseRole>("role");
+                    var isMuted = broadcast.Get<bool>("is_muted");
+
+                    UserCache.UpdateIfContains(userId, user =>
+                    {
+                        user.Role = role;
+                        user.IsMuted = isMuted;
+                    });
+                    OnPropertyChanged(nameof(UsersByGroup));
+                    break;
+                }
+            }
+        });
+    }
+
+    public async Task AddMessage(BroadcastMessage inMessage, bool isInit = false)
+    {
+        var message = inMessage.Adapt<ChatMessage>();
+        message.Timestamp = inMessage.Timestamp.ToLocalTime();
+        message.User = await GetUser(inMessage.UserId);
+        message.GameFilePath = inMessage.GameFilePath;
+        if (!string.IsNullOrEmpty(message.GameFilePath))
+            message.LoadGameFileData();
+
+        if (message.ReplyId is not null)
+        {
+            var replyParent = _messageCache.Lookup(message.ReplyId);
+            if (replyParent.HasValue)
+                replyParent.Value.ReplyMessages.InsertSorted(
+                    message,
+                    SortExpressionComparer<ChatMessage>.Ascending(x => x.Timestamp)
+                );
+        }
+        else
+        {
+            _messageCache.AddOrUpdate(message);
+        }
+
+        if (message.Text.Contains($"<@{SupaBase.UserInfo?.UserId}>") || (message.Text.Contains("<@everyone>") && message.User?.Role >= ESupabaseRole.Staff))
+            message.IsPing = true;
+
+        if (!isInit)
+            MessageReceived?.Invoke(this, message);
+    }
+
+    private void RebuildFeedItems() => FeedItems.Diff(BuildFeed());
+
+    private List<IChatFeedItem> BuildFeed()
+    {
+        var result = new List<IChatFeedItem>();
+        DateTime? lastDate = null;
+        foreach (var msg in Messages)
+        {
+            var date = msg.Timestamp.Date;
+            if (lastDate is null || lastDate.Value != date)
+                result.Add(GetOrCreateSeparator(date));
+            
+            result.Add(msg);
+            lastDate = date;
+        }
+        return result;
+    }
+
+    private ChatDaySeparator GetOrCreateSeparator(DateTime date)
+    {
+        if (_separatorCache.TryGetValue(date, out var existingSeparator))
+            return existingSeparator;
+
+        var label = date == DateTime.Today ? "Today"
+            : date == DateTime.Today.AddDays(-1) ? "Yesterday"
+            : date.ToShortDateString();
+
+        var separator = new ChatDaySeparator(label);
+        _separatorCache[date] = separator;
+        return separator;
+    }
+
+    public string ConvertMentionsToIds(string text)
+    {
+        if (string.IsNullOrEmpty(text)) return text;
+
+        var mentionPattern = @"@([\w.]+)";
+        var regex = new Regex(mentionPattern);
+
+        return regex.Replace(text, match =>
+        {
+            var username = match.Groups[1].Value;
+
+            if (username.Equals("everyone", StringComparison.OrdinalIgnoreCase))
+                return "<@everyone>";
+
+            var user = Chat.Users.FirstOrDefault(x =>
+                x.Value.UserName.Equals(username, StringComparison.OrdinalIgnoreCase));
+
+            return user != null ? $"<@{user.Value.UserId}>" : match.Value;
+        });
+    }
+
+    public string ConvertIdsToMentions(string text)
+    {
+        if (string.IsNullOrEmpty(text)) return text;
+
+        var mentionPattern = @"<@([a-f0-9\-]+|everyone)>";
+        var regex = new Regex(mentionPattern, RegexOptions.IgnoreCase);
+
+        return regex.Replace(text, match =>
+        {
+            var userId = match.Groups[1].Value;
+
+            if (userId.Equals("everyone", StringComparison.OrdinalIgnoreCase))
+                return "@everyone";
+
+            var user = UserCache.FirstOrDefault(x =>
+                x.Key.Equals(userId, StringComparison.OrdinalIgnoreCase));
+
+            return user?.Value != null ? $"@{user.Value.DisplayName}" : match.Value;
+        });
+    }
+
+
+    public async Task<ChatUser?> GetUser(string id)
+    {
+        await _userGetLock.WaitAsync();
+        try
+        {
+            if (UserCache.TryGetValue(id, out var existingUser)) return existingUser;
+
+            var userInfo = await SupaBase.GetUserAsync(id);
+            if (userInfo is null) return null;
+
+            var user = userInfo.Adapt<ChatUser>();
+            UserCache[id] = user;
+
+            return user;
+        }
+        finally
+        {
+            _userGetLock.Release();
+        }
+    }
+
+    public async Task SendMessage(string text, string? replyId = null, string? imagePath = null, string? gameFilePath = null)
+    {
+        await Api.FortnitePorting.PostMessage(text, replyId, imagePath, gameFilePath);
+    }
+
+    public async Task UpdateMessage(ChatMessage message, string text)
+    {
+        await Api.FortnitePorting.EditMessage(text, message.Id);
+    }
+    
+    public async Task DeleteMessage(ChatMessage message)
+    {
+        await Api.FortnitePorting.DeleteMessage(message.Id);
+    }
+}

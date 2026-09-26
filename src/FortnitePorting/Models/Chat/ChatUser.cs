@@ -1,0 +1,96 @@
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Avalonia.Controls;
+using Avalonia.Layout;
+using Avalonia.Media;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using FluentAvalonia.UI.Controls;
+using FortnitePorting.Extensions;
+using FortnitePorting.Models.API.Requests;
+using FortnitePorting.Models.Information;
+using FortnitePorting.Models.Supabase.Tables;
+using System.Text.Json.Serialization;
+using Supabase.Realtime.Models;
+
+namespace FortnitePorting.Models.Chat;
+
+public partial class ChatUser : ObservableObject
+{
+    [ObservableProperty] private string _userId;
+    [ObservableProperty] private string _userName;
+    [ObservableProperty] private string _displayName;
+    [ObservableProperty] private string _avatarUrl;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(Brush))] private ESupabaseRole _role;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(Brush)), NotifyPropertyChangedFor(nameof(MuteHeader))] private bool _isMuted;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(OnlineVersion))] private string _version;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(OnlineVersion))] private string _tag;
+
+    public string OnlineVersion => !string.IsNullOrWhiteSpace(Tag) ? $"{Tag} {Version}" : Version;
+
+    public bool CanChangeRole => SupaBase.Permissions.Role >= ESupabaseRole.Staff && SupaBase.Permissions.Role > Role;
+    public bool CanMute => SupaBase.Permissions.Role >= ESupabaseRole.Staff && SupaBase.Permissions.Role > Role;
+    public string MuteHeader => IsMuted ? "Unmute" : "Mute";
+
+    public SolidColorBrush Brush => Role.Brush(IsMuted);
+    
+    [RelayCommand]
+    public async Task CopyID()
+    {
+        await App.Clipboard.SetTextAsync(UserId);
+    }
+
+    [RelayCommand]
+    public async Task ToggleMute()
+    {
+        await Api.FortnitePorting.PatchUserPermissions(UserId, new UserPermissionPatchRequest
+        {
+            IsMuted = !IsMuted,
+        });
+    }
+
+    [RelayCommand]
+    public async Task SetRole()
+    {
+        var enumValues = Enum.GetValues<ESupabaseRole>()
+            .Where(role => role < SupaBase.Permissions.Role)
+            .Select(role => role.Description);
+        
+        var comboBox = new ComboBox
+        {
+            ItemsSource = enumValues,
+            SelectedIndex = 0,
+            HorizontalAlignment = HorizontalAlignment.Stretch
+        };
+        
+        Info.Dialog($"Set Role for {UserName}", content: comboBox, buttons: 
+        [
+            new DialogButton
+            {
+                Text = "Change Role",
+                IsPrimary = true,
+                Action = async () =>
+                {
+                    var role = Enum.GetValues<ESupabaseRole>().FirstOrDefault(role => role.Description.Equals(comboBox.SelectedItem));
+                    await Api.FortnitePorting.PatchUserPermissions(UserId, new UserPermissionPatchRequest
+                    {
+                        Role = role,
+                    });
+                }
+            },
+            new DialogButton
+            {
+                Text = "Cancel"
+            }
+        ]);
+    }
+}
+
+public class ChatUserPresence : BasePresence
+{
+    [JsonPropertyName("user_id")] public string UserId;
+    [JsonPropertyName("application")] public string Application;
+    [JsonPropertyName("version")] public string Version;
+    [JsonPropertyName("is_typing")] public bool IsTyping;
+}

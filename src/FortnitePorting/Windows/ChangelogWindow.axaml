@@ -1,0 +1,34 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
+        xmlns:windowModels="clr-namespace:FortnitePorting.WindowModels"
+        xmlns:avaloniaEdit="https://github.com/avaloniaui/avaloniaedit"
+        xmlns:controls="clr-namespace:FortnitePorting.Controls"
+        x:Class="FortnitePorting.Windows.ChangelogWindow"
+        x:DataType="windowModels:ChangelogWindowModel"
+        Width="960" Height="540" RequestedThemeVariant="Dark" Background="{DynamicResource WindowBackgroundBrush}" 
+        TransparencyLevelHint="{Binding Settings.Application.TransparencyHints}"
+        ExtendClientAreaToDecorationsHint="True" ExtendClientAreaChromeHints="NoChrome" FontFamily="{StaticResource SFTextRegular}"
+        WindowStartupLocation="CenterScreen" ClosingBehavior="OwnerAndChildWindows" ExtendClientAreaTitleBarHeightHint="35"
+        Icon="/Assets/LogoRebrand.ico"
+        Title="Changelog Viewer">
+    <Grid Margin="{Binding $parent[Window].OffScreenMargin}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="35"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <controls:WindowTitleBar Grid.Row="0" Title="Changelog Viewer"/>
+        
+        <Grid Grid.Row="1">
+            <Border Background="{DynamicResource ContentBorderBackgroundBrush}" CornerRadius="0"
+                    BorderThickness="0 2 0 0" BorderBrush="{DynamicResource ContentBorderBorderBrush}">
+                <avaloniaEdit:TextEditor x:Name="Editor"
+                                         Background="Transparent"
+                                         ShowLineNumbers="True" FontFamily="Cascadia Code, Consolas, Menlo, Monospace"
+                                         IsReadOnly="True" SyntaxHighlighting="{Binding JsonHighlighter}"
+                                         FontSize="12"/>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

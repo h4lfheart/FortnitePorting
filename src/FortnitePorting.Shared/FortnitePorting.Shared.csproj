@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <ItemGroup>
+        <PackageReference Include="Avalonia" />
+        <PackageReference Include="Avalonia.AvaloniaEdit" />
+        <PackageReference Include="Avalonia.Markup.Xaml.Loader" />
+        <PackageReference Include="AsyncImageLoader.Avalonia" />
+        <PackageReference Include="Clowd.Clipboard" />
+        <PackageReference Include="Clowd.Clipboard.Gdi" />
+        <PackageReference Include="CommunityToolkit.Mvvm" />
+        <PackageReference Include="DynamicData" />
+        <PackageReference Include="FluentAvaloniaUI" />
+        <PackageReference Include="Material.Icons" />
+        <PackageReference Include="Material.Icons.Avalonia" />
+        <PackageReference Include="RestSharp" />
+        <PackageReference Include="RestSharp.Serializers.NewtonsoftJson" />
+        <PackageReference Include="SixLabors.ImageSharp" />
+        <PackageReference Include="SixLabors.ImageSharp.Drawing" />
+        <PackageReference Include="Serilog" />
+        <PackageReference Include="Serilog.Sinks.Console" />
+    </ItemGroup>
+</Project>

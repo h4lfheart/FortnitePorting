@@ -1,0 +1,14 @@
+using CUE4Parse.UE4.Assets.Exports;
+using CUE4Parse.UE4.Assets.Exports.Component;
+using CUE4Parse.UE4.Objects.Core.Math;
+using CUE4Parse.UE4.Objects.UObject;
+
+namespace FortnitePorting.CUE4Parse.Models.Unreal.Landscape;
+
+public class ULandscapeLayerInfoObject : USceneComponent
+{
+    [UProperty] public string LayerName;
+    [UProperty] public FLinearColor LayerUsageDebugColor;
+    [UProperty] public FPackageIndex PhysMaterial;
+
+}

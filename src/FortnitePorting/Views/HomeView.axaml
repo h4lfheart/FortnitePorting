@@ -1,0 +1,252 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:viewModels="clr-namespace:FortnitePorting.ViewModels"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
+             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             xmlns:responses="clr-namespace:FortnitePorting.Models.API.Responses"
+             xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:views="clr-namespace:FortnitePorting.Views"
+             d:DesignHeight="865" d:DesignWidth="1371"
+             x:Class="FortnitePorting.Views.HomeView"
+             x:DataType="viewModels:HomeViewModel">
+    <Grid Margin="{ext:Space 2}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="{ext:Space 1}" />
+            <RowDefinition Height="2*" />
+            <RowDefinition Height="{ext:Space 2}" />
+            <RowDefinition Height="2*" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" VerticalAlignment="Center">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="{ext:Space 1.5}" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0"
+                       FontFamily="{StaticResource SFDisplaySemibold}" FontSize="40"
+                       HorizontalAlignment="Center">
+                <Run Text="Fortnite" Foreground="{DynamicResource FPTitleTextBrush}"/>
+                <Run Text="Porting" Foreground="{DynamicResource FPAccentBrush}" />
+            </TextBlock>
+            
+            <TextBlock Grid.Row="1" Text="{Binding UEParse.Status}" 
+                       VerticalAlignment="Center" HorizontalAlignment="Center" Margin="{ext:Space 0, 1}"
+                       FontSize="14" FontFamily="{StaticResource SFTextMedium}" Classes="TextFillColorSecondaryBrush"
+                       IsVisible="{Binding !UEParse.FinishedLoading}"/>
+            
+            <ProgressBar Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center" Height="8"
+                         IsVisible="{Binding !UEParse.FinishedLoading}"
+                         Margin="{ext:Space 0, 1, 0, 0}"
+                         MinWidth="500"
+                         Value="{Binding UEParse.Progress}"
+                         Minimum="0"
+                         Maximum="100">
+                <ProgressBar.Transitions>
+                    <Transitions>
+                        <DoubleTransition Property="Value" Duration="0:0:5" Easing="CubicEaseOut" />
+                    </Transitions>
+                </ProgressBar.Transitions>
+            </ProgressBar>
+
+            <StackPanel Grid.Row="4" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
+                <StackPanel.Styles>
+                    <Style Selector="Button">
+                        <Setter Property="HorizontalAlignment" Value="Stretch" />
+                        <Setter Property="Margin" Value="{ext:Space 0.5}" />
+                    </Style>
+                </StackPanel.Styles>
+                <Button Content="{controls:ImageText 'Discord', /Assets/Icons/Discord.png}" Width="125"
+                        FontFamily="{StaticResource SFTextRegular}" Command="{Binding LaunchDiscord}"/>
+                <Button Content="{controls:IconText 'Twitter', Twitter}" Width="125"
+                        FontFamily="{StaticResource SFTextRegular}" Command="{Binding LaunchTwitter}"/>
+                <Button Content="{controls:IconText 'GitHub', Github}" Width="125"
+                        FontFamily="{StaticResource SFTextRegular}" Command="{Binding LaunchGitHub}"/>
+                <Button Content="{controls:ImageText 'KoFi', /Assets/Icons/KoFi.png}" Width="125"
+                        FontFamily="{StaticResource SFTextRegular}" Command="{Binding LaunchKoFi}"/>
+                <Button Content="{controls:ImageText 'Website', /Assets/LogoRebrand.png}" Width="125"
+                        FontFamily="{StaticResource SFTextRegular}" Command="{Binding LaunchWebsite}"/>
+            </StackPanel>
+
+        </Grid>
+
+        <Grid Grid.Row="2" VerticalAlignment="Center">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="{ext:Space 2}" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" Text="News &amp; Updates"
+                       FontFamily="{StaticResource SFDisplaySemibold}" FontSize="20"
+                       HorizontalAlignment="Center" />
+            
+            <controls:CardCarousel Grid.Row="2" ItemsSource="{Binding News}" VisibleCount="3">
+                <controls:CardCarousel.ItemTemplate>
+                    <DataTemplate DataType="responses:NewsEntry">
+                        <controls:ContentCard Margin="{ext:Space 1}"
+                                              HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="{ext:Space 2}"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="{ext:Space 2}"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="{ext:Space 2}"/>
+                                </Grid.RowDefinitions>
+                                
+                                <Border Grid.Row="0" 
+                                        CornerRadius="16 16 0 0"
+                                        ClipToBounds="True"
+                                        Height="150">
+                                    <Image asyncImageLoader:ImageLoader.Source="{Binding Image}"
+                                           Stretch="UniformToFill"/>
+                                </Border>
+
+                                <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Margin="{ext:Space 2, 0}">
+                                    
+                                    <Border Grid.Column="0"
+                                            CornerRadius="12" 
+                                            Padding="{ext:Space 1, 0.5}"
+                                            HorizontalAlignment="Left" ClipToBounds="False"
+                                            BoxShadow="{DynamicResource FPCardShadow}">
+                                        <Border.Background>
+                                            <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
+                                                <GradientStops>
+                                                    <GradientStop Color="#8141db" Offset="0"/>
+                                                    <GradientStop Color="#953bf8" Offset="1"/>
+                                                </GradientStops>
+                                            </LinearGradientBrush>
+                                        </Border.Background>
+                            
+                                        <TextBlock Text="{Binding Tag, Converter={StaticResource StringToUppercase}}" 
+                                                   FontFamily="{StaticResource SFTextSemiBold}"
+                                                   FontSize="12"
+                                                   Foreground="White"/>
+                                    </Border>
+                                    
+                                        
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding Date, StringFormat='MMM dd'}" 
+                                               FontFamily="{StaticResource SFTextRegular}"
+                                               FontSize="12"
+                                               Classes="TextFillColorSecondaryBrush"
+                                               VerticalAlignment="Center"/>
+                                </Grid>
+                                
+                                <Grid Grid.Row="4" Margin="{ext:Space 2, 0}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="{ext:Space 1}"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    
+                                    <TextBlock Grid.Row="0" Text="{Binding Title}" 
+                                               FontFamily="{StaticResource SFTextSemiBold}"
+                                               FontSize="16"/>
+                                    
+                                    <TextBlock Grid.Row="2" Text="{Binding SubTitle}" 
+                                               FontFamily="{StaticResource SFTextRegular}"
+                                               Classes="TextFillColorSecondaryBrush"
+                                               TextWrapping="Wrap"
+                                               MaxLines="3"/>
+                                </Grid>
+                                
+                                <Button Grid.Row="0" Grid.RowSpan="6" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="{ext:Space 2}"
+                                        Command="{Binding $parent[views:HomeView].((viewModels:HomeViewModel)DataContext).OpenNews}" 
+                                        CommandParameter="{Binding}"
+                                        ToolTip.Tip="Read Changelog">
+                                    <material:MaterialIcon Kind="Text"/>
+                                </Button>
+
+
+                            </Grid>
+                        </controls:ContentCard>
+                    </DataTemplate>
+                </controls:CardCarousel.ItemTemplate>
+            </controls:CardCarousel>
+            
+
+        </Grid>
+        
+        <Grid Grid.Row="4" VerticalAlignment="Center">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="{ext:Space 2}" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" Text="Featured Art"
+                       FontFamily="{StaticResource SFDisplaySemibold}" FontSize="20"
+                       HorizontalAlignment="Center" />
+
+            <controls:CardCarousel Grid.Row="2"
+                                   ItemsSource="{Binding FeaturedArt}"
+                                   Loop="True"
+                                   VisibleCount="3"
+                                   AutoScrollInterval="0:0:10"
+                                   AutoScrollStep="3">
+                <controls:CardCarousel.ItemTemplate>
+                    <DataTemplate DataType="responses:FeaturedArtEntry">
+                         <controls:ContentCard Margin="{ext:Space 1}"
+                                              HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="{ext:Space 2}"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="{ext:Space 2}"/>
+                                </Grid.RowDefinitions>
+                                
+                                <Border Grid.Row="0" 
+                                        CornerRadius="16 16 0 0"
+                                        ClipToBounds="True"
+                                        Height="175">
+                                    <Image asyncImageLoader:ImageLoader.Source="{Binding Image}"
+                                           Stretch="UniformToFill"/>
+                                </Border>
+                                
+                                <Grid Grid.Row="2" Margin="{ext:Space 2, 0}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="{ext:Space 1}"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    
+                                    <TextBlock Grid.Row="0" Text="{Binding Title}" 
+                                               FontFamily="{StaticResource SFTextSemiBold}"
+                                               FontSize="16"/>
+                                    
+                                    <TextBlock Grid.Row="2" Text="{Binding Artist}" 
+                                               FontFamily="{StaticResource SFTextRegular}"
+                                               Classes="TextFillColorSecondaryBrush"
+                                               TextWrapping="Wrap"
+                                               MaxLines="3"/>
+                                </Grid>
+                                
+                                <Button Grid.Row="0" Grid.RowSpan="4" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="{ext:Space 2}"
+                                        Command="{Binding $parent[views:HomeView].((viewModels:HomeViewModel)DataContext).OpenFeaturedArt}" 
+                                        CommandParameter="{Binding}"
+                                        ToolTip.Tip="Open Post">
+                                    <material:MaterialIcon Kind="Link"/>
+                                </Button>
+
+
+                            </Grid>
+                        </controls:ContentCard>
+                    </DataTemplate>
+                </controls:CardCarousel.ItemTemplate>
+            </controls:CardCarousel>
+
+
+        </Grid>
+
+    </Grid>
+</UserControl>

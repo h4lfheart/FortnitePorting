@@ -1,0 +1,52 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
+        xmlns:windowModels="clr-namespace:FortnitePorting.WindowModels"
+        xmlns:files1="clr-namespace:FortnitePorting.Controls.Files"
+        xmlns:controls="clr-namespace:FortnitePorting.Controls"
+        x:Class="FortnitePorting.Windows.FilePickerWindow"
+        x:DataType="windowModels:FilePickerWindowModel"
+        Width="1100" Height="700"
+        RequestedThemeVariant="Dark"
+        Background="{DynamicResource WindowBackgroundBrush}"
+        TransparencyLevelHint="{Binding Settings.Application.TransparencyHints}"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="NoChrome"
+        FontFamily="{StaticResource SFTextRegular}"
+        WindowStartupLocation="CenterOwner"
+        ClosingBehavior="OwnerAndChildWindows"
+        ExtendClientAreaTitleBarHeightHint="35"
+        Icon="/Assets/LogoRebrand.ico"
+        Title="File Picker">
+    <Grid Margin="{Binding $parent[Window].OffScreenMargin}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="35" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <controls:WindowTitleBar Grid.Row="0" Title="{Binding WindowName}"/>
+
+        <Grid Grid.Row="1" Margin="{ext:Space 1}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="{ext:Space 1}" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <files1:FileBrowser Grid.Row="0"
+                                Context="{Binding Context}"
+                                FileItemDoubleTapped="OnFileItemDoubleTapped" />
+
+            <StackPanel Grid.Row="2" HorizontalAlignment="Right" Orientation="Horizontal" Spacing="{ext:Space 1}">
+                <Button IsEnabled="{Binding Context.HasSelectedFiles}"
+                        Click="OnSelectPressed">
+                    <controls:IconText Text="Select" Icon="Check"/>
+                </Button>
+                <Button Click="OnCancelPressed">
+                    <controls:IconText Text="Cancel" Icon="Cancel"/>
+                </Button>
+            </StackPanel>
+         
+        </Grid>
+    </Grid>
+</Window>

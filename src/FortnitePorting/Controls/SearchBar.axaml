@@ -1,0 +1,28 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
+             xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="40"
+             x:Class="FortnitePorting.Controls.SearchBar">
+    <Panel>
+        <TextBox x:Name="PART_TextBox"
+                 Text="{Binding Text, RelativeSource={RelativeSource AncestorType=controls:SearchBar}, Mode=TwoWay}"
+                 Watermark="{Binding Watermark, RelativeSource={RelativeSource AncestorType=controls:SearchBar}}"
+                 Padding="12,0,36,0" />
+
+        <Border x:Name="PART_ClearBorder"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Stretch"
+                Background="Transparent"
+                Padding="{ext:Space 0.5}"
+                Margin="{ext:Space 0, 0, 1, 0}"
+                Cursor="Hand"
+                IsVisible="{Binding Text, RelativeSource={RelativeSource AncestorType=controls:SearchBar}, Converter={x:Static controls:SearchBar.StringNotEmptyConverter}}"
+                PointerPressed="OnClearPressed">
+            <material:MaterialIcon Kind="Close" Width="16" Height="16" VerticalAlignment="Center" />
+        </Border>
+    </Panel>
+</UserControl>

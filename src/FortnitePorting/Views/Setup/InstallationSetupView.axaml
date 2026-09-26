@@ -1,0 +1,138 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
+             xmlns:versions="clr-namespace:CUE4Parse.UE4.Versions;assembly=CUE4Parse"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:fortnitePorting="clr-namespace:FortnitePorting"
+             xmlns:setup="clr-namespace:FortnitePorting.ViewModels.Setup"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls.Settings"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             d:DesignHeight="770" d:DesignWidth="1160"
+             x:Class="FortnitePorting.Views.Setup.InstallationSetupView"
+             x:DataType="setup:InstallationSetupViewModel">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="{ext:Space 1}"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <Border Grid.Row="0" Grid.RowSpan="3" CornerRadius="0">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0%, 100%" EndPoint="0%, 0%">
+                    <GradientStops>
+                        <GradientStop Color="#AA000000" Offset=".4"/>
+                        <GradientStop Color="#00000000" Offset="0.6"/>
+                    </GradientStops>
+                </LinearGradientBrush>
+            </Border.Background>
+        </Border>
+        
+        <StackPanel Grid.Row="0" VerticalAlignment="Center">
+            <TextBlock Text="Installation Settings" FontFamily="{StaticResource SFDisplayBold}" FontSize="40" 
+                       HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{ext:Space 0, 0, 0, 1}">
+                <TextBlock.Effect>
+                    <DropShadowEffect BlurRadius="15" Color="#8F000000" OffsetX="0" OffsetY="0" />
+                </TextBlock.Effect>
+            </TextBlock>
+            
+            <TextBlock Text="Create your Fortnite installation profile to begin loading assets." HorizontalAlignment="Center"
+                       VerticalAlignment="Center" Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"
+                       Margin="{ext:Space 0, 0, 0, 2}">
+                <TextBlock.Effect>
+                    <DropShadowEffect BlurRadius="15" Color="#8F000000" OffsetX="0" OffsetY="0" />
+                </TextBlock.Effect>
+            </TextBlock>
+            
+            <Button Content="Continue" Command="{Binding ContinueCommand}" 
+                    IsEnabled="{Binding !Profile.HasErrors}" Classes="Purple"
+                    HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+        </StackPanel>
+        
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Hidden" Margin="{ext:Space 4, 0, 4, 4}">
+            <StackPanel VerticalAlignment="Bottom" Margin="{ext:Space 1, 0}" Spacing="{ext:Space 0, 0, 0, 1}">
+                <controls:SettingsItem Title="Fortnite Version" 
+                                     Description="The version of Fortnite that Fortnite Porting will be loading.">
+                    <controls:SettingsItem.Footer>
+                        <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type fortnitePorting:EFortniteVersion}}"
+                                  SelectedItem="{Binding Profile.FortniteVersion, Converter={StaticResource EnumToRecord}}" />
+                    </controls:SettingsItem.Footer>
+                </controls:SettingsItem>
+                <controls:SettingsItem Title="Archive Directory" 
+                                     Description="The directory that contains all of the required game files. (*.pak, *.sig, *.ucas, *.utoc)" 
+                                     IsVisible="{Binding Profile.ArchiveDirectoryEnabled}">
+                    <controls:SettingsItem.Footer>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox Text="{Binding Profile.ArchiveDirectory}" Watermark="Ex. C:/Program Files/Epic Games/Fortnite/FortniteGame/Content/Paks"/>
+                            <Button Margin="4 0 0 0" Command="{Binding Profile.BrowseArchivePath}">
+                                <avalonia:MaterialIcon Kind="Folder"/>
+                            </Button>
+                        </StackPanel>
+                    </controls:SettingsItem.Footer>
+                </controls:SettingsItem>
+                <controls:SettingsItem Title="Game Language" 
+                                     Description="The language used for in-game text strings such as names, descriptions, styles, etc.">
+                    <controls:SettingsItem.Footer>
+                        <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type versions:ELanguage}}"
+                                  SelectedItem="{Binding Profile.GameLanguage, Converter={StaticResource EnumToRecord}}" />
+                    </controls:SettingsItem.Footer>
+                </controls:SettingsItem>
+                <controls:SettingsItem Title="Unreal Version" 
+                                     Description="The Unreal Version that aligns with your Fortnite installation." 
+                                     IsVisible="{Binding Profile.UnrealVersionEnabled}">
+                    <controls:SettingsItem.Footer>
+                        <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type versions:EGame}}"
+                                  SelectedItem="{Binding Profile.UnrealVersion, Converter={StaticResource EnumToRecord}}" />
+                    </controls:SettingsItem.Footer>
+                </controls:SettingsItem>
+                <controls:SettingsItem Title="Fetch Data"
+                                       Description="Download encryption keys and mappings for a specific Fortnite version and apply them to this profile."
+                                       IsVisible="{Binding Profile.IsCustom}">
+                    <controls:SettingsItem.Footer>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox Text="{Binding Profile.FetchVersion}" Watermark="Ex. 32.10"/>
+                            <Button Margin="4 0 0 0"
+                                    ToolTip.Tip="Fetch"
+                                    IsEnabled="{Binding Profile.CanFetchVersion}"
+                                    Command="{Binding Profile.FetchVersionData}">
+                                <avalonia:MaterialIcon Kind="Download"/>
+                            </Button>
+                        </StackPanel>
+                    </controls:SettingsItem.Footer>
+                </controls:SettingsItem>
+                <controls:SettingsItem Title="Encryption Keys" 
+                                     Description="The encryption keys required to decrypt Fortnite's game files." 
+                                     IsVisible="{Binding Profile.EncryptionKeyEnabled}">
+                    <controls:SettingsItem.Footer>
+                        <TextBox Text="{Binding Profile.MainKey.KeyString}" Watermark="Ex. 0x0000000000000000000000000000000000000000000000000000000000000000"/>
+                    </controls:SettingsItem.Footer>
+                </controls:SettingsItem>
+                <controls:SettingsItem Title="Mappings File" 
+                                     Description="The mappings file required for asset parsing to work properly. Required for Fortnite v14.40+" 
+                                     IsVisible="{Binding Profile.MappingsFileEnabled}">
+                    <controls:SettingsItem.Footer>
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox IsChecked="{Binding Profile.UseMappingsFile}"/>
+                            <TextBox Text="{Binding Profile.MappingsFile}" 
+                                     Watermark="Ex. C:/Users/FortnitePorting/Downloads/Mappings.usmap" 
+                                     IsEnabled="{Binding Profile.UseMappingsFile}"
+                                     MaxWidth="500"/>
+                            <Button Margin="4 0 0 0" Command="{Binding Profile.BrowseMappingsFile}" IsEnabled="{Binding Profile.UseMappingsFile}">
+                                <avalonia:MaterialIcon Kind="Folder"/>
+                            </Button>
+                        </StackPanel>
+                    </controls:SettingsItem.Footer>
+                </controls:SettingsItem>
+                <controls:SettingsItem Title="On-Demand Assets"
+                                       Description="Allows the streaming of on-demand assets, served from Fortnite's servers."
+                                       IsVisible="{Binding Profile.TextureStreamingEnabled}">
+                    <controls:SettingsItem.Footer>
+                        <ToggleSwitch IsChecked="{Binding Profile.UseTextureStreaming}"/>
+                    </controls:SettingsItem.Footer>
+                </controls:SettingsItem>
+            </StackPanel>
+        </ScrollViewer>
+        
+    </Grid>
+</UserControl>

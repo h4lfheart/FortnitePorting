@@ -1,0 +1,65 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
+             xmlns:loading="clr-namespace:FortnitePorting.Controls.Loading"
+             x:Class="FortnitePorting.Controls.Loading.LoadingIndicator">
+
+    <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
+        <Ellipse Width="600" Height="600" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Ellipse.Styles>
+                <Style Selector="Ellipse">
+                    <Style.Animations>
+                        <Animation Duration="0:0:3" IterationCount="Infinite" PlaybackDirection="Alternate"
+                                   Easing="SineEaseInOut">
+                            <KeyFrame Cue="0%">
+                                <Setter Property="Opacity" Value="0.2" />
+                            </KeyFrame>
+                            <KeyFrame Cue="100%">
+                                <Setter Property="Opacity" Value="0.5" />
+                            </KeyFrame>
+                        </Animation>
+                    </Style.Animations>
+                </Style>
+            </Ellipse.Styles>
+            <Ellipse.Fill>
+                <RadialGradientBrush>
+                    <GradientStop Color="#33A855F7" Offset="0" />
+                    <GradientStop Color="#1AA855F7" Offset="0.5" />
+                    <GradientStop Color="#00A855F7" Offset="1" />
+                </RadialGradientBrush>
+            </Ellipse.Fill>
+        </Ellipse>
+
+        <StackPanel Spacing="{ext:Space 1}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                    IsVisible="{Binding !IsIndeterminate, RelativeSource={RelativeSource AncestorType=loading:LoadingIndicator}}">
+            <TextBlock Text="{Binding Status, RelativeSource={RelativeSource AncestorType=loading:LoadingIndicator}}"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                       FontFamily="{StaticResource SFDisplaySemibold}"
+                       FontSize="20" />
+
+            <TextBlock Text="{Binding Subtitle, RelativeSource={RelativeSource AncestorType=loading:LoadingIndicator}}"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"
+                       Margin="{ext:Space 0, 0, 0, 1}"
+                       IsVisible="{Binding Subtitle, RelativeSource={RelativeSource AncestorType=loading:LoadingIndicator}, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+
+            <ProgressBar HorizontalAlignment="Center" VerticalAlignment="Center" Height="8"
+                         MinWidth="400"
+                         Value="{Binding Value, RelativeSource={RelativeSource AncestorType=loading:LoadingIndicator}}"
+                         Minimum="0"
+                         Maximum="{Binding Maximum, RelativeSource={RelativeSource AncestorType=loading:LoadingIndicator}}" />
+        </StackPanel>
+
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                    IsVisible="{Binding IsIndeterminate, RelativeSource={RelativeSource AncestorType=loading:LoadingIndicator}}">
+            <ui:ProgressRing IsIndeterminate="True" Background="Transparent" Width="50" Height="50"
+                             BorderThickness="5" />
+            <TextBlock Text="{Binding Status, RelativeSource={RelativeSource AncestorType=loading:LoadingIndicator}}"
+                       FontFamily="{StaticResource SFDisplaySemibold}"
+                       FontSize="20"
+                       HorizontalAlignment="Center"
+                       Margin="{ext:Space 0, 2, 0, 0}" />
+        </StackPanel>
+    </Grid>
+</UserControl>
