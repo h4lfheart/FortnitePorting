@@ -490,6 +490,18 @@ public sealed class GeometryHeightmapCollector
                 pathFragments:
                 [
                     "/DragonCartNarrative/Assets/FlyingOrb/"
+                ]),
+            new(
+                "spiral_cloud_visual_effect",
+                pathFragments:
+                [
+                    "/Hermes/Techart/SpiralClouds/SM_SpiralCloudsDisc.SM_SpiralCloudsDisc"
+                ]),
+            new(
+                "cloud_energy_portal_visual_effect",
+                pathFragments:
+                [
+                    "/HackSystem/Assets/VFX/Environment/Meshes/SM_CloudEnergy_Panner_PortalHole.SM_CloudEnergy_Panner_PortalHole"
                 ])
         ];
 
