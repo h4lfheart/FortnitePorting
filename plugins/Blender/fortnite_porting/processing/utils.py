@@ -44,8 +44,8 @@ def merge_armatures(base_armature, extra_armatures):
     bone_tree = {}
     for bone in master_skeleton.data.bones:
         try:
-            bone_reg = re.sub(".\d\d\d", "", bone.name)
-            parent_reg = re.sub(".\d\d\d", "", bone.parent.name)
+            bone_reg = re.sub(r".\d\d\d", "", bone.name)
+            parent_reg = re.sub(r".\d\d\d", "", bone.parent.name)
             bone_tree[bone_reg] = parent_reg
         except AttributeError:
             pass

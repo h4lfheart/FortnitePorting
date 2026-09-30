@@ -13,20 +13,11 @@
 
 </div>
 
-## Features
-
-- **Browse Fortnite assets** - Explore cosmetics, props, gameplay items, and more through a purpose-built interface.
-- **Export directly to creative tools** - Send assets to Blender or Unreal Engine through companion plugins managed inside the app.
-- **Work with complete environments** - Export maps, actors, landscapes, foliage, and more.
-- **Choose your workflow** - Use an installed copy of Fortnite or load assets through On-Demand mode.
-- **Preview before exporting** - Inspect models, materials, textures, audio, and raw file properties.
-- **Automate the setup** - Fetch required AES keys and mappings automatically, with configurable export settings.
-
 ## Requirements
 
 - Windows x64
-- A local Fortnite installation or On-Demand mode
-- [Blender 5.0+](https://www.blender.org/download/) and/or [Unreal Engine 5.8+](https://www.unrealengine.com/en-US/download) for live import
+- A local Fortnite installation or wifi strong enough for On-Demand mode
+- [Blender 4.2+](https://www.blender.org/download/) and/or [Unreal Engine 5.8+](https://www.unrealengine.com/en-US/download) for live import
 
 Blender and Unreal Engine are only required when exporting directly to those applications. Assets can also be exported to a folder.
 
