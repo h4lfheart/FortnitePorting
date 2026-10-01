@@ -183,5 +183,9 @@ extra_deform_mappings = {
     "calfRet_l": "calf_l",
     "metaTarsoRet_l": "foot_l",
     "metaTarsoRet_r": "foot_r",
+    "upperarm_retarget_lf": "upperarm_l",
+    "lowerarm_retarget_lf": "lowerarm_l",
+    "upperarm_retarget_rt": "upperarm_r",
+    "lowerarm_retarget_rt": "lowerarm_r",
     
 }
