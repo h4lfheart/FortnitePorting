@@ -22,11 +22,6 @@ public enum EExportLocation
     [Description("Custom Folder")]
     [Icon(MaterialIconKind.FolderEdit)]
     CustomFolder,
-
-    [Description("Unity (Not Implemented)")]
-    [Icon(MaterialIconKind.Unity)]
-    [Disabled]
-    Unity,
 }
 
 public enum EExportType

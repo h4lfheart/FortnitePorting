@@ -62,10 +62,7 @@ public enum EExportServerType
     Blender = 40000,
     
     [Description("Unreal Engine")]
-    Unreal = 40001,
-    
-    [Description("Unity")]
-    Unity = 40002
+    Unreal = 40001
 }
 
 public static class EExportServerTypeExtensions
@@ -76,7 +73,6 @@ public static class EExportServerTypeExtensions
         {
             EExportLocation.Blender => EExportServerType.Blender,
             EExportLocation.Unreal => EExportServerType.Unreal,
-            EExportLocation.Unity => EExportServerType.Unity,
             _ => EExportServerType.None
         };
     }
@@ -87,7 +83,6 @@ public static class EExportServerTypeExtensions
         {
             EExportServerType.Blender => EExportLocation.Blender,
             EExportServerType.Unreal => EExportLocation.Unreal,
-            EExportServerType.Unity => EExportLocation.Unity,
             _ => EExportLocation.AssetsFolder
         };
     }
