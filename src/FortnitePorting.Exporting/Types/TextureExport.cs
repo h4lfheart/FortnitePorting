@@ -14,7 +14,6 @@ namespace FortnitePorting.Exporting.Types;
 public class TextureExport : BaseExport
 {
     public List<ExportTexture> Textures = [];
-    public List<string> FolderPaths = [];
 
     private static readonly Dictionary<EExportType, string> TextureNames = new()
     {

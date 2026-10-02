@@ -83,11 +83,21 @@ public class ExportService(
 
             if (serverType is EExportServerType.None)
             {
+                var exportedFolders = new HashSet<string>();
                 foreach (var export in exportFunction(session))
                 {
                     await export.WaitForExports();
-                    if (metaData.CancellationToken.IsCancellationRequested) return;
+                    exportedFolders.UnionWith(export.FolderPaths);
+
+                    if (metaData.CancellationToken.IsCancellationRequested) break;
                 }
+
+                if (metaData.Settings.OpenFoldersOnExport)
+                {
+                    exportedFolders.ForEach(folder => app.Launch(folder));
+                }
+
+                if (metaData.CancellationToken.IsCancellationRequested) return;
             }
             else
             {
