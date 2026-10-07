@@ -33,7 +33,7 @@ public abstract partial class PluginInstallationViewModelBase<TInstallation> : V
         }
     }
 
-    public async Task RemoveInstallation(TInstallation installation)
+    public virtual async Task RemoveInstallation(TInstallation installation)
     {
         TaskService.Run(() =>
         {

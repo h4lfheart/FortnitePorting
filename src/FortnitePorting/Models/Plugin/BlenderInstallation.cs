@@ -27,6 +27,8 @@ public partial class BlenderInstallation(string blenderExecutablePath) : Observa
     [property: JsonIgnore]
     private EPluginStatusType _status = EPluginStatusType.Newest;
 
+    [ObservableProperty] private bool _isDefault;
+
     [JsonIgnore]
     public SolidColorBrush StatusBrush => Status.Brush;
 

@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Runtime;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 using Avalonia.Input.Platform;
@@ -205,6 +206,11 @@ public class AppService : IService
         {
             AppSettings.Installation.Profiles.FirstOrDefault()?.IsSelected = true;
         }
+
+        if (AppSettings.Plugin.Blender.DefaultInstallation is null && AppSettings.Plugin.Blender.Installations.Count > 0)
+        {
+            AppSettings.Plugin.Blender.Installations[0].IsDefault = true;
+        }
         
         if (AppSettings.Plugin.Blender.AutomaticallySync && Dependencies.FinishedEnsuring)
         {
@@ -264,6 +270,38 @@ public class AppService : IService
     public void Launch(string location, bool shellExecute = true)
     {
         Process.Start(new ProcessStartInfo { FileName = location, UseShellExecute = shellExecute });
+    }
+
+    public void SetMainWindowTopmost(bool topmost, bool applyImmediately = false)
+    {
+        var setTopmost = () => {
+            if (Lifetime.MainWindow is not { } window)
+                return;
+
+            window.Topmost = topmost;
+            if (topmost)
+                window.Activate();
+        };
+        
+        if (applyImmediately)
+            Dispatcher.UIThread.Invoke(setTopmost);
+        else
+            Dispatcher.UIThread.Post(setTopmost);
+    }
+
+    public void RefocusMainWindow()
+    {
+        var refocus = () => {
+            if (Lifetime.MainWindow is not { } window)
+                return;
+
+            window.Activate();
+        };
+
+        if (Dispatcher.UIThread.CheckAccess())
+            refocus();
+        else
+            Dispatcher.UIThread.Post(refocus);
     }
     
     public void LaunchSelected(string location)

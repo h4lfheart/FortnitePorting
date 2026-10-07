@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO.Compression;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using AvaloniaEdit.Utils;
 using FortnitePorting.Models.Export;
@@ -34,6 +36,38 @@ public class ExportClientService : IService
     public async Task<bool> IsRunning(EExportServerType serverType)
     {
         return _clients.TryGetValue(serverType, out var client) && await client.IsRunning();
+    }
+
+    public async Task<bool> WaitUntilRunningAsync(
+        EExportServerType serverType,
+        TimeSpan timeout,
+        TimeSpan pollInterval,
+        CancellationToken cancellationToken = default,
+        Action? whileWaiting = null)
+    {
+        if (!_clients.TryGetValue(serverType, out _))
+            return false;
+
+        try
+        {
+            var stopwatch = Stopwatch.StartNew();
+            while (stopwatch.Elapsed < timeout)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                if (await IsRunning(serverType))
+                    return true;
+
+                whileWaiting?.Invoke();
+                await Task.Delay(pollInterval, cancellationToken);
+            }
+
+            return false;
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            return false;
+        }
     }
 
     public async Task SendExportAsync<T>(EExportServerType serverType, T data)
