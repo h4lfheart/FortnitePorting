@@ -1,4 +1,5 @@
 using CUE4Parse.FileProvider;
+using CUE4Parse.UE4.Assets;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Component;
 using CUE4Parse.UE4.Assets.Exports.Material.Parameters;
@@ -16,24 +17,15 @@ public static class CUE4ParseExtensions
     {
         public bool TryLoadEditorData<T>(out T? editorData) where T : UObject
         {
-            try
-            {
-                var provider = (AbstractFileProvider) asset.Owner!.Provider!;
-                var path = asset.GetPathName().SubstringBeforeLast(".") + ".o.uasset";
-                if (provider.TryLoadObjectExports(path, out var exports))
-                {
-                    editorData = exports.FirstOrDefault(export => export.GetType() == typeof(T)) as T;
-                    return editorData is not null;
-                }
-            }
-            catch (Exception)
-            {
-                // ignored
-            }
-
             editorData = null;
-            return false;
+            if (asset.Owner is not { } package)
+                return false;
+
+            editorData = package.GetExports().OfType<T>().FirstOrDefault();
+            return editorData is not null;
         }
+
+        public bool HasEditorData => asset.Owner is IoPackage { HasOptionalSegment: true };
 
         public string GetCleanedExportPath()
         {

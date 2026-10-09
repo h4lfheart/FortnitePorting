@@ -16,6 +16,7 @@ using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.Utils;
 using DynamicData;
 using FluentAvalonia.UI.Controls;
+using FortnitePorting.CUE4Parse.Extensions;
 using FortnitePorting.CUE4Parse.Models.Unreal;
 using FortnitePorting.CUE4Parse.Models.Unreal.VirtualTexture;
 using FortnitePorting.Exporting;
@@ -239,7 +240,7 @@ public partial class FilesViewModel(
                 break;
             case UMaterial:
             case UMaterialFunction:
-                if (!_ueParse.Provider.MountedVfs.Any(vfs => vfs.Name.Contains(".o.")))
+                if (!asset.HasEditorData)
                 {
                     _info.Message("Material Preview",
                         "Material node-tree data cannot be loaded because UEFN is not installed.",
@@ -263,7 +264,7 @@ public partial class FilesViewModel(
                         {
                             UUnrealMaterial? parentMaterial = instance;
                             while (parentMaterial is UMaterialInstanceConstant mic)
-                                parentMaterial = mic.Parent;
+                                parentMaterial = mic.Parent?.LoadOrDefault<UMaterialInterface>();
                             if (parentMaterial is not null)
                                 MaterialPreviewWindow.Preview(parentMaterial);
                         }

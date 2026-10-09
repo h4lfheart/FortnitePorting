@@ -190,17 +190,21 @@ public class Material
 
     private void CheckLayerUsage(UUnrealMaterial? material)
     {
-        if (material is not UMaterialInstanceConstant materialInstance) return;
-        
-        SetLayerParameters(materialInstance.StaticParameters);
-        
-        if (materialInstance.TryLoadEditorData<UMaterialInstanceEditorOnlyData>(out var materialInstanceEditorData) &&
-            materialInstanceEditorData?.StaticParameters is not null)
+        while (material is UMaterialInstanceConstant materialInstance)
         {
-            SetLayerParameters(materialInstanceEditorData.StaticParameters);
-        }
+            SetLayerParameters(materialInstance.StaticParameters);
 
-        CheckLayerUsage(materialInstance.Parent);
+            if (materialInstance.TryLoadEditorData<UMaterialInstanceEditorOnlyData>(out var materialInstanceEditorData) &&
+                materialInstanceEditorData?.StaticParameters is not null)
+            {
+                SetLayerParameters(materialInstanceEditorData.StaticParameters);
+            }
+
+            if (!(materialInstance.Parent?.TryLoad<UUnrealMaterial>(out var parentMaterial) ?? false))
+                break;
+
+            material = parentMaterial;
+        }
     }
 
     private void SetLayerParameters(FStaticParameterSet? staticParameterSet)

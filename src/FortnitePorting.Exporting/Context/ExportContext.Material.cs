@@ -264,7 +264,8 @@ public partial class ExportContext
                 }
             }
 
-            if (materialInstance.Parent is UMaterialInterface parentMaterial) AccumulateParameters(parentMaterial, ref parameterCollection);
+            if (materialInstance.Parent?.TryLoad<UMaterialInterface>(out var parentMaterial) is true) 
+                AccumulateParameters(parentMaterial, ref parameterCollection);
         }
         else if (materialInterface is UMaterial material)
         {

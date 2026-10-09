@@ -19,7 +19,7 @@
                 Subtitle="{Binding Installations.Count, StringFormat='{}{0} Project(s) Registered'}"
                 AddButtonContent="{controls:IconText 'Add Project', Plus}" />
 
-            <Separator Background="{DynamicResource FPSeparatorColorLayer1}" Margin="{ext:Space 0, 2}" />
+            <Separator Background="{DynamicResource FPSeparatorColorLayer1}" Margin="{ext:Space 0, 1}" />
 
             <StackPanel IsVisible="{Binding !!Installations.Count}" Spacing="{ext:Space 0, 0, 0, 1}">
                 <TextBlock Text="Installations"

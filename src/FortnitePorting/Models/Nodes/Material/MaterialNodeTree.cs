@@ -11,6 +11,7 @@ using CUE4Parse.UE4.Assets.Exports.Material;
 using CUE4Parse.UE4.Assets.Exports.Material.Editor;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Assets.Objects;
+using CUE4Parse.UE4.Assets.Objects.Properties;
 using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.Core.Misc;
 using CUE4Parse.UE4.Objects.Engine;
@@ -102,17 +103,17 @@ public class MaterialNodeTree : NodeTree
         if (editorData.Properties.FirstOrDefault(prop => prop.Name.Text.Equals("MaterialAttributes")) is
             { } materialAttributesProperty)
         {
-            if (materialAttributesProperty.Tag?.GetValue<FExpressionInput>() is { } expressionInput)
+            if (TryGetExpressionInput(materialAttributesProperty, out var materialAttributesInput))
             {
-                AddInput(ref parentNode, expressionInput, materialAttributesProperty.Name.Text);
+                AddInput(ref parentNode, materialAttributesInput, materialAttributesProperty.Name.Text);
             }
         }
         else
         {
             foreach (var property in editorData.Properties)
             {
-                if (property.Tag?.GetValue<FExpressionInput>() is not { } expressionInput) continue;
-            
+                if (!TryGetExpressionInput(property, out var expressionInput)) continue;
+
                 AddInput(ref parentNode, expressionInput, property.Name.Text);
             }
         }
@@ -298,13 +299,25 @@ public class MaterialNodeTree : NodeTree
 
         foreach (var property in expression.Properties)
         {
-            if (property.Tag?.GetValue<FExpressionInput>() is not { } expressionInput) continue;
-            
+            if (!TryGetExpressionInput(property, out var expressionInput)) continue;
+
             var name = property.Name.Text;
             AddInput(ref node, expressionInput, nameOverride: name.Equals("Input") ? string.Empty : name);
         }
 
         return node;
+    }
+
+    private static bool TryGetExpressionInput(FPropertyTag property, out FExpressionInput? expressionInput)
+    {
+        if (property.Tag is FPropertyTagType<FScriptStruct> { Value.StructType: FExpressionInput input })
+        {
+            expressionInput = input;
+            return true;
+        }
+
+        expressionInput = null;
+        return false;
     }
 
     private void AddInput(ref MaterialNode node, FExpressionInput expressionInput, string? nameOverride = null)
