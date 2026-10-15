@@ -24,15 +24,49 @@ def _read_meta_version() -> tuple:
 
 loaded_versions: dict[str, tuple] = {}
 
+
+def _blend_library_data_present(blend_path: str) -> bool:
+    if not os.path.exists(blend_path):
+        return True
+
+    with bpy.data.libraries.load(blend_path) as (data_from, _):
+        for node_group in data_from.node_groups:
+            if node_group.startswith("."):
+                continue
+            group = bpy.data.node_groups.get(node_group)
+            if group is None or not is_current_version_group(group):
+                return False
+
+        for mat in data_from.materials:
+            if not mat.startswith(".") and bpy.data.materials.get(mat) is None:
+                return False
+
+        for image in data_from.images:
+            if bpy.data.images.get(image) is None:
+                return False
+
+        for obj in data_from.objects:
+            if not obj.startswith(".") and bpy.data.objects.get(obj) is None:
+                return False
+
+        for font in data_from.fonts:
+            if bpy.data.fonts.get(font) is None:
+                return False
+
+    return True
+
+
 def ensure_blend_data_for_file(file_name):
     current = addon_version()
-    if loaded_versions.get(file_name) == current:
+    addon_dir = os.path.dirname(os.path.splitext(__file__)[0])
+    blend_path = os.path.join(addon_dir, "data", file_name)
+
+    if loaded_versions.get(file_name) == current and _blend_library_data_present(blend_path):
         return
 
-    addon_dir = os.path.dirname(os.path.splitext(__file__)[0])
     blend_node_group_names = []
 
-    with bpy.data.libraries.load(os.path.join(addon_dir, "data", file_name)) as (data_from, data_to):
+    with bpy.data.libraries.load(blend_path) as (data_from, data_to):
         blend_node_group_names = list(data_from.node_groups)
         for node_group in sorted(blend_node_group_names, key=lambda x: (x.startswith('.'), x)):
             if (group := bpy.data.node_groups.get(node_group)) and is_current_version_group(group):
@@ -116,6 +150,21 @@ def version_string():
 def hash_code(num):
     return hex(abs(num))[2:]
 
+def is_valid_id(id_block):
+    try:
+        id_block.name # will throw if id block is dead
+        return True
+    except (ReferenceError, AttributeError):
+        return False
+
+def get_valid_cached_id(cache: dict, key):
+    id_block = cache.get(key)
+    if id_block is None:
+        return None
+    if is_valid_id(id_block):
+        return id_block
+    del cache[key]
+    return None
 
 def first(target, expr, default=None):
     if not target:

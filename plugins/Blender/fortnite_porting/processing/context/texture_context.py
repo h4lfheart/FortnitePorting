@@ -2,6 +2,8 @@ import bpy
 from ..enums import *
 import os.path
 
+from ...utils import get_valid_cached_id
+
 image_cache = {}
 
 class TextureImportContext:
@@ -56,7 +58,7 @@ class TextureImportContext:
 
     def import_image(self, path: str):
 
-        if existing := image_cache.get(path):
+        if existing := get_valid_cached_id(image_cache, path):
             return existing
 
         fs_path, name = self.format_image_path(path)

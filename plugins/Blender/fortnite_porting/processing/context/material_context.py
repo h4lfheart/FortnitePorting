@@ -76,15 +76,6 @@ material_name_cache = {}
 
 class MaterialImportContext:
     
-    def __init__(self):
-        for key, mat in list(material_hash_cache.items()):
-            if not mat.name:
-                material_hash_cache.pop(key)
-                
-        for key, mat in list(material_name_cache.items()):
-            if not mat.name:
-                material_name_cache.pop(key)
-    
     def import_material(self, material_slot, material_data, meta, as_material_data=False):
 
         if not as_material_data:
@@ -147,13 +138,13 @@ class MaterialImportContext:
 
         hash_key = hash_code(material_hash)
 
-        if existing_material := material_hash_cache.get(hash_key):
+        if existing_material := get_valid_cached_id(material_hash_cache, hash_key):
             if not as_material_data:
                 material_slot.material = existing_material
                 return
 
         # same name but different hash
-        if (name_existing := material_name_cache.get(material_name.casefold())) and name_existing.get("Hash") != hash_key:
+        if (name_existing := get_valid_cached_id(material_name_cache, material_name.casefold())) and name_existing.get("Hash") != hash_key:
             material_name += f"_{hash_key}"
 
         if not as_material_data and material_slot.material.name.casefold() != material_name.casefold():

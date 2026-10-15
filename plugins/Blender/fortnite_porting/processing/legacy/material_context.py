@@ -92,7 +92,7 @@ class LegacyMaterialImportContext:
 
             return False
 
-        existing_material = legacy_material_hash_cache.get(hash_key)
+        existing_material = get_valid_cached_id(legacy_material_hash_cache, hash_key)
         if existing_material:
             if not as_material_data:
                 material_slot.material = existing_material
@@ -101,7 +101,7 @@ class LegacyMaterialImportContext:
 
         # same name but different hash
         name_key = material_name.casefold()
-        name_existing = legacy_material_name_cache.get(name_key)
+        name_existing = get_valid_cached_id(legacy_material_name_cache, name_key)
         if name_existing and name_existing.get("Hash") != hash_key:
             material_name += f"_{hash_key}"
 
