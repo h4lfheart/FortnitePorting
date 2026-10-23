@@ -36,9 +36,7 @@ public partial class AppWindowModel(
     private readonly APIService _api = api;
     private readonly AppService _app = app;
 
-    [ObservableProperty] private int _unreadNewsCount;
     [ObservableProperty] private int _chatNotifications;
-    [ObservableProperty] private int _unsubmittedPolls;
     [ObservableProperty] private SetupView? _setupViewContent;
     [ObservableProperty] private SettingsView? _settingsViewContent;
     [ObservableProperty] private bool _isSettingsOpen;
