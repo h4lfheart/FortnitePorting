@@ -2,7 +2,6 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -25,8 +24,7 @@ public partial class AppWindowModel(
     BlackHoleService blackHole,
     ChatService chat,
     APIService api,
-    AppService app,
-    NavigationService navigation) : WindowModelBase
+    AppService app) : WindowModelBase
 {
     [ObservableProperty] private InfoService _info = info;
     [ObservableProperty] private SettingsService _settings = settings;
@@ -37,18 +35,13 @@ public partial class AppWindowModel(
 
     private readonly APIService _api = api;
     private readonly AppService _app = app;
-    private readonly NavigationService _navigation = navigation;
 
-    [ObservableProperty] private string _versionString = Globals.Version.Identifier switch
-    {
-        "dev" => "dev-build",
-        var hash when CommitShaMatch().IsMatch(hash) => hash,
-        _ => Globals.VersionString
-    };
     [ObservableProperty] private int _unreadNewsCount;
     [ObservableProperty] private int _chatNotifications;
     [ObservableProperty] private int _unsubmittedPolls;
     [ObservableProperty] private SetupView? _setupViewContent;
+    [ObservableProperty] private SettingsView? _settingsViewContent;
+    [ObservableProperty] private bool _isSettingsOpen;
     [ObservableProperty] private RepositoryVersion? _updateVersion;
     [ObservableProperty] private BroadcastResponse[] _broadcasts = [];
 
@@ -144,13 +137,19 @@ public partial class AppWindowModel(
         }
     }
 
-    // TODO replace with proper overlay popup
     [RelayCommand]
-    private void OpenSettings()
+    public void OpenSettings()
     {
-        _navigation.App.Open<SettingsView>();
+        TaskService.RunDispatcher(() =>
+        {
+            SettingsViewContent ??= new SettingsView();
+            IsSettingsOpen = true;
+        });
     }
 
-    [GeneratedRegex(@"^[0-9a-f]{7}$")]
-    private static partial Regex CommitShaMatch();
+    [RelayCommand]
+    public void CloseSettings()
+    {
+        TaskService.RunDispatcher(() => IsSettingsOpen = false);
+    }
 }

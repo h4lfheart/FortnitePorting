@@ -15,9 +15,7 @@
              xmlns:cue4Parse="clr-namespace:FortnitePorting.Models.CUE4Parse"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FortnitePorting.Views.Settings.InstallationSettingsView"
-             x:DataType="settings:InstallationSettingsViewModel" 
-             Background="{DynamicResource ContentBorderLayer2BackgroundBrush}" 
-             BorderBrush="{DynamicResource ContentBorderLayer2BorderBrush}" BorderThickness="2 0 0 0">
+             x:DataType="settings:InstallationSettingsViewModel">
 
     <Grid>
         <Grid.ColumnDefinitions>

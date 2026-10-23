@@ -21,6 +21,9 @@ public partial class SettingsViewModel(SettingsService settings, SupabaseService
     }
 
     [RelayCommand]
+    private void GoBack() => AppWM.CloseSettings();
+
+    [RelayCommand]
     public async void OpenDataFolder()
     {
         App.Launch(App.ApplicationDataFolder.FullName);

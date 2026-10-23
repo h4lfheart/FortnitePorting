@@ -2,8 +2,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:viewModels="clr-namespace:FortnitePorting.ViewModels"
              xmlns:ui="using:FluentAvalonia.UI.Controls"
-             xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions"
              xmlns:settings="clr-namespace:FortnitePorting.Views.Settings"
              xmlns:views="clr-namespace:FortnitePorting.Views"
              xmlns:controls="clr-namespace:FortnitePorting.Controls"
@@ -14,12 +14,16 @@
              x:DataType="viewModels:SettingsViewModel">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="5*"/>
+            <ColumnDefinition Width="*" MinWidth="225" />
+            <ColumnDefinition Width="6*" />
         </Grid.ColumnDefinitions>
+
         <sidebar:Sidebar x:Name="Sidebar" Grid.Column="0" ItemSelected="OnItemSelected">
+            <sidebar:Sidebar.Header>
+                <controls:AppHeader />
+            </sidebar:Sidebar.Header>
             <sidebar:Sidebar.Items>
-                <sidebar:SidebarItemText Text="App Settings"/>
+                <sidebar:SidebarItemText Text="Settings"/>
                 <sidebar:SidebarItemButton Text="Application" Icon="ApplicationCog" Tag="{x:Type settings:ApplicationSettingsView}"/>
                 <sidebar:SidebarItemButton Text="Installation" Icon="Folder" Tag="{x:Type settings:InstallationSettingsView}"/>
                 <sidebar:SidebarItemButton Text="Account" Icon="User" Tag="{x:Type settings:AccountSettingsView}" IsVisible="{Binding SupaBase.IsLoggedIn}"/>
@@ -27,31 +31,48 @@
                 <sidebar:SidebarItemButton Text="Console" Icon="Console" Tag="{x:Type views:ConsoleView}"/>
             </sidebar:Sidebar.Items>
             <sidebar:Sidebar.Footer>
-                <DropDownButton HorizontalAlignment="Stretch">
-                    <DropDownButton.Flyout>
-                        <MenuFlyout Placement="Top">
-                            <MenuItem Header="Open Data Folder"
-                                      Icon="{material:MaterialIconExt Folder}"
-                                      Command="{Binding OpenDataFolderCommand}" />
-                            <MenuItem Header="Clear Cache"
-                                      Icon="{material:MaterialIconExt DeleteSweep}"
-                                      Command="{Binding ClearCacheCommand}" />
-                            <MenuItem Header="Save Settings"
-                                      Icon="{material:MaterialIconExt ContentSave}"
-                                      Command="{Binding SaveCommand}" />
-                            <MenuItem Header="Reset Settings"
-                                      Icon="{material:MaterialIconExt Trash}"
-                                      Command="{Binding ResetCommand}" />
-                            <MenuItem Header="Restart Application"
-                                      Icon="{material:MaterialIconExt Restart}"
-                                      Command="{Binding RestartApplicationCommand}" />
-                        </MenuFlyout>
-                    </DropDownButton.Flyout>
-                    <controls:IconText Text="Utilities" Icon="Wrench" />
-                </DropDownButton>
+                <StackPanel>
+                    <DropDownButton HorizontalAlignment="Stretch">
+                        <DropDownButton.Flyout>
+                            <MenuFlyout Placement="Top">
+                                <MenuItem Header="Open Data Folder"
+                                          Icon="{material:MaterialIconExt Folder}"
+                                          Command="{Binding OpenDataFolderCommand}" />
+                                <MenuItem Header="Clear Cache"
+                                          Icon="{material:MaterialIconExt DeleteSweep}"
+                                          Command="{Binding ClearCacheCommand}" />
+                                <MenuItem Header="Save Settings"
+                                          Icon="{material:MaterialIconExt ContentSave}"
+                                          Command="{Binding SaveCommand}" />
+                                <MenuItem Header="Reset Settings"
+                                          Icon="{material:MaterialIconExt Trash}"
+                                          Command="{Binding ResetCommand}" />
+                                <MenuItem Header="Restart Application"
+                                          Icon="{material:MaterialIconExt Restart}"
+                                          Command="{Binding RestartApplicationCommand}" />
+                            </MenuFlyout>
+                        </DropDownButton.Flyout>
+                        <controls:IconText Text="Utilities" Icon="Wrench" />
+                    </DropDownButton>
+                    <Button HorizontalAlignment="Stretch"
+                            Margin="{ext:Space 0, 1, 0, 0}"
+                            Command="{Binding GoBackCommand}">
+                        <controls:IconText Text="Go Back" Icon="ArrowLeft" />
+                    </Button>
+                </StackPanel>
             </sidebar:Sidebar.Footer>
         </sidebar:Sidebar>
-        
-        <ui:Frame Grid.Column="1" x:Name="ContentFrame"/>
+
+        <Border Grid.Column="1"
+                Background="{DynamicResource ContentBorderBackgroundBrush}"
+                BorderThickness="2 2 0 0"
+                CornerRadius="16 0 0 0"
+                BorderBrush="{DynamicResource ContentBorderBorderBrush}"
+                Margin="0 35 0 0"
+                ClipToBounds="True">
+            <ui:Frame x:Name="ContentFrame"
+                      HorizontalAlignment="Stretch"
+                      VerticalAlignment="Stretch" />
+        </Border>
     </Grid>
 </UserControl>

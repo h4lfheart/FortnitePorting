@@ -23,7 +23,13 @@
 
     <Grid RowDefinitions="35, *" Margin="{Binding $parent[Window].OffScreenMargin}">
 
-        <Grid Grid.Row="0" Grid.RowSpan="2" IsVisible="{Binding Settings.Installation.FinishedSetup}">
+        <Grid Grid.Row="0" Grid.RowSpan="2">
+            <Grid.IsVisible>
+                <MultiBinding Converter="{x:Static BoolConverters.And}">
+                    <Binding Path="Settings.Installation.FinishedSetup" />
+                    <Binding Path="IsSettingsOpen" Converter="{x:Static BoolConverters.Not}" />
+                </MultiBinding>
+            </Grid.IsVisible>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" MinWidth="225" />
                 <ColumnDefinition Width="6*" />
@@ -32,29 +38,7 @@
             <Grid Grid.Column="0">
                 <sidebar:Sidebar x:Name="Sidebar" ItemSelected="OnSidebarItemSelected">
                     <sidebar:Sidebar.Header>
-                        <Grid Grid.Row="0" IsHitTestVisible="False" RowDefinitions="*,*">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="{ext:Space 2}" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-
-                            <Image Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Source="{DynamicResource FPLogoBitmap}"
-                                   Width="48" Height="48" RenderOptions.BitmapInterpolationMode="HighQuality" />
-
-                            <TextBlock Grid.Row="0" Grid.Column="2"
-                                       FontSize="16" FontFamily="{StaticResource SFTextBold}"
-                                       Classes="TextFillColorPrimaryBrush"
-                                       VerticalAlignment="Center">
-                                <Run Text="Fortnite" Foreground="{DynamicResource FPTitleTextBrush}"/>
-                                <Run Text="Porting" Foreground="{DynamicResource FPAccentBrush}" />
-                            </TextBlock>
-
-                            <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding VersionString}"
-                                       FontSize="13" FontFamily="{StaticResource SFTextRegular}"
-                                       Classes="TextFillColorSecondaryBrush"
-                                       VerticalAlignment="Center" />
-                        </Grid>
+                        <controls:AppHeader />
                     </sidebar:Sidebar.Header>
                     <sidebar:Sidebar.Items>
                         <sidebar:SidebarItemText Text="General" />
@@ -412,6 +396,10 @@
         <controls:LevelUpOverlay x:Name="LevelUpOverlay" 
                                  Grid.Row="0" 
                                  Grid.RowSpan="2" />
+
+        <ContentControl Grid.Row="0" Grid.RowSpan="2"
+                        Content="{Binding SettingsViewContent}"
+                        IsVisible="{Binding IsSettingsOpen}" />
 
         <controls:WindowTitleBar Grid.Row="0"/>
     </Grid>

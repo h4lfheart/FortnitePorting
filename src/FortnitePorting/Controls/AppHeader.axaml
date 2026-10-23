@@ -1,0 +1,32 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions"
+             xmlns:fp="clr-namespace:FortnitePorting"
+             x:Class="FortnitePorting.Controls.AppHeader"
+             IsHitTestVisible="False">
+    <Grid RowDefinitions="*,*">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="{ext:Space 2}" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Image Grid.Row="0" Grid.RowSpan="2" Grid.Column="0"
+               Source="{DynamicResource FPLogoBitmap}"
+               Width="48" Height="48"
+               RenderOptions.BitmapInterpolationMode="HighQuality" />
+
+        <TextBlock Grid.Row="0" Grid.Column="2"
+                   FontSize="16" FontFamily="{StaticResource SFTextBold}"
+                   Classes="TextFillColorPrimaryBrush"
+                   VerticalAlignment="Center">
+            <Run Text="Fortnite" Foreground="{DynamicResource FPTitleTextBrush}"/>
+            <Run Text="Porting" Foreground="{DynamicResource FPAccentBrush}" />
+        </TextBlock>
+
+        <TextBlock Grid.Row="1" Grid.Column="2" Text="{x:Static fp:Globals.VersionLabel}"
+                   FontSize="13" FontFamily="{StaticResource SFTextRegular}"
+                   Classes="TextFillColorSecondaryBrush"
+                   VerticalAlignment="Center" />
+    </Grid>
+</UserControl>

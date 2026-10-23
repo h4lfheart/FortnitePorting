@@ -18,6 +18,12 @@ public static class Globals
             .Split('+')[0]);
 
     public static string VersionString => Version.GetDisplayString();
+    public static string VersionLabel { get; } = Version.Identifier switch
+    {
+        "dev" => "dev-build",
+        { Length: 7 } hash when IsCommitSha(hash) => hash,
+        _ => VersionString
+    };
     public static bool IsDevBuild => !string.IsNullOrEmpty(Version.Identifier);
     public const string ApplicationTag = "FortnitePorting";
     
@@ -47,4 +53,15 @@ public static class Globals
     public const string KOFI_URL = "https://ko-fi.com/h4lfheart";
     public const string WEBSITE_URL = "https://fortniteporting.app";
     public const string DOCS_URL = "https://docs.fortniteporting.app";
+
+    private static bool IsCommitSha(string value)
+    {
+        foreach (var character in value)
+        {
+            if (!char.IsAsciiHexDigit(character))
+                return false;
+        }
+
+        return true;
+    }
 }

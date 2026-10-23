@@ -156,7 +156,7 @@ public partial class InfoService : ObservableObject, IService, ILogEventSink
                 Text = "Open Console",
                 Action = () => TaskService.Run(async () =>
                 {
-                    Navigation.App.Open<SettingsView>();
+                    AppWM.OpenSettings();
                     await Task.Delay(250);
                     Navigation.Settings.Open<ConsoleView>();
                 })

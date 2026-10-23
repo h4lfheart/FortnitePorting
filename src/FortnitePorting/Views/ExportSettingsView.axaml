@@ -17,7 +17,7 @@
         
         <sidebar:Sidebar x:Name="Sidebar" Grid.Column="0" ItemSelected="OnItemSelected">
             <sidebar:Sidebar.Items>
-                <sidebar:SidebarItemText Text="Export Options"/>
+                <sidebar:SidebarItemText Text="Config"/>
                 <sidebar:SidebarItemButton Text="Blender" IconBitmap="/Assets/Icons/Blender.png" Tag="{x:Static fpExport:EExportLocation.Blender}"/>
                 <sidebar:SidebarItemButton Text="Unreal" IconBitmap="/Assets/Icons/Unreal.png" Tag="{x:Static fpExport:EExportLocation.Unreal}"/>
                 <sidebar:SidebarItemButton Text="Folder" Icon="Folder" Tag="{x:Static fpExport:EExportLocation.AssetsFolder}"/>

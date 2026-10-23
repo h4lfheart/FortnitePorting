@@ -47,7 +47,6 @@ using FortnitePorting.Models.CUE4Parse;
 using FortnitePorting.Models.Information;
 using FortnitePorting.Rendering.Preview;
 using FortnitePorting.Shared.Extensions;
-using FortnitePorting.Views;
 using FortnitePorting.Views.Settings;
 using Serilog;
 using UE4Config.Parsing;
@@ -117,7 +116,7 @@ public partial class CUE4ParseService : ObservableObject, IService, IResettable
                     IsPrimary = true,
                     Action = () => TaskService.Run(async () =>
                     {
-                        Navigation.App.Open<SettingsView>();
+                        AppWM.OpenSettings();
                         await Task.Delay(250);
                         Navigation.Settings.Open<InstallationSettingsView>();
                     })
