@@ -5,7 +5,7 @@
              xmlns:plugin="clr-namespace:FortnitePorting.Controls.Plugin"
              x:Class="FortnitePorting.Controls.Plugin.PluginInstallationsHeader"
              x:CompileBindings="False">
-    <Grid HorizontalAlignment="Stretch">
+    <Grid HorizontalAlignment="Stretch" Margin="{ext:Space 0, 0, 2, 0}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="{ext:Space 1}" />
@@ -14,7 +14,7 @@
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
 
-        <Grid Grid.Column="0" Margin="{ext:Space 1, 0, 0, 0}">
+        <Grid Grid.Column="0" VerticalAlignment="Center" Margin="{ext:Space 1, 0, 0, 0}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="{ext:Space 1}" />
@@ -30,7 +30,7 @@
                        Classes="BodyTextBlockStyle TextFillColorSecondaryBrush" />
         </Grid>
 
-        <Button Grid.Column="2"
+        <Button Grid.Column="2" VerticalAlignment="Center"
                 Content="{Binding AddButtonContent, RelativeSource={RelativeSource AncestorType=plugin:PluginInstallationsHeader}}"
                 Command="{Binding AddInstallation}" />
 

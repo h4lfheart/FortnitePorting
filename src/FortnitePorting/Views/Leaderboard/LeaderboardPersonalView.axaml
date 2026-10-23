@@ -23,6 +23,8 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="{ext:Space 2}"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="{ext:Space 2}"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             
             <Grid Grid.Row="0" ColumnDefinitions="* Auto">
@@ -45,7 +47,37 @@
                 </Border>
             </Grid>
 
-            <Grid Grid.Row="2">
+            <controls:ContentCard Grid.Row="2" Padding="{ext:Space 2}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="{ext:Space 1}"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0" ColumnDefinitions="* Auto">
+                        <TextBlock Grid.Column="0"
+                                   Text="{Binding SupaBase.LevelStats.Level, StringFormat='Level {0}'}"
+                                   Classes="SubtitleTextBlockStyle"
+                                   FontSize="22"
+                                   VerticalAlignment="Center"/>
+
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding SupaBase.LevelStats.XPFractionText}"
+                                   Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"
+                                   VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <ProgressBar Grid.Row="2"
+                                 HorizontalAlignment="Stretch"
+                                 VerticalAlignment="Center"
+                                 Height="8" MinWidth="0" Minimum="0"
+                                 Value="{Binding SupaBase.LevelStats.XPIntoNextLevel}"
+                                 Maximum="{Binding SupaBase.LevelStats.XPForNextLevel}"/>
+                </Grid>
+            </controls:ContentCard>
+
+            <Grid Grid.Row="4">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="{ext:Space 2}"/>
@@ -199,7 +231,7 @@
                 </controls:ContentCard>
             </Grid>
 
-            <ItemsControl Grid.Row="4" ItemsSource="{Binding Items}" ClipToBounds="False">
+            <ItemsControl Grid.Row="6" ItemsSource="{Binding Items}" ClipToBounds="False">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <controls:ContentCard
@@ -259,13 +291,13 @@
                 </ItemsControl.ItemsPanel>
             </ItemsControl>
             
-            <TextBlock Grid.Row="4"
+            <TextBlock Grid.Row="6"
                        Text="No Exports Found" 
                        Classes="BodyTextBlockStyle TextFillColorTertiaryBrush" 
                        VerticalAlignment="Center" HorizontalAlignment="Center"
                        IsVisible="{Binding !Items.Count}"/>
 
-            <leaderboardControls:LeaderboardPagination Grid.Row="6"
+            <leaderboardControls:LeaderboardPagination Grid.Row="8"
                 IsVisible="{Binding !!Items.Count}"
                 PageInfo="{Binding PageInfo}"
                 PreviousPageCommand="{Binding PreviousPageCommand}"

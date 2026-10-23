@@ -13,21 +13,23 @@
              x:Class="FortnitePorting.Views.Plugin.UnrealPluginView"
              x:DataType="plugin:UnrealPluginViewModel">
     <ScrollViewer>
-        <StackPanel VerticalAlignment="Top" Margin="{ext:Space 2, 2, 2, 1}" Spacing="{ext:Space 0, 0, 0, 1}">
+        <StackPanel VerticalAlignment="Top" Margin="{ext:Space 2, 2, 2, 1}">
             <pluginControls:PluginInstallationsHeader
                 Title="Unreal Engine"
                 Subtitle="{Binding Installations.Count, StringFormat='{}{0} Project(s) Registered'}"
                 AddButtonContent="{controls:IconText 'Add Project', Plus}" />
 
-            <Separator Background="{DynamicResource FPSeparatorColorLayer1}" Margin="{ext:Space 0, 1}" />
+            <Separator Background="{DynamicResource FPSeparatorColorLayer1}" Margin="{ext:Space 0, 2, 0, 0}" />
 
-            <StackPanel IsVisible="{Binding !!Installations.Count}" Spacing="{ext:Space 0, 0, 0, 1}">
-                <TextBlock Text="Installations"
-                           Classes="SettingsSectionHeaderStyle TextFillColorTertiaryBrush"
-                           HorizontalAlignment="Left"
-                           Margin="{ext:Space 1, 0, 0, 0}" />
+            <StackPanel Spacing="{ext:Space 2}" Margin="{ext:Space 0, 2, 0, 0}">
+                <StackPanel IsVisible="{Binding !!Installations.Count}"
+                            Spacing="{ext:Space 0, 0, 0, 1}">
+                    <TextBlock Text="Installations"
+                               Classes="SettingsSectionHeaderStyle TextFillColorTertiaryBrush"
+                               HorizontalAlignment="Left"
+                               Margin="{ext:Space 1, 0, 0, 0}" />
 
-                <ItemsControl ItemsSource="{Binding Installations}">
+                    <ItemsControl ItemsSource="{Binding Installations}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <controls:ContentCard Padding="{ext:Space 2}">
@@ -86,24 +88,25 @@
                 </ItemsControl.ItemTemplate>
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <StackPanel Spacing="{ext:Space 1}" />
+                        <StackPanel Spacing="{ext:Space 0, 0, 0, 1}" />
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
-                </ItemsControl>
-            </StackPanel>
+                    </ItemsControl>
+                </StackPanel>
 
-            <StackPanel Spacing="{ext:Space 0, 0, 0, 1}">
-                <TextBlock Text="Settings"
-                           Classes="SettingsSectionHeaderStyle TextFillColorTertiaryBrush"
-                           HorizontalAlignment="Left"
-                           Margin="{ext:Space 1, 0, 0, 0}" />
+                <StackPanel Spacing="{ext:Space 0, 0, 0, 1}">
+                    <TextBlock Text="Settings"
+                               Classes="SettingsSectionHeaderStyle TextFillColorTertiaryBrush"
+                               HorizontalAlignment="Left"
+                               Margin="{ext:Space 1, 0, 0, 0}" />
 
-                <settingsControls:SettingsItem Title="Auto-Sync"
-                                               Description="Automatically syncs the Unreal plugin after Fortnite Porting updates.">
-                    <settingsControls:SettingsItem.Footer>
-                        <ToggleSwitch IsChecked="{Binding AutomaticallySync}" />
-                    </settingsControls:SettingsItem.Footer>
-                </settingsControls:SettingsItem>
+                    <settingsControls:SettingsItem Title="Auto-Sync"
+                                                   Description="Automatically syncs the Unreal plugin after Fortnite Porting updates.">
+                        <settingsControls:SettingsItem.Footer>
+                            <ToggleSwitch IsChecked="{Binding AutomaticallySync}" />
+                        </settingsControls:SettingsItem.Footer>
+                    </settingsControls:SettingsItem>
+                </StackPanel>
             </StackPanel>
         </StackPanel>
     </ScrollViewer>

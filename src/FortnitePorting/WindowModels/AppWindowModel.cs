@@ -25,7 +25,8 @@ public partial class AppWindowModel(
     BlackHoleService blackHole,
     ChatService chat,
     APIService api,
-    AppService app) : WindowModelBase
+    AppService app,
+    NavigationService navigation) : WindowModelBase
 {
     [ObservableProperty] private InfoService _info = info;
     [ObservableProperty] private SettingsService _settings = settings;
@@ -36,6 +37,7 @@ public partial class AppWindowModel(
 
     private readonly APIService _api = api;
     private readonly AppService _app = app;
+    private readonly NavigationService _navigation = navigation;
 
     [ObservableProperty] private string _versionString = Globals.Version.Identifier switch
     {
@@ -140,6 +142,13 @@ public partial class AppWindowModel(
                 }
             ]);
         }
+    }
+
+    // TODO replace with proper overlay popup
+    [RelayCommand]
+    private void OpenSettings()
+    {
+        _navigation.App.Open<SettingsView>();
     }
 
     [GeneratedRegex(@"^[0-9a-f]{7}$")]

@@ -59,8 +59,6 @@
                     <sidebar:Sidebar.Items>
                         <sidebar:SidebarItemText Text="General" />
                         <sidebar:SidebarItemButton Text="Home" Icon="Home" Tag="{x:Type views:HomeView}" />
-                        <sidebar:SidebarItemButton Text="News &amp; Updates" Icon="Newspaper"
-                                                   Tag="{x:Type views:NewsView}" />
                         <sidebar:SidebarItemButton Text="Help" Icon="Help" IsSelectable="False"
                                                    ItemPressed="OnHelpPressed" />
 
@@ -69,7 +67,7 @@
                         <sidebar:SidebarItemContent>
                             <Grid ColumnDefinitions="* 8 Auto">
                                 
-                                <sidebar:SidebarItemText Grid.Column="0" Text="Export" />
+                                <sidebar:SidebarItemText Grid.Column="0" Text="Library" />
                                 
                                 <loading:ButtonPulseLoading Grid.Column="2" Width="64" Margin="{ext:Space -2, 0}" Opacity="0.5"
                                                             IsVisible="{Binding !UEParse.FinishedLoading}"/>
@@ -79,10 +77,17 @@
                                                    IsEnabled="{Binding UEParse.FinishedLoading}" />
                         <sidebar:SidebarItemButton Text="Files" Icon="Folder" Tag="{x:Type views:FilesView}"
                                                    IsEnabled="{Binding UEParse.FinishedLoading}" />
-                        <sidebar:SidebarItemButton Text="Map" Icon="Map" Tag="{x:Type views:MapView}"
+                        <sidebar:SidebarItemButton Text="Maps" Icon="Map" Tag="{x:Type views:MapView}"
                                                    IsEnabled="{Binding UEParse.FinishedLoading}" />
                         <sidebar:SidebarItemButton Text="Music" Icon="Music" Tag="{x:Type views:MusicView}"
                                                    IsEnabled="{Binding UEParse.FinishedLoading}" />
+
+                        <sidebar:SidebarItemSeparator />
+
+                        <sidebar:SidebarItemText Text="Export" />
+                        <sidebar:SidebarItemButton Text="Plugins" Icon="Plug" Tag="{x:Type views:PluginView}" />
+                        <sidebar:SidebarItemButton Text="Config" Icon="FileCog"
+                                                   Tag="{x:Type views:ExportSettingsView}" />
 
                         <sidebar:SidebarItemSeparator />
 
@@ -94,15 +99,6 @@
                                                    Tag="{x:Type views:LeaderboardView}"
                                                    IsEnabled="{Binding SupaBase.IsLoggedIn}"/>
 
-                        <sidebar:SidebarItemSeparator />
-
-                        <sidebar:SidebarItemText Text="Settings" />
-                        <sidebar:SidebarItemButton Text="Plugin" Icon="Plug" Tag="{x:Type views:PluginView}" />
-                        <sidebar:SidebarItemButton Text="Export Options" Icon="FileCog"
-                                                   Tag="{x:Type views:ExportSettingsView}" />
-                        <sidebar:SidebarItemButton Text="App Settings" Icon="Settings"
-                                                   Tag="{x:Type views:SettingsView}" />
-                       
                     </sidebar:Sidebar.Items>
 
                     <sidebar:Sidebar.Footer>
@@ -131,68 +127,52 @@
 
                             <sidebar:SidebarItemSeparator Grid.Row="1" />
 
-                            <Grid Grid.Row="3" IsVisible="{Binding Settings.Account.SupaBase.IsLoggedIn}">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="{ext:Space 2}"/>
-                                    <RowDefinition Height="*"/>
-                                </Grid.RowDefinitions>
-                                
-                                <Grid Grid.Row="0" RowDefinitions="*,*">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="{ext:Space 2}" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
+                            <Grid Grid.Row="3"
+                                  ColumnDefinitions="* Auto"
+                                  IsVisible="{Binding Settings.Account.SupaBase.IsLoggedIn}">
+                                <Grid Grid.Column="0" ColumnDefinitions="Auto *">
+                                    <Ellipse Grid.Column="0" Height="48" Width="48"
+                                             RenderOptions.BitmapInterpolationMode="HighQuality">
+                                        <Ellipse.Fill>
+                                            <ImageBrush
+                                                asyncImageLoader:ImageBrushLoader.Source="{Binding SupaBase.UserInfo.AvatarUrl, FallbackValue='https://cdn.fortniteporting.app/images/avatar/default.png'}"
+                                                Stretch="UniformToFill" />
+                                        </Ellipse.Fill>
+                                    </Ellipse>
 
-                                    <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="0">
-                                        <Ellipse Height="48" Width="48" RenderOptions.BitmapInterpolationMode="HighQuality">
-                                            <Ellipse.Fill>
-                                                <ImageBrush
-                                                    asyncImageLoader:ImageBrushLoader.Source="{Binding SupaBase.UserInfo.AvatarUrl, FallbackValue='https://cdn.fortniteporting.app/images/avatar/default.png'}"
-                                                    Stretch="UniformToFill" />
-                                            </Ellipse.Fill>
-                                        </Ellipse>
-                                    </Grid>
-
-                                    <TextBlock Grid.Row="0" Grid.Column="2"
-                                               Text="{Binding SupaBase.UserInfo.DisplayName, FallbackValue='Anonymous'}"
-                                               FontFamily="{StaticResource SFTextSemiBold}"
-                                               Classes="TextFillColorPrimaryBrush" VerticalAlignment="Center" />
-
-                                    <TextBlock Grid.Row="1" Grid.Column="2"
-                                               Text="{Binding SupaBase.UserInfo.UserName, StringFormat='@{0}', FallbackValue='@anonymous'}"
-                                               FontFamily="{StaticResource SFTextRegular}"
-                                               Classes="TextFillColorSecondaryBrush" VerticalAlignment="Center" />
+                                    <StackPanel Grid.Column="1" Margin="{ext:Space 2, 0, 0, 0}"
+                                                VerticalAlignment="Center" Spacing="{ext:Space 0.25}">
+                                        <TextBlock Text="{Binding SupaBase.UserInfo.DisplayName, FallbackValue='Anonymous'}"
+                                                   FontFamily="{StaticResource SFTextSemiBold}"
+                                                   Classes="TextFillColorPrimaryBrush" />
+                                        <TextBlock Text="{Binding SupaBase.UserInfo.UserName, StringFormat='@{0}', FallbackValue='@anonymous'}"
+                                                   FontFamily="{StaticResource SFTextRegular}"
+                                                   Classes="TextFillColorSecondaryBrush" />
+                                    </StackPanel>
                                 </Grid>
-                                
-                                <Grid Grid.Row="2" Margin="{ext:Space 0.5, 0}">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="*"/>
-                                        <RowDefinition Height="{ext:Space 1}"/>
-                                        <RowDefinition Height="*"/>
-                                    </Grid.RowDefinitions>
-                                    
-                                    <TextBlock Grid.Row="0" Text="{Binding SupaBase.LevelStats.Level, StringFormat='Level {0}'}" Classes="BodyStrongTextBlockStyle"
-                                               HorizontalAlignment="Left"/>
-                                    <TextBlock Grid.Row="0" Text="{Binding SupaBase.LevelStats.XPFractionText}" Classes="CaptionTextBlockStyle TextFillColorSecondaryBrush" 
-                                               HorizontalAlignment="Right"/>
-                                    
-                                    <ProgressBar Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Center" 
-                                                 Height="8" MinWidth="0" Minimum="0"
-                                                 Value="{Binding SupaBase.LevelStats.XPIntoNextLevel}"
-                                                 Maximum="{Binding SupaBase.LevelStats.XPForNextLevel}">
-                                       
-                                    </ProgressBar>
-                                </Grid>
+
+                                <Button Grid.Column="1"
+                                        Classes="GhostButton"
+                                        Margin="{ext:Space 1, 0, 0, 0}"
+                                        VerticalAlignment="Center"
+                                        ToolTip.Tip="App Settings"
+                                        Content="{material:MaterialIconExt Settings}"
+                                        Command="{Binding OpenSettingsCommand}" />
                             </Grid>
 
-                            <Grid Grid.Row="3" RowDefinitions="*,*"
+                            <Grid Grid.Row="3" ColumnDefinitions="* Auto"
                                   IsVisible="{Binding !Settings.Account.SupaBase.IsLoggedIn}">
-                                <Button Grid.Row="0"
+                                <Button Grid.Column="0"
                                         Content="{controls:ImageText 'Sign In', 'avares://FortnitePorting/Assets/Icons/Discord.png'}"
                                         HorizontalAlignment="Stretch" VerticalAlignment="Center"
                                         Command="{Binding Settings.Account.SupaBase.SignIn}" />
+                                <Button Grid.Column="1"
+                                        Classes="GhostButton"
+                                        Margin="{ext:Space 1, 0, 0, 0}"
+                                        VerticalAlignment="Center"
+                                        ToolTip.Tip="App Settings"
+                                        Content="{material:MaterialIconExt Settings}"
+                                        Command="{Binding OpenSettingsCommand}" />
                             </Grid>
                         </Grid>
                     </sidebar:Sidebar.Footer>
