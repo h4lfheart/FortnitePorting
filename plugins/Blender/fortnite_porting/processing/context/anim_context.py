@@ -24,7 +24,8 @@ class AnimImportContext:
 
         if target_skeleton.data.get("is_tasty"):
             target_skeleton["use_pole_targets"] = False
-            target_skeleton["use_ik_fingers"] = False
+            target_skeleton["use_ik_fingers_r"] = 0.0
+            target_skeleton["use_ik_fingers_l"] = 0.0
             
 
         # clear old data

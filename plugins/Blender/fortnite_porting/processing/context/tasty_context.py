@@ -153,14 +153,23 @@ class TastyImportContext:
         bpy.ops.object.join()
 
 
-        target_skeleton["use_ik_hand_r"] = True
-        target_skeleton["use_ik_hand_l"] = True
-        
-        target_skeleton["use_ik_leg_r"] = True
-        target_skeleton["use_ik_leg_l"] = True
-        
-        target_skeleton["use_ik_fingers_r"] = False
-        target_skeleton["use_ik_fingers_l"] = False
+        for name, value in (
+            ("use_ik_hand_r", 1.0),
+            ("use_ik_hand_l", 1.0),
+            ("use_ik_leg_r", 1.0),
+            ("use_ik_leg_l", 1.0),
+            ("use_ik_fingers_r", 0.0),
+            ("use_ik_fingers_l", 0.0),
+        ):
+            target_skeleton[name] = 0.5
+            target_skeleton.id_properties_ui(name).update(
+                min=0.0,
+                max=1.0,
+                default=float(value),
+                description="0 = FK, 1 = IK",
+                subtype='FACTOR',
+            )
+            target_skeleton[name] = float(value)
 
         target_skeleton["use_pole_targets"] = True
     
@@ -489,22 +498,22 @@ class TastyImportContext:
             DriverVariable("use_pole", "SINGLE_PROP", target_skeleton, '["use_pole_targets"]')
         ])
 
-        use_ik_finger_r_driver = DriverBuilder("use_ik_hand and use_ik_fingers", [
+        use_ik_finger_r_driver = DriverBuilder("use_ik_hand * use_ik_fingers", [
             DriverVariable("use_ik_hand", "SINGLE_PROP", target_skeleton, '["use_ik_hand_r"]'),
             DriverVariable("use_ik_fingers", "SINGLE_PROP", target_skeleton, '["use_ik_fingers_r"]')
         ])
     
-        dont_use_ik_finger_r_driver = DriverBuilder("not (use_ik_hand and use_ik_fingers)", [
+        dont_use_ik_finger_r_driver = DriverBuilder("1 - use_ik_hand * use_ik_fingers", [
             DriverVariable("use_ik_hand", "SINGLE_PROP", target_skeleton, '["use_ik_hand_r"]'),
             DriverVariable("use_ik_fingers", "SINGLE_PROP", target_skeleton, '["use_ik_fingers_r"]')
         ])
         
-        use_ik_finger_l_driver = DriverBuilder("use_ik_hand and use_ik_fingers", [
+        use_ik_finger_l_driver = DriverBuilder("use_ik_hand * use_ik_fingers", [
             DriverVariable("use_ik_hand", "SINGLE_PROP", target_skeleton, '["use_ik_hand_l"]'),
             DriverVariable("use_ik_fingers", "SINGLE_PROP", target_skeleton, '["use_ik_fingers_l"]')
         ])
         
-        dont_use_ik_finger_l_driver = DriverBuilder("not (use_ik_hand and use_ik_fingers)", [
+        dont_use_ik_finger_l_driver = DriverBuilder("1 - use_ik_hand * use_ik_fingers", [
             DriverVariable("use_ik_hand", "SINGLE_PROP", target_skeleton, '["use_ik_hand_l"]'),
             DriverVariable("use_ik_fingers", "SINGLE_PROP", target_skeleton, '["use_ik_fingers_l"]')
         ])
@@ -513,7 +522,7 @@ class TastyImportContext:
             DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_hand_r"]')
         ])
 
-        dont_use_ik_hand_r_driver = DriverBuilder("not use_ik", [
+        dont_use_ik_hand_r_driver = DriverBuilder("1 - use_ik", [
             DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_hand_r"]')
         ])
         
@@ -521,7 +530,7 @@ class TastyImportContext:
             DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_hand_l"]')
         ])
         
-        dont_use_ik_hand_l_driver = DriverBuilder("not use_ik", [
+        dont_use_ik_hand_l_driver = DriverBuilder("1 - use_ik", [
             DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_hand_l"]')
         ])
         
@@ -529,7 +538,7 @@ class TastyImportContext:
             DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_leg_r"]')
         ])
         
-        dont_use_ik_leg_r_driver = DriverBuilder("not use_ik", [
+        dont_use_ik_leg_r_driver = DriverBuilder("1 - use_ik", [
             DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_leg_r"]')
         ])
         
@@ -537,11 +546,51 @@ class TastyImportContext:
             DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_leg_l"]')
         ])
         
-        dont_use_ik_leg_l_driver = DriverBuilder("not use_ik", [
+        dont_use_ik_leg_l_driver = DriverBuilder("1 - use_ik", [
             DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_leg_l"]')
         ])
 
-        hide_ik_hand_gun_driver = DriverBuilder("not (use_ik_r or use_ik_l)", [
+        hide_ik_hand_r_driver = DriverBuilder("use_ik < 0.001", [
+            DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_hand_r"]')
+        ])
+        hide_fk_hand_r_driver = DriverBuilder("use_ik > 0.999", [
+            DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_hand_r"]')
+        ])
+        hide_ik_hand_l_driver = DriverBuilder("use_ik < 0.001", [
+            DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_hand_l"]')
+        ])
+        hide_fk_hand_l_driver = DriverBuilder("use_ik > 0.999", [
+            DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_hand_l"]')
+        ])
+        hide_ik_leg_r_driver = DriverBuilder("use_ik < 0.001", [
+            DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_leg_r"]')
+        ])
+        hide_fk_leg_r_driver = DriverBuilder("use_ik > 0.999", [
+            DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_leg_r"]')
+        ])
+        hide_ik_leg_l_driver = DriverBuilder("use_ik < 0.001", [
+            DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_leg_l"]')
+        ])
+        hide_fk_leg_l_driver = DriverBuilder("use_ik > 0.999", [
+            DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_leg_l"]')
+        ])
+        hide_ik_finger_r_driver = DriverBuilder("use_ik_hand * use_ik_fingers < 0.001", [
+            DriverVariable("use_ik_hand", "SINGLE_PROP", target_skeleton, '["use_ik_hand_r"]'),
+            DriverVariable("use_ik_fingers", "SINGLE_PROP", target_skeleton, '["use_ik_fingers_r"]')
+        ])
+        hide_fk_finger_r_driver = DriverBuilder("use_ik_hand * use_ik_fingers > 0.999", [
+            DriverVariable("use_ik_hand", "SINGLE_PROP", target_skeleton, '["use_ik_hand_r"]'),
+            DriverVariable("use_ik_fingers", "SINGLE_PROP", target_skeleton, '["use_ik_fingers_r"]')
+        ])
+        hide_ik_finger_l_driver = DriverBuilder("use_ik_hand * use_ik_fingers < 0.001", [
+            DriverVariable("use_ik_hand", "SINGLE_PROP", target_skeleton, '["use_ik_hand_l"]'),
+            DriverVariable("use_ik_fingers", "SINGLE_PROP", target_skeleton, '["use_ik_fingers_l"]')
+        ])
+        hide_fk_finger_l_driver = DriverBuilder("use_ik_hand * use_ik_fingers > 0.999", [
+            DriverVariable("use_ik_hand", "SINGLE_PROP", target_skeleton, '["use_ik_hand_l"]'),
+            DriverVariable("use_ik_fingers", "SINGLE_PROP", target_skeleton, '["use_ik_fingers_l"]')
+        ])
+        hide_ik_hand_gun_driver = DriverBuilder("use_ik_r < 0.001 and use_ik_l < 0.001", [
             DriverVariable("use_ik_r", "SINGLE_PROP", target_skeleton, '["use_ik_hand_r"]'),
             DriverVariable("use_ik_l", "SINGLE_PROP", target_skeleton, '["use_ik_hand_l"]')
         ])
@@ -549,26 +598,26 @@ class TastyImportContext:
         ik_bones = [
             IKBone("lowerarm_r", "ik_hand_target_r", "ik_hand_pole_r", 2, name="IK w/ Pole",
                    lock_axes=["X"], limit_axes={"Y": [-45, 45], "Z": [-120, 30]},
-                   driver=DriverBuilder("use_ik and use_pole", [
+                   driver=DriverBuilder("use_ik * use_pole", [
                        DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_hand_r"]'),
                        DriverVariable("use_pole", "SINGLE_PROP", target_skeleton, '["use_pole_targets"]')
                    ])),
             IKBone("lowerarm_r", "ik_hand_target_r", None, 2, name="IK w/o Pole",
                    lock_axes=["X"], limit_axes={"Y": [-45, 45], "Z": [-120, 30]},
-                   driver=DriverBuilder("use_ik and not use_pole", [
+                   driver=DriverBuilder("use_ik * (1 - use_pole)", [
                        DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_hand_r"]'),
                        DriverVariable("use_pole", "SINGLE_PROP", target_skeleton, '["use_pole_targets"]')
                    ])),
         
             IKBone("lowerarm_l", "ik_hand_target_l", "ik_hand_pole_l", 2, name="IK w/ Pole",
                    lock_axes=["X"], limit_axes={"Y": [-45, 45], "Z": [-120, 30]},
-                   driver=DriverBuilder("use_ik and use_pole", [
+                   driver=DriverBuilder("use_ik * use_pole", [
                        DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_hand_l"]'),
                        DriverVariable("use_pole", "SINGLE_PROP", target_skeleton, '["use_pole_targets"]')
                    ])),
             IKBone("lowerarm_l", "ik_hand_target_l", None, 2, name="IK w/o Pole",
                    lock_axes=["X"], limit_axes={"Y": [-45, 45], "Z": [-120, 30]},
-                   driver=DriverBuilder("use_ik and not use_pole", [
+                   driver=DriverBuilder("use_ik * (1 - use_pole)", [
                        DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_hand_l"]'),
                        DriverVariable("use_pole", "SINGLE_PROP", target_skeleton, '["use_pole_targets"]')
                    ])),
@@ -576,104 +625,104 @@ class TastyImportContext:
             # squibbly tentacle ik
             IKBone("tentacle_10_r", "ik_hand_target_r", "ik_hand_pole_r", 10, name="IK w/ Pole",
                    lock_axes=["X"], limit_axes={"Y": [-45, 45], "Z": [-120, 30]},
-                   driver=DriverBuilder("use_ik and use_pole", [
+                   driver=DriverBuilder("use_ik * use_pole", [
                        DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_hand_r"]'),
                        DriverVariable("use_pole", "SINGLE_PROP", target_skeleton, '["use_pole_targets"]')
                    ])),
             IKBone("tentacle_10_r", "ik_hand_target_r", None, 10, name="IK w/o Pole",
                    lock_axes=["X"], limit_axes={"Y": [-45, 45], "Z": [-120, 30]},
-                   driver=DriverBuilder("use_ik and not use_pole", [
+                   driver=DriverBuilder("use_ik * (1 - use_pole)", [
                        DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_hand_r"]'),
                        DriverVariable("use_pole", "SINGLE_PROP", target_skeleton, '["use_pole_targets"]')
                    ])),
 
             IKBone("tentacle_10_l", "ik_hand_target_l", "ik_hand_pole_l", 10, name="IK w/ Pole",
                    lock_axes=["X"], limit_axes={"Y": [-45, 45], "Z": [-120, 30]},
-                   driver=DriverBuilder("use_ik and use_pole", [
+                   driver=DriverBuilder("use_ik * use_pole", [
                        DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_hand_l"]'),
                        DriverVariable("use_pole", "SINGLE_PROP", target_skeleton, '["use_pole_targets"]')
                    ])),
             IKBone("tentacle_10_l", "ik_hand_target_l", None, 10, name="IK w/o Pole",
                    lock_axes=["X"], limit_axes={"Y": [-45, 45], "Z": [-120, 30]},
-                   driver=DriverBuilder("use_ik and not use_pole", [
+                   driver=DriverBuilder("use_ik * (1 - use_pole)", [
                        DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_hand_l"]'),
                        DriverVariable("use_pole", "SINGLE_PROP", target_skeleton, '["use_pole_targets"]')
                    ])),
         
             IKBone("calf_r", "ik_foot_target_r", "ik_foot_pole_r", 2, name="IK w/ Pole",
                    lock_axes=["X"], limit_axes={"Y": [-15, 15], "Z": [-135, 5]},
-                   driver=DriverBuilder("use_ik and use_pole", [
+                   driver=DriverBuilder("use_ik * use_pole", [
                        DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_leg_r"]'),
                        DriverVariable("use_pole", "SINGLE_PROP", target_skeleton, '["use_pole_targets"]')
                    ])),
             IKBone("calf_r", "ik_foot_target_r", None, 2, name="IK w/o Pole",
                    lock_axes=["X"], limit_axes={"Y": [-15, 15], "Z": [-135, 5]},
-                   driver=DriverBuilder("use_ik and not use_pole", [
+                   driver=DriverBuilder("use_ik * (1 - use_pole)", [
                        DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_leg_r"]'),
                        DriverVariable("use_pole", "SINGLE_PROP", target_skeleton, '["use_pole_targets"]')
                    ])),
         
             IKBone("calf_l", "ik_foot_target_l", "ik_foot_pole_l", 2, name="IK w/ Pole",
                    lock_axes=["X"], limit_axes={"Y": [-15, 15], "Z": [-135, 5]},
-                   driver=DriverBuilder("use_ik and use_pole", [
+                   driver=DriverBuilder("use_ik * use_pole", [
                        DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_leg_l"]'),
                        DriverVariable("use_pole", "SINGLE_PROP", target_skeleton, '["use_pole_targets"]')
                    ])),
             IKBone("calf_l", "ik_foot_target_l", None, 2, name="IK w/o Pole",
                    lock_axes=["X"], limit_axes={"Y": [-15, 15], "Z": [-135, 5]},
-                   driver=DriverBuilder("use_ik and not use_pole", [
+                   driver=DriverBuilder("use_ik * (1 - use_pole)", [
                        DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_leg_l"]'),
                        DriverVariable("use_pole", "SINGLE_PROP", target_skeleton, '["use_pole_targets"]')
                    ])),
         
             IKBone("dog_ball_r", "ik_dog_ball_r", "ik_foot_pole_r", 4, use_rotation=True, name="IK w/ Pole",
                    lock_axes=["X"], limit_axes={"Y": [-15, 15], "Z": [-135, 5]},
-                   driver=DriverBuilder("use_ik and use_pole", [
+                   driver=DriverBuilder("use_ik * use_pole", [
                        DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_leg_r"]'),
                        DriverVariable("use_pole", "SINGLE_PROP", target_skeleton, '["use_pole_targets"]')
                    ])),
             IKBone("dog_ball_r", "ik_dog_ball_r", None, 4, use_rotation=True, name="IK w/o Pole",
                    lock_axes=["X"], limit_axes={"Y": [-15, 15], "Z": [-135, 5]},
-                   driver=DriverBuilder("use_ik and not use_pole", [
+                   driver=DriverBuilder("use_ik * (1 - use_pole)", [
                        DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_leg_r"]'),
                        DriverVariable("use_pole", "SINGLE_PROP", target_skeleton, '["use_pole_targets"]')
                    ])),
         
             IKBone("dog_ball_l", "ik_dog_ball_l", "ik_foot_pole_l", 4, use_rotation=True, name="IK w/ Pole",
                    lock_axes=["X"], limit_axes={"Y": [-15, 15], "Z": [-135, 5]},
-                   driver=DriverBuilder("use_ik and use_pole", [
+                   driver=DriverBuilder("use_ik * use_pole", [
                        DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_leg_l"]'),
                        DriverVariable("use_pole", "SINGLE_PROP", target_skeleton, '["use_pole_targets"]')
                    ])),
             IKBone("dog_ball_l", "ik_dog_ball_l", None, 4, use_rotation=True, name="IK w/o Pole",
                    lock_axes=["X"], limit_axes={"Y": [-15, 15], "Z": [-135, 5]},
-                   driver=DriverBuilder("use_ik and not use_pole", [
+                   driver=DriverBuilder("use_ik * (1 - use_pole)", [
                        DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_leg_l"]'),
                        DriverVariable("use_pole", "SINGLE_PROP", target_skeleton, '["use_pole_targets"]')
                    ])),
         
             IKBone("wolf_ball_r", "ik_wolf_ball_r", "ik_foot_pole_r", 4, use_rotation=True, name="IK w/ Pole",
                    lock_axes=["X"], limit_axes={"Y": [-15, 15], "Z": [-135, 5]},
-                   driver=DriverBuilder("use_ik and use_pole", [
+                   driver=DriverBuilder("use_ik * use_pole", [
                        DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_leg_r"]'),
                        DriverVariable("use_pole", "SINGLE_PROP", target_skeleton, '["use_pole_targets"]')
                    ])),
             IKBone("wolf_ball_r", "ik_wolf_ball_r", None, 4, use_rotation=True, name="IK w/o Pole",
                    lock_axes=["X"], limit_axes={"Y": [-15, 15], "Z": [-135, 5]},
-                   driver=DriverBuilder("use_ik and not use_pole", [
+                   driver=DriverBuilder("use_ik * (1 - use_pole)", [
                        DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_leg_r"]'),
                        DriverVariable("use_pole", "SINGLE_PROP", target_skeleton, '["use_pole_targets"]')
                    ])),
         
             IKBone("wolf_ball_l", "ik_wolf_ball_l", "ik_foot_pole_l", 4, use_rotation=True, name="IK w/ Pole",
                    lock_axes=["X"], limit_axes={"Y": [-15, 15], "Z": [-135, 5]},
-                   driver=DriverBuilder("use_ik and use_pole", [
+                   driver=DriverBuilder("use_ik * use_pole", [
                        DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_leg_l"]'),
                        DriverVariable("use_pole", "SINGLE_PROP", target_skeleton, '["use_pole_targets"]')
                    ])),
             IKBone("wolf_ball_l", "ik_wolf_ball_l", None, 4, use_rotation=True, name="IK w/o Pole",
                    lock_axes=["X"], limit_axes={"Y": [-15, 15], "Z": [-135, 5]},
-                   driver=DriverBuilder("use_ik and not use_pole", [
+                   driver=DriverBuilder("use_ik * (1 - use_pole)", [
                        DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_leg_l"]'),
                        DriverVariable("use_pole", "SINGLE_PROP", target_skeleton, '["use_pole_targets"]')
                    ])),
@@ -734,16 +783,15 @@ class TastyImportContext:
     
         # bone name, target name, target space, owner space, mix, weight
         copy_rotation_bones = [
+            ("hand_r", "fk_hand_r", "POSE", "POSE", "REPLACE", 1.0, dont_use_ik_hand_r_driver),
+            ("hand_l", "fk_hand_l", "POSE", "POSE", "REPLACE", 1.0, dont_use_ik_hand_l_driver),
+            ("foot_r", "fk_foot_r", "POSE", "POSE", "REPLACE", 1.0, dont_use_ik_leg_r_driver),
+            ("foot_l", "fk_foot_l", "POSE", "POSE", "REPLACE", 1.0, dont_use_ik_leg_l_driver),
+
             ("hand_r", "ik_hand_parent_r", "POSE", "POSE", "REPLACE", 1.0, use_ik_hand_r_driver),
             ("hand_l", "ik_hand_parent_l", "POSE", "POSE", "REPLACE", 1.0, use_ik_hand_l_driver),
             ("foot_r", "ik_foot_rot_ctrl_r", "POSE", "POSE", "REPLACE", 1.0, use_ik_leg_r_driver),
             ("foot_l", "ik_foot_rot_ctrl_l", "POSE", "POSE", "REPLACE", 1.0, use_ik_leg_l_driver),
-
-            ("hand_r", "fk_hand_r", "POSE", "POSE", "REPLACE", 1.0, dont_use_ik_hand_r_driver),
-            ("hand_l", "fk_hand_l", "POSE", "POSE", "REPLACE", 1.0, dont_use_ik_hand_l_driver),
-
-            ("foot_r", "fk_foot_r", "POSE", "POSE", "REPLACE", 1.0, dont_use_ik_leg_r_driver),
-            ("foot_l", "fk_foot_l", "POSE", "POSE", "REPLACE", 1.0, dont_use_ik_leg_l_driver),
     
             ("R_eye_lid_upper_mid", "R_eye", "LOCAL_OWNER_ORIENT", "LOCAL_WITH_PARENT", "REPLACE", 0.25, None),
             ("R_eye_lid_lower_mid", "R_eye", "LOCAL_OWNER_ORIENT", "LOCAL_WITH_PARENT", "REPLACE", 0.25, None),
@@ -1140,80 +1188,74 @@ class TastyImportContext:
 
 
         driver_hide_bones = [
-            ("ik_hand_r", dont_use_ik_hand_r_driver),
-            ("ik_hand_parent_r", dont_use_ik_hand_r_driver),
-            ("ik_hand_target_r", DriverBuilder("not use_ik or not use_fingers", [
-                DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_hand_r"]'),
-                DriverVariable("use_fingers", "SINGLE_PROP", target_skeleton, '["use_ik_fingers_r"]')
-            ])),
-            ("ik_hand_pole_r", DriverBuilder("not use_ik or not use_pole", [
+            ("ik_hand_r", hide_ik_hand_r_driver),
+            ("ik_hand_parent_r", hide_ik_hand_r_driver),
+            ("ik_hand_target_r", hide_ik_finger_r_driver),
+            ("ik_hand_pole_r", DriverBuilder("use_ik < 0.001 or not use_pole", [
                 DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_hand_r"]'),
                 DriverVariable("use_pole", "SINGLE_PROP", target_skeleton, '["use_pole_targets"]')
             ])),
         
-            ("ik_hand_l", dont_use_ik_hand_l_driver),
-            ("ik_hand_parent_l", dont_use_ik_hand_l_driver),
-            ("ik_hand_target_l", DriverBuilder("not use_ik or not use_fingers", [
-                DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_hand_l"]'),
-                DriverVariable("use_fingers", "SINGLE_PROP", target_skeleton, '["use_ik_fingers_l"]')
-            ])),
-            ("ik_hand_pole_l", DriverBuilder("not use_ik or not use_pole", [
+            ("ik_hand_l", hide_ik_hand_l_driver),
+            ("ik_hand_parent_l", hide_ik_hand_l_driver),
+            ("ik_hand_target_l", hide_ik_finger_l_driver),
+            ("ik_hand_pole_l", DriverBuilder("use_ik < 0.001 or not use_pole", [
                 DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_hand_l"]'),
                 DriverVariable("use_pole", "SINGLE_PROP", target_skeleton, '["use_pole_targets"]')
             ])),
         
-            ("ik_foot_r", dont_use_ik_leg_r_driver),
-            ("ik_foot_ctrl_r", dont_use_ik_leg_r_driver),
-            ("ik_foot_pole_r", DriverBuilder("not use_ik or not use_pole", [
+            ("ik_foot_r", hide_ik_leg_r_driver),
+            ("ik_foot_ctrl_r", hide_ik_leg_r_driver),
+            ("ik_foot_pole_r", DriverBuilder("use_ik < 0.001 or not use_pole", [
                 DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_leg_r"]'),
                 DriverVariable("use_pole", "SINGLE_PROP", target_skeleton, '["use_pole_targets"]')
             ])),
         
-            ("ik_foot_l", dont_use_ik_leg_l_driver),
-            ("ik_foot_ctrl_l", dont_use_ik_leg_l_driver),
-            ("ik_foot_pole_l", DriverBuilder("not use_ik or not use_pole", [
+            ("ik_foot_l", hide_ik_leg_l_driver),
+            ("ik_foot_ctrl_l", hide_ik_leg_l_driver),
+            ("ik_foot_pole_l", DriverBuilder("use_ik < 0.001 or not use_pole", [
                 DriverVariable("use_ik", "SINGLE_PROP", target_skeleton, '["use_ik_leg_l"]'),
                 DriverVariable("use_pole", "SINGLE_PROP", target_skeleton, '["use_pole_targets"]')
             ])),
 
-            ("fk_hand_r", use_ik_hand_r_driver),
-            ("fk_hand_l", use_ik_hand_l_driver),
-            ("fk_foot_r", use_ik_leg_r_driver),
-            ("fk_foot_l", use_ik_leg_l_driver),
+            ("fk_hand_r", hide_fk_hand_r_driver),
+            ("fk_hand_l", hide_fk_hand_l_driver),
+            ("fk_foot_r", hide_fk_leg_r_driver),
+            ("fk_foot_l", hide_fk_leg_l_driver),
             
-            ("ik_finger_thumb_r", dont_use_ik_finger_r_driver),
-            ("ik_finger_index_r", dont_use_ik_finger_r_driver),
-            ("ik_finger_middle_r", dont_use_ik_finger_r_driver),
-            ("ik_finger_ring_r", dont_use_ik_finger_r_driver),
-            ("ik_finger_pinky_r", dont_use_ik_finger_r_driver),
-            ("ik_finger_pole_thumb_r", dont_use_ik_finger_r_driver),
-            ("ik_finger_pole_index_r", dont_use_ik_finger_r_driver),
-            ("ik_finger_pole_middle_r", dont_use_ik_finger_r_driver),
-            ("ik_finger_pole_ring_r", dont_use_ik_finger_r_driver),
-            ("ik_finger_pole_pinky_r", dont_use_ik_finger_r_driver),
+            ("ik_finger_thumb_r", hide_ik_finger_r_driver),
+            ("ik_finger_index_r", hide_ik_finger_r_driver),
+            ("ik_finger_middle_r", hide_ik_finger_r_driver),
+            ("ik_finger_ring_r", hide_ik_finger_r_driver),
+            ("ik_finger_pinky_r", hide_ik_finger_r_driver),
+            ("ik_finger_pole_thumb_r", hide_ik_finger_r_driver),
+            ("ik_finger_pole_index_r", hide_ik_finger_r_driver),
+            ("ik_finger_pole_middle_r", hide_ik_finger_r_driver),
+            ("ik_finger_pole_ring_r", hide_ik_finger_r_driver),
+            ("ik_finger_pole_pinky_r", hide_ik_finger_r_driver),
 
-            ("ik_finger_thumb_l", dont_use_ik_finger_l_driver),
-            ("ik_finger_index_l", dont_use_ik_finger_l_driver),
-            ("ik_finger_middle_l", dont_use_ik_finger_l_driver),
-            ("ik_finger_ring_l", dont_use_ik_finger_l_driver),
-            ("ik_finger_pinky_l", dont_use_ik_finger_l_driver),
-            ("ik_finger_pole_thumb_l", dont_use_ik_finger_l_driver),
-            ("ik_finger_pole_index_l", dont_use_ik_finger_l_driver),
-            ("ik_finger_pole_middle_l", dont_use_ik_finger_l_driver),
-            ("ik_finger_pole_ring_l", dont_use_ik_finger_l_driver),
-            ("ik_finger_pole_pinky_l", dont_use_ik_finger_l_driver),
+            ("ik_finger_thumb_l", hide_ik_finger_l_driver),
+            ("ik_finger_index_l", hide_ik_finger_l_driver),
+            ("ik_finger_middle_l", hide_ik_finger_l_driver),
+            ("ik_finger_ring_l", hide_ik_finger_l_driver),
+            ("ik_finger_pinky_l", hide_ik_finger_l_driver),
+            ("ik_finger_pole_thumb_l", hide_ik_finger_l_driver),
+            ("ik_finger_pole_index_l", hide_ik_finger_l_driver),
+            ("ik_finger_pole_middle_l", hide_ik_finger_l_driver),
+            ("ik_finger_pole_ring_l", hide_ik_finger_l_driver),
+            ("ik_finger_pole_pinky_l", hide_ik_finger_l_driver),
 
-            ("thumb_control_r", use_ik_finger_r_driver),
-            ("index_control_r", use_ik_finger_r_driver),
-            ("middle_control_r", use_ik_finger_r_driver),
-            ("ring_control_r", use_ik_finger_r_driver),
-            ("pinky_control_r", use_ik_finger_r_driver),
+            ("thumb_control_r", hide_fk_finger_r_driver),
+            ("index_control_r", hide_fk_finger_r_driver),
+            ("middle_control_r", hide_fk_finger_r_driver),
+            ("ring_control_r", hide_fk_finger_r_driver),
+            ("pinky_control_r", hide_fk_finger_r_driver),
 
-            ("thumb_control_l", use_ik_finger_l_driver),
-            ("index_control_l", use_ik_finger_l_driver),
-            ("middle_control_l", use_ik_finger_l_driver),
-            ("ring_control_l", use_ik_finger_l_driver),
-            ("pinky_control_l", use_ik_finger_l_driver),
+            ("thumb_control_l", hide_fk_finger_l_driver),
+            ("index_control_l", hide_fk_finger_l_driver),
+            ("middle_control_l", hide_fk_finger_l_driver),
+            ("ring_control_l", hide_fk_finger_l_driver),
+            ("pinky_control_l", hide_fk_finger_l_driver),
 
             ('ik_hand_gun', hide_ik_hand_gun_driver)
         ]

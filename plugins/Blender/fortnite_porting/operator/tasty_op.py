@@ -18,25 +18,28 @@ class TASTY_PT_RigSettings(bpy.types.Panel):
         obj = context.object
 
         box = layout.box()
-        box.row().label(text="IK Controls", icon='CON_KINEMATIC')
+        box.row().label(text="FK / IK Controls", icon='CON_KINEMATIC')
 
+        box.label(text="Hand")
         hand_row = box.row()
-        hand_row.prop(obj, '["use_ik_hand_r"]', text="Hand R", slider=True)
-        hand_row.prop(obj, '["use_ik_hand_l"]', text="Hand L", slider=True)
+        hand_row.prop(obj, '["use_ik_hand_l"]', text="Left", slider=True)
+        hand_row.prop(obj, '["use_ik_hand_r"]', text="Right", slider=True)
 
+        box.label(text="Foot")
         leg_row = box.row()
-        leg_row.prop(obj, '["use_ik_leg_r"]', text="Foot R", slider=True)
-        leg_row.prop(obj, '["use_ik_leg_l"]', text="Foot L", slider=True)
+        leg_row.prop(obj, '["use_ik_leg_l"]', text="Left", slider=True)
+        leg_row.prop(obj, '["use_ik_leg_r"]', text="Right", slider=True)
 
+        box.label(text="Fingers")
         finger_row = box.row()
-        finger_col_r = finger_row.column()
-        finger_col_r.enabled = obj.get("use_ik_hand_r", True)
-        finger_col_r.prop(obj, '["use_ik_fingers_r"]', text="Fingers R", slider=True)
-
         finger_col_l = finger_row.column()
-        finger_col_l.enabled = obj.get("use_ik_hand_l", True)
-        finger_col_l.prop(obj, '["use_ik_fingers_l"]', text="Fingers L", slider=True)
+        finger_col_l.enabled = obj.get("use_ik_hand_l", 1.0) != 0
+        finger_col_l.prop(obj, '["use_ik_fingers_l"]', text="Left", slider=True)
+
+        finger_col_r = finger_row.column()
+        finger_col_r.enabled = obj.get("use_ik_hand_r", 1.0) != 0
+        finger_col_r.prop(obj, '["use_ik_fingers_r"]', text="Right", slider=True)
 
         box = layout.box()
         box.row().label(text="Miscellaneous", icon='PROPERTIES')
-        box.row().prop(obj, '["use_pole_targets"]', text="Pole Targets", slider=True)
+        box.row().prop(obj, '["use_pole_targets"]', text="Pole Targets")
