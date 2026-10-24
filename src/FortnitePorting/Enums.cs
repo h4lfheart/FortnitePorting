@@ -33,6 +33,10 @@ public enum EExportTarget
     [Description("Raw Data")]
     [Icon(MaterialIconKind.Hexadecimal)]
     RawData,
+
+    [Description("UEAnim")]
+    [Icon(MaterialIconKind.Motion)]
+    UEAnim,
 }
 
 public enum EAssetCategory

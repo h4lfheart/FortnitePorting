@@ -587,6 +587,13 @@
                         <Image Width="16" Height="16" Source="/Assets/Icons/Tasty.png" />
                     </Button>
 
+                    <Button Grid.Column="1" ToolTip.Tip="Export the selected emotes as UEAnim animation files"
+                            Command="{Binding ExportUeAnimCommand}"
+                            Margin="{ext:Space 1, 0, 0, 0}"
+                            IsVisible="{Binding IsUeAnimExportVisible}">
+                        <controls:IconText Text="UEAnim" Icon="Motion" />
+                    </Button>
+
                     <Button Grid.Column="3" ToolTip.Tip="Export Settings" Content="{material:MaterialIconExt Settings}"
                             Command="{Binding OpenSettingsCommand}" />
 

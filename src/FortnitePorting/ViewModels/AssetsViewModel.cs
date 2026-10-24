@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CUE4Parse_Conversion.Options;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using FortnitePorting.Controls.Navigation.Sidebar;
@@ -22,6 +23,7 @@ using FortnitePorting.Models.Assets.Filters;
 using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Views;
+using FluentAvalonia.UI.Controls;
 using Material.Icons;
 
 namespace FortnitePorting.ViewModels;
@@ -51,13 +53,15 @@ public partial class AssetsViewModel(
     [ObservableProperty, NotifyPropertyChangedFor(nameof(IsTastyRigApplyVisible))]
     private EExportLocation _exportLocation = EExportLocation.Blender;
 
-    [ObservableProperty] private bool _isExporting;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(IsUeAnimExportVisible))]
+    private bool _isExporting;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(ShowNamesIcon))] private bool _showNames;
     [ObservableProperty] private ObservableCollection<ISidebarItem> _sidebarItems = [];
 
     private ExportDataMeta? _exportMeta;
 
     public bool IsTastyRigApplyVisible => ExportLocation is EExportLocation.Blender && _assetLoader.ActiveLoader?.Type is EExportType.Outfit;
+    public bool IsUeAnimExportVisible => !IsExporting && _assetLoader.ActiveLoader?.Type is EExportType.Emote or EExportType.LegoEmote;
     public MaterialIconKind ShowNamesIcon => ShowNames ? MaterialIconKind.TextLong : MaterialIconKind.TextShort;
 
     public void Reset()
@@ -74,7 +78,10 @@ public partial class AssetsViewModel(
         _assetLoader.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName == nameof(AssetLoaderService.ActiveLoader))
+            {
                 OnPropertyChanged(nameof(IsTastyRigApplyVisible));
+                OnPropertyChanged(nameof(IsUeAnimExportVisible));
+            }
         };
 
         ShowNames = _settings.Application.ShowAssetNames;
@@ -171,6 +178,43 @@ public partial class AssetsViewModel(
     {
         foreach (var assetInfo in _assetLoader.ActiveLoader.SelectedAssetInfos)
             assetInfo.Asset.Favorite();
+    }
+
+    [RelayCommand]
+    public async Task ExportUeAnim()
+    {
+        if (_assetLoader.ActiveLoader is null) return;
+        if (_assetLoader.ActiveLoader.SelectedAssetInfos.Count == 0)
+        {
+            _info.Message("UEAnim", "Select an emote first.", InfoBarSeverity.Warning);
+            return;
+        }
+
+        if (!global::CUE4Parse.Utils.CUE4ParseNatives.IsInitialized)
+        {
+            _info.Message("UEAnim",
+                "CUE4Parse-Natives.dll is missing next to FortnitePorting.exe. Reinstall or rebuild with CMake so ACL animations can export.",
+                InfoBarSeverity.Error);
+            return;
+        }
+
+        var location = ExportLocation.IsFolder ? ExportLocation : EExportLocation.AssetsFolder;
+        _exportMeta = _settings.ExportSettings.CreateExportMeta(location);
+        _exportMeta.Settings.MeshFormat = EMeshFormat.UEFormat;
+        _exportMeta.Settings.OpenFoldersOnExport = true;
+        _exportMeta.UeAnimOnly = true;
+        IsExporting = true;
+
+        try
+        {
+            await _exporter.Export(_assetLoader.ActiveLoader.SelectedAssetInfos, _exportMeta);
+        }
+        finally
+        {
+            _exportMeta?.Dispose();
+            _exportMeta = null;
+            IsExporting = false;
+        }
     }
 
     [RelayCommand]

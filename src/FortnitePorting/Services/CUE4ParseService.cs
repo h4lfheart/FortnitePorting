@@ -5,12 +5,14 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse_Conversion.Textures.BC;
+using CUE4Parse.Utils;
 using CUE4Parse.Compression;
 using CUE4Parse.Encryption.Aes;
 using CUE4Parse.MappingsProvider;
@@ -33,7 +35,6 @@ using CUE4Parse.UE4.Pak;
 using CUE4Parse.UE4.Readers;
 using CUE4Parse.UE4.Versions;
 using CUE4Parse.UE4.VirtualFileSystem;
-using CUE4Parse.Utils;
 using EpicManifestParser;
 using EpicManifestParser.UE;
 using FortnitePorting.CUE4Parse.Models.Fortnite;
@@ -304,6 +305,27 @@ public partial class CUE4ParseService : ObservableObject, IService, IResettable
         var detexPath = Path.Combine(App.DataFolder.FullName, DetexHelper.DLL_NAME);
         if (!File.Exists(detexPath)) await DetexHelper.LoadDllAsync(detexPath);
         DetexHelper.Initialize(detexPath);
+    }
+
+    [LoadingStage("Loading ACL Natives", stage: 3, weight: 1)]
+    private async Task InitializeAclNatives()
+    {
+        await Task.CompletedTask;
+
+        var dllName = $"{CUE4ParseNatives.LibraryName}.dll";
+        var bundledPath = Path.Combine(AppContext.BaseDirectory, dllName);
+        var dataPath = Path.Combine(App.DataFolder.FullName, dllName);
+
+        if (!File.Exists(bundledPath) && File.Exists(dataPath))
+            File.Copy(dataPath, bundledPath, overwrite: true);
+        else if (File.Exists(bundledPath) && !File.Exists(dataPath))
+            File.Copy(bundledPath, dataPath, overwrite: true);
+
+        if (File.Exists(bundledPath))
+            NativeLibrary.TryLoad(bundledPath, out _);
+
+        if (!CUE4ParseNatives.IsInitialized)
+            Log.Warning("CUE4Parse-Natives.dll is missing; ACL-compressed animations cannot be exported.");
     }
     
     [LoadingStage("Initializing Provider", stage: 4, weight: 10)]

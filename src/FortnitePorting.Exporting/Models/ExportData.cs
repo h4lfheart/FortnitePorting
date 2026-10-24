@@ -21,6 +21,7 @@ public class ExportDataMeta : IDisposable
 
     [JsonIgnore] public EExportLocation ExportLocation;
     [JsonIgnore] public string? CustomPath;
+    [JsonIgnore] public bool UeAnimOnly;
     [JsonIgnore] public EWorldFlags WorldFlags = EWorldFlags.Actors | EWorldFlags.WorldPartitionGrids | EWorldFlags.Landscape | EWorldFlags.InstancedFoliage | EWorldFlags.HLODs;
     [JsonIgnore] public IExportAssetProvider Provider = null!;
 
