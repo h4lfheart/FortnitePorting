@@ -181,6 +181,10 @@
             </TransitioningContentControl.PageTransition>
         </TransitioningContentControl>
 
+        <ContentControl Grid.Row="0" Grid.RowSpan="2"
+                        Content="{Binding SettingsViewContent}"
+                        IsVisible="{Binding IsSettingsOpen}" />
+
         <ItemsControl Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Right" Width="500"
                       Margin="{ext:Space 1}" ItemsSource="{Binding Info.Messages}" ClipToBounds="False">
             <ItemsControl.ItemTemplate>
@@ -396,10 +400,6 @@
         <controls:LevelUpOverlay x:Name="LevelUpOverlay" 
                                  Grid.Row="0" 
                                  Grid.RowSpan="2" />
-
-        <ContentControl Grid.Row="0" Grid.RowSpan="2"
-                        Content="{Binding SettingsViewContent}"
-                        IsVisible="{Binding IsSettingsOpen}" />
 
         <controls:WindowTitleBar Grid.Row="0"/>
     </Grid>
