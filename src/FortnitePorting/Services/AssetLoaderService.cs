@@ -45,17 +45,17 @@ public partial class AssetLoaderService : ObservableObject, IService, IResettabl
                     LoadHiddenAssets = true,
                     LowResIconHandler = asset =>
                     {
-                        var previewImage = AssetLoader.GetLowResIcon(asset);
+                        var previewImage = AssetLoader.GetLowResIconPath(asset);
                         if (previewImage is null && asset.TryGetValue(out UObject hero, "HeroDefinition"))
-                            previewImage = AssetLoader.GetLowResIcon(hero);
+                            previewImage = AssetLoader.GetLowResIconPath(hero);
 
                         return previewImage;
                     },
                     HighResIconHandler = asset =>
                     {
-                        var previewImage = AssetLoader.GetHighResIcon(asset);
+                        var previewImage = AssetLoader.GetHighResIconPath(asset);
                         if (previewImage is null && asset.TryGetValue(out UObject hero, "HeroDefinition"))
-                            previewImage = AssetLoader.GetHighResIcon(hero);
+                            previewImage = AssetLoader.GetHighResIconPath(hero);
 
                         return previewImage;
                     }
@@ -71,17 +71,17 @@ public partial class AssetLoaderService : ObservableObject, IService, IResettabl
                     HideNames = ["Dev_", "TBD_"],
                     LowResIconHandler = asset =>
                     {
-                        var previewImage = AssetLoader.GetLowResIcon(asset);
-                        if ((previewImage is null || previewImage.Name.Contains("Placeholder", StringComparison.OrdinalIgnoreCase)) && asset.TryGetValue(out UObject weapon, "WeaponDefinition"))
-                            previewImage = AssetLoader.GetLowResIcon(weapon);
+                        var previewImage = AssetLoader.GetLowResIconPath(asset);
+                        if ((previewImage is null || previewImage.Contains("Placeholder", StringComparison.OrdinalIgnoreCase)) && asset.TryGetValue(out UObject weapon, "WeaponDefinition"))
+                            previewImage = AssetLoader.GetLowResIconPath(weapon);
 
                         return previewImage;
                     },
                     HighResIconHandler = asset =>
                     {
-                        var previewImage = AssetLoader.GetHighResIcon(asset);
-                        if ((previewImage is null || previewImage.Name.Contains("Placeholder", StringComparison.OrdinalIgnoreCase)) && asset.TryGetValue(out UObject weapon, "WeaponDefinition"))
-                            previewImage = AssetLoader.GetHighResIcon(weapon);
+                        var previewImage = AssetLoader.GetHighResIconPath(asset);
+                        if ((previewImage is null || previewImage.Contains("Placeholder", StringComparison.OrdinalIgnoreCase)) && asset.TryGetValue(out UObject weapon, "WeaponDefinition"))
+                            previewImage = AssetLoader.GetHighResIconPath(weapon);
 
                         return previewImage;
                     }
@@ -262,8 +262,8 @@ public partial class AssetLoaderService : ObservableObject, IService, IResettabl
                         {
                             if (!UEParse.Provider.TryLoadPackageObject(assetData.ObjectPath, out var asset)) continue;
 
-                            var icon = AssetLoader.GetIcon(asset);
-                            if (icon is null) continue;
+                            var iconPath = AssetLoader.GetIconPath(asset);
+                            if (iconPath is null) continue;
 
                             var tag = asset.GetOrDefault<FGameplayTag>("PluginTuningTag").ToString();
 
@@ -289,7 +289,7 @@ public partial class AssetLoaderService : ObservableObject, IService, IResettabl
                                 {
                                     Name = name,
                                     AssetPath = modMesh.GetPathName(),
-                                    IconPath = icon.GetPathName()
+                                    IconPath = iconPath
                                 });
                                 alreadyAddedNames.Add(name);
                                 addedOverrides = true;
@@ -301,7 +301,7 @@ public partial class AssetLoaderService : ObservableObject, IService, IResettabl
                                 {
                                     Name = mainModMesh.Name,
                                     AssetPath = mainModMesh.GetPathName(),
-                                    IconPath = icon.GetPathName()
+                                    IconPath = iconPath
                                 });
                             }
                         }
@@ -329,8 +329,8 @@ public partial class AssetLoaderService : ObservableObject, IService, IResettabl
                 new AssetLoader(EExportType.Vehicle)
                 {
                     ClassNames = ["FortVehicleItemDefinition"],
-                    LowResIconHandler = asset => asset.GetVehicleMetadata<UTexture2D>("Icon", "SmallPreviewImage"),
-                    HighResIconHandler = asset => asset.GetVehicleMetadata<UTexture2D>("Icon", "LargePreviewImage"),
+                    LowResIconHandler = asset => asset.GetVehicleIconPath("Icon", "SmallPreviewImage"),
+                    HighResIconHandler = asset => asset.GetVehicleIconPath("Icon", "LargePreviewImage"),
                     DisplayNameHandler = asset => asset.GetVehicleMetadata<FText>("DisplayName", "ItemName")?.Text,
                     HideRarity = true,
                     

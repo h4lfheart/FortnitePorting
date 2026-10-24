@@ -77,7 +77,9 @@ public partial class AssetStyleInfo : ObservableObject
         foreach (var style in styles)
         {
             var previewBitmap = fallbackPreviewImage;
-            if (AssetLoader.GetIcon(style)?.Decode()?.ToSkBitmap() is { } iconBitmap)
+            if (AssetLoader.GetIconPath(style) is { } iconPath
+                && UEParse.Provider.TryLoadPackageObject<UTexture2D>(iconPath, out var texture)
+                && texture.Decode()?.ToSkBitmap() is { } iconBitmap)
             {
                 var rarity = style.GetOrDefault("Rarity", EFortRarity.Uncommon);
                 if (style.GetDataListItem<FName?>("Rarity") is { } dataListRarityName

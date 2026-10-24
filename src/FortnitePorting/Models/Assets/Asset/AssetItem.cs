@@ -85,7 +85,8 @@ public class AssetItem : Base.BaseAssetItem
 
     public async Task LoadBitmapAsync()
     {
-        if (CreationData.IconPath is not { } iconPath) return;
+        var iconPath = CreationData.LowResIconPath ?? CreationData.HighResIconPath;
+        if (iconPath is null) return;
 
         IconDisplayImage = await TryLoadIconBitmapAsync(iconPath);
 
@@ -104,7 +105,7 @@ public class AssetItem : Base.BaseAssetItem
         try
         {
             var texture = await UEParse.Provider!.SafeLoadPackageObjectAsync<UTexture2D>(iconPath);
-            using var iconBitmap = texture?.Decode()?.ToSkBitmap();
+            using var iconBitmap = texture?.Decode(maxMipSize: 128)?.ToSkBitmap();
             return iconBitmap?.ToWriteableBitmap();
         }
         catch

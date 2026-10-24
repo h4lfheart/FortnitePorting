@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.AssetRegistry.Objects;
 using CUE4Parse.UE4.Assets.Exports;
-using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.UE4.Objects.Core.i18N;
 using CUE4Parse.UE4.Objects.GameplayTags;
 using DynamicData;
@@ -44,8 +43,8 @@ public partial class AssetLoader : ObservableObject
     public Func<AssetLoader, UObject, string, bool> HidePredicate = (loader, asset, name) => false;
     public Action<AssetLoader, UObject, string> AddStyleHandler = (loader, asset, name) => {};
     public string PlaceholderIconPath = "FortniteGame/Content/Global/Textures/Default/DefaultUI/T_Placeholder_Generic";
-    public Func<UObject, UTexture2D?> LowResIconHandler = GetLowResIcon;
-    public Func<UObject, UTexture2D?> HighResIconHandler = GetHighResIcon;
+    public Func<UObject, string?> LowResIconHandler = GetLowResIconPath;
+    public Func<UObject, string?> HighResIconHandler = GetHighResIconPath;
     public Func<UObject, string?> DisplayNameHandler = asset => asset.GetAnyOrDefault<FText?>("DisplayName", "ItemName")?.Text;
     public Func<UObject, string?> DescriptionHandler = asset => asset.GetAnyOrDefault<FText?>("Description", "ItemDescription")?.Text.TrimEnd();
     public Func<UObject, FGameplayTagContainer?> GameplayTagHandler = GetGameplayTags;
@@ -342,8 +341,8 @@ public partial class AssetLoader : ObservableObject
         var isHidden = HideNames.Any(name => asset.Name.Contains(name, StringComparison.OrdinalIgnoreCase)) || HidePredicate(this, asset, displayName);
         if (isHidden && !LoadHiddenAssets) return;
 
-        var lowResIconPath = LowResIconHandler(asset)?.GetPathName();
-        var highResIconPath = HighResIconHandler(asset)?.GetPathName();
+        var lowResIconPath = LowResIconHandler(asset);
+        var highResIconPath = HighResIconHandler(asset);
         if (lowResIconPath is null && highResIconPath is null)
             lowResIconPath = PlaceholderIconPath;
         
@@ -389,21 +388,21 @@ public partial class AssetLoader : ObservableObject
         AssetBag.Add(new CustomAssetItem(customAsset, Type));
     }
     
-    public static UTexture2D? GetLowResIcon(UObject asset)
+    public static string? GetLowResIconPath(UObject asset)
     {
-        return asset.GetDataListItem<UTexture2D?>("Icon", "LargeIcon")
-               ?? asset.GetAnyOrDefault<UTexture2D?>("Icon", "SmallPreviewImage", "LargeIcon");
+        return asset.GetDataListObjectPath("Icon")
+               ?? asset.GetObjectPath("Icon", "SmallPreviewImage");
     }
 
-    public static UTexture2D? GetHighResIcon(UObject asset)
+    public static string? GetHighResIconPath(UObject asset)
     {
-        return asset.GetDataListItem<UTexture2D?>("LargeIcon", "Icon")
-               ?? asset.GetAnyOrDefault<UTexture2D?>("LargePreviewImage", "LargeIcon", "Icon");
+        return asset.GetDataListObjectPath("LargeIcon", "Icon")
+               ?? asset.GetObjectPath("LargePreviewImage", "LargeIcon", "Icon");
     }
 
-    public static UTexture2D? GetIcon(UObject asset)
+    public static string? GetIconPath(UObject asset)
     {
-        return GetLowResIcon(asset) ?? GetHighResIcon(asset);
+        return GetLowResIconPath(asset) ?? GetHighResIconPath(asset);
     }
     
     public static FGameplayTagContainer? GetGameplayTags(UObject asset)

@@ -12,7 +12,7 @@ public static class CUE4ParseExtensions
 {
     extension(UObject asset)
     {
-        public T? GetVehicleMetadata<T>(params string[] names) where T : class
+        public T? GetVehicleMetadata<T>(Func<IPropertyHolder, T?> selector)
         {
             FStructFallback? GetMarkerDisplay(UBlueprintGeneratedClass? blueprint)
             {
@@ -20,17 +20,22 @@ public static class CUE4ParseExtensions
                 return obj?.GetOrDefault<FStructFallback>("MarkerDisplay");
             }
 
-            var output = asset.GetAnyOrDefault<T?>(names);
-            if (output is not null) return output;
+            if (selector(asset) is { } fromAsset)
+                return fromAsset;
 
             var vehicle = asset.Get<UBlueprintGeneratedClass>("VehicleActorClass");
-            output = GetMarkerDisplay(vehicle)?.GetAnyOrDefault<T?>(names);
-            if (output is not null) return output;
+            if (GetMarkerDisplay(vehicle) is { } marker && selector(marker) is { } fromMarker)
+                return fromMarker;
 
             var vehicleSuper = vehicle.SuperStruct.Load<UBlueprintGeneratedClass>();
-            output = GetMarkerDisplay(vehicleSuper)?.GetAnyOrDefault<T?>(names);
-            return output;
+            return GetMarkerDisplay(vehicleSuper) is { } superMarker ? selector(superMarker) : default;
         }
+
+        public T? GetVehicleMetadata<T>(params string[] names) where T : class
+            => asset.GetVehicleMetadata(holder => holder.GetAnyOrDefault<T?>(names));
+
+        public string? GetVehicleIconPath(params string[] names)
+            => asset.GetVehicleMetadata(holder => holder.GetObjectPath(names));
 
         public Bitmap? GetEditorIconBitmap()
         {

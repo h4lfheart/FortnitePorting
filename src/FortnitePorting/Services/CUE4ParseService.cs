@@ -737,8 +737,13 @@ public partial class CUE4ParseService : ObservableObject, IService, IResettable
             .FirstOrDefault(loader => loader.ClassNames.Contains(obj.ExportType));
         if (assetLoader is not null && pointer.TryLoad(out var assetObj))
         {
-            icon = (assetLoader.LowResIconHandler(assetObj) ?? assetLoader.HighResIconHandler(assetObj))
-                ?.Decode(maxMipSize: 128)?.ToWriteableBitmap();
+            var iconPath = assetLoader.LowResIconHandler(assetObj) ?? assetLoader.HighResIconHandler(assetObj);
+            if (iconPath is not null
+                && package.Provider is { } provider
+                && provider.TryLoadPackageObject<UTexture2D>(iconPath, out var iconTexture))
+            {
+                icon = iconTexture.Decode(maxMipSize: 128)?.ToWriteableBitmap();
+            }
             displayName = assetLoader.DisplayNameHandler(assetObj);
             return (icon, displayName, exportType);
         }

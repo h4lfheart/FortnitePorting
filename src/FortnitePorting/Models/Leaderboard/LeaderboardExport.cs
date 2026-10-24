@@ -6,6 +6,7 @@ using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.UE4.Assets.Exports;
+using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.Utils;
 using FortnitePorting.Extensions;
 using System.Text.Json.Serialization;
@@ -86,7 +87,8 @@ public partial class LeaderboardExport : ObservableObject
         }
         else
         {
-            var icon = assetLoader.LowResIconHandler(asset) ?? assetLoader.HighResIconHandler(asset);
+            var iconPath = assetLoader.LowResIconHandler(asset) ?? assetLoader.HighResIconHandler(asset);
+            var icon = await UEParse.Provider.SafeLoadPackageObjectAsync<UTexture2D>(iconPath);
             ExportBitmap = icon?.Decode()?.ToWriteableBitmap() ?? asset.GetEditorIconBitmap() ?? ImageExtensions.AvaresBitmap("avares://FortnitePorting/Assets/Unreal/DataAsset_64x.png");
             CachedBitmaps[ObjectPath] = ExportBitmap;
         }

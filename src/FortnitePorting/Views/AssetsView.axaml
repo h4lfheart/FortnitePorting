@@ -16,6 +16,7 @@
              xmlns:loading="clr-namespace:FortnitePorting.Controls.Loading"
              xmlns:converters="clr-namespace:FortnitePorting.Converters"
              xmlns:assetControls="clr-namespace:FortnitePorting.Controls.Assets"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
              d:DesignHeight="720" d:DesignWidth="1280"
              x:Class="FortnitePorting.Views.AssetsView"
              x:DataType="viewModels:AssetsViewModel">
@@ -237,7 +238,9 @@
                                             <StackPanel
                                                 Width="{Binding Settings.Application.AssetScale, 
                                                         Converter={StaticResource Scale}, ConverterParameter='64'}"
-                                                Spacing="4">
+                                                Spacing="4"
+                                                ToolTip.Placement="TopEdgeAlignedLeft"
+                                                ToolTip.VerticalOffset="-4">  
                                                 <ToolTip.Tip>
                                                     <StackPanel Spacing="{ext:Space 0.5}" Margin="{ext:Space 0.5}"
                                                                 Width="220"
@@ -267,6 +270,15 @@
                                                             <Image Stretch="UniformToFill"
                                                                    Source="{Binding IconDisplayImage}"
                                                                    RenderOptions.BitmapInterpolationMode="LowQuality" />
+                                                            <ui:ProgressRing IsIndeterminate="True"
+                                                                             Background="Transparent"
+                                                                             IsHitTestVisible="False"
+                                                                             BorderThickness="2"
+                                                                             Width="{Binding Settings.Application.AssetScale, Converter={StaticResource Scale}, ConverterParameter='22'}"
+                                                                             Height="{Binding Settings.Application.AssetScale, Converter={StaticResource Scale}, ConverterParameter='22'}"
+                                                                             HorizontalAlignment="Center"
+                                                                             VerticalAlignment="Center"
+                                                                             IsVisible="{Binding BackgroundImage, Converter={x:Static ObjectConverters.IsNull}}" />
                                                         </Grid>
                                                     </Border>
                                                     <Image IsVisible="{Binding IsFavorite}"
