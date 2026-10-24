@@ -68,5 +68,12 @@
         <ProjectReference Include="..\FortnitePorting.Shared\FortnitePorting.Shared.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+        <Content Include="..\..\external\CUE4Parse\CUE4Parse-Natives\bin\Release\CUE4Parse-Natives.dll" Condition="Exists('..\..\external\CUE4Parse\CUE4Parse-Natives\bin\Release\CUE4Parse-Natives.dll')">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+        </Content>
+    </ItemGroup>
+
     <Import Project="..\..\plugins\Resources.props" />
 </Project>

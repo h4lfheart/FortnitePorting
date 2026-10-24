@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CUE4Parse_Conversion.Options;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.Material;
@@ -351,6 +352,7 @@ public partial class FilesViewModel(
                 case EExportTarget.Asset: await ExportAssets(_exportMeta); break;
                 case EExportTarget.Properties: await ExportProperties(_exportMeta); break;
                 case EExportTarget.RawData: await ExportRawData(_exportMeta); break;
+                case EExportTarget.UEAnim: await ExportUeAnimFiles(_exportMeta); break;
             }
         }
         finally
@@ -365,6 +367,14 @@ public partial class FilesViewModel(
     public void CancelExport()
     {
         _exportMeta?.Cancel();
+    }
+
+    private async Task ExportUeAnimFiles(ExportDataMeta meta)
+    {
+        meta.Settings.MeshFormat = EMeshFormat.UEFormat;
+        meta.Settings.OpenFoldersOnExport = true;
+        meta.UeAnimOnly = true;
+        await ExportAssets(meta);
     }
 
     private async Task ExportAssets(ExportDataMeta meta)

@@ -49,10 +49,11 @@ public partial class AssetVideoPreview : UserControl
         _preview = null;
 
         var cts = new CancellationTokenSource();
+        var token = cts.Token;
         _loadCts = cts;
 
         var cosmeticId = CosmeticId;
-        TaskService.Run(async () => await LoadAsync(cosmeticId, cts.Token));
+        TaskService.Run(() => LoadAsync(cosmeticId, token));
     }
 
     private void OnDetached(object? sender, VisualTreeAttachmentEventArgs e)
@@ -60,11 +61,23 @@ public partial class AssetVideoPreview : UserControl
         IsVideoReady = false;
         _preview = null;
 
-        _loadCts?.Cancel();
-        _loadCts?.Dispose();
-        _loadCts = null;
+        var cts = Interlocked.Exchange(ref _loadCts, null);
+        if (cts is not null)
+        {
+            try
+            {
+                cts.Cancel();
+            }
+            catch (ObjectDisposedException)
+            {
+            }
+        }
 
-        TaskService.Run(async () => await TearDownAsync());
+        TaskService.Run(async () =>
+        {
+            await TearDownAsync();
+            cts?.Dispose();
+        });
     }
 
     private async Task LoadAsync(string cosmeticId, CancellationToken cancellationToken)
@@ -93,7 +106,7 @@ public partial class AssetVideoPreview : UserControl
                 StartPlayback(preview.VideoUrl);
             });
         }
-        catch (OperationCanceledException) { }
+        catch (Exception ex) when (ex is OperationCanceledException or ObjectDisposedException) { }
         finally
         {
             _lifecycleLock.Release();

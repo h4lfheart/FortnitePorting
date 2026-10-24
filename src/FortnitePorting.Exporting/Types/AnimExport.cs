@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Animation;
@@ -65,28 +66,32 @@ public class AnimExport : BaseExport
                 break;
             }
             case EExportType.Emote:
+            case EExportType.LegoEmote:
             {
-                if (styles.Length > 0)
+                var exportedMontage = false;
+                foreach (var style in styles.OfType<ExportObjectStyle>())
                 {
-                    foreach (var style in styles.OfType<ExportObjectStyle>())
-                    {
-                        if (style.StyleData is not UAnimMontage styleMontage) continue;
-                        
-                        AnimMontage(styleMontage);
-                    }
-                    
-                    break;
+                    if (style.StyleData is not UAnimMontage styleMontage) continue;
+
+                    AnimMontage(styleMontage);
+                    exportedMontage = true;
                 }
-                
-                var montage = asset.GetOrDefault<UAnimMontage?>("Animation");
-                montage ??= asset.GetOrDefault<UAnimMontage?>("FrontEndAnimation");
-                montage ??= DataListMontage(asset);
-                if (montage is null) break;
-                
-                AnimMontage(montage);
+
+                if (!exportedMontage)
+                {
+                    var montage = asset.GetOrDefault<UAnimMontage?>("Animation");
+                    montage ??= asset.GetOrDefault<UAnimMontage?>("FrontEndAnimation");
+                    montage ??= DataListMontage(asset);
+                    if (montage is not null)
+                        AnimMontage(montage);
+                }
+
                 break;
             }
         }
+
+        if (metaData.ExportLocation.IsFolder)
+            RememberAnimationFolders();
 
         if (Context.Meta.Provider.Provider.TryLoadPackageObject<UCurveExpressionsDataAsset>(
                 "FortniteGame/Content/Characters/Player/Common/Fortnite_Base_Head/Facials/CurveMappings/FN_LegacyTo3L_Main_Mapping",
@@ -155,8 +160,23 @@ public class AnimExport : BaseExport
         HandleSectionTree(sections, montageRef, nextSection, isSequentiallyNext ? time + currentSection.SegmentLength : time);
     }
 
+    private void RememberAnimationFolders()
+    {
+        foreach (var section in Sections)
+        {
+            if (section.AssetRef is null) continue;
+
+            var folder = Path.GetDirectoryName(Context.GetExportPath(section.AssetRef, "ueanim",
+                excludeGamePath: Context.Meta.CustomPath is not null));
+            if (!string.IsNullOrEmpty(folder))
+                FolderPaths.Add(folder);
+        }
+    }
+
     private void HandleNotify(FAnimNotifyEvent notify)
     {
+        if (Context.Meta.UeAnimOnly) return;
+
         switch (notify.NotifyStateClass.Load())
         {
             case FortAnimNotifyState_EmoteSound soundNotify:
