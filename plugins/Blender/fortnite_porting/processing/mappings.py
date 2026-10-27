@@ -187,5 +187,7 @@ extra_deform_mappings = {
     "lowerarm_retarget_lf": "lowerarm_l",
     "upperarm_retarget_rt": "upperarm_r",
     "lowerarm_retarget_rt": "lowerarm_r",
+    "upperarm_r_corr": "upperarm_r",
+    "upperarm_l_corr": "upperarm_l"
     
 }
