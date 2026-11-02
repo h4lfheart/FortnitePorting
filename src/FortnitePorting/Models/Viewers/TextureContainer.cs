@@ -72,7 +72,6 @@ public partial class TextureContainer : ObservableObject
         if (Texture is UTextureCube) bitmap = bitmap.ToPanorama();
 
         OriginalBitmap = bitmap.ToWriteableBitmap();
-
     }
 
     private CTexture? UpdateTexture2D(FTexture2DMipMap? mip = null)
@@ -90,70 +89,73 @@ public partial class TextureContainer : ObservableObject
 
     private unsafe void UpdateBitmap()
     {
-        DisplayBitmap = new WriteableBitmap(OriginalBitmap.PixelSize, OriginalBitmap.Dpi, OriginalBitmap.Format, OriginalBitmap.AlphaFormat);
-        
-        var framebuffer = DisplayBitmap.Lock();
-        OriginalBitmap.CopyPixels(framebuffer, AlphaFormat.Unpremul);
+        if (OriginalBitmap is null) return;
 
-        var enabledColorChannelCount = new[] { ShowRedChannel, ShowGreenChannel, ShowBlueChannel }.Count(boolean => boolean);
-        
-        var ptr = (byte*) framebuffer.Address;
-        for (var x = 0; x < DisplayBitmap.PixelSize.Width; x++)
+       var bitmap = new WriteableBitmap(OriginalBitmap.PixelSize, OriginalBitmap.Dpi, PixelFormat.Bgra8888, AlphaFormat.Unpremul);
+
+        using (var framebuffer = bitmap.Lock())
         {
-            for (var y = 0; y < DisplayBitmap.PixelSize.Height; y++)
+            OriginalBitmap.CopyPixels(framebuffer, AlphaFormat.Unpremul);
+
+            var enabledColorChannelCount = new[] { ShowRedChannel, ShowGreenChannel, ShowBlueChannel }.Count(boolean => boolean);
+            var width = bitmap.PixelSize.Width;
+            var height = bitmap.PixelSize.Height;
+            var rowBytes = framebuffer.RowBytes;
+            var ptr = (byte*) framebuffer.Address;
+
+            for (var y = 0; y < height; y++)
             {
-                var colorIndex = (y * DisplayBitmap.PixelSize.Width + x) * 4;
-
-                // todo maybe convert all to rgba and not hardcode for bgra
-                var red = ptr[colorIndex + 2];
-                var green = ptr[colorIndex + 1];
-                var blue = ptr[colorIndex + 0];
-                
-                switch (enabledColorChannelCount)
+                var row = ptr + y * rowBytes;
+                for (var x = 0; x < width; x++)
                 {
-                    case 1:
-                    {
-                        byte targetColor = 0;
-                        if (ShowRedChannel) 
-                            targetColor = red;
-                        else if (ShowGreenChannel) 
-                            targetColor = green;
-                        else if (ShowBlueChannel) 
-                            targetColor = blue;
-                    
-                        for (var colPtr = 0; colPtr < 3; colPtr++)
-                        {
-                            ptr[colorIndex + colPtr] = targetColor;
-                        }
+                    var colorIndex = x * 4;
 
-                        if (!ShowAlphaChannel) ptr[colorIndex + 3] = 255;
-                        break;
-                    }
-                    case 0 when ShowAlphaChannel:
-                    {
-                        var alpha = ptr[colorIndex + 3];
-                        for (var colPtr = 0; colPtr < 3; colPtr++)
-                        {
-                            ptr[colorIndex + colPtr] = alpha;
-                        }
+                    var blue = row[colorIndex + 0];
+                    var green = row[colorIndex + 1];
+                    var red = row[colorIndex + 2];
 
-                        ptr[colorIndex + 3] = 255;
-                        break;
-                    }
-                    default:
+                    switch (enabledColorChannelCount)
                     {
-                        if (!ShowBlueChannel) ptr[colorIndex] = 0;
-                        if (!ShowGreenChannel) ptr[colorIndex + 1] = 0;
-                        if (!ShowRedChannel) ptr[colorIndex + 2] = 0;
-                        if (!ShowAlphaChannel) ptr[colorIndex + 3] = 255;
-                        break;
+                        case 1:
+                        {
+                            byte targetColor = 0;
+                            if (ShowRedChannel)
+                                targetColor = red;
+                            else if (ShowGreenChannel)
+                                targetColor = green;
+                            else if (ShowBlueChannel)
+                                targetColor = blue;
+
+                            row[colorIndex + 0] = targetColor;
+                            row[colorIndex + 1] = targetColor;
+                            row[colorIndex + 2] = targetColor;
+
+                            if (!ShowAlphaChannel) row[colorIndex + 3] = 255;
+                            break;
+                        }
+                        case 0 when ShowAlphaChannel:
+                        {
+                            var alpha = row[colorIndex + 3];
+                            row[colorIndex + 0] = alpha;
+                            row[colorIndex + 1] = alpha;
+                            row[colorIndex + 2] = alpha;
+                            row[colorIndex + 3] = 255;
+                            break;
+                        }
+                        default:
+                        {
+                            if (!ShowBlueChannel) row[colorIndex] = 0;
+                            if (!ShowGreenChannel) row[colorIndex + 1] = 0;
+                            if (!ShowRedChannel) row[colorIndex + 2] = 0;
+                            if (!ShowAlphaChannel) row[colorIndex + 3] = 255;
+                            break;
+                        }
                     }
                 }
             }
-           
         }
-        
-        framebuffer.Dispose();
+
+        DisplayBitmap = bitmap;
     }
     
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
