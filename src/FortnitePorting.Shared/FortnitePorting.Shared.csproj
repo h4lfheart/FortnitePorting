@@ -18,4 +18,9 @@
         <PackageReference Include="Serilog" />
         <PackageReference Include="Serilog.Sinks.Console" />
     </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\external\CUE4Parse\CUE4Parse-Conversion\CUE4Parse-Conversion.csproj" />
+        <ProjectReference Include="..\..\external\CUE4Parse\CUE4Parse\CUE4Parse.csproj" />
+    </ItemGroup>
 </Project>

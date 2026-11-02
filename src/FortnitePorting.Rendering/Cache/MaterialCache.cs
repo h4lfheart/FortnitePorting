@@ -4,17 +4,18 @@ using CUE4Parse.UE4.Assets.Exports.Texture;
 using FortnitePorting.Rendering.Cache;
 using System.Collections.Concurrent;
 using FortnitePorting.Rendering.Materials;
+using RenderMaterial = FortnitePorting.Rendering.Materials.Material;
 
 namespace FortnitePorting.Rendering.Cache;
 
 public static class MaterialCache
 {
-    private static readonly ConcurrentDictionary<string, Material> Cache = new();
+    private static readonly ConcurrentDictionary<string, RenderMaterial> Cache = new();
 
-    public static Material GetOrCreate(UMaterialInterface? materialInterface)
+    public static RenderMaterial GetOrCreate(UMaterialInterface? materialInterface)
     {
         if (materialInterface is null)
-            return new Material();
+            return new RenderMaterial();
 
         var key = materialInterface.GetPathName();
         
@@ -23,19 +24,19 @@ public static class MaterialCache
 
         var material = materialInterface switch
         {
-            UMaterialInstanceConstant materialInstance => new Material(materialInstance),
-            UMaterial baseMaterial => new Material(baseMaterial),
-            _ => new Material()
+            UMaterialInstanceConstant materialInstance => new RenderMaterial(materialInstance),
+            UMaterial baseMaterial => new RenderMaterial(baseMaterial),
+            _ => new RenderMaterial()
         };
 
         Cache.TryAdd(key, material);
         return material;
     }
     
-    public static Material GetOrCreateWithTextureData(UMaterialInterface? materialInterface, List<KeyValuePair<UBuildingTextureData, int>> textureData)
+    public static RenderMaterial GetOrCreateWithTextureData(UMaterialInterface? materialInterface, List<KeyValuePair<UBuildingTextureData, int>> textureData)
     {
         if (materialInterface is null)
-            return new Material();
+            return new RenderMaterial();
         
         if (textureData.Count == 0)
             return GetOrCreate(materialInterface);
@@ -55,9 +56,9 @@ public static class MaterialCache
 
         var material = baseMaterial switch
         {
-            UMaterialInstanceConstant materialInstance => new Material(materialInstance),
-            UMaterial mat => new Material(mat),
-            _ => new Material()
+            UMaterialInstanceConstant materialInstance => new RenderMaterial(materialInstance),
+            UMaterial mat => new RenderMaterial(mat),
+            _ => new RenderMaterial()
         };
 
         ApplyTextureDataToMaterial(ref material, textureData);
@@ -66,7 +67,7 @@ public static class MaterialCache
         return material;
     }
 
-    private static void ApplyTextureDataToMaterial(ref Material material, List<KeyValuePair<UBuildingTextureData, int>> textureData)
+    private static void ApplyTextureDataToMaterial(ref RenderMaterial material, List<KeyValuePair<UBuildingTextureData, int>> textureData)
     {
         foreach (var (buildingTextureData, layerIndex) in textureData)
         {

@@ -1,5 +1,6 @@
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.UE4.Assets.Exports.Texture;
+using FortnitePorting.Shared.Extensions;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SkiaSharp;
@@ -20,7 +21,7 @@ public static class ImageSharpExtensions
             var mip = texture.GetFirstMip();
             if (mip is null) return null;
 
-            using var bitmap = texture.Decode(mip)?.ToSkBitmap();
+            using var bitmap = texture.Decode()?.ToSkBitmap();
             if (bitmap is null) return null;
 
             Image returnImage = bitmap.ColorType switch

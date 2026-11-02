@@ -1,5 +1,4 @@
 using CUE4Parse_Conversion.Dto;
-using CUE4Parse_Conversion.Options;
 using CUE4Parse_Conversion.Writers.ActorX.Structs.Animations;
 using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.Material;
@@ -10,6 +9,8 @@ using FortnitePorting.Rendering.Data.Buffers;
 using FortnitePorting.Rendering.Data.Programs;
 using FortnitePorting.Rendering.Exceptions;
 using FortnitePorting.Rendering.Materials;
+using FortnitePorting.Shared.Options;
+using RenderMaterial = FortnitePorting.Rendering.Materials.Material;
 
 namespace FortnitePorting.Rendering.Renderers;
 
@@ -18,7 +19,7 @@ public class SkeletalMeshRenderer : MeshRenderer
     private const int InfluenceSlots = 8;
 
     public List<Section> Sections = [];
-    public Material[] Materials = [];
+    public RenderMaterial[] Materials = [];
     public SkeletalPoseEvaluator Pose;
     public event Action<float>? AfterAnimationUpdate;
 
@@ -28,7 +29,7 @@ public class SkeletalMeshRenderer : MeshRenderer
     public SkeletalMeshRenderer(USkeletalMesh skeletalMesh, UAnimationAsset? animation = null, int lodLevel = 0)
         : base(new ShaderProgram("skinned", "shader"))
     {
-        using var convertedMesh = new SkeletalMeshDto(skeletalMesh);
+        using var convertedMesh = new SkeletalMeshDto(skeletalMesh, SharedExportOptions.Default);
         if (convertedMesh.LODs.Count == 0)
         {
             throw new RenderingXException("Failed to convert skeletal mesh.");
@@ -73,7 +74,7 @@ public class SkeletalMeshRenderer : MeshRenderer
         Vertices = buildVertices.ToArray();
 
         var sections = lod.Sections;
-        Materials = new Material[sections.Length];
+        Materials = new RenderMaterial[sections.Length];
 
         for (var sectionIndex = 0; sectionIndex < sections.Length; sectionIndex++)
         {
@@ -84,14 +85,14 @@ public class SkeletalMeshRenderer : MeshRenderer
             {
                 Materials[sectionIndex] = sectionMaterial switch
                 {
-                    UMaterialInstanceConstant materialInstance => new Material(materialInstance),
-                    UMaterial material => new Material(material),
-                    _ => new Material()
+                    UMaterialInstanceConstant materialInstance => new RenderMaterial(materialInstance),
+                    UMaterial material => new RenderMaterial(material),
+                    _ => new RenderMaterial()
                 };
             }
             else
             {
-                Materials[sectionIndex] = new Material();
+                Materials[sectionIndex] = new RenderMaterial();
             }
         }
 

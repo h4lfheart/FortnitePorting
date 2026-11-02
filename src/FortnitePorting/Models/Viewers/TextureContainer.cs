@@ -7,6 +7,7 @@ using CUE4Parse_Conversion.Textures;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using DynamicData;
 using FortnitePorting.Extensions;
+using FortnitePorting.Shared.Extensions;
 
 namespace FortnitePorting.Models.Viewers;
 
@@ -61,11 +62,7 @@ public partial class TextureContainer : ObservableObject
 
     private void UpdateTextureInfo()
     {
-        FTexture2DMipMap? mip = null;
-        if (Texture.PlatformData.Mips.Length > 0)
-            mip = Texture.PlatformData.Mips[TargetMipIndex];
-
-        var bitmap = Texture is UTexture2DArray ? UpdateTexture2DArray(mip) : UpdateTexture2D(mip);
+        var bitmap = Texture is UTexture2DArray ? UpdateTexture2DArray() : UpdateTexture2D();
         
         if (bitmap is null) return;
 
@@ -74,14 +71,20 @@ public partial class TextureContainer : ObservableObject
         OriginalBitmap = bitmap.ToWriteableBitmap();
     }
 
-    private CTexture? UpdateTexture2D(FTexture2DMipMap? mip = null)
+    private CTexture? UpdateTexture2D()
     {
-        return mip != null ? Texture.Decode(mip) : Texture.Decode();
+        return Texture.PlatformData.Mips.Length > 0
+            ? Texture.DecodeMip(TargetMipIndex)
+            : Texture.Decode();
     }
 
-    private CTexture? UpdateTexture2DArray(FTexture2DMipMap? mip = null)
+    private CTexture? UpdateTexture2DArray()
     {
-        var textures = ((UTexture2DArray)Texture).DecodeTextureArray(mip);
+        if (Texture is not UTexture2DArray textureArray) return null;
+        
+        var textures = Texture.PlatformData.Mips.Length > 0
+            ? textureArray.DecodeTextureArray(TargetMipIndex)
+            : textureArray.DecodeTextureArray();
         if (textures == null || textures.Length == 0) return null;
         
         return textures.Length < TargetLayerIndex ? textures[0] : textures[TargetLayerIndex];

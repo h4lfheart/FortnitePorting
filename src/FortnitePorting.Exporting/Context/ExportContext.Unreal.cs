@@ -238,7 +238,7 @@ public partial class ExportContext
         if (Meta.WorldFlags.HasFlag(EWorldFlags.Landscape) && actor is ALandscapeProxy landscapeProxy && landscapeProxy.ExportType != "Landscape")
         {
             var transform = landscapeProxy.GetAbsoluteTransformFromRootComponent();
-            using var landscapeMesh = new LandscapeMeshDto(landscapeProxy, ELandscapeFlags.Mesh);
+            using var landscapeMesh = new LandscapeMeshDto(landscapeProxy, FileExportOptions, ELandscapeFlags.Mesh);
             var exportMesh = new ExportMesh
             {
                 Name = landscapeProxy.Name,

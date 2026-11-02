@@ -5,6 +5,7 @@ using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.UObject;
 using FortnitePorting.Rendering.Animation.Pose;
 using FortnitePorting.Rendering.Extensions;
+using FortnitePorting.Shared.Options;
 
 namespace FortnitePorting.Rendering.Animation.Props;
 
@@ -21,7 +22,7 @@ public sealed class MasterSkeletonPose
 
     public static MasterSkeletonPose Create(USkeleton skeleton, USkeletalMesh? mesh = null)
     {
-        using var converted = new SkeletonDto(skeleton);
+        using var converted = new SkeletonDto(skeleton, SharedExportOptions.Default);
         var poseEvaluator = new SkeletalPoseEvaluator(converted.Bones, skeleton.ReferenceSkeleton.FinalRefBonePose);
         var socketMap = SkeletonSocketMap.FromSkeleton(skeleton, mesh);
         return new MasterSkeletonPose(poseEvaluator, socketMap);

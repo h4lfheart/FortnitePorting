@@ -11,17 +11,19 @@ using FortnitePorting.Rendering.Components.Rendering;
 using FortnitePorting.Rendering.Data.Programs;
 using FortnitePorting.Rendering.Exceptions;
 using FortnitePorting.Rendering.Materials;
+using FortnitePorting.Shared.Options;
+using RenderMaterial = FortnitePorting.Rendering.Materials.Material;
 
 namespace FortnitePorting.Rendering.Renderers;
 
 public class StaticMeshRenderer : MeshRenderer
 {
     public List<Section> Sections = [];
-    public Material[] Materials = [];
+    public RenderMaterial[] Materials = [];
 
     public StaticMeshRenderer(UStaticMesh staticMesh, List<KeyValuePair<UBuildingTextureData, int>>? textureData = null, int lodLevel = 0) : base(new ShaderProgram("shader"))
     {
-        using var convertedMesh = new StaticMeshDto(staticMesh, EMeshQuality.All, ENaniteMeshFormat.NoNanite);
+        using var convertedMesh = new StaticMeshDto(staticMesh, SharedExportOptions.Create(EMeshQuality.All));
         if (convertedMesh.LODs.Count == 0)
         {
             throw new RenderingXException("Failed to convert static mesh.");
@@ -58,7 +60,7 @@ public class StaticMeshRenderer : MeshRenderer
         Vertices = buildVertices.ToArray();
         
         var sections = lod.Sections;
-        Materials = new Material[sections.Length];
+        Materials = new RenderMaterial[sections.Length];
         if (Materials.Length == 0) return;
 
         for (var sectionIndex = 0; sectionIndex < sections.Length; sectionIndex++)
@@ -73,7 +75,7 @@ public class StaticMeshRenderer : MeshRenderer
             }
             else
             {
-                Materials[sectionIndex] = new Material();
+                Materials[sectionIndex] = new RenderMaterial();
             }
         }
     }

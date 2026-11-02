@@ -10,7 +10,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using CUE4Parse_Conversion.Textures;
-using CUE4Parse_Conversion.Textures.BC;
 using CUE4Parse.Compression;
 using CUE4Parse.Encryption.Aes;
 using CUE4Parse.MappingsProvider;
@@ -296,14 +295,6 @@ public partial class CUE4ParseService : ObservableObject, IService, IResettable
             
             file.Delete();
         }
-    }
-    
-    [LoadingStage("Loading Detex", stage: 3, weight: 1)]
-    private async Task InitializeDetex()
-    {
-        var detexPath = Path.Combine(App.DataFolder.FullName, DetexHelper.DLL_NAME);
-        if (!File.Exists(detexPath)) await DetexHelper.LoadDllAsync(detexPath);
-        DetexHelper.Initialize(detexPath);
     }
     
     [LoadingStage("Initializing Provider", stage: 4, weight: 10)]

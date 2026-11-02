@@ -6,5 +6,6 @@
     <ItemGroup>
         <ProjectReference Include="..\..\external\CUE4Parse\CUE4Parse-Conversion\CUE4Parse-Conversion.csproj" />
         <ProjectReference Include="..\..\external\CUE4Parse\CUE4Parse\CUE4Parse.csproj" />
+        <ProjectReference Include="..\FortnitePorting.Shared\FortnitePorting.Shared.csproj" />
     </ItemGroup>
 </Project>

@@ -154,25 +154,25 @@ public partial class ExportContext
                 if (FileExportOptions.ExportMorphTargets)
                     skeletalMesh.PopulateMorphTargetVerticesData();
 
-                using var dto = new SkeletalMeshDto(skeletalMesh, FileExportOptions.MeshQuality, FileExportOptions.NaniteMeshFormat);
+                using var dto = new SkeletalMeshDto(skeletalMesh, FileExportOptions);
                 WriteExportFiles(path, CreateMeshFormat().BuildSkeletalMesh(skeletalMesh.Name, skeletalMesh.GetPathName(), FileExportOptions, dto));
                 break;
             }
             case UStaticMesh staticMesh:
             {
-                using var dto = new StaticMeshDto(staticMesh, FileExportOptions.MeshQuality, FileExportOptions.NaniteMeshFormat);
+                using var dto = new StaticMeshDto(staticMesh, FileExportOptions);
                 WriteExportFiles(path, CreateMeshFormat().BuildStaticMesh(staticMesh.Name, staticMesh.GetPathName(), FileExportOptions, dto));
                 break;
             }
             case USplineMeshComponent splineMesh:
             {
-                using var dto = new StaticMeshDto(splineMesh, FileExportOptions.MeshQuality);
+                using var dto = new StaticMeshDto(splineMesh, FileExportOptions);
                 WriteExportFiles(path, CreateMeshFormat().BuildStaticMesh(splineMesh.Name, splineMesh.GetPathName(), FileExportOptions, dto));
                 break;
             }
             case USkeleton skeleton:
             {
-                using var dto = new SkeletonDto(skeleton);
+                using var dto = new SkeletonDto(skeleton, FileExportOptions);
                 WriteExportFiles(path, CreateMeshFormat().BuildSkeleton(skeleton.Name, skeleton.GetPathName(), FileExportOptions, dto));
                 break;
             }
@@ -203,7 +203,7 @@ public partial class ExportContext
             }
             case UTexture2DArray textureArray:
             {
-                var textures = textureArray.DecodeTextureArray();
+                var textures = textureArray.DecodeTextureArray(FileExportOptions);
                 if (textures == null) break;
                 
                 for (var layerIndex = 0; layerIndex < textures.Length; layerIndex++)
@@ -217,7 +217,7 @@ public partial class ExportContext
             }
             case UTexture texture:
             {
-                var textureBitmap = texture.Decode();
+                var textureBitmap = texture.Decode(FileExportOptions);
                 if (texture is UTextureCube)
                 {
                     textureBitmap = textureBitmap?.ToPanorama();
@@ -254,7 +254,7 @@ public partial class ExportContext
             }
             case ALandscapeProxy landscapeProxy:
             {
-                using var dto = new LandscapeMeshDto(landscapeProxy, ELandscapeFlags.Mesh);
+                using var dto = new LandscapeMeshDto(landscapeProxy, FileExportOptions, ELandscapeFlags.Mesh);
                 WriteExportFiles(path, CreateMeshFormat().BuildStaticMesh(landscapeProxy.Name, landscapeProxy.GetPathName(), FileExportOptions, dto));
                 break;
             }
@@ -445,15 +445,8 @@ public partial class ExportContext
 
     private void ExportBitmap(CTexture? bitmap, string path)
     {
-        using var fileStream = File.OpenWrite(path); 
-                
-        var format = Meta.Settings.ImageFormat switch
-        {
-            EImageFormat.PNG => ETextureFormat.Png,
-            EImageFormat.TGA => ETextureFormat.Tga,
-        };
-        
-        fileStream.Write(bitmap?.Encode(format, false, out _));
+        using var fileStream = File.OpenWrite(path);
+        fileStream.Write(bitmap?.Encode(FileExportOptions, out _));
     }
     
     public string GetExportPath(UObject obj, string ext, bool embeddedAsset = false, bool excludeGamePath = false)

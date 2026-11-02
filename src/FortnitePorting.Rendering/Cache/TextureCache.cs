@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using FortnitePorting.Rendering.Data.Textures;
+using FortnitePorting.Shared.Extensions;
 using SkiaSharp;
 
 namespace FortnitePorting.Rendering.Cache;

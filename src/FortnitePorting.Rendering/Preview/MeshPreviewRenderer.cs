@@ -1,9 +1,9 @@
 using System.Runtime.InteropServices;
 using CUE4Parse_Conversion.Dto;
-using CUE4Parse_Conversion.Options;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
+using FortnitePorting.Shared.Options;
 using SkiaSharp;
 
 namespace FortnitePorting.Rendering.Preview;
@@ -37,13 +37,13 @@ public static class MeshPreviewRenderer
 
     private static SKBitmap? RenderStatic(UStaticMesh mesh)
     {
-        using var dto = new StaticMeshDto(mesh, EMeshQuality.Highest);
+        using var dto = new StaticMeshDto(mesh, SharedExportOptions.Default);
         return RenderDto(dto);
     }
 
     private static SKBitmap? RenderSkeletal(USkeletalMesh mesh)
     {
-        using var dto = new SkeletalMeshDto(mesh, EMeshQuality.Highest, exportMorphTarget: false);
+        using var dto = new SkeletalMeshDto(mesh, SharedExportOptions.Default);
         return RenderDto(dto);
     }
 

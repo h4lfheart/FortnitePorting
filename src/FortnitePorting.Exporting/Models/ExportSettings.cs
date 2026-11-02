@@ -22,6 +22,11 @@ public class ExportSettings
             meshFormat: MeshFormat,
             naniteMeshFormat: ExportNanite ? ENaniteMeshFormat.NaniteLast : ENaniteMeshFormat.NoNanite,
             meshQuality: MeshQuality,
+            textureFormat: ImageFormat switch
+            {
+                EImageFormat.TGA => ETextureFormat.Tga,
+                _ => ETextureFormat.Png
+            },
             compressionFormat: CompressionFormat,
             exportMorphTargets: true,
             exportMaterials: false);
