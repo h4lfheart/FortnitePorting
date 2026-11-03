@@ -14,18 +14,11 @@ public partial class DialogData : ObservableObject
     [ObservableProperty] private object? _content;
     [ObservableProperty] private ObservableCollection<DialogButton> _buttons = [];
     [ObservableProperty] private bool _canClose;
-    
-    public bool ShowCloseButton => CanClose && Buttons.Count == 0;
 
     [RelayCommand]
     public async Task Close()
     {
         await Info.DialogQueue.Close();
-    }
-
-    partial void OnButtonsChanged(ObservableCollection<DialogButton>? oldValue, ObservableCollection<DialogButton>? newValue)
-    {
-        OnPropertyChanged(nameof(OnPropertyChanged));
     }
 }
 
