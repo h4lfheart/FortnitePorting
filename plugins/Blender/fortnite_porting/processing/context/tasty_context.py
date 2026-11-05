@@ -102,6 +102,10 @@ class TastyImportContext:
 
 
     def create_tasty_rig(self, target_skeleton, master_skeleton_mesh):
+        if master_skeleton_mesh is None:
+            Server.instance.send_message("Master skeletal mesh is missing for this outfit, cannot create the tasty rig.")
+            return
+
         target_skeleton.data["is_tasty"] = True
         armature_data = target_skeleton.data
         is_metahuman = any(armature_data.bones, lambda bone: bone.name == "FACIAL_C_FacialRoot")
@@ -131,6 +135,10 @@ class TastyImportContext:
     
         # fill missing ik parts from master skel
         master_skeletal_mesh = self.import_model(master_skeleton_mesh)
+        if master_skeletal_mesh is None:
+            Server.instance.send_message("Failed to import the master skeletal mesh, cannot create the tasty rig.")
+            return
+
         master_skeletal_mesh.select_set(False)
     
         for child in master_skeletal_mesh.children:

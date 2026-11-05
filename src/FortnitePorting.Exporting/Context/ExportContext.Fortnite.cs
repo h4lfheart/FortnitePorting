@@ -20,6 +20,7 @@ using FortnitePorting.CUE4Parse.Models.Fortnite.Enums;
 using FortnitePorting.CUE4Parse.Models.Fortnite.Instructions;
 using FortnitePorting.Exporting.Models;
 using FortnitePorting.Shared.Extensions;
+using Serilog;
 
 namespace FortnitePorting.Exporting.Context;
 
@@ -111,12 +112,18 @@ public partial class ExportContext
                         .Select(index => index.LoadOrDefault<USkeletalMesh>())
                         .FirstOrDefault(mesh => mesh is not null);
                     
+                    masterSkeletalMesh ??= Meta.Provider.Provider.SafeLoadPackageObject<USkeletalMesh>("/FortniteGame/Content/Characters/Player/Male/Medium/Base/SK_M_MALE_Base_Skeleton");
+
                     if (masterSkeletalMesh is null) break;
 
                     var meta = new ExportMasterSkeletonMeta
                     {
-                        MasterSkeletalMesh = Mesh(masterSkeletalMesh)
+                        MasterSkeletalMesh = Mesh(masterSkeletalMesh, includeDisabledMeshSections: true)
                     };
+
+                    if (meta.MasterSkeletalMesh is null)
+                        Log.Warning("Failed to convert master skeletal mesh {Path} for {Name}", masterSkeletalMesh.GetPathName(), part.Name);
+
                     exportPart.Meta = meta;
                     break;
                 }
