@@ -27,6 +27,9 @@ public abstract partial class BaseAssetItem : ObservableObject
     [ObservableProperty] private WriteableBitmap? _iconDisplayImage = null;
     [ObservableProperty] private WriteableBitmap? _backgroundImage = null;
 
+    public virtual bool ShowSeries => false;
+    public virtual string SeriesName => string.Empty;
+
     private SKColor InnerBackgroundColor { get; set; } = SKColor.Parse("#50C8FF");
     private SKColor OuterBackgroundColor { get; set; } = SKColor.Parse("#1B7BCF");
     

@@ -37,6 +37,9 @@ public class AssetItem : Base.BaseAssetItem
     public UFortItemSeriesDefinition? Series { get; set; }
     public string? SetName { get; set; }
 
+    public override bool ShowSeries => !string.IsNullOrWhiteSpace(SeriesName);
+    public override string SeriesName => Series?.DisplayName.Text?.ToLower().TitleCase() ?? string.Empty;
+
     public const int INVALID_SEASON = int.MaxValue;
 
     private static SKColor InnerBackgroundColor = SKColor.Parse("#2bb5f3");

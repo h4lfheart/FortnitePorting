@@ -345,15 +345,19 @@
                                                 <Image Source="{Binding Asset.IconDisplayImage}" />
                                             </Border>
 
-                                            <TextBlock Grid.Row="0" Grid.Column="2" Classes="BodyStrongTextBlockStyle"
-                                                       VerticalAlignment="Bottom" TextAlignment="Left"
-                                                       TextTrimming="CharacterEllipsis"
-                                                       Text="{Binding Asset.CreationData.DisplayName}" />
-                                            <TextBlock Grid.Row="1" Grid.Column="2"
-                                                       Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"
-                                                       VerticalAlignment="Top"
-                                                       Text="{Binding Asset.CreationData.Description}"
-                                                       TextAlignment="Left" TextWrapping="Wrap"/>
+                                            <StackPanel Grid.Row="0" Grid.RowSpan="2" Grid.Column="2"
+                                                        VerticalAlignment="Center"
+                                                        Spacing="{ext:Space 0.5}">
+                                                <TextBlock Classes="BodyStrongTextBlockStyle"
+                                                           TextAlignment="Left" TextTrimming="CharacterEllipsis"
+                                                           Text="{Binding Asset.CreationData.DisplayName}" />
+                                                <TextBlock Classes="CaptionTextBlockStyle TextFillColorSecondaryBrush"
+                                                           IsVisible="{Binding Asset.ShowSeries}"
+                                                           Text="{Binding Asset.SeriesName}" />
+                                                <TextBlock Classes="BodyTextBlockStyle TextFillColorSecondaryBrush"
+                                                           Text="{Binding Asset.CreationData.Description}"
+                                                           TextAlignment="Left" TextWrapping="Wrap"/>
+                                            </StackPanel>
                                         </Grid>
                                     </controls:ContentCard>
 

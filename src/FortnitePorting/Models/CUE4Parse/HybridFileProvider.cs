@@ -58,20 +58,26 @@ public class HybridFileProvider : AbstractVfsFileProvider
         }
     }
 
+    private static FileStream OpenShared(string path) =>
+        new(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+
     public async Task RegisterFiles(DirectoryInfo directory)
     {
         foreach (var file in directory.EnumerateFiles("*.*", EnumerationOptions))
         {
+            UEParse.UpdateStatus($"Registering {file.Name}");
+            
             var extension = file.Extension.SubstringAfter('.').ToLower();
             if (extension is "pak" or "utoc")
             {
-                RegisterVfs(file.FullName, [ file.OpenRead() ], it => new FStreamArchive(it, File.OpenRead(it), Versions));
+                RegisterVfs(file.FullName, [ OpenShared(file.FullName) ], it => new FStreamArchive(it, OpenShared(it), Versions));
             }
 
             if (extension is "uondemandtoc" && LoadOnDemandTocs)
             {
-                var archive = new FByteArchive(file.FullName, File.ReadAllBytes(file.FullName), Versions);
+                var archive = new FByteArchive(file.FullName, await File.ReadAllBytesAsync(file.FullName), Versions);
                 var ioChunkToc = new IoChunkToc(archive);
+
                 await RegisterVfsAsync(ioChunkToc);
             }
         }
@@ -86,7 +92,7 @@ public class HybridFileProvider : AbstractVfsFileProvider
         {
             if (!file.FileName.Contains("FortniteGame/Content/Paks")) continue;
             
-            UEParse.UpdateStatus($"Registering On-Demand Archive {file.FileName.SubstringAfterLast("/")}");
+            UEParse.UpdateStatus($"Registering {file.FileName.SubstringAfterLast("/")}");
             
             var extension = file.FileName.SubstringAfter('.').ToLower();
             if (extension is "pak" or "utoc")
@@ -107,6 +113,7 @@ public class HybridFileProvider : AbstractVfsFileProvider
                 
                 var archive = new FByteArchive(targetPath, await File.ReadAllBytesAsync(targetPath), Versions);
                 var ioChunkToc = new IoChunkToc(archive);
+                
                 await RegisterVfsAsync(ioChunkToc);
             }
 
