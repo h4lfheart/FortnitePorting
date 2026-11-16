@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.Assets.Exports;
@@ -29,6 +30,17 @@ public partial class AssetLoaderService : ObservableObject, IService, IResettabl
 {
     [ObservableProperty] private AssetLoader? _activeLoader;
     [ObservableProperty] private ReadOnlyObservableCollection<BaseAssetItem> _activeCollection = new([]);
+
+    public const int DefaultMaxParallelIconLoads = 10;
+    private SemaphoreSlim _iconLoadSemaphore = new(DefaultMaxParallelIconLoads, DefaultMaxParallelIconLoads);
+
+    public SemaphoreSlim IconLoadSemaphore => Volatile.Read(ref _iconLoadSemaphore);
+
+    public void SetMaxParallelIconLoads(int maxParallelLoads)
+    {
+        var semaphoreCount = Math.Max(1, maxParallelLoads);
+        Interlocked.Exchange(ref _iconLoadSemaphore, new SemaphoreSlim(semaphoreCount, semaphoreCount));
+    }
     
     public List<AssetLoaderCategory> Categories { get; set; } =
     [

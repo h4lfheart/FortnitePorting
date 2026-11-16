@@ -56,6 +56,7 @@ public class AppService : IService
     public void Initialize()
     {
         AppSettings.Load();
+        AssetLoading.SetMaxParallelIconLoads(AppSettings.Application.MaxParallelIconLoads);
         
         Info.CreateLogger();
         Dependencies.Ensure();

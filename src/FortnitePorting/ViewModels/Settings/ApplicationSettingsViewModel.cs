@@ -20,6 +20,7 @@ using FortnitePorting.Models.API.Responses;
 using FortnitePorting.Models.Assets.Base;
 using FortnitePorting.Models.Map;
 using FortnitePorting.Models.Radio;
+using FortnitePorting.Services;
 using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Validators;
 using Material.Icons;
@@ -71,6 +72,7 @@ public partial class ApplicationSettingsViewModel : SettingsViewModelBase
     [ObservableProperty] private bool _useDefaultExportLoadType = false;
     [ObservableProperty] private EExportType _defaultExportLoadType = EExportType.Outfit;
     [ObservableProperty] private EExportLocation _defaultExportLocation = EExportLocation.Blender;
+    [ObservableProperty] private int _maxParallelIconLoads = AssetLoaderService.DefaultMaxParallelIconLoads;
     [ObservableProperty] private EpicAuthResponse? _epicAuth;
     
     [ObservableProperty, NotifyPropertyChangedFor(nameof(TransparencyHints))] private EThemeType _theme = EThemeType.Amethyst;
@@ -108,6 +110,11 @@ public partial class ApplicationSettingsViewModel : SettingsViewModelBase
         if (!ReferenceEquals(this, AppSettings.Application)) return;
 
         Audio.NotifyVolumeChanged();
+    }
+
+    partial void OnMaxParallelIconLoadsChanged(int value)
+    {
+        AssetLoading.SetMaxParallelIconLoads(value);
     }
     
     partial void OnThemeChanged(EThemeType value)

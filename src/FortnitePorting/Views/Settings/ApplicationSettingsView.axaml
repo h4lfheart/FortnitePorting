@@ -159,6 +159,14 @@
                     </ComboBox>
                 </controls:SettingsItem.Footer>
             </controls:SettingsItem>
+
+            <controls:SettingsItem Title="Maximum Parallel Icon Loads" Description="Determines how many visible asset icons can be queued to load at once.">
+                <controls:SettingsItem.Footer>
+                    <ui:NumberBox Value="{Binding MaxParallelIconLoads}"
+                                  Minimum="1"
+                                  SpinButtonPlacementMode="Inline"/>
+                </controls:SettingsItem.Footer>
+            </controls:SettingsItem>
             
             <TextBlock Text="Other"
                        Classes="SettingsSectionHeaderStyle TextFillColorTertiaryBrush"

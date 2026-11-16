@@ -85,19 +85,32 @@ public class AssetItem : Base.BaseAssetItem
 
     public async Task LoadBitmapAsync()
     {
+        if (IconDisplayImage is not null) return;
+
         var iconPath = CreationData.LowResIconPath ?? CreationData.HighResIconPath;
         if (iconPath is null) return;
 
-        IconDisplayImage = await TryLoadIconBitmapAsync(iconPath);
-
-        if (IconDisplayImage is null)
+        var iconLoadSemaphore = AssetLoading.IconLoadSemaphore;
+        await iconLoadSemaphore.WaitAsync();
+        try
         {
-            var placeholderPath = AssetLoading.Get(CreationData.ExportType).PlaceholderIconPath;
-            if (!string.Equals(iconPath, placeholderPath, StringComparison.OrdinalIgnoreCase))
-                IconDisplayImage = await TryLoadIconBitmapAsync(placeholderPath);
-        }
+            if (IconDisplayImage is not null) return;
 
-        BackgroundImage = CreateBackgroundImage();
+            IconDisplayImage = await TryLoadIconBitmapAsync(iconPath);
+
+            if (IconDisplayImage is null)
+            {
+                var placeholderPath = AssetLoading.Get(CreationData.ExportType).PlaceholderIconPath;
+                if (!string.Equals(iconPath, placeholderPath, StringComparison.OrdinalIgnoreCase))
+                    IconDisplayImage = await TryLoadIconBitmapAsync(placeholderPath);
+            }
+
+            BackgroundImage = CreateBackgroundImage();
+        }
+        finally
+        {
+            iconLoadSemaphore.Release();
+        }
     }
 
     private static async Task<WriteableBitmap?> TryLoadIconBitmapAsync(string iconPath)
