@@ -285,7 +285,7 @@
                                 <ScaleTransform ScaleX="2" ScaleY="2"/>
                             </Border.RenderTransform>
                         </Border>
-                        <TextBlock Text="FORTNITE PORTING IS CURRENTLY &quot;DOWN&quot;" Foreground="#0fd7f2" LetterSpacing="1.5" FontSize="28" 
+                        <TextBlock Text="ENCRYPTION KEY REJECTED" Foreground="#0fd7f2" LetterSpacing="1.5" FontSize="28" 
                                    HorizontalAlignment="Center">
                             <TextBlock.RenderTransform>
                                 <TransformGroup>
@@ -305,7 +305,7 @@
                                 <ScaleTransform ScaleX="2" ScaleY="2"/>
                             </Border.RenderTransform>
                         </Border>
-                        <TextBlock Text="YOUR INSTALLATION PROFILE DID NOT LOAD A VALID ENCRYPTION KEY"
+                        <TextBlock Text="THE AVAILABLE MAIN KEY DOES NOT MATCH YOUR FORTNITE BUILD"
                                    Foreground="White" LetterSpacing="1.5" FontSize="24"
                                    HorizontalAlignment="Center">
                             <TextBlock.RenderTransform>
@@ -325,7 +325,7 @@
                                 <ScaleTransform ScaleX="2" ScaleY="2"/>
                             </Border.RenderTransform>
                         </Border>
-                        <TextBlock Text="PLEASE WAIT FOR ENCRYPTION KEYS AND/OR UPDATE YOUR GAME"
+                        <TextBlock Text="UPDATE FORTNITE OR WAIT FOR NEW KEYS TO BE RELEASED"
                                    Foreground="White" LetterSpacing="1.5" FontSize="24"
                                    HorizontalAlignment="Center">
                             <TextBlock.RenderTransform>
