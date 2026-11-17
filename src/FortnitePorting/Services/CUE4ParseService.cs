@@ -312,13 +312,17 @@ public partial class CUE4ParseService : ObservableObject, IService, IResettable
                 var manifestInfo = await Api.EpicGames.GetManifestInfoAsync();
                 if (manifestInfo is null) break;
 
+                var client = ManifestParseOptions.CreateDefaultClient();
+                client.Timeout = TimeSpan.FromSeconds(AppSettings.Developer.RequestTimeoutSeconds);
+
                 var options = new ManifestParseOptions
                 {
                     ChunkBaseUrl = "https://egdownload.fastly-edge.com/Builds/Fortnite/CloudDir/",
                     ChunkCacheDirectory = CacheFolder.FullName,
                     ManifestCacheDirectory = CacheFolder.FullName,
                     Decompressor = Compression.Decompressor,
-                    CacheChunksAsIs = true
+                    CacheChunksAsIs = true,
+                    Client = client
                 };
                 
                 var (manifest, element) = await manifestInfo.DownloadAndParseAsync(options);
