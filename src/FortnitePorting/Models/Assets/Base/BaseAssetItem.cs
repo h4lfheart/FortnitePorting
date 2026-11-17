@@ -1,5 +1,4 @@
 using System;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -39,11 +38,11 @@ public abstract partial class BaseAssetItem : ObservableObject
         {
             return this switch
             {
-                AssetItem assetItem => Regex.IsMatch(assetItem.CreationData.DisplayName, filter)
-                                                    || Regex.IsMatch(assetItem.CreationData.Object.Name, filter)
-                                                    || (assetItem.SetName is not null && Regex.IsMatch(assetItem.SetName, filter))
-                                                    || (assetItem.Series is not null && Regex.IsMatch(assetItem.Series.DisplayName.Text, filter)),
-                CustomAssetItem customAssetItem =>  Regex.IsMatch(customAssetItem.CreationData.DisplayName, filter),
+                AssetItem assetItem => FilterExtensions.RegexFilter(assetItem.CreationData.DisplayName, filter)
+                                                    || FilterExtensions.RegexFilter(assetItem.CreationData.Object.Name, filter)
+                                                    || (assetItem.SetName is not null && FilterExtensions.RegexFilter(assetItem.SetName, filter))
+                                                    || (assetItem.Series is not null && FilterExtensions.RegexFilter(assetItem.Series.DisplayName.Text, filter)),
+                CustomAssetItem customAssetItem => FilterExtensions.RegexFilter(customAssetItem.CreationData.DisplayName, filter),
                 _ => true
             };
         }

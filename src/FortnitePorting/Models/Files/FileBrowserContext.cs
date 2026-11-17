@@ -6,7 +6,6 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Threading;
@@ -26,7 +25,6 @@ namespace FortnitePorting.Models.Files;
 
 public partial class FileBrowserContext : ObservableObject
 {
-    private static readonly TimeSpan RegexMatchTimeout = TimeSpan.FromMilliseconds(250);
 
     [ObservableProperty, NotifyPropertyChangedFor(nameof(SearchText))] private string _flatSearchText = string.Empty;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(SearchText))] private string _fileSearchText = string.Empty;
@@ -525,20 +523,9 @@ public partial class FileBrowserContext : ObservableObject
             if (!hasFilter)
                 return true;
 
-            try
-            {
-                return useRegex
-                    ? Regex.IsMatch(asset.Path, filter, RegexOptions.None, RegexMatchTimeout)
-                    : FilterExtensions.Filter(asset.Path, filter);
-            }
-            catch (RegexMatchTimeoutException)
-            {
-                return false;
-            }
-            catch (ArgumentException)
-            {
-                return false;
-            }
+            return useRegex
+                ? FilterExtensions.RegexFilter(asset.Path, filter)
+                : FilterExtensions.Filter(asset.Path, filter);
         };
     }
 
@@ -720,20 +707,9 @@ public partial class FileBrowserContext : ObservableObject
             .Where(item =>
             {
                 if (string.IsNullOrWhiteSpace(FileSearchFilter)) return true;
-                try
-                {
-                    return UseRegex
-                        ? Regex.IsMatch(item.FilePath, FileSearchFilter, RegexOptions.None, RegexMatchTimeout)
-                        : FilterExtensions.Filter(item.FilePath, FileSearchFilter);
-                }
-                catch (RegexMatchTimeoutException)
-                {
-                    return false;
-                }
-                catch (ArgumentException)
-                {
-                    return false;
-                }
+                return UseRegex
+                    ? FilterExtensions.RegexFilter(item.FilePath, FileSearchFilter)
+                    : FilterExtensions.Filter(item.FilePath, FileSearchFilter);
             })
             .Where(item =>
             {
