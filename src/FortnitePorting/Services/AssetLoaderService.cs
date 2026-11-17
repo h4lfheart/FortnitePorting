@@ -22,6 +22,7 @@ using FortnitePorting.Models.Assets.Asset;
 using FortnitePorting.Models.Assets.Base;
 using FortnitePorting.Models.Assets.Custom;
 using FortnitePorting.Models.Assets.Loading;
+using FortnitePorting.Models.Assets.Loading.Bulk;
 using SkiaSharp;
 
 namespace FortnitePorting.Services;
@@ -320,6 +321,11 @@ public partial class AssetLoaderService : ObservableObject, IService, IResettabl
 
                         return weaponModAssets.ToArray();
                     }
+                },
+                new AssetLoader(EExportType.Build)
+                {
+                    ManuallyDefinedAssetsFactory = () => BuildingAssets.All,
+                    HideRarity = true
                 },
                 new AssetLoader(EExportType.Resource)
                 {

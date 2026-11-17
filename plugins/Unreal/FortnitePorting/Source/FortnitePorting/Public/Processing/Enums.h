@@ -56,6 +56,7 @@ enum class EExportType : uint32
 	Wildlife = ExportCategory::Gameplay + 5,
 	WeaponMod = ExportCategory::Gameplay + 6,
 	Sprite = ExportCategory::Gameplay + 7,
+	Build = ExportCategory::Gameplay + 8,
 
 	// FESTIVAL
 	FestivalGuitar = ExportCategory::Festival + 1,

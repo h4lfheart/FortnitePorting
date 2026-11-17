@@ -91,7 +91,8 @@ public class AssetItem : Base.BaseAssetItem
         if (IconDisplayImage is not null) return;
 
         var iconPath = CreationData.LowResIconPath ?? CreationData.HighResIconPath;
-        if (iconPath is null) return;
+        var iconAssetPath = CreationData.IconAssetPath;
+        if (iconPath is null && iconAssetPath is null) return;
 
         var iconLoadSemaphore = AssetLoading.IconLoadSemaphore;
         await iconLoadSemaphore.WaitAsync();
@@ -99,7 +100,9 @@ public class AssetItem : Base.BaseAssetItem
         {
             if (IconDisplayImage is not null) return;
 
-            IconDisplayImage = await TryLoadIconBitmapAsync(iconPath);
+            IconDisplayImage = iconAssetPath is not null
+                ? TryLoadAssetBitmap(iconAssetPath)
+                : await TryLoadIconBitmapAsync(iconPath!);
 
             if (IconDisplayImage is null)
             {
@@ -113,6 +116,20 @@ public class AssetItem : Base.BaseAssetItem
         finally
         {
             iconLoadSemaphore.Release();
+        }
+    }
+
+    private static WriteableBitmap? TryLoadAssetBitmap(string iconAssetPath)
+    {
+        try
+        {
+            using var stream = Avalonia.Platform.AssetLoader.Open(new Uri(iconAssetPath));
+            using var iconBitmap = SKBitmap.Decode(stream);
+            return iconBitmap?.ToWriteableBitmap();
+        }
+        catch
+        {
+            return null;
         }
     }
 
@@ -192,6 +209,17 @@ public class AssetItem : Base.BaseAssetItem
     
     public override async Task SaveIcon()
     {
+        if (CreationData.IconAssetPath is { } iconAssetPath)
+        {
+            if (await App.SaveFileDialog(suggestedFileName: CreationData.DisplayName, Globals.PNGFileType) is not { } assetSavePath)
+                return;
+
+            await using var iconStream = Avalonia.Platform.AssetLoader.Open(new Uri(iconAssetPath));
+            await using var fileStream = File.Create(assetSavePath);
+            await iconStream.CopyToAsync(fileStream);
+            return;
+        }
+
         var iconPath = CreationData.HighResIconPath ?? CreationData.LowResIconPath;
         if (iconPath is null || await UEParse.Provider!.SafeLoadPackageObjectAsync<UTexture2D>(iconPath) is not { } texture)
         {

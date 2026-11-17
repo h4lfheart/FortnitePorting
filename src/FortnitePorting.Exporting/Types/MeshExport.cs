@@ -292,6 +292,7 @@ public class MeshExport : BaseExport
             }
             case EExportType.Mesh:
             case EExportType.WeaponMod:
+            case EExportType.Build:
             {
                 if (asset is UBlueprintGeneratedClass blueprintGeneratedClass)
                 {

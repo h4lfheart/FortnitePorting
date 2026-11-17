@@ -58,6 +58,7 @@ class EExportType(IntEnum):
     WILDLIFE = ExportCategory.GAMEPLAY + 5
     WEAPON_MOD = ExportCategory.GAMEPLAY + 6
     SPRITE = ExportCategory.GAMEPLAY + 7
+    BUILD = ExportCategory.GAMEPLAY + 8
 
     # FESTIVAL
     FESTIVAL_GUITAR = ExportCategory.FESTIVAL + 1

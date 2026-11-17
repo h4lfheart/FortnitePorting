@@ -372,6 +372,7 @@ public partial class AssetLoader : ObservableObject
         {
             Object = asset,
             LowResIconPath = manualAsset.IconPath,
+            IconAssetPath = manualAsset.IconAssetPath,
             ID = asset.Name,
             DisplayName = manualAsset.Name,
             Description = manualAsset.Description,

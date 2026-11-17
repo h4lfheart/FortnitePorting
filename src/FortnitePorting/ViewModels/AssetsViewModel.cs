@@ -205,16 +205,28 @@ public partial class AssetsViewModel(
                 if (cts.Token.IsCancellationRequested) break;
 
                 var item = items[i];
+                var iconAssetPath = item.CreationData.IconAssetPath;
                 var iconPath = item.CreationData.HighResIconPath ?? item.CreationData.LowResIconPath;
-                if (iconPath is null) continue;
+                if (iconAssetPath is null && iconPath is null) continue;
 
-                var iconName = Path.GetFileNameWithoutExtension(iconPath);
+                var iconName = iconAssetPath is not null
+                    ? Path.GetFileNameWithoutExtension(iconAssetPath)
+                    : Path.GetFileNameWithoutExtension(iconPath!);
                 _info.UpdateMessage(ExportIconsMessageId, iconName);
                 _info.UpdateMessageProgress(ExportIconsMessageId, i + 1, total);
 
                 try
                 {
-                    var texture = await _ueParse.Provider.SafeLoadPackageObjectAsync<UTexture2D>(iconPath);
+                    if (iconAssetPath is not null)
+                    {
+                        await using var iconStream = Avalonia.Platform.AssetLoader.Open(new Uri(iconAssetPath));
+                        await using var iconFileStream = File.Create(Path.Combine(folderPath, $"{iconName}.png"));
+                        await iconStream.CopyToAsync(iconFileStream, cts.Token);
+                        saved++;
+                        continue;
+                    }
+
+                    var texture = await _ueParse.Provider.SafeLoadPackageObjectAsync<UTexture2D>(iconPath!);
                     using var bitmap = texture?.Decode()?.ToSkBitmap()?.ToWriteableBitmap();
                     if (bitmap is null) continue;
 

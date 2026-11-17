@@ -119,6 +119,9 @@ public enum EExportType
     [Description("Sprites"), Export(EPrimitiveExportType.Mesh)]
     Sprite = ExportCategory.Gameplay + 7,
 
+    [Description("Builds"), Export(EPrimitiveExportType.Mesh)]
+    Build = ExportCategory.Gameplay + 8,
+
     // FESTIVAL
 
     [Description("Guitars"), Export(EPrimitiveExportType.Mesh)]
