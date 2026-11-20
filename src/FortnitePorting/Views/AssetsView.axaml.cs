@@ -72,7 +72,11 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
     private void OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         if (sender is not ListBox listBox) return;
-        if (listBox.SelectedItems is null || listBox.SelectedItems.Count == 0) return;
+        if (listBox.SelectedItems is null || listBox.SelectedItems.Count == 0)
+        {
+            ViewModel.SyncSelectedAssets([]);
+            return;
+        }
 
         ViewModel.SyncSelectedAssets(listBox.SelectedItems.Cast<BaseAssetItem>());
     }

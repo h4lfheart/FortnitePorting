@@ -39,9 +39,9 @@
                         <controls:IconText Text="Show Names" Icon="{Binding ShowNamesIcon}" />
                     </ToggleButton>
                     <Button HorizontalAlignment="Stretch" Command="{Binding ExportAllIconsCommand}"
-                            IsEnabled="{Binding AssetLoader.ActiveLoader.FinishedLoading, FallbackValue=False}"
-                            ToolTip.Tip="Export all high-res icons for the current category to a folder">
-                        <controls:IconText Text="Export Icons" Icon="FolderMultipleImage" />
+                            IsEnabled="{Binding AssetLoader.ActiveLoader.FinishedLoading, FallbackValue=False}">
+                        <controls:IconText Text="{Binding AssetLoader.ActiveLoader.ExportIconsButtonLabel, FallbackValue=Export All Icons}"
+                                           Icon="FolderMultipleImage" />
                     </Button>
                 </StackPanel>
             </sidebar:Sidebar.Footer>

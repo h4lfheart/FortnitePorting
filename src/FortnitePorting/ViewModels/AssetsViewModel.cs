@@ -187,7 +187,10 @@ public partial class AssetsViewModel(
         if (_assetLoader.ActiveLoader is not { FinishedLoading: true } loader) return;
         if (await _app.BrowseFolderDialog() is not { } folderPath) return;
 
-        var items = loader.Source.Items.OfType<AssetItem>().ToArray();
+        var selectedItems = loader.SelectedAssetInfos.Select(info => info.Asset).ToArray();
+        var items = selectedItems.Length > 0
+            ? selectedItems
+            : loader.Source.Items.OfType<AssetItem>().ToArray();
         var total = items.Length;
         var cts = new CancellationTokenSource();
 
@@ -205,44 +208,72 @@ public partial class AssetsViewModel(
                 if (cts.Token.IsCancellationRequested) break;
 
                 var item = items[i];
-                var iconAssetPath = item.CreationData.IconAssetPath;
-                var iconPath = item.CreationData.HighResIconPath ?? item.CreationData.LowResIconPath;
-                if (iconAssetPath is null && iconPath is null) continue;
-
-                var iconName = iconAssetPath is not null
-                    ? Path.GetFileNameWithoutExtension(iconAssetPath)
-                    : Path.GetFileNameWithoutExtension(iconPath!);
-                _info.UpdateMessage(ExportIconsMessageId, iconName);
+                var progressLabel = item.CreationData.DisplayName ?? item.CreationData.ID;
+                _info.UpdateMessage(ExportIconsMessageId, progressLabel);
                 _info.UpdateMessageProgress(ExportIconsMessageId, i + 1, total);
 
-                try
-                {
-                    if (iconAssetPath is not null)
-                    {
-                        await using var iconStream = Avalonia.Platform.AssetLoader.Open(new Uri(iconAssetPath));
-                        await using var iconFileStream = File.Create(Path.Combine(folderPath, $"{iconName}.png"));
-                        await iconStream.CopyToAsync(iconFileStream, cts.Token);
-                        saved++;
-                        continue;
-                    }
-
-                    var texture = await _ueParse.Provider.SafeLoadPackageObjectAsync<UTexture2D>(iconPath!);
-                    using var bitmap = texture?.Decode()?.ToSkBitmap()?.ToWriteableBitmap();
-                    if (bitmap is null) continue;
-
-                    bitmap.Save(Path.Combine(folderPath, $"{iconName}.png"));
+                if (await TryExportIconAsync(item, folderPath, cts.Token))
                     saved++;
-                }
-                catch
-                {
-                    // skip items that fail to load/decode
-                }
             }
 
             sw.Stop();
             _info.CloseMessage(ExportIconsMessageId);
             _info.Message("Icons Dumped", $"Exported {saved} assets in {sw.Elapsed.TotalSeconds:F3}s", closeTime: 6);
+            
+            App.Launch(folderPath);
         });
+    }
+
+    private async Task<bool> TryExportIconAsync(BaseAssetItem item, string folderPath, CancellationToken ct)
+    {
+        if (item is AssetItem assetItem)
+            return await TryExportAssetItemIconAsync(assetItem, folderPath, ct);
+
+        if (item.IconDisplayImage is null) return false;
+
+        try
+        {
+            var fileName = string.Concat(item.CreationData.ID.Split(Path.GetInvalidFileNameChars()));
+            item.IconDisplayImage.Save(Path.Combine(folderPath, $"{fileName}.png"));
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private async Task<bool> TryExportAssetItemIconAsync(AssetItem item, string folderPath, CancellationToken ct)
+    {
+        var iconAssetPath = item.CreationData.IconAssetPath;
+        var iconPath = item.CreationData.HighResIconPath ?? item.CreationData.LowResIconPath;
+        if (iconAssetPath is null && iconPath is null) return false;
+
+        var iconName = iconAssetPath is not null
+            ? Path.GetFileNameWithoutExtension(iconAssetPath)
+            : Path.GetFileNameWithoutExtension(iconPath!);
+
+        try
+        {
+            if (iconAssetPath is not null)
+            {
+                await using var iconStream = Avalonia.Platform.AssetLoader.Open(new Uri(iconAssetPath));
+                await using var iconFileStream = File.Create(Path.Combine(folderPath, $"{iconName}.png"));
+                await iconStream.CopyToAsync(iconFileStream, ct);
+                return true;
+            }
+
+            var texture = await _ueParse.Provider.SafeLoadPackageObjectAsync<UTexture2D>(iconPath!);
+            using var bitmap = texture?.Decode()?.ToSkBitmap()?.ToWriteableBitmap();
+            if (bitmap is null) return false;
+
+            bitmap.Save(Path.Combine(folderPath, $"{iconName}.png"));
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     [RelayCommand]
@@ -274,7 +305,7 @@ public partial class AssetsViewModel(
     {
         if (_assetLoader.ActiveLoader is null) return;
 
-        _assetLoader.ActiveLoader.SelectedAssetInfos = [];
+        var selectedAssetInfos = new ObservableCollection<BaseAssetInfo>();
         foreach (var asset in selectedItems)
         {
             if (asset is AssetItem assetItem)
@@ -283,16 +314,18 @@ public partial class AssetsViewModel(
                     _assetLoader.ActiveLoader.StyleDictionary.GetValueOrDefault(asset.CreationData.DisplayName) ??
                     _assetLoader.ActiveLoader.StyleDictionary.GetValueOrDefault(asset.CreationData.ID);
 
-                _assetLoader.ActiveLoader.SelectedAssetInfos.Add(
+                selectedAssetInfos.Add(
                     stylePaths is not null
                         ? new AssetInfo(assetItem, stylePaths.OrderBy(x => x.EndsWith(asset.CreationData.ID, StringComparison.OrdinalIgnoreCase) ? 0 : 1))
                         : new AssetInfo(assetItem));
             }
             else if (asset is CustomAssetItem customAsset)
             {
-                _assetLoader.ActiveLoader.SelectedAssetInfos.Add(new CustomAssetInfo(customAsset));
+                selectedAssetInfos.Add(new CustomAssetInfo(customAsset));
             }
         }
+
+        _assetLoader.ActiveLoader.SelectedAssetInfos = selectedAssetInfos;
     }
 
     public void UpdateFilter(FilterItem filterItem, bool isChecked)

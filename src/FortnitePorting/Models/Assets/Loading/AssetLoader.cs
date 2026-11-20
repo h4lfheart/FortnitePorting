@@ -86,7 +86,12 @@ public partial class AssetLoader : ObservableObject
     [ObservableProperty, NotifyPropertyChangedFor(nameof(PauseIcon))] private bool _isPaused = false;
     public MaterialIconKind PauseIcon => IsPaused ? MaterialIconKind.Play : MaterialIconKind.Pause;
     
-    [ObservableProperty] private ObservableCollection<BaseAssetInfo> _selectedAssetInfos = [];
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(ExportIconsButtonLabel))]
+    private ObservableCollection<BaseAssetInfo> _selectedAssetInfos = [];
+
+    public string ExportIconsButtonLabel => SelectedAssetInfos.Count > 0
+        ? $"Export {SelectedAssetInfos.Count} Icons"
+        : "Export All Icons";
     
     [ObservableProperty, NotifyPropertyChangedFor(nameof(LoadingPercentageText))] private int _loadedAssets;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(LoadingPercentageText))] private int _totalAssets = int.MaxValue;
